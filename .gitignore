@@ -1,0 +1,39 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# ===== 数据库文件（SQLite 由程序自动生成，无需提交）=====
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# ===== 前端 =====
+node_modules/
+dist/
+
+# ===== 运行时数据（评测、上传、日志、备份，见 README 第4/6节）=====
+uploads/
+grader-work/
+logs/
+backups/
+
+# ===== 环境变量 / 密钥 =====
+.env
+.env.*
+
+# ===== 日志 =====
+*.log
+
+# ===== 编辑器 / 操作系统 =====
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 注意：docs/ 目录是必须提交的交付物，不要忽略！

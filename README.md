@@ -1,0 +1,235 @@
+# 计算机组成原理课程学习系统
+
+本项目主题为中央处理器，班级242017，组号g24201710，组长24201718姜苏豪，组员24201716黄俊诚、24201723罗浩铭、24201737石佰合。按照任务书要求，采用Vue 3、Flask、SQLite和RESTful API，围绕CPU提供教学管理、知识学习、测评、实验与学情分析。数字逻辑作为前置知识。实验箱连线过程模拟和Logisim电路文件在线评测均为必做功能，不能以静态图片、视频或文件上传页面代替。
+
+当前交付为需求与设计文档 v0.6，供当前需求设计阶段检查。需求设计已完成团队评审（据团队确认）；本次沿用已评审业务设计，归并提交材料与引用。文档中的接口、目录、运行入口和验收指标均为实施契约，不代表已经实现。实际课堂日期待教师通知，不依据电脑日期推算教学周。
+
+## 1 文档入口
+
+| 任务书指定文件 | 本项目路径 | 内容 |
+|---|---|---|
+| PRD.md | [docs/PRD.md](docs/PRD.md) | 范围、模块规格、业务规则、验收标准 |
+| README.md | 本文件（仓库根） | 运行、测试、部署和数据库约定 |
+| APIC.md | [docs/APIC.md](docs/APIC.md) | 接口路径、参数、返回、错误、权限 |
+| ADR.md | [docs/ADR.md](docs/ADR.md) | 架构选择、评测方案、托管决策 |
+| CHG-RB.md | [docs/CHG-RB.md](docs/CHG-RB.md) | 变更、发布、回灌、备份与回滚 |
+| DBD.md | [docs/DBD.md](docs/DBD.md) | 表、字段、关系、约束与生命周期 |
+
+本次提交共六份Markdown：README.md 置于仓库根，其余五份（PRD、APIC、ADR、CHG-RB、DBD）置于 docs 目录。实名分工、阶段计划、技术风险、完整验收索引和R01—R48纳入PRD第10—12节；Git与CI协作规范纳入本文件附录A。业务规格引用在这六份主文档之间跳转。
+
+### 1.1 文档维护
+
+后续统一维护本文件（仓库根 README.md）与 docs 目录下的五份主文档。分工、排期、追溯和完整验收见PRD第10—12节，Git/CI协作规范见本文件附录A。
+
+课程任务书、历史审查/修订记录、检查点及固定识别图片统一保存在 [辅助资料归档](review-materials/docs-support-2026-10-08/)。这些资料供追溯及后续测试使用，六份主文档包含完整需求设计，可独立阅读。
+
+## 2 建设范围与开发约束
+
+先评审规格，再开发，再依据验收条目编写测试。业务规格以 PRD 中的 SPEC 编号为入口，接口和表结构分别引用 APIC、DBD；三个文档共同组成模块规格，不另造一套相互冲突的编号。规格改变必须先评审并同步更新三处及PRD内的验收索引。
+
+按用户确认，GitHub负责日常开发、PR与GitHub Actions，Gitea负责课堂提交。GitHub为唯一开发合并来源，Gitea以专用归档分支及固定tag保留同一提交历史和SHA；不得把同步归档变成绕过main保护的直推。操作规约见ADR-004和README附录A。任务书要求Gitea托管及PR评审，并未明确PR必须在Gitea内；GitHub评审证据随Gitea归档，课堂另有要求时登记调整。
+
+开发与部署统一 SQLite，不改用 MySQL/PostgreSQL。统计及智能功能实际使用 NumPy/Pandas/scikit-learn 等轻量库，不得用固定数据冒充分析；不引入 PyTorch、TensorFlow。Docker 与 Nginx 对 Web 部署是可选项，但运行不可信电路的评测进程必须有资源和文件系统隔离。
+
+## 3 计划目录
+
+docs目录仅保留五份需求设计主文档（README 置于仓库根）。后续开发目录约定为 frontend（Vue 应用）、backend（Flask 应用及独立评测 worker）、tests（按 Spec 编号组织测试）、阶段证据目录（后续开发时建立）。运行时数据库、上传文件、评测临时目录、日志、密钥均位于源码之外，不提交版本库。公开的小型测试电路和合成数据可以进入 tests；隐藏评测数据不得进入公开仓库。
+
+## 4 运行与配置契约
+
+引擎选定Logisim-evolution 5.0.0，实验箱采用PRD定义的CPU-EDU-8 v1。实现阶段锁定Node、Python、Java及依赖，登记操作系统和JAR校验和；计划运行版本及命令见第8节；当前没有可执行启动入口，不能直接运行规划命令。正式进入检查点2前须将本节补全为经新环境复现的实际命令，不允许保留无效示例。
+
+| 运行单元 | 启动前条件 | 预期行为 | 完成证据 |
+|---|---|---|---|
+| 前端 | 安装锁文件指定依赖，配置同源 /api 代理 | 开发可访问，生产输出静态资源 | 安装、开发启动、构建的真实命令及日志 |
+| Flask API | 配置数据库与文件路径，执行迁移及演示数据初始化 | /api/v1/health 返回就绪状态 | 启动入口、端口、健康检查记录 |
+| 评测 worker | 固定 Java/JAR 校验和，隔离环境可用 | 从 SQLite 领取任务并写回结果 | 独立启动入口、标准电路实测报告 |
+| 完整系统 | 前两项就绪且 worker 可用 | 完成连线保存、提交 .circ、获取判分 | 新环境端到端运行录像或记录 |
+
+配置项：APP_ENV、SECRET_KEY、DATABASE_PATH、UPLOAD_ROOT、GRADER_WORK_ROOT、LOGISIM_JAR_PATH、JAVA_PATH、GRADER_TIMEOUT_SECONDS（初始 10 秒）、GRADER_MEMORY_MB（初始 512 MiB）。SECRET_KEY 不得有公开生产默认值；示例配置只能放占位符。数据库及文件路径必须是服务端配置，不能取自用户请求。对外部署关闭调试模式，HTTPS 同源服务前端和 API。
+
+初始化必须使用迁移创建空库，再用可重复的演示数据装载流程创建中央处理器课程、教师、学生、CPU章节及数字逻辑前置知识、实验定义和题库；不在文档或源码写死真实密码。初始化重复执行不得重复插入成员或覆盖现有成绩。管理员首次创建及改密方式必须在实现时说明。
+
+## 5 测试与质量门禁
+
+测试分为接口/数据库约束测试、前端交互测试、真实 Logisim 集成测试、浏览器端到端测试。每项关联 SPEC 与 AC 编号。检查点 2 之前落实测试入口与命令；检查点 5 必须在干净环境按本说明完成安装、测试、构建和启动。
+
+GitHub PR 到 main 必须自动执行测试、构建、lint；门禁还覆盖真实评测冒烟和规格完整性检查，具体见 README附录A。缺少源码或测试时不能用“无测试即成功”、空命令或跳过 job 冒充绿色 CI。当前文档阶段只能登记“未实施”；文档检查通过不等于软件可发布。
+
+两条关键端到端验收：学生打开实验箱→连接端子→观察逻辑输出→保存并重开→提交记录→教师查看；学生提交 .circ→后端校验并入队→隔离运行固定引擎→按测试判分→查看报告→教师按班级统计。错误电路、越权访问、超时、评测服务不可用均必须有测试。
+
+## 6 数据库与部署约定
+
+SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数据库和用户上传目录持久化，临时评测目录按任务隔离。不能在执行 Java 仿真期间持有数据库写事务。数据结构及迁移规则见 DBD。
+
+生产发布从 main 的已验收版本生成不可变产物，记录提交 SHA、依赖锁文件、数据库版本、Logisim JAR 哈希和测试结果。Web 服务与 worker 分离启动；先迁移副本演练，再备份、迁移正式库、启动服务并冒烟。部署失败停止开放写入，按 CHG-RB 恢复。前端静态部署成功但评测 worker 不可用，不能判定整体部署成功。
+
+运行手册在实现阶段必须补充实际安装/启动/停止/测试/构建命令、端口、备份位置、日志位置及故障定位步骤；不得将规划命令当成已验证操作。
+
+## 7 检查与提交
+
+当前提交范围为PRD.md、README.md、APIC.md、ADR.md、CHG-RB.md、DBD.md六份文件；分工与自查信息已归入文档，不要求另交分工表、追溯表或检查点文档才能理解本次设计。README 置于仓库根、其余五份置于 docs 目录，按课程要求通过Gitea提交。班级242017、组号g24201710及GitHub开发地址已登记。实验模型与引擎已设计选定，运行兼容性尚未实测。
+
+任务书安排：第 3 周分组，第 4 周需求分析，第 5—7 周系统设计，第 8—11 周编码测试，第 12 周系统检查及超星提交。阶段检查未通过不得进入下一阶段；不把组员教程的相对“9 周实例”替换为课程周次。
+
+最终还需测试用例与报告、部署说明、用户手册、系统源码及设计文件。原任务书图片规定组长文件名为“XX班_第X组_成员名单.txt”“XX班_第X组_大作业报告.docx”“XX班_第X组_大作业源码及设计文件.zip”，组员文件名为“学号_姓名_设计报告.docx”。其中班级、组号、姓名必须替换为真实值；最终报告格式附件未随当前资料提供。
+
+
+## 8 目标运行手册（设计，尚未执行）
+
+环境基线：Linux x86_64、Python3.12、Node22 LTS、Java21、SQLite随Python版本；Vue3/Flask3及NumPy/Pandas/scikit-learn/OpenCV依赖在首次实现时生成锁文件并登记精确版本。Java必须符合固定Logisim5.0.0要求。这里是实现须提供的命令契约，当前目录没有相应程序，不能作为运行成功证明。
+
+| 顺序 | 工作目录/计划命令 | 行为 |
+|---|---|---|
+| 1 | backend：python -m venv .venv；激活后python -m pip install -r requirements.lock | 安装锁定后端依赖；首次实现必须提供锁文件 |
+| 2 | backend：python -m flask --app app db upgrade | 创建/迁移SQLite，重复执行无副作用 |
+| 3 | backend：python -m flask --app app admin create | 交互录入初始管理员及密码，不接受公开默认密码、不回显密码 |
+| 4 | backend：python -m flask --app app seed-demo | 仅development/test允许；幂等创建匿名课程/实验/样例，不覆盖成绩 |
+| 5 | backend：python -m flask --app app run --host 127.0.0.1 --port 5000 | 开发API；生产禁止使用此服务器 |
+| 6 | backend：python -m grader.worker | 单worker，检查JAR哈希及沙箱可用后领取任务 |
+| 7 | frontend：npm ci；npm run dev -- --host 127.0.0.1 --port 5173 | /api代理到127.0.0.1:5000，浏览器只访问5173同源入口 |
+| 8 | 根目录：python -m pytest tests；frontend：npm run test -- --run、npm run lint、npm run build；根目录：python -m ruff check backend tests | 测试/lint/构建，命令依赖由首次实现提供，不允许空测试成功 |
+| 9 | backend：python -m flask --app app backup create --destination <备份目录>；backup verify --manifest <清单> | 维护模式一致备份SQLite及引用文件，校验可恢复性 |
+
+生产计划：Gunicorn单Web进程监听127.0.0.1:8000，Nginx可作为同源HTTPS入口，前端静态目录frontend/dist，/api转发8000；worker由单独systemd服务管理，沙箱不可读主库。计划启动命令gunicorn --workers 1 --bind 127.0.0.1:8000 app:app；服务停止使用systemctl stop cpu-grader/cpu-web，先暂停新提交并处理活动任务。部署时必须提供经过验证的服务配置，当前未创建。
+
+开发仅本机HTTP允许SESSION_COOKIE_SECURE=false；production必须true、HTTPS且启动拒绝弱SECRET_KEY/调试配置。两环境均保留HttpOnly、SameSite=Lax、CSRF与Origin校验；前端代理避免跨端口Cookie/跨域分歧。Cookie名称固定，Path=/，无Domain属性。
+
+生产数据默认/srv/cpu-learning/data/app.db，上传/srv/cpu-learning/uploads，临时评测/srv/cpu-learning/grader-work，日志/var/log/cpu-learning，备份/var/backups/cpu-learning（皆非源码目录）。Web和worker分别用最小权限账户，沙箱仅挂当前任务输入；环境文件不进Git。开发对应目录可配置到源码外的本机数据目录。
+
+运维顺序：校验依赖/引擎→维护模式→备份及迁移→启动API/worker→检查/api/v1/health→受控验收账号/独立验收课程执行正确与错误电路冒烟→关闭验收例外→开放普通用户写入。维护模式默认拒绝普通写入，验收例外及worker领取范围严格按CHG-RB第4节；CI冒烟与目标部署冒烟分别留证。故障用request_id/run_id关联脱敏日志；引擎不可用先暂停提交，不能改成学生0分。恢复依CHG-RB，不直接覆盖正在写入的数据库。
+
+完整追加验收及现行契约位置见[PRD第12节](docs/PRD.md#supplemental-acceptance)。文档一致性核对与未来运行验收分别记录。
+
+<a id="submission-check"></a>
+## 9 本次提交状态与自查
+
+需求设计团队评审已完成（据团队确认）。教师检查、应用实现、技术验证、CI执行与部署验收分别记录，不能由团队文档评审推定通过。
+
+| 检查项目 | 当前结论 |
+|---|---|
+| 六份指定文档 | 齐全，文件名与课程要求一致 |
+| 需求、范围与验收 | PRD正文及第10—12节完整收录分工、排期、AC、R01—R48与计划用例 |
+| 接口、架构与数据 | APIC/ADR/DBD相互引用，包含权限、失败、版本与事务规则 |
+| 运行、测试、部署 | 本文件定义设计阶段的环境、命令与运维契约；应用未实现，命令未执行 |
+| 变更与回滚 | CHG-RB记录文档修订并规定软件发布与恢复流程，未宣称已演练 |
+| 独立阅读 | 必要内容已归入六份文档，原审查材料与独立样本清单不作为本次阅读前提 |
+| 团队评审 | 已完成 |
+| 课堂提交 | README 置于仓库根、五份文档置于 docs，按课程要求通过Gitea提交 |
+
+GitHub开发仓库：[nchu-web-learning_platform](https://github.com/Gindama713/nchu-web-learning_platform)。Gitea具体目录可按仓库安排，README 与 docs 目录的相对链接需保持一致；开发与课堂归档流程见附录A。
+
+本次为需求设计阶段提交，软件验收及最终小组报告、个人报告、源码设计包仍按课程后续阶段要求准备。识别样例的尺寸、内容、预期、容差及固定SHA已在PRD第4.5节说明；PNG是后续软件测试输入，不是本次六份设计文档的阅读依赖。
+
+
+<a id="git-workflow"></a>
+## 附录A Git分支与CI协作规范
+
+以下为已评审工程设计，保护规则、工作流与拒绝合并行为尚未实测。关联SPEC-019，软件发布回滚细则见CHG-RB。
+
+### A.1 分支和权限
+
+| 分支 | 起点 | 合入目标 | 规则 |
+|---|---|---|---|
+| main | 仓库基线 | 不用于日常开发 | 稳定发布主线；只接release/hotfix PR；所有人禁止直推、强推、删除，管理员不得绕过 |
+| develop | main | 创建release候选 | 日常集成；接feature PR与release/hotfix修复回灌PR；禁止直推、强推、删除 |
+| feature/spec-编号-主题 | 最新远端develop | develop | 一项规格或已编号子规格一个主责任人；文档先行，3—5天为建议周期，超期先拆合理独立任务而非合入坏代码 |
+| release/v主.次.修订 | 已集成develop | main；再回灌develop | 冻结后只修阻断缺陷、测试及发布文档，不夹带新功能 |
+| hotfix/spec-编号-主题 | 最新main | main；再回灌develop及仍活动的release | 线上紧急修复，仍需评审和CI，不能因紧急绕过门禁 |
+
+文档和测试通常在对应feature内完成，提交type区分用途，无须为每个文件增加分支类型。发布修复若多人协作，使用从release切出的release-fix/spec-编号-主题分支并PR回原release；release本身也启用PR和禁止强推。组长姜苏豪负责合并和发布，黄俊诚为代理；作者不得批准自己的PR。组长本人改动同样由他人评审。
+
+“每天同步”和“频繁提交”是协作建议，不设置每天3—6次等机械指标。每个提交聚焦一件可解释的事；组长也须有独立业务开发和统计模块贡献。
+
+### A.2 规格驱动的日常流程
+
+1. 确定SPEC及AC，检查依赖、接口和数据库；从已fetch的远端develop建立命名feature。
+2. 先提交PRD/APIC/DBD相关规格，通过PR或草稿PR中的明确规格评审后再写代码；PR中记录规格批准人、日期和版本。
+3. 开发与测试分成可审查提交，提交信息为type(spec-编号): 具体改动，例如“feat(spec-017): 支持端子连接与位宽校验”。公共变更可用ci/db scope，但正文Refs必须列出SPEC-019及相关业务Spec。
+4. 个人独占、尚未评审且无人基于其开发的分支允许rebase同步，确需改写远端时仅使用带明确预期远端提交的force-with-lease。已共享/已评审分支用merge同步，不强推。禁止对main/develop/release改写历史。
+5. 作者解决冲突，检查工作区及暂存区差异、残留冲突标记，重新执行受影响测试。冲突解决写入PR说明，不能只保留其中一人的代码。
+6. feature PR目标为develop，描述关联Spec、改动原因、接口/数据影响、AC对照、真实测试结果及回滚方式；无证据的项目填“未执行”，不能全部勾选通过。
+7. 至少一名非作者批准、必需检查通过、讨论解决后，由合并负责人使用Create a merge commit合入。触及权限、数据库、判分、工作流、APIC时额外请求第二名非作者复核，记录两人身份。
+8. 合并后验证develop健康并补追溯矩阵；确认不再有依赖后删除feature。release/hotfix只有main与回灌PR均完成后才删除。
+
+远端develop、本地origin/develop和本地develop不是同一个引用。origin/develop是上次通信取得的远程跟踪状态，fetch后才用于判断最新基线；不能凭分支名字认定已经同步。
+
+### A.3 GitHub保护规则
+
+必须启用“合并前需要PR”“至少1人批准”“新提交使旧批准失效”“解决全部评审讨论”“必需状态检查”“合并前与目标分支保持最新”。main/develop禁止强推和删除，并使管理员受相同规则约束。只允许merge commit策略，不同时要求linear history，以免与合并节点策略冲突。自动删除分支不应在main合并后立即删掉尚待回灌的release。
+
+main来源限定release/*或hotfix/*；develop来源允许feature/*、release/*、hotfix/*以及backport/*回灌。来源限制由固定ci-policy检查和评审共同核实，不能仅靠PR作者填写标题。新分支受保护规则覆盖，工作流及CODEOWNERS修改必须有人复核，不能让修改自身门禁的PR自行证明安全。
+
+CODEOWNERS用于自动指定相关模块评审人，真实GitHub用户名在建仓时补入。它不自动等于两人签字：同一匹配规则写多个owner通常任意一人批准即可满足该要求。敏感变更需要两名非作者复核是团队额外政策；若要求技术上对所有敏感路径强制两人，须单独实现并验证对应规则，不将手工流程写成平台已保证。[官方CODEOWNERS说明](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
+
+GitHub仓库可见性/账号方案影响保护能力。建仓验收须确认实际能启用所需规则；如果不可用，不允许声称“CI强制阻断已生效”，应调整合适方案并记录。所有状态检查名称固定且唯一，并尽可能绑定GitHub Actions来源；依赖检查必须在最新提交上完成。[官方分支保护说明](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
+
+### A.4 Actions设计与必需检查
+
+实现阶段配置位置为.github/workflows/，本次只定义行为，不生成YAML。PR的base为main/develop/release/*时触发，包含首次打开、更新提交、重新打开和准备评审；合并至main/develop后再运行回归。分支过滤针对目标分支，不误写成只有源分支叫main才运行。main PR不通过路径过滤跳过必需检查。
+
+| 固定检查名 | 执行内容 | 失败判定与证据 |
+|---|---|---|
+| ci-policy | 分支来源、Spec引用、六文档链接及必要契约同步检查 | 缺Spec/错base/不合规发布来源即失败；输出具体问题 |
+| ci-lint | Vue/JS及Python lint，文档格式/链接校验 | 错误非零退出；不得用忽略失败转换绿色 |
+| ci-test | 后端鉴权与SQLite约束、前端交互、业务/接口测试 | 用例失败或应有测试却发现0项即失败；保存测试清单和结果 |
+| ci-build | 按锁文件安装，前端生产构建，后端依赖及导入/启动检查 | 任一步失败即失败；保存构建日志及产物身份 |
+| ci-grader | 固定JAR真实运行ALU/REG/CPU的公开测试电路，覆盖错误和零用例 | 只有mock不足；时序/子电路不执行、零用例或误判即失败 |
+| ci-required | 总门禁，检查上述每个job确实success及必要产物存在 | skipped/cancelled/neutral/missing/failed均不能作为本项目成功；聚合检查自身总会执行 |
+
+main与release的软件门禁必须包括上述六项；develop按附录A.9阶段矩阵执行，ci-required再验证前置状态，防止某个job被条件跳过后平台显示可合并。不得continue-on-error、空测试占位或吞掉退出码。缺源码/工具/测试要显式失败，不以“文档阶段”为由发布软件。平台对某些skipped状态的处理与项目真实执行要求不同，因此必须验证聚合逻辑。[官方状态检查说明](https://docs.github.com/en/pull-requests/reference/status-checks)
+
+测试使用PR与最新目标分支的合并测试结果，记录base SHA、head SHA及实际tested SHA；目标更新后必须刷新并重跑。GitHub合并测试SHA可能不同于最终merge SHA，不能混称同一个；main合并后对最终merge SHA再执行回归/冒烟，只有成功才发布软件tag和产物。已合入main后回归异常立即冻结发布并通过修复PR恢复，不能宣称CI保证绝对无缺陷。[官方必需检查排查](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks)
+
+CI运行只读仓库权限、无生产密钥，第三方Action固定版本/提交，PR不通过高权限pull_request_target执行不可信代码。CI电路全为合成公开样例；学生上传电路走业务worker，不以提交到GitHub工作流的方式评测。公开CI产物不得包含学生资料和隐藏测试。
+
+### A.5 文档基线与软件基线
+
+CP-1是文档基线，检查六文档、实名分工、Spec覆盖和链接；没有应用时不伪造ci-test/build/grader成功。CP-1可以在develop的文档提交上建立checkpoint-1-docs tag并同步Gitea，main不因交作业而接收未经完整门禁的软件。
+
+建仓初期develop使用文档阶段门禁：ci-policy、文档lint及一名非作者评审；这不是软件门禁通过。开始编码时，develop按实际落地单元依次增加前后端测试、构建、lint，评测引擎接入后增加ci-grader；每次门禁升级以SPEC-019评审留痕，只能增加，不能因失败降低。main从首个软件发布PR起必须具备附录A.4完整六项门禁，无文档例外。这样既能提交先行规格，又不会要求空仓库伪造应用测试。
+
+首次建仓只产生仓库基础引用，不能称该初始提交为可发布软件；保护规则生效后所有实际变更走PR。本项目main首次软件发布始于通过完整门禁的版本。文档提交和软件发布的边界在检查报告中明确记录。
+
+### A.6 发布及回灌
+
+从验收范围完整的develop创建release/v0.1.0等，冻结范围并记录基线SHA。所有修复再次测试，提交release→main PR，按完整门禁和非作者批准合并。合并后回归通过，将不可变附注版本tag指向main实际merge SHA，发布清单记录该SHA与产物哈希。
+
+通过release→develop PR回灌冻结期修复；若main已有hotfix或发布提交有额外差异，核对差异并通过独立回灌PR补齐。验收是“develop包含发布修复”，而不是“develop必须完全等于main”。未回灌不得删除release。hotfix从main开始，同样有main PR和develop/活动release回灌PR。
+
+回滚也从目标共享分支建立修复分支，添加revert提交并PR，禁止在本地main/develop直接revert后push。不得移动已交付tag；修正使用新tag。
+
+### A.7 Gitea课堂提交操作规约
+
+1. 在GitHub完成相应检查点评审，准备已提交的阶段报告。由报告记录实际证据，不编造“通过”。
+2. 建立唯一checkpoint tag指向选定提交；报告可引用预先约定的tag名，避免要求报告把自身提交SHA写进自身形成循环。最终SHA记在Gitea提交说明或发布记录中。
+3. 将该Git对象历史、submission/checkpoint-N归档分支及tag传到Gitea。只同步指定引用，不使用会删除/覆盖远端引用的无差别mirror/force操作；普通成员不直接写Gitea main/develop。
+4. 从Gitea读取归档tag/分支SHA与GitHub源SHA逐字核对，抽查六文档、源码/测试（相应阶段）及个人作者记录。传输不改变作者身份，不把全组内容压为组长一次提交。
+5. 课堂提交链接指向固定tag，并附GitHub PR/CI记录及必要日志。Gitea归档失败或SHA不一致不能勾选已提交，修复后再次核验；不重建merge commit来“看起来相同”。
+
+课堂资料以Gitea为可访问交付位置，GitHub是唯一开发入口。若Gitea已有独立提交造成分叉，停止同步并保存两边引用，先确认来源；不强推覆盖。此流程并不自动复制GitHub Issue/PR对话，它们的课程证据需写入检查报告。
+
+### A.8 规范生效的实测清单
+
+SPEC-019验收必须记录：普通成员及管理员直推main被拒绝；失败测试、失败构建、失败lint分别阻断PR；跳过ci-grader不会获得ci-required成功；新提交撤销旧批准；feature直接指向main被策略拒绝；目标更新后旧检查不能继续放行；修复PR正常通过；发布修复回灌；Gitea归档tag SHA一致。
+
+可用临时演练PR测试这些阻断，失败提交不合入main。保存截图/日志、操作者、日期、规则配置及对应SHA。当前这些项均未执行，不能把本文件当作已配置证明。
+
+
+### A.9 分支×阶段的唯一门禁矩阵
+
+阶段由受保护配置及评审确定，不能由PR作者标签自由降级。文档阶段不创建虚假应用检查；一旦升级不得因失败退回。
+
+| 目标与阶段 | 允许来源 | ci-required必须核验实际成功的集合 |
+|---|---|---|
+| develop，CP-1纯文档 | feature/* | ci-policy、ci-lint（此时只检查文档） |
+| develop，开始应用开发 | feature/*、release/*、hotfix/*、backport/* | ci-policy、ci-lint、ci-test、ci-build |
+| develop，评测集成之后 | 同上 | ci-policy、ci-lint、ci-test、ci-build、ci-grader |
+| release/*，软件冻结 | release-fix/*、hotfix/*、backport/* | 上述完整五项 |
+| main，任何软件PR | release/*、hotfix/* | 上述完整五项 |
+
+ci-required自身也是每阶段必需检查，必须总执行并验证该阶段每项真实success，missing/skipped/cancelled不得放行。develop从首次带应用源码的PR起启用应用门禁；仅实现的单元参与测试，但该单元0测试失败。涉及评测实现的首个PR即启用ci-grader，不推迟到发布。应用门禁升级PR需两名非作者审查，配置升级与相应源码同PR；分支保护的新增required checks由管理员按评审结论设置并截图验证。main/release不接受渐进式门禁。
+
+release-fix/*仅从目标release建立且只回该release。backport/*从接收修复的develop/活动release建立，只移植已批准的发布/热修复提交，PR必须引用来源SHA及原PR；不得借回灌带新功能。普通feature只回develop。main的revert走hotfix，其他共享分支的revert按其允许来源提交。分支前缀规则及目标在ci-policy验证。
+
+CP-1可在通过文档门禁的develop提交上打文档tag；main的初始化不是软件发布。六项完整软件检查没有文档例外，也不声称每个develop文档PR都执行尚不存在的引擎。
