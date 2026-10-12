@@ -1,6 +1,6 @@
 # 中央处理器课程学习系统接口契约
 
-版本0.6，需求设计已完成团队评审；所有路径为设计，尚无运行服务。接口统一前缀 /api/v1。模块编号、实验逻辑及判分以PRD为准，持久化以DBD为准。
+版本0.6，需求设计已完成团队评审；业务接口仍为设计，当前仅有下述框架探针运行。接口统一前缀 /api/v1。模块编号、实验逻辑及判分以PRD为准，持久化以DBD为准。
 
 ## 1 公共协议
 
@@ -25,6 +25,15 @@
 | 500 | INTERNAL_ERROR | 非预期服务错误，记录request_id供排查 |
 
 通用查询日期from/to满足from≤to，最长366天；排序仅使用白名单字段。文本名称1—100字符，说明0—5000字符，富文本只保留允许标签/属性。所有列表与detail使用同一字段契约；生成/轮换的一次性secret字段明确例外。分页空结果为200 {data:[],page:请求page,page_size:有效page_size,total:0,request_id}，超出末页返回data:[]且total仍为实际数量；不使用推荐reason枚举。下表参数未标“?”的均为必需，id路径变量均为正整数。
+
+### 1.1 当前框架探针（SPEC-019）
+
+这两个只读接口无需登录，用于本地联调，不代表业务模块完成。成功响应沿用`{data,request_id}`；健康探针在未就绪时仍返回该结构与HTTP 503，便于部署检查读取各子状态。
+
+| 方法与路径 | data返回 | 当前语义 |
+|---|---|---|
+| GET /health | `{web_ready,db_ready,grader_ready,status,grader_configured}` | `db_ready`仅表示SQLite可连接，非迁移完成；`grader_ready=false`且`status=degraded`，故当前503。`grader_configured`仅表示JAR路径存在，不能代替真实判分。 |
+| GET /modules | `[{spec,name,group}]` | 返回公开模块导航目录，不含用户数据；当前页面统一标记“待实现”。 |
 
 ## 2 身份与课程接口 SPEC-001
 

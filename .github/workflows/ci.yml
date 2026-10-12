@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main, 'release/**']
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  ci-policy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check branch flow
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD: ${{ github.head_ref }}
+        run: |
+          if [[ "$BASE" == main ]]; then
+            [[ "$HEAD" == release/* || "$HEAD" == hotfix/* ]]
+          elif [[ "$BASE" == develop ]]; then
+            [[ "$HEAD" == feature/* || "$HEAD" == release/* || "$HEAD" == hotfix/* || "$HEAD" == backport/* ]]
+          elif [[ "$BASE" == release/* ]]; then
+            [[ "$HEAD" == release-fix/* || "$HEAD" == hotfix/* || "$HEAD" == backport/* ]]
+          else
+            exit 1
+          fi
+      - run: python scripts/check_docs.py
+
+  ci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: python -m pip install -r backend/requirements-dev.txt
+      - run: python -m ruff check backend tests
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run lint
+        working-directory: frontend
+
+  ci-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: python -m pip install -r backend/requirements.txt
+      - run: python -m unittest discover -s tests -v
+      - run: npm ci
+        working-directory: frontend
+      - run: npm test
+        working-directory: frontend
+
+  ci-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend
+
+  ci-grader:
+    if: github.base_ref == 'main' || startsWith(github.base_ref, 'release/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require real Logisim grading smoke test
+        run: |
+          echo 'SPEC-018 real-engine grading is not implemented; release is blocked.'
+          exit 1
+
+  ci-required:
+    if: always()
+    needs: [ci-policy, ci-lint, ci-test, ci-build, ci-grader]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check required jobs for this target branch
+        env:
+          POLICY: ${{ needs.ci-policy.result }}
+          LINT: ${{ needs.ci-lint.result }}
+          TEST: ${{ needs.ci-test.result }}
+          BUILD: ${{ needs.ci-build.result }}
+          GRADER: ${{ needs.ci-grader.result }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          test "$POLICY" = success && test "$LINT" = success && test "$TEST" = success && test "$BUILD" = success
+          if [[ "$BASE" == main || "$BASE" == release/* ]]; then
+            test "$GRADER" = success
+          fi
