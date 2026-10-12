@@ -1,0 +1,14 @@
+:root { font-family: system-ui, sans-serif; color: #182436; background: #f3f6fb; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+.page { width: min(1120px, 100% - 32px); margin: auto; padding: 40px 0; }
+.hero { background: #173b6c; color: white; border-radius: 18px; padding: 40px; }
+.hero h1 { font-size: clamp(1.9rem, 4vw, 3rem); margin: 8px 0 16px; }
+.eyebrow { letter-spacing: .08em; opacity: .8; }
+h2 { margin-top: 40px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.card { background: white; border: 1px solid #dce4ee; border-radius: 12px; padding: 20px; }
+.card h3 { margin: 12px 0 4px; }
+.card p { color: #60718a; margin: 0 0 14px; }
+.card small { color: #9a5b00; }
+.tag { color: #15508e; background: #e8f2ff; border-radius: 30px; padding: 4px 10px; font-size: .8rem; }
