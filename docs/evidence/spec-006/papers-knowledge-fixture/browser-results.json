@@ -1,0 +1,37 @@
+{
+  "started_at": "2026-10-13T14:00:40.428540+00:00",
+  "tested_head": "67358dca1f05ec78f0251458e855e6585794756d",
+  "scope": "real paper/001 migrations and HTTP/UI; knowledge ONLY fixture",
+  "knowledge_fixture": true,
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "154.0.8037.98",
+      "checks": [
+        "teacher_ui_draft_exact_points_and_api_edit_retains_original_version",
+        "teacher_ui_confidential_publication_freezes_real_active_roster",
+        "390px_published_paper_without_horizontal_overflow",
+        "student_real_roster_list_prestart_metadata_without_items",
+        "student_exact_start_and_end_boundaries_no_answers_before_review",
+        "student_exact_review_boundary_releases_fixed_original_answer",
+        "student_without_teacher_controls"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "checks": [
+        "teacher_ui_draft_exact_points_and_api_edit_retains_original_version",
+        "teacher_ui_confidential_publication_freezes_real_active_roster",
+        "390px_published_paper_without_horizontal_overflow",
+        "student_real_roster_list_prestart_metadata_without_items",
+        "student_exact_start_and_end_boundaries_no_answers_before_review",
+        "student_exact_review_boundary_releases_fixed_original_answer",
+        "student_without_teacher_controls"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "status": "passed",
+  "finished_at": "2026-10-13T14:00:51.666209+00:00"
+}

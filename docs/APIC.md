@@ -168,11 +168,19 @@ QuizStatistics={quiz_id,source_until,expected_count,submitted_count,missing_coun
 
 ### 4.1 SPEC-006题库版本实现阶段（C02a）
 
-当前实现本节三个questions端点，编卷/发布/作答/批阅/练习提交/错题留给C02b—C04。教师创建、PATCH和列表共享`id,version_id,version,type,stem,options,answer,explanation,difficulty,tolerance,knowledge_ids,practice_available`；id为稳定question身份，version_id为固定内容版本，version从1递增。列表只选未归档question的最新版本，按question.id升序；学生仅看practice_available=true版本并始终删除answer/explanation。题库列表不承担试卷讲评后的答案入口。
+当前实现本节三个questions端点及C02b的paper创建、普通发布、详情与分页列表；作答/批阅/练习提交/错题留给C03/C04。教师创建、PATCH和列表共享`id,version_id,version,type,stem,options,answer,explanation,difficulty,tolerance,knowledge_ids,practice_available`；id为稳定question身份，version_id为固定内容版本，version从1递增。列表只选未归档question的最新版本，按question.id升序；学生仅看practice_available=true版本并始终删除answer/explanation。题库列表不承担试卷讲评后的答案入口。
 
 创建必传type/stem/options/answer/difficulty/knowledge_ids，其余按本节默认值；未知字段、空PATCH、重复或非法知识ID拒绝400。stem及选项text为1—5000字符，explanation为0—5000字符；知识标签必须非空且同课。每次有效PATCH以当前最新字段为基础合并并完整校验，在同一短写事务追加版本及知识关联，不更新旧行；公开版本置question.ever_public=1，后续私有版本不清除公开历史。简答不支持单题公开练习。
 
-公共001提供会话/CSRF/Origin和事务内权限复核；005未进入当前基线时知识写入返回503 DEPENDENCY_UNAVAILABLE，模块迁移缺失/校验失败返回503 MAINTENANCE。开放练习及学生公开题读取通过question身份的统一保密检查；paper/paper_item尚未接入时503，有未到讲评的published保密卷时409 QUESTION_RESERVED，不按end_at提前释放。C02b/C04须复用并完成其他入口的保护，当前隔离用例不代表已实现试卷发布。实现与证据见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
+公共001提供会话/CSRF/Origin和事务内权限复核；005未进入当前基线时知识写入返回503 DEPENDENCY_UNAVAILABLE，模块迁移缺失/校验失败返回503 MAINTENANCE。开放练习及学生公开题读取通过question身份的统一保密检查；paper/paper_item缺失时503，有未到讲评的published保密卷时409 QUESTION_RESERVED，不按end_at提前释放。C02b已复用该检查完成普通发布；C04、C05及备课接入须继续复用。实现与证据见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
+
+### 4.2 SPEC-006试卷实现阶段（C02b）
+
+创建草稿只接受title/kind/items及可选confidential；items非空，条目只接受question_version_id/points，版本须属同课未归档题目，同question的两版也不能重复。points为有限JSON数值且正数、最多两位小数，每题和总分的百分之一分整数不得超出SQLite整数范围；禁止布尔、字符串、非有限值或静默舍入。items按请求顺序固定position，从1开始。创建返回完整教师详情，后续题库新增版本不改变本卷。
+
+普通POST /papers/{id}/publish支持三种kind，必须提供有时区的start_at/end_at/review_at，精度最多毫秒，归一到UTC并满足start<end≤review；confidential=true必填1—1000字符说明。quiz经普通入口发布时也是定时讲评；C05专用quiz入口才允许review_at初始null和显式讲评。成功将同课当前active且全局active student名单、发布状态、时间、说明及审计同事务写入，返回教师详情含participant_count；重复发布409 STATE_CONFLICT，发布后不可修改。保密卷禁止与所有尚受保护的已发布卷共享question，普通卷禁止与尚受保护的保密卷共享question；曾公开版本/ever_public/任何已到start_at的published卷构成可追踪公开历史，保密发布409 QUESTION_PUBLIC。检查、冻结与题目公开写入共享BEGIN IMMEDIATE，不依赖异步标记。
+
+列表接受kind/status/page/page_size，拒绝未知/重复参数，page_size≤100，按paper.id升序，返回元数据，不含items或答案。教师能查所有本课draft/published及冻结人数；学生必须当前仍有课程权限、在原冻结名单且published，转入者不补历史名单。详情开始前不含items；开始及截止后返回固定版本题干/选项/配分，review_at未到或null去掉answer/explanation，实际到讲评时才开放标准答案并再次检查身份级保密保护。详情条目含question_version_id、稳定id、version_id/version、position/points及题目读字段；学生不返回教师确认说明、冻结人数。所有paper响应no-store。C02b没有收卷或评分入口，不代表UC-02完整验收。
 
 ## 5 分析与智能接口 SPEC-010—016
 

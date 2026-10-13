@@ -1,6 +1,53 @@
-# SPEC-006 / C02a 实施与验证记录
+# SPEC-006 / C02a—C02b 实施与验证记录
 
-责任人：黄俊诚（24201716）。日期：2026-10-13，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-006)、[APIC§4](APIC.md)、[DBD§4/8](DBD.md)。状态：开发中，仅完成C02a可独立实施部分；005知识真实联测、C02b编卷发布及C03/C04尚未完成，006未关闭。
+责任人：黄俊诚（24201716）。日期：2026-10-13，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-006)、[APIC§4](APIC.md)、[DBD§4/8](DBD.md)。当前状态：C02a/C02b可独立实施部分已完成并在006 feature验证；005知识真实联测仍阻断，C03/C04及C05专用quiz入口未实施，006未关闭。
+
+## C02b当前恢复与证据（优先读取）
+
+继续`feature/spec-006-exercises`，本轮fetch核对origin/develop仍`ca8ae47f6ad987d1af11c4212a116c4fb7ece5bc`，未复制005 feature业务。后端提交`4a49abb6931df46fd9ae1b8f46e04f84051e8248`、页面/浏览器脚本提交`67358dca1f05ec78f0251458e855e6585794756d`已推送；[PR #7](https://github.com/Gindama713/nchu-web-learning_platform/pull/7)继续草稿、目标develop。新的文档head与CI在PR和个人交接按完整SHA核对；不沿用C02a旧CI。当前没有真实非作者批准，未合并、部署或生产发布。
+
+下一步C03a：整卷受理、固定版本自动判分和共享paper_attempt幂等，随后C03b人工批阅/revision与页面。复用`backend/models/paper.py`、`paper_item`固定版本/整数配分、`paper_participant`原名单和当前课程权限；不从最新题库重读答案，不新增quiz独立答卷表。005正式进入develop后再merge同步，优先补真实标签保存→编卷→发布联测。C04统一练习/错题保护、C05专用quiz发布/null讲评和003资源保护仍待做；不接管003、004或worker。
+
+页面提交67358dc对应[CI38409660193](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38409660193)已查询run及jobs，status=completed/conclusion=success；policy/lint/test/build/required全success、grader按develop规则skipped。PR实时metadata确认draft=true、merged=false、base=develop；reviews为空，不视为非作者批准。最终证据文档提交的CI须另按其完整head核对，最新状态见PR和个人交接。
+
+### C02b行为与实际接口
+
+- `006b_papers.sql`经公共runner接入真实paper/paper_item/paper_participant。同question两版本也不能重复入卷；复合外键保证固定版本属正确题目，同课检查和配分正整数约束；新增索引、发布内容/条目冻结、名单留存与不可删试卷。未修改已应用的006_question_versions迁移。
+- `POST /courses/{id}/papers`严格接收非空items，按请求顺序固定版本与position。JSON数值分值须正、有限、最多两位小数，转换为整数百分之一分后累计，拒绝布尔/字符串/超精度/溢出；不静默舍入。后续题目新版本不影响本卷。
+- `POST /papers/{id}/publish`普通发布支持homework/exam/quiz并要求start<end≤review，时间有时区且最多毫秒；保密说明1—1000字符。真实当前有效学生名单、状态、时间、说明和审计同事务，重复发布409。quiz普通发布采用定时讲评；共享服务的quiz模式供C05接入null讲评，当前没有专用quiz路由。
+- 发布与练习公开均在BEGIN IMMEDIATE内按question身份复核。普通卷不能共享尚受保护的保密卷题目，保密卷不能共享任何尚受保护卷的题目；review_at=null或未到均保护，不以截止替代。ever_public、全部公开版本、任何已到start_at的published卷都阻止保密资格恢复，不依赖异步标记。已到讲评但曾经开放的题目只能用于不要求保密的卷。
+- paper详情/分页列表复用真实001权限，教师查本课全部，学生仅published且在原名单并仍有当前课程权限。开始前只返回元数据；截止后讲评前仍无answer/explanation；实际到review_at才返回原固定答案，并再次检查身份保护。转入不补名单，退课失去访问但名单留存。所有响应no-store。
+- Vue试卷页提供课程/类型/状态筛选、分页、加载/空/失败重试、题目版本选择/调序/配分、草稿和窗口发布。写入前刷新真实会话/CSRF；身份改变清空旧内容并丢弃迟到响应，学生无教师控件。发布后冻结，当前没有草稿修改接口，需另建草稿。
+
+### C02b验证性质与适用验收
+
+Windows Python3.13.12/Node24.14.0全量后端44项、前端18项通过，全仓ruff、前端lint/build、文档链接/diff检查通过。新增[test_papers.py](../tests/test_papers.py)共13项：RealPaperApiTest两项使用真实空库/001/迁移且不创建依赖夹具，验证权限、缺知识失败、迁移重放/校验和与一致性备份；KnowledgeFixturePaperTest十一项仅知识schema/标签为显式夹具，paper和001均真实实现。包含旧版引用、非法配分/重复身份/跨课全部拒绝、发布回滚、当前权限和冻结名单、窗口边界、公开历史、两种并发竞争和带数据备份。null讲评用例直接调用共享服务，不能宣称C05专用接口已实施。
+
+原test_questions.py的试卷替身已移除，保护用例改用真实迁移表；异常已开放历史数据仍是刻意绕过资格检查的坏数据场景。test_identity_attendance.py/test_warning_facts.py仅适配新表的测试装载，原业务和断言不改，attempt等未实现表仍为队友测试自己的夹具。前端新增[客户端测试](../frontend/js/paper-client.test.js)三项和[组件测试](../frontend/js/paper-view.test.js)四项，HTTP替身只验证交互与状态隔离。
+
+| 验收 | C02b结果与证据 | 完整收口仍需 |
+|---|---|---|
+| AC-01 | 待执行；固定原答案/版本通过，为C03评分基础 | C03真实按冻结答案判分 |
+| AC-02、R25、R36 | 阻断；真实paper/001+知识夹具的保密资格/身份保护/讲评及并发用例通过 | 005真实联测、C04全入口、C05专用quiz与003/004接缝 |
+| R02、R12 | 待执行；真实paper列表/开始前脱敏子集通过 | 答卷/批阅/作答/练习完整流程 |
+| R16 | 阻断；真实001成员变化不改真实paper原名单用例通过，知识为夹具 | 005与C03应交/缺交事实联测、UC-02 |
+| R27 | 待执行；整数配分与超精度原子拒绝通过 | 判分/简答/revision |
+| AC-03/04/05、R18 | 待执行；C02b没有作答/批阅/错题 | C03/C04 |
+| R01 | 阻断；003未接入，不代写 | 003/C04源文件权限与导入 |
+| R44 | 待执行；本包发布/权限/时间异常通过，完整UC-02未贯通 | C03—C05/C12 |
+| R22/R45/R46/R47 | R22/R45待执行；R46本轮文档范围通过；R47阻断，无两名非作者批准 | 团队评审/检查点及完整证据 |
+| NF-SEC/NF-DATA/NF-UI | 本轮权限/CSRF/冻结/并发/备份及双浏览器通过，成功题目使用明确知识夹具 | 005真实数据联测、生产迁移/完整恢复演练 |
+| NF-PERF | 阻断；没有4核8GB Linux/50会话/worker证据 | 目标环境及队友worker |
+
+正式浏览器执行人：黄俊诚任务下的Codex自动执行。tested_head为页面提交67358dc完整SHA；Chrome154.0.8037.98、Edge155.0.4283.45，均headless、新浏览器上下文、真实HTTP/Vue及公共迁移。无知识夹具场景2026-10-13 22:00:30—22:00:38（Asia/Shanghai）两浏览器各4组；知识夹具场景22:00:40—22:00:51各7组，总22组，page_errors=[]。教师/学生390px截图已目视检查。前者是实际基线空库与503证据，后者使用明确知识夹具而非005真实联测；两者均无paper替身，不保存密码/Cookie/token，脚本关闭服务器、新浏览器及受控库。这些时段仅为测试时间，不填推测总工时。
+
+- [无知识夹具报告](evidence/spec-006/papers-empty/browser-results.json)，截图：[Chrome空编卷](evidence/spec-006/papers-empty/chrome-teacher-empty.png)、[Edge空编卷](evidence/spec-006/papers-empty/msedge-teacher-empty.png)。
+- [仅知识夹具报告](evidence/spec-006/papers-knowledge-fixture/browser-results.json)，截图：[Chrome教师发布](evidence/spec-006/papers-knowledge-fixture/chrome-teacher-published.png)、[Edge教师发布](evidence/spec-006/papers-knowledge-fixture/msedge-teacher-published.png)、[Chrome学生保护](evidence/spec-006/papers-knowledge-fixture/chrome-student-protected.png)、[Edge学生保护](evidence/spec-006/papers-knowledge-fixture/msedge-student-protected.png)。
+- [复现脚本](../scripts/verify_spec006_papers.py)：`python -m scripts.verify_spec006_papers`；知识夹具单独用`--knowledge-fixture --output logs/spec-006-papers-fixture`。全量验证命令沿用下方C02a记录。
+
+失败与修复留痕：最初新增paper迁移使两处队友自建paper夹具冲突，仅改测试装载后原断言通过；首次共享quiz服务测试的审计使用另一连接导致锁冲突，改为公共write/get_db同事务；时间跳跃使测试会话过期，改为通过真实登录刷新测试身份。首次前端测试替身缺少完整items读模型，补齐替身字段后通过。浏览器发现下拉框标签名称包含选项文本而超时，给控件补显式aria-label后Chrome/Edge通过。旧失败报告仅在logs，不混入正式passed报告。
+
+## C02a历史记录（截至f875bcd；以下旧状态由上方C02b恢复覆盖）
 
 ## 基线与边界
 
@@ -85,4 +132,4 @@ Windows Python3.13.12、Node24.14.0；全量后端31项（develop原19+本轮12�
 
 [PR #7](https://github.com/Gindama713/nchu-web-learning_platform/pull/7)保持草稿，目标develop；未合并006/005、未发布。上述cfd868b对应[CI38405502738](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38405502738)已完成success，jobs核对policy/lint/test/build/required全success、grader skipped；查询reviews为空，没有真实非作者批准。后续提交的新head CI在个人交接与PR中按实际结果核对，不沿用此旧head成功。
 
-下一恢复：优先个人会话计划第6节，继续006同分支fetch/核对PR与CI；C02b可继续实施本人编卷/固定版本/名单/保密发布及教师页面，不将夹具当真实试卷；005进入develop后merge同步并优先补真实知识标签和完整题库保存联测。003仍由队友负责。006未完成，C03/C04及008等其他包未启动；005独立分支仍保留图文/性能恢复点及草稿PR。涉及API/数据库/权限的真实两名非作者批准、CI、课堂/生产验收分别记录。
+当前下一恢复见本文件上方“C02b当前恢复与证据”及个人会话计划第6节。此处保留C02a提交/测试历史，不沿用“C02b待做”或旧head CI作为当前状态。
