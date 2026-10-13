@@ -51,6 +51,25 @@ PRD/README声明团队设计评审完成。框架PR #1返回reviews=[]、comment
 | NF-UI | Chrome 154.0.8037.98 / Edge 155.0.4283.45各8组真实HTTP/UI检查通过；含教师编辑/发布、学生重登持久化、公式/转义、390px、空结果和注入断网后的加载/失败/重试 | 本机headless受控数据，非真实教学账号/课堂/生产验收；图片缺口另列 |
 | NF-PERF | 已核对本机环境：WSL Ubuntu为8核、约7942MiB内存；Docker守护进程未运行，真实评测worker未实现 | PRD§8的4核8GB Linux/50会话/单worker联合目标未执行，不以Windows浏览器时长或WSL环境探测替代性能验收；沙箱非005实现 |
 
+### 测试入口与复核定位
+
+以下索引对应上表已有证据，不新增验收编号或提升验收状态。`test_knowledge.py`使用隔离库及鉴权替身；`test_knowledge_integration.py`使用真实001会话、课程API与公共迁移。前端`.test.js`使用HTTP替身，只证明组件/客户端行为；真实浏览器证据以原始JSON的`tested_head`和`checks`为准。2026-10-13本轮仅整理索引，未重跑业务测试。
+
+| 验收项 | 具体测试入口/原始结果定位 |
+|---|---|
+| AC-01 | [test_knowledge.py](../tests/test_knowledge.py)的`test_ac01_search_pagination_and_visibility`；[真实联测](../tests/test_knowledge_integration.py)的`test_real_login_course_publish_bookmark_progress_and_relogin`；浏览器`search_formula_example_xss_escape_student_controls`及`empty_search_clears_detail`；图片仍阻断 |
+| AC-02 | `test_knowledge.py`的`test_ac02_bookmark_idempotency_reopen_and_user_isolation`；上述真实登录联测；浏览器`bookmark_progress_refresh_logout_relogin` |
+| AC-03 | `test_knowledge.py`的`test_ac03_progress_is_durable_idempotent_and_resettable`；上述真实登录联测；浏览器`bookmark_progress_refresh_logout_relogin`及`unpublish_hides_republish_preserves_cancel_states` |
+| AC-04 | `test_knowledge.py`的`test_ac04_unpublish_all_student_entry_points_and_keep_history`；上述真实登录联测；浏览器`draft_hidden_publish_real_api`及`unpublish_hides_republish_preserves_cancel_states` |
+| R20（005部分） | `test_knowledge.py`的`test_r20_revision_and_safe_markup`；浏览器`search_formula_example_xss_escape_student_controls`；011索引联合待C10 |
+| R32 | `test_knowledge.py`的`test_r32_atomic_complete_order_revision_and_rename`、`test_r32_concurrent_add_vs_order_cannot_lose_new_chapter`及`test_http_teacher_flow_cross_course_and_strict_input`；[knowledge-client.test.js](../frontend/js/knowledge-client.test.js)的跨页完整集合、revision变化/重复ID拒绝及重排冲突用例；浏览器`teacher_add_rename_atomic_reorder` |
+| R38（005事实） | `test_knowledge.py`的`test_r38_current_published_set_and_retained_facts`；仅核对当前集合和真实完成事实，正式统计null/from-to仍待C06 |
+| NF-SEC | `test_knowledge.py`的`test_permission_revocation_global_role_and_admin_no_teacher_privilege`、`test_http_closed_security_csrf_and_validation`、`test_session_revoked_between_dispatch_and_transaction_prevents_write`；真实联测`test_real_csrf_origin_course_revocation_and_deactivation`；[knowledge-view.test.js](../frontend/js/knowledge-view.test.js)的身份变化清空与拒绝写入用例 |
+| NF-DATA | `test_knowledge.py`的`test_migration_preconditions_rollback_checksum_and_no_silent_init`、`test_failed_write_rolls_back_every_change`、`test_migration_ddl_and_bookkeeping_share_rollback_boundary`；真实联测`test_actual_runner_replay_backup_restore_and_checksum_rejection`；生产和完整资源备份仍待补 |
+| NF-UI | [browser-results.json](evidence/spec-005/browsers/browser-results.json)的chrome/msedge各8项`checks`、版本、`page_errors`和截图；[复现脚本](../scripts/verify_spec005_browsers.py)的`verify_browser`。其中`390px_no_horizontal_overflow`核对窄屏，`injected_network_loading_failure_retry`核对加载/失败/重试 |
+| NF-PERF | 目标环境/真实worker尚未就绪，没有性能测试入口或通过证据；不以浏览器耗时替代 |
+| R22/R45/R46/R47 | 分工/依赖及契约登记见本记录和PRD；代码批准以PR真实reviews为准，自动测试不证明团队批准 |
+
 ## 真实测试与失败记录
 
 同步前：Windows Python3.13.12/Node24.14.0，后端19隔离测试、前端13测试、ruff/lint/build/文档检查通过。首次夹具未关闭SQLite连接导致9个tearDown错误，修复后通过；浏览器发现fetch绑定Illegal invocation，修复并加回归测试。
@@ -98,7 +117,10 @@ fetch后origin/develop为`ca8ae47f6ad987d1af11c4212a116c4fb7ece5bc`（队友PR #
 | 同步已合入001并接入 | f90937ee2578811af878905359eb219d50e68b96 | 已推送；CI 38365996636通过 |
 | 同步队友PR #5 | 273168e7dfbd9e35da1bdb009c6dbe9e870a517c | 005 feature同步；本地40/14测试通过 |
 | 可重复双浏览器验收 | bdfa25c2cfde83c6d0a128af859422dae5b2dae2 | 指定Chrome/Edge各8组通过，原始报告对应此tested_head |
+| 双浏览器正式证据 | 5bb364117c3b6c35e7afd64ad46d9a379278a524 | 已推送；对应CI 38393278642通过，浏览器tested_head仍为bdfa25c |
 
 [PR #4](https://github.com/Gindama713/nchu-web-learning_platform/pull/4)仍为draft，目标develop。005本身未合并、没有发布；不因旧head CI成功放行新head。文档后续提交的SHA与新CI在会话交接及PR中补录。
+
+2026-10-13 19:59（Asia/Shanghai）恢复核对：fetch后develop仍为`ca8ae47`，本地/远端005 feature及PR head均为上述`5bb3641`，develop已包含于feature，无需再次merge。重新查询[Actions 38393278642](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38393278642)及jobs，policy/lint/test/build/required全部success、grader skipped；PR为open/draft、未合并，reviews为空。队友未完成的依赖仍保留。本轮随后修正README过期浏览器说明并补测试入口索引，没有改变业务或APIC/DBD契约；新文档head的CI另行核验。
 
 下一恢复：继续C01同分支fetch最新develop并核对PR最新head/CI。浏览器双端指定版本已补证；优先等003真实授权图片入口就绪并完成上述APIC/DBD对接，再实施图文及资源撤权联测。目标Linux4核8GB/50会话/worker性能仍未执行，需队友worker及目标环境；不以本机WSL探测冒充通过。001及公共runner已接入，不重做或重复当缺失阻塞。不启动C02、不接管003、不合并005或发布；PR保留draft，真实非作者批准/课堂验收另记。C06补R38正式聚合、C10补索引失效；其他本人工作包未开始。
