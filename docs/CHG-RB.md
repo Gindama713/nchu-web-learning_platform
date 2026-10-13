@@ -127,3 +127,9 @@ docs仅保留PRD、README、APIC、ADR、CHG-RB和DBD六份主文档。将重复
 ## 2026-10-12 项目框架开发分支
 
 从 develop 建立 feature/spec-019-project-scaffold，保留根 README 与 docs 五份主文档，新增 Flask/Vue 入口、SQLite 连接检查、模块目录、冒烟测试及 GitHub Actions。APIC补记两个公开框架探针，修复 README 的失效归档链接，记录框架真实命令。评测 worker 尚未实现，health 显示降级，main/release 的 ci-grader 阻断发布。SPEC-017/018 仍待验收。
+
+## 2026-10-13 姜苏豪负责模块开发分支
+
+在 `feature/spec-001-002-jiang-suhao` 实施 SPEC-001/002/010A/014/016 的第一轮代码：新增校验和迁移、数据库会话和课程成员权限、冻结名单考勤及请假、不可变考勤关联快照与 CSV、真实事实输入的规则/KMeans 预警、受限图片模板识别与人工确认。后端依赖锁定版本，Vue 增加对应操作页面，CI 使用锁文件；保留 `main/release` 的真实 Logisim 冒烟阻断。合成样例、角色/CSRF、重放和快照测试已在开发环境执行；尚未部署、未对生产数据库迁移或回滚。
+
+题库/测评、实验与电路评测事实表由对应组员负责，缺表时 010A/014 返回503而非假数据。SPEC-016 的 F01—F05 固定 SHA 图片不在当前仓库，模板版本仅为 provisional，TV-03 与课程固定样例验收仍待执行。该分支应先经 PR 合入 develop；只有组内全部必做功能及真实引擎检查通过后，才能经 release PR 进入 main。

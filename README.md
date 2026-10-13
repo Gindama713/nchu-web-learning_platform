@@ -2,7 +2,7 @@
 
 本项目主题为中央处理器，班级242017，组号g24201710，组长24201718姜苏豪，组员24201716黄俊诚、24201723罗浩铭、24201737石佰合。按照任务书要求，采用Vue 3、Flask、SQLite和RESTful API，围绕CPU提供教学管理、知识学习、测评、实验与学情分析。数字逻辑作为前置知识。实验箱连线过程模拟和Logisim电路文件在线评测均为必做功能，不能以静态图片、视频或文件上传页面代替。
 
-六份需求设计文档为 v0.6，团队评审已完成（据团队确认）。本分支开始搭建 Vue 3、Flask、SQLite 的可运行框架；业务模块依 PRD 的 SPEC 和验收顺序逐项开发。实验箱连线和 Logisim 在线评测是必做目标，当前页面中的“待实现”表示尚未交付。
+六份需求设计文档为 v0.6，团队评审已完成（据团队确认）。当前 `feature/spec-001-002-jiang-suhao` 分支已实现姜苏豪负责的身份/课程授权、考勤、考勤成绩关联、预警算法和受限图片识别的第一轮可运行代码与测试。其他组员的测评、实验和评测事实表尚未集成；依赖未就绪的分析接口返回明确的 503。实验箱连线和 Logisim 在线评测仍是必做目标，当前整体系统不得视为已完成。
 
 ## 1 文档入口
 
@@ -33,7 +33,7 @@
 
 ## 3 计划目录
 
-README 置于仓库根；docs/ 保留五份需求设计文档。backend/ 是 Flask API 与共享基础代码，frontend/ 是 Vue 3 页面，tests/ 是后端测试，scripts/ 是文档检查，.github/workflows/ 是 PR 检查。backend/apis、backend/models 按具体 SPEC 增加业务实现。运行时数据库、上传文件、评测临时目录、日志、密钥均位于源码之外，不提交版本库。公开的小型测试电路和合成数据可以进入 tests；隐藏评测数据不得进入公开仓库。
+README 置于仓库根；docs/ 保留五份需求设计文档。backend/apis 按 SPEC 划分 HTTP 边界，backend/shared 放共享授权/事务/响应，backend/migrations 放校验和锁定的 SQLite 迁移；frontend/ 是 Vue 3 页面，tests/ 是后端测试，scripts/ 是文档检查，.github/workflows/ 是 PR 检查。上传目录由 `UPLOAD_ROOT` 指定；生产环境应设为源码目录之外的持久化目录，数据库、日志、密钥不提交版本库。公开合成测试数据可以进入 tests；隐藏评测数据不得进入公开仓库。
 
 ## 4 运行与配置契约
 
@@ -42,13 +42,13 @@ README 置于仓库根；docs/ 保留五份需求设计文档。backend/ 是 Fla
 | 运行单元 | 启动前条件 | 预期行为 | 完成证据 |
 |---|---|---|---|
 | 前端 | 安装锁文件指定依赖，配置同源 /api 代理 | 开发可访问，生产输出静态资源 | 安装、开发启动、构建的真实命令及日志 |
-| Flask API | 配置数据库与文件路径，执行迁移及演示数据初始化 | /api/v1/health 返回就绪状态 | 启动入口、端口、健康检查记录 |
+| Flask API | 配置数据库与文件路径，执行 `db-upgrade` 迁移及管理员初始化 | /api/v1/health 显示 `db_ready=true`，整体仍因 grader 降级 | 启动入口、端口、健康检查记录 |
 | 评测 worker | 固定 Java/JAR 校验和，隔离环境可用 | 从 SQLite 领取任务并写回结果 | 独立启动入口、标准电路实测报告 |
 | 完整系统 | 前两项就绪且 worker 可用 | 完成连线保存、提交 .circ、获取判分 | 新环境端到端运行录像或记录 |
 
 配置项：APP_ENV、SECRET_KEY、DATABASE_PATH、UPLOAD_ROOT、GRADER_WORK_ROOT、LOGISIM_JAR_PATH、JAVA_PATH、GRADER_TIMEOUT_SECONDS（初始 10 秒）、GRADER_MEMORY_MB（初始 512 MiB）。SECRET_KEY 不得有公开生产默认值；示例配置只能放占位符。数据库及文件路径必须是服务端配置，不能取自用户请求。对外部署关闭调试模式，HTTPS 同源服务前端和 API。
 
-初始化必须使用迁移创建空库，再用可重复的演示数据装载流程创建中央处理器课程、教师、学生、CPU章节及数字逻辑前置知识、实验定义和题库；不在文档或源码写死真实密码。初始化重复执行不得重复插入成员或覆盖现有成绩。管理员首次创建及改密方式必须在实现时说明。
+初始化必须使用迁移创建空库，再用 `admin-create` 交互命令创建首位管理员；随后由管理员授权教师、创建课程，学生自行注册并由教师加入课程。课程知识、实验与题库的可重复演示数据装载仍由相应模块实现；不在文档或源码写死真实密码，也不以假数据替代评分事实。
 
 ## 5 测试与质量门禁
 
@@ -81,9 +81,12 @@ SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数�
 
 ```powershell
 python -m venv .venv
-.\.venv\Scripts\python -m pip install -r backend\requirements-dev.txt
+.\.venv\Scripts\python -m pip install -r backend\requirements.lock
+.\.venv\Scripts\python -m pip install ruff==0.17.0
 $env:DATABASE_PATH = 'instance/app.db'
-.\.venv\Scripts\python -m flask --app backend/app.py run --host 127.0.0.1 --port 5000
+.\.venv\Scripts\python -m flask --app backend.app db-upgrade
+.\.venv\Scripts\python -m flask --app backend.app admin-create
+.\.venv\Scripts\python -m flask --app backend.app run --host 127.0.0.1 --port 5000
 ```
 
 另开终端：
@@ -94,7 +97,7 @@ npm ci
 npm run dev
 ```
 
-打开 `http://127.0.0.1:5173`。Vite 把 `/api` 代理到 Flask。`GET /api/v1/modules` 返回模块目录；`GET /api/v1/health` 当前返回 503、`grader_ready=false`，如实表示评测 worker 尚未实现。
+打开 `http://127.0.0.1:5173`。Vite 把 `/api` 代理到 Flask。开发环境默认 `APP_ORIGIN=http://127.0.0.1:5173`，若改变前端地址必须同步设置 `APP_ORIGIN`；生产环境必须设置至少 32 字符的随机 `SECRET_KEY`、HTTPS `APP_ORIGIN`、外置 `DATABASE_PATH` 和 `UPLOAD_ROOT`。`GET /api/v1/health` 在迁移后显示 `db_ready=true`，仍返回 503、`grader_ready=false`，如实表示真实评测 worker 尚未实现。
 
 本地检查：
 
@@ -108,17 +111,27 @@ npm run lint
 npm run build
 ```
 
-Windows 开发环境可用 Python 3.14 检查框架；课程运行基线仍需在 Python 3.12、Java 21、Logisim-evolution 5.0.0 的目标环境验证。管理员初始化、迁移、评测 worker、备份与生产部署命令在对应模块实现时补齐。
+当前后端在 Python 3.12 运行并通过测试；课程完整运行基线仍需在 Python 3.12、Java 21、Logisim-evolution 5.0.0 的目标环境验证。`db-upgrade` 可重复执行并验证迁移 SHA，`admin-create` 提示输入学号、姓名和隐藏密码；管理员改密可用 `PATCH /api/v1/users/me`，请求须含旧密码。评测 worker、备份与完整生产部署命令待对应模块实现。
+
+### 8.1 本分支完成范围与集成边界
+
+| 负责项 | 当前可运行能力 | 尚需集成或实测 |
+|---|---|---|
+| SPEC-001/002 | SQLite 持久身份与课程成员授权、CSRF/审计、冻结名单签到、请假审批及更正 | 章节/知识点由负责组员的教学内容模块接入；浏览器端到端验收 |
+| SPEC-010A | Pandas 考勤成绩配对、C01—C04 测试、不可变快照与同快照 CSV | 组员测评的 `paper/paper_item/attempt` 真实迁移和数据；缺表时 503 |
+| SPEC-014 | 规则与固定参数 KMeans、批次保存、处理记录和合成测试 | 组员题库、实验、评测事实表；缺表时 503，不伪造预警 |
+| SPEC-016 | PNG/JPEG 边界校验、固定字典模板、人工确认及成绩隔离；合成图测试 | PRD 固定 SHA 的 F01—F05 原图未在当前资料中找到，TV-03 尚不能宣称通过；模板 SHA/定位版本仍为 provisional |
+| SPEC-019 | 本分支复用 GitHub PR 门禁，锁定后端依赖版本 | SPEC-017/018 实验与真实 Logisim 冒烟、目标环境检查及 GitHub 分支保护仍为发布阻断项 |
 
 
-### 8.1 完整系统实施契约（待实现）
+### 8.2 完整系统实施契约（待实现）
 
 以下保留需求设计阶段的运维与安全契约；表内尚未落地的命令不是本次框架的运行说明。
 
 | 顺序 | 工作目录/计划命令 | 行为 |
 |---|---|---|
 | 1 | backend：python -m venv .venv；激活后python -m pip install -r requirements.lock | 安装锁定后端依赖；首次实现必须提供锁文件 |
-| 2 | backend：python -m flask --app app db upgrade | 创建/迁移SQLite，重复执行无副作用 |
+| 2 | `python -m flask --app backend.app db-upgrade` | 创建/迁移SQLite，重复执行无副作用；已在本分支实现 |
 | 3 | backend：python -m flask --app app admin create | 交互录入初始管理员及密码，不接受公开默认密码、不回显密码 |
 | 4 | backend：python -m flask --app app seed-demo | 仅development/test允许；幂等创建匿名课程/实验/样例，不覆盖成绩 |
 | 5 | backend：python -m flask --app app run --host 127.0.0.1 --port 5000 | 开发API；生产禁止使用此服务器 |
@@ -147,7 +160,7 @@ Windows 开发环境可用 Python 3.14 检查框架；课程运行基线仍需�
 | 六份指定文档 | 齐全，文件名与课程要求一致 |
 | 需求、范围与验收 | PRD正文及第10—12节完整收录分工、排期、AC、R01—R48与计划用例 |
 | 接口、架构与数据 | APIC/ADR/DBD相互引用，包含权限、失败、版本与事务规则 |
-| 运行、测试、部署 | 框架启动与检查命令已提供；业务闭环和生产部署尚待实现 |
+| 运行、测试、部署 | 姜苏豪负责模块的开发命令与测试已提供；完整业务闭环和生产部署尚待组内集成 |
 | 变更与回滚 | CHG-RB记录文档修订并规定软件发布与恢复流程，未宣称已演练 |
 | 独立阅读 | 必要内容已归入六份文档，原审查材料与独立样本清单不作为本次阅读前提 |
 | 团队评审 | 已完成 |
