@@ -1,6 +1,6 @@
 # SPEC-005 / C01 实施与验证记录
 
-责任人：黄俊诚（24201716）。日期：2026-10-13，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-005)、[APIC](APIC.md)、[DBD](DBD.md)。状态：005主体实现及真实API链已通过CI，图文资源接入、完整浏览器和非功能验收仍有缺口；PR保持草稿，未关闭SPEC。
+责任人：黄俊诚（24201716）。日期：2026-10-13，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-005)、[APIC](APIC.md)、[DBD](DBD.md)。状态：005主体实现及真实API链已有CI通过证据，本轮补齐指定版本Chrome/Edge受控浏览器验证；图文资源接入及完整性能目标仍有缺口，PR保持草稿，未关闭SPEC。最新head的CI须按PR实际结果核对。
 
 ## 基线与责任边界
 
@@ -22,6 +22,8 @@ PRD/README声明团队设计评审完成。框架PR #1返回reviews=[]、comment
 
 初始阶段001/runner缺失时005返回503，页面实际auth/session 404显示失败/重试；001合入后的真实API链已解除这一阻塞，不能继续沿用旧缺失结论。FixtureSecurity和HTTP双替身只用于隔离测试，未注册到运行应用。
 
+本轮用户确认队友部分仍未完成。图片阻塞涉及实现及现行契约：APIC§3.1明确禁止knowledge图片/链接及全部属性，DBD的knowledge_point未定义资源引用关系；003入口`GET /resource-versions/{id}/content`要求`intent=view`和逻辑访问`event_id`，只预览受支持的PNG/JPEG等类型并按资源当前权限判权。因此不能仅放开`img src`或使用file_object/公开文件URL。恢复前需石佰合提供真实同课、学生可见的PNG/JPEG版本及权限收紧用例，团队确认知识引用/同课校验、事件ID重试复用和资源撤权时的显示规则，再按两名非作者复核要求同步必要APIC/DBD定义。此处是对接待办，未联系队友、未批准新契约或实现003。
+
 ## 实现与数据约束
 
 - 章节：新增/改名；完整ID集合+chapters_revision验证后原子重排，先移动至不冲突非负临时位置再写0至n−1，新增/排序递增revision。
@@ -34,7 +36,7 @@ PRD/README声明团队设计评审完成。框架PR #1返回reviews=[]、comment
 
 | 编号 | 已执行证据 | 未完成/限制 |
 |---|---|---|
-| AC-01 | 隔离关键词/分页/空结果、真实登录检索通过本地/CI；受控浏览器检索“程序计数器”通过 | 授权图片图文接入待补 |
+| AC-01 | 隔离关键词/分页/空结果、真实登录检索通过本地/CI；Chrome/Edge真实检索“程序计数器”、上下标公式、例题及空结果检查通过 | 授权图片图文接入待补 |
 | AC-02 | 收藏唯一/幂等/取消/本人隔离、真实登出→401→重登保留通过本地/CI；受控浏览器刷新和重登后状态保留 | 受控课程测试，非课堂验收 |
 | AC-03 | 完成/取消/重复完成/持久读取通过；真实进度API与重登通过CI | 自报完成不代表掌握度或成绩 |
 | AC-04 | 列表/详情/收藏/进度隐藏草稿/下架；再次发布恢复历史；真实撤权/停用通过CI | 生产/课堂验收未执行 |
@@ -46,7 +48,8 @@ PRD/README声明团队设计评审完成。框架PR #1返回reviews=[]、comment
 | R47 | 无005非作者批准记录 | 未核验；不填假批准 |
 | NF-SEC | 真实Cookie会话、CSRF/Origin、未知字段、可见越权403、跨课404、撤权404、停用401通过CI；事务内会话复核隔离测试通过 | 非真实教学账号/生产测试 |
 | NF-DATA | 真实公共runner重放、校验和拒绝；SQLite一致性备份、恢复库完整性/外键及原会话读取收藏通过CI | 完整资源/电路备份集及生产恢复演练未执行 |
-| NF-UI/PERF | Vue交互隔离测试；受控浏览器教师/学生流程及390px响应式布局检查；前端lint/build通过 | 指定Linux4核8GB/50会话/worker性能及主流Chrome/Edge双端版本验收未执行；沙箱不属于005实现 |
+| NF-UI | Chrome 154.0.8037.98 / Edge 155.0.4283.45各8组真实HTTP/UI检查通过；含教师编辑/发布、学生重登持久化、公式/转义、390px、空结果和注入断网后的加载/失败/重试 | 本机headless受控数据，非真实教学账号/课堂/生产验收；图片缺口另列 |
+| NF-PERF | 已核对本机环境：WSL Ubuntu为8核、约7942MiB内存；Docker守护进程未运行，真实评测worker未实现 | PRD§8的4核8GB Linux/50会话/单worker联合目标未执行，不以Windows浏览器时长或WSL环境探测替代性能验收；沙箱非005实现 |
 
 ## 真实测试与失败记录
 
@@ -60,6 +63,30 @@ PRD/README声明团队设计评审完成。框架PR #1返回reviews=[]、comment
 
 CI：同步提交f90937的[Actions 38365996636](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38365996636)已查询jobs和测试日志，policy/lint/test/build/required全部success。Python3.12后端39测试通过，Node22前端14测试通过。其中tests/test_knowledge_integration.py三项真实受控库集成测试全部ok：公共迁移/备份恢复/校验和、CSRF/Origin/课程撤权/停用、登录/发布/收藏进度/登出重登。它们使用实际create_app、会话Cookie、公共runner及API，只有初始管理员/教师账号在受控库bootstrap，没有模拟鉴权、课程或迁移。ci-grader在develop按现有规则skipped，不视为真实Logisim通过。
 
+### 本轮指定版本浏览器补证（2026-10-13）
+
+fetch后origin/develop为`ca8ae47f6ad987d1af11c4212a116c4fb7ece5bc`（队友PR #5考勤/识别修复），通过merge commit `273168e7dfbd9e35da1bdb009c6dbe9e870a517c`无冲突同步，未改写队友历史。本机同步后后端40测试、前端14测试及ruff/lint/build/文档链接/diff检查通过。
+
+新增[可重复验收脚本](../scripts/verify_spec005_browsers.py)和[可选浏览器依赖](../backend/requirements-browser.txt)，代码提交`bdfa25c2cfde83c6d0a128af859422dae5b2dae2`。脚本自动使用临时库、公共迁移、真实HTTP及Vue页面；仅初始管理员/教师bootstrap，学生注册/课程/成员与005操作走真实接口；不读取现有业务库或用户浏览器配置，不保存密码、Cookie或token。要求本机安装Chrome和Edge，空闲5000/5173端口及既有前后端依赖。
+
+```powershell
+.venv/Scripts/python.exe -m pip install -r backend/requirements-browser.txt
+.venv/Scripts/python.exe scripts/verify_spec005_browsers.py
+# 默认报告写入被忽略的logs/spec-005-browsers；正式留证可指定另一个目录：
+.venv/Scripts/python.exe scripts/verify_spec005_browsers.py --output docs/evidence/spec-005/browsers
+```
+
+执行人：黄俊诚任务下的Codex自动执行；2026-10-13 19:50:09—19:50:28（Asia/Shanghai，仅此测试实测时段，非整个开发工时）。Windows 11 10.0.26200 / Python 3.13.12 / Node 24.14.0 / Playwright 1.63.0，headless Chrome 154.0.8037.98、Edge 155.0.4283.45；tested_head为上述bdfa25c完整SHA。两个浏览器分别完成8组检查（共16组），结果通过，page_errors=[]，桌面1440×1000及390×844截图已目视检查：
+
+- 教师章节新增/改名/排序、草稿学生404、发布可见。
+- 学生关键词检索、sub/sup公式及例题；恶意img/script/onclick被移除，`<CPU>`转义文本正确渲染，脚本文本仅作为普通文字，未执行。
+- 收藏/完成在刷新及退出重登后保留；下架后读取404且清空，重新发布恢复历史，可取消收藏/完成。
+- 390px页面无横向溢出；空检索清空旧详情；注入网络挂起/断网时加载提示及按钮禁用、错误/重试可见，恢复网络后真实API重载成功。仅网络故障项是注入条件，没有替换成功响应或模拟鉴权。
+
+原始结果：[browser-results.json](evidence/spec-005/browsers/browser-results.json)。截图：[Chrome桌面](evidence/spec-005/browsers/chrome-desktop.jpg)、[Chrome窄屏](evidence/spec-005/browsers/chrome-mobile.jpg)、[Edge桌面](evidence/spec-005/browsers/msedge-desktop.jpg)、[Edge窄屏](evidence/spec-005/browsers/msedge-mobile.jpg)。脚本结束自动关闭新建浏览器、服务器及临时库。浏览器测试为本地可选验证，未加入或改变队友CI工作流。
+
+环境失败记录：Context7前两次Playwright查询失败，第三次成功；阿里云镜像Playwright下载停滞，停止该安装后改用官方PyPI成功安装同一1.63.0版本，未改业务依赖锁。初次新增脚本ruff失败（导入/UTC及安全错误报告边界），修正后全仓检查通过。两个浏览器初次运行及在代码提交后正式留证运行均通过，无业务代码修复。
+
 ## 提交、PR与恢复点
 
 | 部分 | SHA | 远端状态 |
@@ -69,7 +96,9 @@ CI：同步提交f90937的[Actions 38365996636](https://github.com/Gindama713/nc
 | 001消费/SQL契约 | 0e38730b59a4224bf32fb55ee0ac3e2790201708 | 已推送；旧CI 38344996554通过 |
 | 第一轮交接证据 | 001c903e58a78052ac47ccfe7a106348fddfbcd4 | 已推送 |
 | 同步已合入001并接入 | f90937ee2578811af878905359eb219d50e68b96 | 已推送；CI 38365996636通过 |
+| 同步队友PR #5 | 273168e7dfbd9e35da1bdb009c6dbe9e870a517c | 005 feature同步；本地40/14测试通过 |
+| 可重复双浏览器验收 | bdfa25c2cfde83c6d0a128af859422dae5b2dae2 | 指定Chrome/Edge各8组通过，原始报告对应此tested_head |
 
 [PR #4](https://github.com/Gindama713/nchu-web-learning_platform/pull/4)仍为draft，目标develop。005本身未合并、没有发布；不因旧head CI成功放行新head。文档后续提交的SHA与新CI在会话交接及PR中补录。
 
-下一恢复：继续C01同分支fetch最新develop，核对PR head/CI，和003负责人确认授权图片入口并补图文；适用非功能目标及正式评审另记。Windows依赖、真实API链及受控浏览器主体流程已通过，不重复把001缺失作为阻塞。不要重做001或公共runner，不用fixture代替真实验收。C06补R38正式聚合、C10补索引失效；其他本人工作包未开始。
+下一恢复：继续C01同分支fetch最新develop并核对PR最新head/CI。浏览器双端指定版本已补证；优先等003真实授权图片入口就绪并完成上述APIC/DBD对接，再实施图文及资源撤权联测。目标Linux4核8GB/50会话/worker性能仍未执行，需队友worker及目标环境；不以本机WSL探测冒充通过。001及公共runner已接入，不重做或重复当缺失阻塞。不启动C02、不接管003、不合并005或发布；PR保留draft，真实非作者批准/课堂验收另记。C06补R38正式聚合、C10补索引失效；其他本人工作包未开始。
