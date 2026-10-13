@@ -218,7 +218,11 @@ GET /courses/{id}/analytics的from/to默认最近28天；事件按事件时间�
 
 attendance-performance-v1的唯一计算定义及C01—C04见PRD第4.4节：同区间已关闭考勤任务按学生汇总，已评分homework/exam/quiz先换百分比再等权平均，按student_id配对Pearson。performance_paper_ids只允许attendance；kind/paper_id只允许scores；不适用参数400。source_until为服务器一致读取快照时间，to>source_until为400。班级未筛student_id时sample_size=candidate_count；教师student_id筛选只输出所选人的指标，相关性reason=personal_scope且不输出班级配对数，与学生范围一致。个人范围sample_size为本人有应到任务时1否则0，candidate_count/paired_count/missing_performance_count均null；班级范围指标始终存在。班级paired_count不足3优先insufficient_pairs，零方差zero_variance，否则ok；r无单位、[-1,1]、展示6位，rate为0—1、performance_mean_percentage为0—100；缺分母null。metrics另含performance_mean_percentage（按有效配对学生等权）及各排除计数；series也使用同一口径。warnings包含“相关性不代表因果，不自动扣分”。CSV与页面同一源快照，不输出学生无权查看的班级数据。
 
+当前实现将 `performance_paper_ids` 作为重复查询参数传输，如 `?dimension=attendance&performance_paper_ids=12&performance_paper_ids=13`；空值、重复值或超过100项均400。测评表未迁移时，考勤成绩关联返回503 `DEPENDENCY_UNAVAILABLE`，不返回虚构的空统计。预警批次的 `reasons` 是带 `code`、`sample_size` 和证据值的对象数组；目前规则码为 `LOW_OBJECTIVE_RATE`、`RECENT_ATTENDANCE`、`RELATIVE_WEAK_CLUSTER`。预警列表分页顶层增加 `analysis_run_id`、`model_status`；尚无批次时分别为null、`no_run`，聚类样本不足时为`insufficient_data`，即使 `data=[]` 也保留状态。预警依赖客观作答及实验事实表，缺表同样返回503；`Idempotency-Key` 按原始查询参数判定重放，默认时间窗的重复请求不因服务器时钟推进而变成冲突。
+
 识别算法recognition-template-v1、二值掩膜交并比、0.55识别下限及0.85低置信度分界、固定字典、bbox约束和F01—F05见PRD第4.5节。低置信度是recognized项的confidence_band=low，不另造数据库状态；零项unrecognized。POST confirm仅原提交者，空数组允许；symbol限NOT/AND/OR/XOR，label限固定字典，非法框/枚举400，重复确认409，越权404。确认只存结构草稿，不推断网表/成绩。模型中的算法版本与模板哈希由服务端生成，不允许请求覆盖。
+
+当前模板、定位与模板哈希属于 `recognition-template-v1-provisional`；仅合成图测试已执行，PRD所列固定 SHA 的 F01—F05 原始图片尚未进入仓库，TV-03 实测与版本冻结前不得声称达到固定图片验收。上传保存图片所有权和哈希；确认仅更新 `recognition.confirmed_items_json`，不会写电路网表、实验状态或分数。
 
 ## 6 实验与连线接口 SPEC-009/017
 
