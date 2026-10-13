@@ -26,8 +26,6 @@ class WarningFactsTest(TestCase):
                 CREATE TABLE attempt(id INTEGER PRIMARY KEY,paper_id INTEGER,student_id INTEGER,submitted_at TEXT);
                 CREATE TABLE answer(id INTEGER PRIMARY KEY,attempt_id INTEGER,question_version_id INTEGER,
                     score_hundredths INTEGER,answered INTEGER);
-                CREATE TABLE question(id INTEGER PRIMARY KEY,course_id INTEGER);
-                CREATE TABLE question_version(id INTEGER PRIMARY KEY,question_id INTEGER,type TEXT);
                 CREATE TABLE practice_attempt(id INTEGER PRIMARY KEY,student_id INTEGER,question_version_id INTEGER,
                     correct INTEGER,created_at TEXT);
                 CREATE TABLE experiment(id INTEGER PRIMARY KEY,course_id INTEGER);
@@ -47,8 +45,10 @@ class WarningFactsTest(TestCase):
             db.execute("INSERT INTO course(id,title,teacher_id,created_at,updated_at) VALUES(1,'CPU',2,?,?)", (AT, AT))
             db.execute("INSERT INTO course_member(course_id,user_id,member_role,created_at,updated_at) "
                        "VALUES(1,1,'student',?,?)", (AT, AT))
-            db.execute("INSERT INTO question VALUES(1,1)")
-            db.execute("INSERT INTO question_version VALUES(1,1,'single')")
+            # SPEC-006 now owns these tables; keep other missing modules as fixtures.
+            db.execute("INSERT INTO question(id,course_id) VALUES(1,1)")
+            db.execute("INSERT INTO question_version(id,question_id,version,type,stem,options_json,answer_json,difficulty) "
+                       "VALUES(1,1,1,'single','fixture','[]','\"A\"','easy')")
             db.execute("INSERT INTO paper VALUES(1,1,'published',?)", (START,))
             db.execute("INSERT INTO paper_item VALUES(1,1,1000)")
             db.execute("INSERT INTO attempt VALUES(1,1,1,?)", (AT,))
