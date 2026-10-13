@@ -137,3 +137,11 @@ docs仅保留PRD、README、APIC、ADR、CHG-RB和DBD六份主文档。将重复
 ## 2026-10-13 考勤与识别验收修正
 
 在从远端 develop 建立的 `feature/spec-002-016-acceptance-hardening` 中，新增 UC-01 固定流程测试：3 人冻结名单、签到重放、驳回重提、批准请假、缺勤结算及撤销批准更正。测试发现关闭任务后由系统补出的 absent 记录被签到入口误当成成功重放并返回 200；现对无签到时间的非请假记录返回 409，保留实际签到和已批准请假的重复请求语义。教师界面补上撤销批准并显式选择恢复状态，识别确认禁止增加超过原识别数量的门符号。19 个后端测试、2 个前端测试、Python/JS lint、Vite 构建与六文档链接检查通过；固定 SHA 的 F01—F05 实图验收仍待执行。
+
+上述修正经 GitHub PR #5 的 Actions CI 成功后，以 merge commit `ca8ae47f6ad987d1af11c4212a116c4fb7ece5bc` 合入 develop；main 未修改。
+
+## 2026-10-13 SPEC-019 远端保护配置
+
+仓库管理员经 GitHub API 为 main/develop 启用经典分支保护，并在设置后重新 GET 读回核对：两者均要求 PR、至少1名批准者、新提交撤销旧批准、最后推送者以外的批准、解决讨论、strict 最新目标分支检查；管理员受规则约束，禁止强推及删除。develop 必需检查为 ci-policy、ci-lint、ci-test、ci-build、ci-required；main 另要求 ci-grader。仓库只允许 merge commit，关闭 squash/rebase，关闭合并后自动删除分支。PR #5 对应 Actions 运行 `38382725263` 为 success，证明该 PR 的现阶段 CI 通过，不证明完整系统或 main 发布就绪。
+
+保护配置的 API 读取不是直推拒绝、故意失败检查、旧批准失效等负向演练；这些及 release/* 保护、检查来源绑定、Gitea 归档 SHA 核对尚未执行。main 的 ci-grader 仍是故意失败的真实引擎占位，SPEC-018 未完成前不得发布。
