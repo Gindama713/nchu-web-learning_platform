@@ -10,6 +10,8 @@ PRD/README声明团队设计评审完成；2026-10-13读取框架[PR #1](https:/
 
 ## 依赖与阻塞
 
+下表缺失状态针对当前已合入的origin/develop。中断恢复后fetch发现队友候选分支`origin/feature/spec-001-002-jiang-suhao`（`c1229896096a4cb6cc62d9fb9a0d6300585c3db9`），尚未合入develop；已按3文件以内分批核对其shared/auth.py、shared/db.py、app.py和shared/api.py。候选提供require_user/check_csrf及按SQL文件stem/完整UTF-8校验和迁移的runner，和本轮初始Python适配契约存在接缝。下一步只调整005消费接入，不复制队友源码或从该feature启动新基线；实际登录集成仍须等待其合入。
+
 | 子能力 | 负责人 | 必需契约与已核验状态 | 对005的影响/恢复条件 |
 |---|---|---|---|
 | 001会话、CSRF、Origin | 姜苏豪 | backend/app.py只有公开探针，apis/models原先为空；无auth/session或登录实现 | 运行请求503；001提供真实current_user_id()/verify_write_request()并注册course_security后联测 |
@@ -22,7 +24,9 @@ PRD/README声明团队设计评审完成；2026-10-13读取框架[PR #1](https:/
 
 `backend/models/knowledge.py`承担固定字段验证、富文本白名单、同课权限复核及短事务。新增/排序锁内校验课程revision，完整ID集合先校验，再移至不冲突临时非负位置，最后写0至n−1及递增revision。数据库唯一约束是并发防线。数据库忙等待5秒后503，不无限重试。知识下架保留收藏/进度及引用；学生列表、详情及个人写入均检查当前发布状态。
 
-`backend/apis/knowledge.py`提供APIC的10个005入口，已注册到app。安全适配器缺失503，迁移缺失/校验失败503。输入user_id/role等未知字段拒绝；测试替身只在tests/test_knowledge.py的临时Flask实例中使用。
+`backend/apis/knowledge.py`提供APIC的10个005入口，已注册到app。安全适配器缺失503，迁移缺失/校验失败503。输入user_id/role等未知字段拒绝；测试替身只在tests/test_knowledge.py的临时Flask实例中使用。ID/分页偏移拒绝SQLite整数范围之外的输入，异常JSON不返回HTML或内部路径。
+
+`frontend/js/knowledge-view.js`及knowledge-client.js实现教师章节维护/原子排序、知识编辑/发布/下架/基础标记，学生检索/分页/详情/收藏/完成取消。章节排序先读取所有分页，并检查各页revision及总数一致，避免只提交第一页；冲突显示错误，不自动覆盖新顺序。写入前重新取得会话绑定CSRF；用户变化时拒绝写入并清除页面身份。请求失败不替换为伪成功数据。加载/失败/空结果/重试、移动端布局和键盘焦点已实现；正文只渲染服务端白名单HTML。
 
 模块迁移由公共runner在事务内调用，005不提供无鉴权初始化命令。runner必须在相同事务登记schema_migration，重复执行核对版本/校验和再跳过，失败全量回滚。实际公共runner尚未对接，不能在生产执行本模块或承诺恢复演练通过。
 
@@ -47,4 +51,15 @@ PRD/README声明团队设计评审完成；2026-10-13读取框架[PR #1](https:/
 
 执行命令：`python -m unittest discover -s tests -v`，12测试通过（11个005隔离测试、1个框架测试）；`python -m ruff check backend tests scripts`通过；`python scripts/check_docs.py`通过。首次运行在Windows发现夹具连接未关闭导致9个tearDown错误，修复后上述结果通过；此失败不隐去。
 
-前端与远程证据在后续同分支提交补充。当前未合并develop、未发布；只有本地隔离验证，不称005模块完成。
+最终本地验证：`python -m unittest discover -s tests -v`，16测试通过（15个005隔离测试、1个框架测试）；ruff通过；文档链接检查通过；前端`npm test`13测试通过（8个005客户端隔离测试、4个Vue交互隔离测试、1个框架测试），`npm run lint`及`npm run build`通过。Vue交互覆盖学生收藏/完成、切换登录人后清除数据且拒绝写入、教师编辑/下架、失败刷新清除旧结果；HTTP双替身不作为真实登录或浏览器业务验收。未升级依赖，npm ci沿用锁文件；本机Node 24.14.0/Python 3.13.12，目标CI为Node 22/Python 3.12，远端结果单独登记。
+
+实际浏览器检查：Vite+Flask真实运行，默认课程知识页、重新加载及重试入口可用；`/auth/session`真实404，页面显示“暂时无法读取登录状态。请在登录服务可用后重试。”，没有生成课程/登录成功假象。窄侧栏截图确认失败提示布局可读。首次检查发现原生fetch绑定错误（Illegal invocation），已用闭包调用修复并加客户端回归测试。真实教师/学生列表、编辑、重登及桌面/移动完整流程仍因001缺失未执行，不能据此称NF-UI完整通过。
+
+## 提交、PR与下一恢复点
+
+- 后端第一部分：`8ed56b5`，已推送origin/feature/spec-005-knowledge（完整SHA以git记录为准）。
+- 第二部分前端及边界回归：同分支提交后补录；草稿PR/CI结果随后补录，未合并develop、未发布。
+- 下一会话继续C01，同分支fetch最新origin/develop，先核对001及公共runner是否真实合入；只有就绪后才对接course_security和模块迁移。不要用FixtureSecurity接运行应用，也不要自行实现001或公共runner。
+- 对接后在受控真实课程执行教师新增/改名/排序/发布→学生登录检索→收藏/完成→刷新/登出重登→撤销成员/下架隐藏→再次发布恢复历史，记录SHA及真实测试结果；完成副本迁移/重复执行/回滚边界验证。
+- C06补R38聚合null及from/to同集合输出，C10补011索引失效联测；其他工作包未开始。
+- 当前白名单支持文本、基础HTML和上下标公式；PRD的图文展示尚需与003授权资源契约对接图片来源，本轮未实现图片上传或外部URL展示，不能把图文范围记为全部完成。负责人：005黄俊诚对接、003石佰合提供授权资源入口；接入时先确认同课程与学生可见性，不能绕过资源权限。

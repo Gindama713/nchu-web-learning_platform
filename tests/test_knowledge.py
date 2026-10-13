@@ -238,3 +238,75 @@ class KnowledgeTest(TestCase):
             db.execute("UPDATE schema_migration SET checksum='invalid'")
         self.assert_error(503, lambda: self.store.detail(2, self.item))
 
+    def test_failed_write_rolls_back_every_change(self):
+        before = self.store.chapters(1, 1, 1, 20)
+        with self.assertRaises(RuntimeError), self.store.transaction(1, True) as (db, _):
+            db.execute("UPDATE chapter SET title='不应保存' WHERE id=?", (self.chapter,))
+            db.execute("UPDATE course SET chapters_revision=100 WHERE id=1")
+            raise RuntimeError("simulated transaction failure")
+        self.assertEqual(self.store.chapters(1, 1, 1, 20), before)
+
+    def test_http_teacher_flow_cross_course_and_strict_input(self):
+        headers = {"X-CSRF-Token": "fixture", "Origin": "http://localhost"}
+        chapters_url = "/api/v1/courses/1/chapters"
+        created = self.client.post(chapters_url, json={"title": "HTTP新增章节"}, headers=headers)
+        self.assertEqual(created.status_code, 201)
+        chapter_id = created.json["data"]["id"]
+        created_point = self.client.post(f"/api/v1/chapters/{chapter_id}/knowledge-points", json={
+            "title": "算术逻辑单元", "content": "加法", "published": True,
+        }, headers=headers)
+        self.assertEqual(created_point.status_code, 201)
+        item_id = created_point.json["data"]["id"]
+        self.assertEqual(self.client.patch(f"/api/v1/knowledge-points/{item_id}",
+                                          json={"published": False}, headers=headers).status_code, 200)
+        self.assertEqual(self.client.patch(f"/api/v1/chapters/{chapter_id}",
+                                          json={"title": "已改名"}, headers=headers).status_code, 200)
+        revision = self.client.get(chapters_url).json["chapters_revision"]
+        order = self.client.put("/api/v1/courses/1/chapter-order", json={
+            "chapters_revision": revision, "chapter_ids": [chapter_id, self.chapter],
+        }, headers=headers)
+        self.assertEqual(order.status_code, 200)
+        self.assertEqual(order.json["data"]["chapters_revision"], revision+1)
+        self.assertEqual(self.client.get("/api/v1/courses/1/knowledge-points?chapter_id=999").status_code, 404)
+        foreign = self.store.add_chapter(4, 2, {"title": "其他课程"})["id"]
+        self.assert_error(400, lambda: self.store.reorder(1, 1, {
+            "chapters_revision": revision+1, "chapter_ids": [self.chapter, foreign]}))
+        self.security.user_id = 2
+        self.assertEqual(self.client.get(f"/api/v1/knowledge-points/{item_id}").status_code, 404)
+        self.assertEqual(self.client.post(chapters_url, json={"title": "越权"}, headers=headers).status_code, 403)
+        for suffix in ("?page=" + "9"*50, "?page=9223372036854775807", "?chapter_id=" + "9"*30):
+            self.assertEqual(self.client.get("/api/v1/courses/1/knowledge-points"+suffix).status_code, 400)
+        self.assertEqual(self.client.get("/api/v1/knowledge-points/9223372036854775808").status_code, 400)
+        self.assertEqual(self.client.put(f"/api/v1/knowledge-points/{self.item}/bookmark?user_id=3",
+                         json={"bookmarked": True}, headers=headers).status_code, 400)
+
+    def test_database_busy_returns_bounded_failure_without_writes(self):
+        with closing(sqlite3.connect(self.path, isolation_level=None)) as held:
+            held.execute("BEGIN IMMEDIATE")
+            self.assert_error(503, lambda: self.store.add_chapter(1, 1, {"title": "不能写入"}))
+            held.rollback()
+        self.assertEqual(self.store.chapters(1, 1, 1, 20)[1], 1)
+
+    def test_migration_ddl_and_bookkeeping_share_rollback_boundary(self):
+        path = Path(self.temporary.name)/"migration-failure.db"
+        with closing(sqlite3.connect(path)) as db, db:
+            db.executescript("""
+                PRAGMA foreign_keys=ON;
+                CREATE TABLE user(id INTEGER PRIMARY KEY, role TEXT, active INTEGER);
+                CREATE TABLE course(id INTEGER PRIMARY KEY, chapters_revision INTEGER);
+                CREATE TABLE course_member(course_id INTEGER,user_id INTEGER,member_role TEXT,active INTEGER);
+                CREATE TABLE schema_migration(version TEXT PRIMARY KEY,checksum TEXT,applied_at TEXT);
+            """)
+            db.execute("BEGIN IMMEDIATE")
+            apply(db)
+            db.execute("INSERT INTO schema_migration VALUES(?,?,?)", (VERSION, CHECKSUM, "fixture"))
+            db.rollback()
+            self.assertEqual(db.execute("SELECT count(*) FROM schema_migration").fetchone()[0], 0)
+            for table in ("chapter", "knowledge_point", "bookmark", "learning_progress"):
+                self.assertIsNone(db.execute("SELECT name FROM sqlite_master WHERE name=?", (table,)).fetchone())
+            db.execute("BEGIN IMMEDIATE")
+            apply(db)
+            db.execute("INSERT INTO schema_migration VALUES(?,?,?)", (VERSION, CHECKSUM, "fixture"))
+            db.commit()
+            self.assertEqual(db.execute("PRAGMA foreign_key_check").fetchall(), [])
+

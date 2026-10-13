@@ -127,3 +127,11 @@ docs仅保留PRD、README、APIC、ADR、CHG-RB和DBD六份主文档。将重复
 ## 2026-10-12 项目框架开发分支
 
 从 develop 建立 feature/spec-019-project-scaffold，保留根 README 与 docs 五份主文档，新增 Flask/Vue 入口、SQLite 连接检查、模块目录、冒烟测试及 GitHub Actions。APIC补记两个公开框架探针，修复 README 的失效归档链接，记录框架真实命令。评测 worker 尚未实现，health 显示降级，main/release 的 ci-grader 阻断发布。SPEC-017/018 仍待验收。
+
+## 2026-10-13 SPEC-005 / C01模块实现
+
+黄俊诚（24201716）从已fetch的develop `96601372d3ac6fb6c5391320e2d96ccb13815d66`建立feature/spec-005-knowledge，分段提交/推送。实现章节原子排序、知识发布/下架/基础标记、收藏/完成事实、Flask接口及Vue页面。消费001鉴权和公共迁移；其尚未实现时接口拒绝访问，未接管身份/课程/公共runner。模块schema版本spec-005-001，迁移未应用到真实教学数据库。
+
+APIC补005字段/revision/富文本白名单及待对接适配点，DBD补模块迁移和约束，PRD/README链接真实状态，新增[SPEC-005实施记录](SPEC-005_IMPLEMENTATION.md)。详细测试与阻塞以该记录为准；隔离测试通过不视为真实登录、CI、评审或教师验收。用户要求继续实施，不等待评审证据；没有补造批准记录。没有修改ADR、CI工作流或发布配置。
+
+回退时通过对应feature/PR移除005路由注册及页面入口，保留知识/收藏/进度数据；已产生事实后不直接DROP模块表。公共迁移接入或运行故障按第4—7节先备份/停写/副本演练，不只回退代码或用空库覆盖。当前无生产部署、迁移回滚事件或恢复演练。

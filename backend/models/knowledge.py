@@ -21,8 +21,8 @@ def invalid(message="请求字段或类型不合法"):
 
 
 def positive_id(value):
-    if type(value) is not int or value <= 0:
-        invalid("ID 必须为正整数")
+    if type(value) is not int or not 0 < value <= 9223372036854775807:
+        invalid("ID 必须为数据库可表示的正整数")
     return value
 
 

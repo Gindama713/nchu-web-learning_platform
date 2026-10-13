@@ -24,7 +24,9 @@ blueprint = Blueprint("knowledge", __name__, url_prefix="/api/v1")
 
 
 def error_response(status, code, message):
-    return jsonify(error={"code": code, "message": message, "details": {}}, request_id=uuid4().hex), status
+    result = jsonify(error={"code": code, "message": message, "details": {}}, request_id=uuid4().hex)
+    result.headers["Cache-Control"] = "no-store"
+    return result, status
 
 
 @blueprint.errorhandler(KnowledgeError)
@@ -34,7 +36,9 @@ def business_error(error):
 
 @blueprint.errorhandler(HTTPException)
 def http_error(error):
-    return error_response(error.code, "UNSUPPORTED_MEDIA" if error.code == 415 else "VALIDATION_ERROR",
+    code = {401: "UNAUTHENTICATED", 403: "FORBIDDEN", 404: "NOT_FOUND",
+            415: "UNSUPPORTED_MEDIA", 503: "MAINTENANCE"}.get(error.code, "VALIDATION_ERROR")
+    return error_response(error.code, code,
                           "请求格式不合法")
 
 
@@ -42,6 +46,16 @@ def http_error(error):
 def integrity_error(error):
     current_app.logger.warning("Knowledge integrity constraint rejected a write")
     return error_response(409, "STATE_CONFLICT", "数据状态冲突，请刷新后重试")
+
+
+@blueprint.errorhandler(Exception)
+def unexpected_error(error):
+    request_id = uuid4().hex
+    current_app.logger.error("Knowledge request failed: %s request_id=%s", type(error).__name__, request_id)
+    result = jsonify(error={"code": "INTERNAL_ERROR", "message": "服务异常，请稍后重试", "details": {}},
+                     request_id=request_id)
+    result.headers["Cache-Control"] = "no-store"
+    return result, 500
 
 
 def endpoint(function):
@@ -56,6 +70,8 @@ def endpoint(function):
         positive_id(user_id)
         if request.method != "GET":
             security.verify_write_request()
+            if request.args:
+                invalid("写请求不接受查询参数")
         path = current_app.config.get("DATABASE_PATH") or os.environ.get("DATABASE_PATH", "instance/app.db")
         data, status, metadata = function(KnowledgeStore(path), user_id, **kwargs)
         result = jsonify(data=data, request_id=uuid4().hex, **metadata)
@@ -72,10 +88,14 @@ def query(allowed=()):
         raw = request.args.get(key)
         if raw is None:
             return default
-        if not raw.isascii() or not raw.isdecimal() or int(raw) < 1 or (maximum and int(raw) > maximum):
+        if (len(raw) > 19 or not raw.isascii() or not raw.isdecimal()
+                or not 0 < int(raw) <= 9223372036854775807 or (maximum and int(raw) > maximum)):
             invalid("分页或章节参数不合法")
         return int(raw)
-    return integer("page", 1), integer("page_size", 20, 100), integer("chapter_id")
+    page, size = integer("page", 1), integer("page_size", 20, 100)
+    if (page-1)*size > 9223372036854775807:
+        invalid("分页偏移超出数据库范围")
+    return page, size, integer("chapter_id")
 
 
 @blueprint.get("/courses/<int:course_id>/chapters")
