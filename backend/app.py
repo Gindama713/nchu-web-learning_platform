@@ -6,10 +6,12 @@ from uuid import uuid4
 
 from flask import Flask, jsonify
 
+from backend.apis.knowledge import blueprint as knowledge_blueprint
 from backend.shared.catalog import MODULES
 from backend.shared.db import database_ready
 
 app = Flask(__name__)
+app.register_blueprint(knowledge_blueprint)
 
 
 def response(data, status=200):

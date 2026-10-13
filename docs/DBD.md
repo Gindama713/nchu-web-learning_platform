@@ -181,6 +181,10 @@ grading_run增加部分唯一索引：同submission_id在status IN ('queued','ru
 
 迁移带版本和校验和，先备份和副本演练。增加字段先兼容旧数据，删除/重命名不得未经数据迁移直接上线。恢复数据库前保留当前状态，明确恢复点之后新增提交的处置；只回退代码不能自动撤销数据库变更，具体见CHG-RB。
 
+SPEC-005模块迁移定义于`backend/models/knowledge_migration.py`：版本`spec-005-001`，校验和由固定STATEMENTS的UTF-8内容计算。公共runner负责版本检查、重复执行跳过且核对CHECKSUM、BEGIN/COMMIT/ROLLBACK及同事务写schema_migration；`apply(connection)`只创建chapter/knowledge_point/bookmark/learning_progress及查询索引，要求001表和外键已就绪，不初始化公共身份或课程。公共runner目前未实现，不能直接宣称`flask db upgrade`可运行。005请求只打开现存库、校验已登记迁移，不自动建库或迁移。
+
+本次模块约束：chapter的course_id/title/position非空；知识字段非空，example默认空，published及is_foundational限定0/1，content_revision初始1；收藏和进度用(user_id,knowledge_id)唯一约束。completed=true时completed_at非空，false时为null；重复设true保留第一次完成时间，取消再完成产生新时间。四表外键不级联删除，下架只改published及revision。当前发布知识及其本人进度由同一读事务获取，作为010B输入；005不新增聚合成绩表。
+
 ## 9 跨模块事务不变量
 
 字段未写类型的哈希/状态/时间为TEXT，快照为经验证JSON TEXT，*_id为INTEGER FK。冻结名单及结果不随成员active变化更新；所有历史实体禁止级联删除。course_member创建/恢复必须与全局角色匹配；course负责人需active teacher成员。角色/active变更在同一短写事务检查“至少一位active admin”、移交负责课程并失效不兼容成员与会话；SQLite串行写锁覆盖计数和更新，不能事务外先计数。
