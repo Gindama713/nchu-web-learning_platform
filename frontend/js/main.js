@@ -170,6 +170,17 @@ createApp({
         await refreshCourse()
       }, '审批已保存。')
     }
+    async function revokeLeave(id) {
+      const note = window.prompt('撤销批准理由（必填）')
+      if (!note) return
+      const restore_status = window.prompt('恢复考勤状态：present / late / absent')
+      if (!restore_status) return
+      await act(async () => {
+        await write(`/api/v1/leave-requests/${id}`, 'PATCH',
+          { status: 'rejected', note, restore_status })
+        await refreshCourse()
+      }, '批准已撤销，考勤状态已更正。')
+    }
     async function resubmit(id) {
       const reason = window.prompt('重新填写请假理由（必填）')
       if (!reason) return
@@ -238,7 +249,7 @@ createApp({
     return { user, message, courses, people, courseId, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, login, register,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, createTask, rotate, close, checkIn,
-      leave, review, resubmit, correct, markRead, analyze, warn, handle, upload, confirm }
+      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm }
   },
   template: `
     <main class="page">
@@ -293,6 +304,7 @@ createApp({
             <h3>请假记录</h3><ul class="rows"><li v-for="item in leaves" :key="item.id">#{{ item.id }} · {{ item.reason }} · {{ item.status }}
               <button v-if="user.role === 'teacher' && item.status === 'pending'" type="button" @click="review(item.id, 'approved')">批准</button>
               <button v-if="user.role === 'teacher' && item.status === 'pending'" type="button" class="secondary" @click="review(item.id, 'rejected')">驳回</button>
+              <button v-if="user.role === 'teacher' && item.status === 'approved'" type="button" class="secondary" @click="revokeLeave(item.id)">撤销批准</button>
               <button v-if="user.role === 'student' && item.status === 'rejected'" type="button" class="secondary" @click="resubmit(item.id)">修改重提</button></li></ul>
             <h3>有效考勤</h3><ul class="rows"><li v-for="item in records" :key="item.id">任务 #{{ item.task_id }} · 学生 #{{ item.student_id }} · {{ item.status }}
               <button v-if="user.role === 'teacher'" type="button" class="secondary" @click="correct(item)">更正</button></li></ul></section>
