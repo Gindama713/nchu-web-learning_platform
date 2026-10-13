@@ -1,8 +1,7 @@
 """SPEC-005 HTTP adapter. Missing SPEC-001 security fails closed.
 
-Integration contract: app.extensions['course_security'] must provide
-current_user_id() and verify_write_request() using the real server session,
-session expiry/revocation, CSRF token and Origin checks. No fallback identity.
+Consume the shared SPEC-001 session helpers when integrated. An explicit
+course_security adapter must also revalidate inside the business transaction.
 """
 
 import os
@@ -13,6 +12,7 @@ from uuid import uuid4
 from flask import Blueprint, current_app, jsonify, request
 from werkzeug.exceptions import HTTPException
 
+from backend.apis.knowledge_security import security_for_request
 from backend.models.knowledge import (
     KnowledgeError,
     KnowledgeStore,
@@ -61,9 +61,7 @@ def unexpected_error(error):
 def endpoint(function):
     @wraps(function)
     def dispatch(**kwargs):
-        security = current_app.extensions.get("course_security")
-        if security is None:
-            raise KnowledgeError(503, "MAINTENANCE", "等待 SPEC-001 会话鉴权接入")
+        security = security_for_request()
         user_id = security.current_user_id()
         if user_id is None:
             raise KnowledgeError(401, "UNAUTHENTICATED", "请先登录")
@@ -73,7 +71,7 @@ def endpoint(function):
             if request.args:
                 invalid("写请求不接受查询参数")
         path = current_app.config.get("DATABASE_PATH") or os.environ.get("DATABASE_PATH", "instance/app.db")
-        data, status, metadata = function(KnowledgeStore(path), user_id, **kwargs)
+        data, status, metadata = function(KnowledgeStore(path, security.verify_transaction), user_id, **kwargs)
         result = jsonify(data=data, request_id=uuid4().hex, **metadata)
         result.headers["Cache-Control"] = "no-store"
         return result, status

@@ -80,8 +80,9 @@ def payload(body, allowed, required=()):
 
 
 class KnowledgeStore:
-    def __init__(self, path):
+    def __init__(self, path, verify_transaction=None):
         self.path = Path(path)
+        self.verify_transaction = verify_transaction
 
     @contextmanager
     def transaction(self, user_id, write=False):
@@ -102,6 +103,8 @@ class KnowledgeStore:
             user = connection.execute("SELECT * FROM user WHERE id=?", (user_id,)).fetchone()
             if not user or not user["active"]:
                 raise KnowledgeError(401, "UNAUTHENTICATED", "请重新登录")
+            if self.verify_transaction:
+                self.verify_transaction(connection, user)
             yield connection, user
             connection.commit()
         except sqlite3.OperationalError as error:

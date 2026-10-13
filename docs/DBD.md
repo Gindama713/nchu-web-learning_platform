@@ -181,7 +181,7 @@ grading_run增加部分唯一索引：同submission_id在status IN ('queued','ru
 
 迁移带版本和校验和，先备份和副本演练。增加字段先兼容旧数据，删除/重命名不得未经数据迁移直接上线。恢复数据库前保留当前状态，明确恢复点之后新增提交的处置；只回退代码不能自动撤销数据库变更，具体见CHG-RB。
 
-SPEC-005模块迁移定义于`backend/models/knowledge_migration.py`：版本`spec-005-001`，校验和由固定STATEMENTS的UTF-8内容计算。公共runner负责版本检查、重复执行跳过且核对CHECKSUM、BEGIN/COMMIT/ROLLBACK及同事务写schema_migration；`apply(connection)`只创建chapter/knowledge_point/bookmark/learning_progress及查询索引，要求001表和外键已就绪，不初始化公共身份或课程。公共runner目前未实现，不能直接宣称`flask db upgrade`可运行。005请求只打开现存库、校验已登记迁移，不自动建库或迁移。
+SPEC-005模块迁移的单一定义为`backend/migrations/005_knowledge.sql`：版本取文件stem `005_knowledge`，校验和取SQL文件read_text(encoding="utf-8")的UTF-8 SHA-256，与001候选runner一致（文本读取统一CRLF/LF）。公共runner负责顺序、版本/校验和、重复执行跳过、BEGIN/COMMIT/ROLLBACK及同事务写schema_migration；005 SQL只创建chapter/knowledge_point/bookmark/learning_progress及查询索引，不初始化公共身份或课程。knowledge_migration.py只提供SQL身份及隔离测试的apply辅助，不另建runner。当前develop尚未合入公共runner；候选提供`flask db-upgrade`而非设计中的`flask db upgrade`，真实运行说明待合入后核验。005请求只打开现存库、校验已登记迁移，不自动建库或迁移。
 
 本次模块约束：chapter的course_id/title/position非空；知识字段非空，example默认空，published及is_foundational限定0/1，content_revision初始1；收藏和进度用(user_id,knowledge_id)唯一约束。completed=true时completed_at非空，false时为null；重复设true保留第一次完成时间，取消再完成产生新时间。四表外键不级联删除，下架只改published及revision。当前发布知识及其本人进度由同一读事务获取，作为010B输入；005不新增聚合成绩表。
 

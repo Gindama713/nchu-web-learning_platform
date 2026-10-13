@@ -1,46 +1,21 @@
-"""SPEC-005 migration entry, to be called by the team's migration runner.
+"""SPEC-005 SQL identity and isolated DDL helper. No public migration runner.
 
-This module never creates SPEC-001 tables or initializes users/courses.
-The caller owns BEGIN/COMMIT, backup and schema_migration bookkeeping.
+The team's runner uses the SQL file stem as version and SHA-256 of
+read_text(encoding='utf-8').encode() as checksum.
 """
 
 from hashlib import sha256
+from pathlib import Path
 
-VERSION = "spec-005-001"
-STATEMENTS = (
-    """CREATE TABLE chapter (
-        id INTEGER PRIMARY KEY, course_id INTEGER NOT NULL REFERENCES course(id),
-        title TEXT NOT NULL CHECK(length(title) BETWEEN 1 AND 100),
-        position INTEGER NOT NULL CHECK(position >= 0), UNIQUE(course_id, position)
-    )""",
-    """CREATE TABLE knowledge_point (
-        id INTEGER PRIMARY KEY, chapter_id INTEGER NOT NULL REFERENCES chapter(id),
-        title TEXT NOT NULL CHECK(length(title) BETWEEN 1 AND 100),
-        content TEXT NOT NULL, example TEXT NOT NULL DEFAULT '',
-        published INTEGER NOT NULL CHECK(published IN (0,1)),
-        content_revision INTEGER NOT NULL DEFAULT 1 CHECK(content_revision >= 1),
-        is_foundational INTEGER NOT NULL DEFAULT 0 CHECK(is_foundational IN (0,1))
-    )""",
-    "CREATE INDEX knowledge_chapter_published ON knowledge_point(chapter_id, published)",
-    """CREATE TABLE bookmark (
-        id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES user(id),
-        knowledge_id INTEGER NOT NULL REFERENCES knowledge_point(id),
-        UNIQUE(user_id, knowledge_id)
-    )""",
-    """CREATE TABLE learning_progress (
-        id INTEGER PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES user(id),
-        knowledge_id INTEGER NOT NULL REFERENCES knowledge_point(id),
-        completed INTEGER NOT NULL CHECK(completed IN (0,1)),
-        completed_at TEXT,
-        CHECK((completed=1 AND completed_at IS NOT NULL)
-            OR (completed=0 AND completed_at IS NULL)), UNIQUE(user_id, knowledge_id)
-    )""",
-)
-CHECKSUM = sha256(";\n".join(STATEMENTS).encode()).hexdigest()
+SQL_PATH = Path(__file__).resolve().parents[1] / "migrations" / "005_knowledge.sql"
+VERSION = SQL_PATH.stem
+SQL = SQL_PATH.read_text(encoding="utf-8")
+CHECKSUM = sha256(SQL.encode()).hexdigest()
+STATEMENTS = tuple(statement.strip() for statement in SQL.split(";") if statement.strip())
 
 
 def apply(connection):
-    """Apply DDL inside an existing transaction; runner records VERSION/CHECKSUM."""
+    """Test/helper DDL only; caller owns the transaction and migration ledger."""
     if not connection.in_transaction:
         raise RuntimeError("SPEC-005 migration requires a runner-owned transaction")
     if connection.execute("PRAGMA foreign_keys").fetchone()[0] != 1:

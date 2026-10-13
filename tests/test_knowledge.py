@@ -10,6 +10,7 @@ from unittest import TestCase
 from flask import Flask, request
 
 from backend.apis.knowledge import blueprint
+from backend.apis.knowledge_security import SharedSessionSecurity
 from backend.models.knowledge import KnowledgeError, KnowledgeStore
 from backend.models.knowledge_migration import CHECKSUM, VERSION, apply
 
@@ -24,6 +25,10 @@ class FixtureSecurity:
     def verify_write_request(self):
         if request.headers.get("X-CSRF-Token") != "fixture" or request.headers.get("Origin") != "http://localhost":
             raise KnowledgeError(403, "CSRF_FAILED", "测试 CSRF/Origin 拒绝")
+
+    def verify_transaction(self, connection, user):
+        if self.user_id != user["id"]:
+            raise KnowledgeError(401, "UNAUTHENTICATED", "测试会话已变化")
 
 
 class KnowledgeTest(TestCase):
@@ -309,4 +314,52 @@ class KnowledgeTest(TestCase):
             db.execute("INSERT INTO schema_migration VALUES(?,?,?)", (VERSION, CHECKSUM, "fixture"))
             db.commit()
             self.assertEqual(db.execute("PRAGMA foreign_key_check").fetchall(), [])
+
+    def test_shared_adapter_checks_origin_delegates_csrf_and_rechecks_session(self):
+        calls = {"user": 0, "csrf": 0}
+        def require_user():
+            calls["user"] += 1
+            return {"id": 1}
+        def check_csrf():
+            calls["csrf"] += 1
+            if request.headers.get("X-CSRF-Token") != "fixture":
+                raise KnowledgeError(403, "CSRF_FAILED", "fixture helper rejection")
+        self.app.config["APP_ORIGIN"] = "http://localhost"
+        self.app.extensions["course_security"] = SharedSessionSecurity(require_user, check_csrf, KnowledgeError)
+        url = "/api/v1/courses/1/chapters"
+        self.assertEqual(self.client.post(url, json={"title": "拒绝来源"},
+                         headers={"Origin": "https://foreign.example", "X-CSRF-Token": "fixture"}).status_code, 403)
+        self.assertEqual(calls["csrf"], 0)
+        rejected = self.client.post(url, json={"title": "拒绝token"}, headers={"Origin": "http://localhost"})
+        self.assertEqual(rejected.status_code, 403)
+        self.assertEqual(rejected.json["error"]["code"], "CSRF_FAILED")
+        calls["user"] = 0
+        accepted = self.client.post(url, json={"title": "消费shared契约"},
+                     headers={"Origin": "http://localhost", "X-CSRF-Token": "fixture"})
+        self.assertEqual(accepted.status_code, 201)
+        self.assertEqual(calls["user"], 2)
+
+    def test_session_revoked_between_dispatch_and_transaction_prevents_write(self):
+        calls = 0
+        def require_user():
+            nonlocal calls
+            calls += 1
+            if calls > 1:
+                raise KnowledgeError(401, "UNAUTHENTICATED", "fixture revoked session")
+            return {"id": 1}
+        self.app.config["APP_ORIGIN"] = "http://localhost"
+        self.app.extensions["course_security"] = SharedSessionSecurity(require_user, lambda: None, KnowledgeError)
+        result = self.client.post("/api/v1/courses/1/chapters", json={"title": "不得落库"},
+                     headers={"Origin": "http://localhost", "X-CSRF-Token": "fixture"})
+        self.assertEqual(result.status_code, 401)
+        self.assertEqual(self.store.chapters(1, 1, 1, 20)[1], 1)
+
+    def test_adapter_without_transaction_verifier_is_unavailable(self):
+        class IncompleteAdapter:
+            def current_user_id(self):
+                return 1
+        self.app.extensions["course_security"] = IncompleteAdapter()
+        result = self.client.get("/api/v1/courses/1/chapters")
+        self.assertEqual(result.status_code, 503)
+        self.assertEqual(result.json["error"]["code"], "MAINTENANCE")
 

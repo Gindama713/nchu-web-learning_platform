@@ -130,7 +130,7 @@ docs仅保留PRD、README、APIC、ADR、CHG-RB和DBD六份主文档。将重复
 
 ## 2026-10-13 SPEC-005 / C01模块实现
 
-黄俊诚（24201716）从已fetch的develop `96601372d3ac6fb6c5391320e2d96ccb13815d66`建立feature/spec-005-knowledge，分段提交/推送。实现章节原子排序、知识发布/下架/基础标记、收藏/完成事实、Flask接口及Vue页面。消费001鉴权和公共迁移；其尚未实现时接口拒绝访问，未接管身份/课程/公共runner。模块schema版本spec-005-001，迁移未应用到真实教学数据库。
+黄俊诚（24201716）从已fetch的develop `96601372d3ac6fb6c5391320e2d96ccb13815d66`建立feature/spec-005-knowledge，分段提交/推送。实现章节原子排序、知识发布/下架/基础标记、收藏/完成事实、Flask接口及Vue页面。消费001鉴权和公共迁移；其尚未实现时接口拒绝访问，未接管身份/课程/公共runner。模块schema最终版本005_knowledge（按001候选SQL runner对齐，初始spec-005-001草案未部署），迁移未应用到真实教学数据库。
 
 APIC补005字段/revision/富文本白名单及待对接适配点，DBD补模块迁移和约束，PRD/README链接真实状态，新增[SPEC-005实施记录](SPEC-005_IMPLEMENTATION.md)。详细测试与阻塞以该记录为准；隔离测试通过不视为真实登录、CI、评审或教师验收。用户要求继续实施，不等待评审证据；没有补造批准记录。没有修改ADR、CI工作流或发布配置。
 
