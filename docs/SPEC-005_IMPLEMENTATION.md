@@ -1,67 +1,75 @@
 # SPEC-005 / C01 实施与验证记录
 
-责任人：黄俊诚（24201716）。日期：2026-10-13，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-005)、[APIC教学接口](APIC.md#3-教学管理接口-spec-002005)、[DBD](DBD.md)。
+责任人：黄俊诚（24201716）。日期：2026-10-13，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-005)、[APIC](APIC.md)、[DBD](DBD.md)。状态：005主体实现及真实API链已通过CI，图文资源接入、完整浏览器和非功能验收仍有缺口；PR保持草稿，未关闭SPEC。
 
-## 基线与范围
+## 基线与责任边界
 
-已fetch的origin/develop为`96601372d3ac6fb6c5391320e2d96ccb13815d66`。从此提交创建feature/spec-005-knowledge；没有接入其他feature或接管队友模块。只实施章节、知识、收藏和进度，提供010B当前发布集合/完成事实及011语料revision契约，不实施统计、索引或推荐算法。
+初始fetch基线为origin/develop `96601372d3ac6fb6c5391320e2d96ccb13815d66`，从此创建feature/spec-005-knowledge。先独立实施005，没有复制队友feature代码。后续fetch发现001已进入origin/develop `f242d2b8f370cff35cf8f4a76f9a5d3fad20f136`，按GitFlow merge同步到005，合并提交为`f90937ee2578811af878905359eb219d50e68b96`。
 
-PRD/README声明团队设计评审完成；2026-10-13读取框架[PR #1](https://github.com/Gindama713/nchu-web-learning_platform/pull/1)，API返回reviews=[]、comments=[]，不能作为005批准或CP-1教师通过证据。用户本会话明确要求继续实施，不等待评审相关证据；此执行指令不登记为非作者批准、CI成功或教师验收。后续合并和发布仍分别记录真实结果。
+同步保留队友create_app、登录/课程/考勤等页面及历史，只增加005 Blueprint和知识组件注册；入口相对新develop为backend/app.py两行、frontend/js/main.js四行，Vite一行启用已采用template的Vue编译器。移除005重复通用异常处理，避免把公共鉴权403转换为500。未接管001/002/010A/014/016逻辑，未自行改CI门禁；工作流和锁文件变化来自同步的develop。
 
-## 依赖与阻塞
+PRD/README声明团队设计评审完成。框架PR #1返回reviews=[]、comments=[]，不作005批准或CP-1教师通过证据。用户本会话要求继续实施、不等待评审证据；此指令不记录为非作者批准或教师验收。005不自动合并或发布。
 
-下表缺失状态针对当前已合入的origin/develop。中断恢复后fetch发现队友候选分支`origin/feature/spec-001-002-jiang-suhao`（`c1229896096a4cb6cc62d9fb9a0d6300585c3db9`），尚未合入develop；已按3文件以内分批核对其shared/auth.py、shared/db.py、app.py、shared/api.py及001 SQL表名。005已对齐require_user/check_csrf及SQL文件stem/UTF-8校验和契约，只调整本模块消费层，不复制队友源码或从该feature启动新基线；实际登录集成仍须等待其合入。候选把app改为create_app，合入后需在工厂注册005 Blueprint，处理共享入口/首页/文档接缝并回归。
+## 依赖契约与当前缺口
 
-| 子能力 | 负责人 | 必需契约与已核验状态 | 对005的影响/恢复条件 |
+| 子能力 | 负责人 | 当前状态/接入 | 仍需完成 |
 |---|---|---|---|
-| 001会话、CSRF、Origin | 姜苏豪 | develop尚未有auth/session；候选提供require_user/check_csrf | 运行请求503；合入候选后消费真实shared helpers，在事务内再次鉴权并联测 |
-| 001课程与成员 | 姜苏豪 | user/course/course_member仅有DBD设计，无真实迁移/初始化 | 005只消费表，不能执行真实教师/学生流程；合入001及受控测试数据后恢复 |
-| 公共迁移runner | 姜苏豪（001/019） | develop仅SELECT 1探针；候选已提供SQL runner | 005_knowledge.sql已按候选文件stem/校验和契约准备；合入后副本演练、重复执行/校验和/外键验证；不另建runner |
-| 005真实登录后刷新/重登 | 黄俊诚消费上述能力 | 模块文件SQLite持久化可隔离测，真实登录链缺失 | 不能把测试夹具持久化写成AC-02真实重登通过 |
-| R38聚合及011失效闭环 | 黄俊诚后续C06/C10 | 005提供真实完成事实和revision；聚合/索引未实现 | C06补null/日期同集合统计；C10补下架立即禁用旧索引和失败503 |
+| 001会话/CSRF/Origin | 姜苏豪提供，黄俊诚消费 | 已同步真实require_user/check_csrf；005业务事务取得锁后再验证会话 | Windows真实链及受控浏览器已验证；真实教学账号验收未执行 |
+| 001课程/成员 | 姜苏豪 | 通过真实课程创建/成员API产生受控测试课程；越权、撤权、停用已通过CI | 课堂及实际教学账号验收未执行 |
+| 公共SQL runner | 姜苏豪（001/019）提供，黄俊诚消费 | 已接入005_knowledge.sql；公共migrate、重复执行、校验和拒绝及备份恢复通过CI | 生产迁移、完整资源备份集和部署演练未执行 |
+| 003授权图片资源 | 石佰合提供，黄俊诚接入 | 当前只支持文字/基础HTML/上下标，不支持图片或外部URL | 确认同课程、学生可见的资源图片入口后接入；不代写上传/资源权限 |
+| R38统计/011索引联合 | 黄俊诚后续C06/C10 | 005提供当前发布集合、真实完成事实、content_revision/is_foundational | C06补统计null/日期同集合，C10补下架失效及重建失败；本轮不实施其他工作包 |
 
-## 实现与可审阅接入
+初始阶段001/runner缺失时005返回503，页面实际auth/session 404显示失败/重试；001合入后的真实API链已解除这一阻塞，不能继续沿用旧缺失结论。FixtureSecurity和HTTP双替身只用于隔离测试，未注册到运行应用。
 
-`backend/models/knowledge.py`承担固定字段验证、富文本白名单、同课权限复核及短事务。新增/排序锁内校验课程revision，完整ID集合先校验，再移至不冲突临时非负位置，最后写0至n−1及递增revision。数据库唯一约束是并发防线。数据库忙等待5秒后503，不无限重试。知识下架保留收藏/进度及引用；学生列表、详情及个人写入均检查当前发布状态。
+## 实现与数据约束
 
-`backend/apis/knowledge.py`提供APIC的10个005入口，已注册到当前app。knowledge_security消费真实shared helpers，缺失503，迁移缺失/校验失败503；显式适配器需事务内会话复核。输入user_id/role等未知字段拒绝；测试替身只在tests/test_knowledge.py的临时Flask实例中使用。ID/分页偏移拒绝SQLite整数范围之外的输入，异常JSON不返回HTML或内部路径。
+- 章节：新增/改名；完整ID集合+chapters_revision验证后原子重排，先移动至不冲突非负临时位置再写0至n−1，新增/排序递增revision。
+- 知识：教师编辑/发布/下架/基础标记，学生检索/详情；实际持久字段变化递增content_revision，相同值不递增。富文本白名单和字段语义以APIC为单一定义，图文缺口不改写成已完成。
+- 收藏/完成：身份来自真实会话，唯一约束保证幂等；下架保留历史，学生各入口隐藏；重复完成保留completed_at，取消后为null。
+- 005 SQL只创建chapter/knowledge_point/bookmark/learning_progress和查询索引；版本为005_knowledge，SHA-256按公共runner的read_text(encoding="utf-8").encode()计算。knowledge_migration.py只提供SQL身份和测试辅助，不是第二套runner。初始spec-005-001草案未部署，未重命名真实数据库版本。
+- Vue：教师章节/知识维护、发布/下架、基础标记；学生检索/分页/详情/收藏/完成取消；加载/空/错误/重试。排序读取全部分页并核对revision/总数，避免第一页截断；写请求重新取CSRF，登录人变化即拒绝写入并清除旧页面数据。
 
-`frontend/js/knowledge-view.js`及knowledge-client.js实现教师章节维护/原子排序、知识编辑/发布/下架/基础标记，学生检索/分页/详情/收藏/完成取消。章节排序先读取所有分页，并检查各页revision及总数一致，避免只提交第一页；冲突显示错误，不自动覆盖新顺序。写入前重新取得会话绑定CSRF；用户变化时拒绝写入并清除页面身份。请求失败不替换为伪成功数据。加载/失败/空结果/重试、移动端布局和键盘焦点已实现；正文只渲染服务端白名单HTML。
+## 全部有效验收矩阵
 
-模块迁移由公共runner读取005_knowledge.sql，005不提供无鉴权初始化命令。runner必须在相同事务登记schema_migration，重复执行核对版本/校验和再跳过，失败全量回滚。实际公共runner尚未合入/对接，不能在生产执行本模块或承诺恢复演练通过。第一提交的spec-005-001只是未部署的Python迁移草案，最终对齐为005_knowledge；没有对真实库改名或绕过已应用校验和。
-
-## 验收矩阵与真实验证
-
-2026-10-13：Python 3.13.12，本机Windows。`python`指仓库`.venv/Scripts/python`。
-
-| 编号 | 已执行隔离验证 | 真实集成/验收状态 |
+| 编号 | 已执行证据 | 未完成/限制 |
 |---|---|---|
-| AC-01 | 关键词检索、空结果、分页末页及学生隐藏草稿通过 | 真实会话/课程联测阻断 |
-| AC-02 | 收藏唯一/幂等、取消、跨用户隔离、关闭连接后新Store读取通过 | 真实登录/登出/重登阻断 |
-| AC-03 | 完成/取消、UTC时间、重复完成保留时间、持久读取通过 | 真实学生页面及重登待联测 |
-| AC-04 | 草稿/下架的列表、详情、收藏、进度均隐藏；重新发布恢复历史通过 | 真实会话撤销与课程成员链待联测 |
-| R20（005部分） | 基础标记、实际字段变化递增revision、相同值不递增、富文本处理通过 | 011下架/索引失败联合场景在C10；其他模块由各负责人补证 |
-| R32 | 改名、完整/重复/缺失/非法ID拒绝、过期revision、原子重排、新增与排序并发通过 | 真实课程/页面联测阻断 |
-| R38（005部分） | 临时SQLite真实记录，发布集合依次2/3、1/2、2/2、0/0；下架保留完成记录通过 | 统计null/from-to完整输出在C06；未把夹具称真实业务验收 |
-| R22/R45 | 责任/范围/依赖登记 | 全组排期/技术验证非本包；未执行/未核验 |
-| R46 | 本文件只记实施/证据；字段仍在APIC/DBD单一归属 | 文档链接检查通过；跨模块后续核对 |
-| R47 | 无非作者批准记录 | 未核验；不写假批准 |
-| NF-SEC | 已测跨课404、可见越权403、管理员不代教师、停用401、成员撤销/角色不匹配404、未知字段及测试适配器CSRF拒绝 | 真实会话CSRF/Origin与失效链阻断；无假验收 |
-| NF-DATA/UI/PERF | 模块外键/唯一约束及连接恢复已测 | 备份恢复、浏览器页面与50会话性能尚未执行；沙箱无本包实现 |
+| AC-01 | 隔离关键词/分页/空结果、真实登录检索通过本地/CI；受控浏览器检索“程序计数器”通过 | 授权图片图文接入待补 |
+| AC-02 | 收藏唯一/幂等/取消/本人隔离、真实登出→401→重登保留通过本地/CI；受控浏览器刷新和重登后状态保留 | 受控课程测试，非课堂验收 |
+| AC-03 | 完成/取消/重复完成/持久读取通过；真实进度API与重登通过CI | 自报完成不代表掌握度或成绩 |
+| AC-04 | 列表/详情/收藏/进度隐藏草稿/下架；再次发布恢复历史；真实撤权/停用通过CI | 生产/课堂验收未执行 |
+| R20（005部分） | 基础标记、revision变更/不变、HTML处理通过 | C10补011下架/索引失败联合；其他模块由各负责人补证 |
+| R32 | 缺失/重复/跨课/非法ID拒绝、并发新增和重排、改名/过期revision/原子性通过；真实API及受控浏览器新增/改名/重排通过 | 真实教学课程验收未执行 |
+| R38（005部分） | SQLite事实及发布集合2/3→1/2、2/2、0/0，下架保留历史通过 | C06补正式聚合null/from-to输出，不称统计已实现 |
+| R22/R45 | 责任/依赖/工作包登记 | 全组工时/技术验证非本包；未核验 |
+| R46 | APIC/DBD归属清楚、SQL单一迁移定义；文档链接检查通过 | 接003时继续核对有效定义 |
+| R47 | 无005非作者批准记录 | 未核验；不填假批准 |
+| NF-SEC | 真实Cookie会话、CSRF/Origin、未知字段、可见越权403、跨课404、撤权404、停用401通过CI；事务内会话复核隔离测试通过 | 非真实教学账号/生产测试 |
+| NF-DATA | 真实公共runner重放、校验和拒绝；SQLite一致性备份、恢复库完整性/外键及原会话读取收藏通过CI | 完整资源/电路备份集及生产恢复演练未执行 |
+| NF-UI/PERF | Vue交互隔离测试；受控浏览器教师/学生流程及390px响应式布局检查；前端lint/build通过 | 指定Linux4核8GB/50会话/worker性能及主流Chrome/Edge双端版本验收未执行；沙箱不属于005实现 |
 
-执行命令：`python -m unittest discover -s tests -v`，12测试通过（11个005隔离测试、1个框架测试）；`python -m ruff check backend tests scripts`通过；`python scripts/check_docs.py`通过。首次运行在Windows发现夹具连接未关闭导致9个tearDown错误，修复后上述结果通过；此失败不隐去。
+## 真实测试与失败记录
 
-最终本地验证：`python -m unittest discover -s tests -v`，19测试通过（18个005隔离测试、1个框架测试）；ruff通过；文档链接检查通过；前端`npm test`13测试通过（8个005客户端隔离测试、4个Vue交互隔离测试、1个框架测试），`npm run lint`及`npm run build`通过。新增适配层Origin/共享CSRF错误映射、事务内会话撤销拒绝写入、缺少事务校验拒绝503测试。Vue交互覆盖学生收藏/完成、切换登录人后清除数据且拒绝写入、教师编辑/下架、失败刷新清除旧结果；HTTP双替身不作为真实登录或浏览器业务验收。未升级依赖，npm ci沿用锁文件；本机Node 24.14.0/Python 3.13.12，目标CI为Node 22/Python 3.12，远端结果单独登记。
+同步前：Windows Python3.13.12/Node24.14.0，后端19隔离测试、前端13测试、ruff/lint/build/文档检查通过。首次夹具未关闭SQLite连接导致9个tearDown错误，修复后通过；浏览器发现fetch绑定Illegal invocation，修复并加回归测试。
 
-实际浏览器检查：Vite+Flask真实运行，默认课程知识页、重新加载及重试入口可用；`/auth/session`真实404，页面显示“暂时无法读取登录状态。请在登录服务可用后重试。”，没有生成课程/登录成功假象。窄侧栏截图确认失败提示布局可读。首次检查发现原生fetch绑定错误（Illegal invocation），已用闭包调用修复并加客户端回归测试。真实教师/学生列表、编辑、重登及桌面/移动完整流程仍因001缺失未执行，不能据此称NF-UI完整通过。
+同步后：Windows本机全量后端39测试（包含3个真实001集成测试）通过，前端14测试（增加队友API包装测试）及lint/build、全仓ruff、文档链接/diff检查通过。公共锁定依赖安装曾因镜像断流和官方PyPI代理连接失败中断；提前运行真实联测因pandas未安装而ImportError。依赖重试安装同一requirements.lock后成功，随后39测试通过；未改版本或公共配置，不隐去先前环境失败。
 
-## 提交、PR与下一恢复点
+实际浏览器：Codex IAB受控库，教师真实登录→新增ALU章节→改名→上移原子排序→新增基础知识草稿/正文/例题→发布；学生真实登录→检索程序计数器→收藏/完成→刷新重新读取→退出/重登→两状态保留。390×844响应式布局无横向溢出，视口已重置。IAB版本无法从受限DOM读取，未宣称指定Chrome/Edge双浏览器兼容性验收通过。所有账号/数据只在隔离验收库，数据库与密码/令牌未提交；运行应用没有FixtureSecurity。
 
-- 后端第一部分：`8ed56b56d24b0e4de536d0bb7a7b7c01ade68a5c`，已推送origin/feature/spec-005-knowledge。
-- 第二部分前端及边界回归：`e7189ad8e375319ba50af74b8b5ab440e1045b44`；第三部分接缝对齐：`0e38730b59a4224bf32fb55ee0ac3e2790201708`，均已推送同一feature。
-- [草稿PR #4](https://github.com/Gindama713/nchu-web-learning_platform/pull/4)，feature→develop。当前基线仍为96601372，未合并develop、未发布；依赖及真实验收未关闭，不能转正式合并就绪。
-- 代码提交0e38730的[Actions 38344996554](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38344996554)已核验：ci-policy/ci-lint/ci-test/ci-build/ci-required全部success；ci-grader在develop按现有规则skipped，不能写成真实引擎成功。CI使用Node22/Python3.12，和本机环境分开。后续文档提交触发的新head检查应单独查询，不能沿用旧head成功。
-- 下一会话继续C01，同分支fetch最新origin/develop，先核对001及公共runner是否真实合入；只有就绪后才对接course_security和模块迁移。不要用FixtureSecurity接运行应用，也不要自行实现001或公共runner。
-- 对接后在受控真实课程执行教师新增/改名/排序/发布→学生登录检索→收藏/完成→刷新/登出重登→撤销成员/下架隐藏→再次发布恢复历史，记录SHA及真实测试结果；完成副本迁移/重复执行/回滚边界验证。
-- C06补R38聚合null及from/to同集合输出，C10补011索引失效联测；其他工作包未开始。
-- 当前白名单支持文本、基础HTML和上下标公式；PRD的图文展示尚需与003授权资源契约对接图片来源，本轮未实现图片上传或外部URL展示，不能把图文范围记为全部完成。负责人：005黄俊诚对接、003石佰合提供授权资源入口；接入时先确认同课程与学生可见性，不能绕过资源权限。
+截图证据：[学生重登后的收藏/完成](evidence/spec-005/student-relogin.jpg)、[390px学生详情布局](evidence/spec-005/student-mobile.jpg)。
+
+CI：同步提交f90937的[Actions 38365996636](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38365996636)已查询jobs和测试日志，policy/lint/test/build/required全部success。Python3.12后端39测试通过，Node22前端14测试通过。其中tests/test_knowledge_integration.py三项真实受控库集成测试全部ok：公共迁移/备份恢复/校验和、CSRF/Origin/课程撤权/停用、登录/发布/收藏进度/登出重登。它们使用实际create_app、会话Cookie、公共runner及API，只有初始管理员/教师账号在受控库bootstrap，没有模拟鉴权、课程或迁移。ci-grader在develop按现有规则skipped，不视为真实Logisim通过。
+
+## 提交、PR与恢复点
+
+| 部分 | SHA | 远端状态 |
+|---|---|---|
+| 后端独立实现 | 8ed56b56d24b0e4de536d0bb7a7b7c01ade68a5c | 已推送005 feature |
+| Vue页面及边界 | e7189ad8e375319ba50af74b8b5ab440e1045b44 | 已推送 |
+| 001消费/SQL契约 | 0e38730b59a4224bf32fb55ee0ac3e2790201708 | 已推送；旧CI 38344996554通过 |
+| 第一轮交接证据 | 001c903e58a78052ac47ccfe7a106348fddfbcd4 | 已推送 |
+| 同步已合入001并接入 | f90937ee2578811af878905359eb219d50e68b96 | 已推送；CI 38365996636通过 |
+
+[PR #4](https://github.com/Gindama713/nchu-web-learning_platform/pull/4)仍为draft，目标develop。005本身未合并、没有发布；不因旧head CI成功放行新head。文档后续提交的SHA与新CI在会话交接及PR中补录。
+
+下一恢复：继续C01同分支fetch最新develop，核对PR head/CI，和003负责人确认授权图片入口并补图文；适用非功能目标及正式评审另记。Windows依赖、真实API链及受控浏览器主体流程已通过，不重复把001缺失作为阻塞。不要重做001或公共runner，不用fixture代替真实验收。C06补R38正式聚合、C10补索引失效；其他本人工作包未开始。
