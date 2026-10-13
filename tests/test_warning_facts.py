@@ -21,9 +21,6 @@ class WarningFactsTest(TestCase):
             migrate(path)
             db = connect(path)
             db.executescript("""
-                CREATE TABLE attempt(id INTEGER PRIMARY KEY,paper_id INTEGER,student_id INTEGER,submitted_at TEXT);
-                CREATE TABLE answer(id INTEGER PRIMARY KEY,attempt_id INTEGER,question_version_id INTEGER,
-                    score_hundredths INTEGER,answered INTEGER);
                 CREATE TABLE practice_attempt(id INTEGER PRIMARY KEY,student_id INTEGER,question_version_id INTEGER,
                     correct INTEGER,created_at TEXT);
                 CREATE TABLE experiment(id INTEGER PRIMARY KEY,course_id INTEGER);
@@ -49,10 +46,13 @@ class WarningFactsTest(TestCase):
                        "VALUES(1,1,1,'single','fixture','[]','\"A\"','easy')")
             db.execute("INSERT INTO paper(id,course_id,title,kind,confidential) VALUES(1,1,'fixture','homework',0)")
             db.execute("INSERT INTO paper_item VALUES(1,1,1,1,1000)")
+            db.execute("INSERT INTO paper_participant VALUES(1,1)")
             db.execute("UPDATE paper SET status='published',start_at=?,end_at=?,review_at=? WHERE id=1",
                        (START, END, END))
-            db.execute("INSERT INTO attempt VALUES(1,1,1,?)", (AT,))
-            db.execute("INSERT INTO answer VALUES(1,1,1,0,1)")
+            db.execute("INSERT INTO attempt(id,paper_id,student_id,status,score_hundredths,partial_score_hundredths,submitted_at) "
+                       "VALUES(1,1,1,'graded',0,0,?)", (AT,))
+            db.execute("INSERT INTO answer(id,attempt_id,question_version_id,value_json,score_hundredths,answered) "
+                       "VALUES(1,1,1,'\"B\"',0,1)")
             for identifier, correct in enumerate((0, 0, 1, 0), 1):
                 db.execute("INSERT INTO practice_attempt VALUES(?,?,1,?,?)", (identifier, 1, correct, AT))
             for task_id, status in ((1, "late"), (2, "absent")):

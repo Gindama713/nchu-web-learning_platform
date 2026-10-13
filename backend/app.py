@@ -12,6 +12,7 @@ from werkzeug.security import generate_password_hash
 
 from backend.apis import (
     analytics,
+    attempts,
     attendance,
     courses,
     identity,
@@ -44,7 +45,7 @@ def create_app(config=None):
         app.config.update(config)
     app.teardown_appcontext(close_db)
     for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
-                      recognition.bp, questions.bp, papers.bp):
+                      recognition.bp, questions.bp, papers.bp, attempts.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
 
     @app.before_request

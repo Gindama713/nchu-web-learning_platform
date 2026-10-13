@@ -271,17 +271,17 @@ class FlowTest(TestCase):
         self.call(self.teacher, "POST", f"/api/v1/attendance-tasks/{task['id']}/close", {})
         db = connect(self.path)
         try:
-            db.executescript("CREATE TABLE attempt (id INTEGER PRIMARY KEY,paper_id INTEGER,student_id INTEGER,"
-                             "status TEXT,score_hundredths INTEGER);")
-            # Paper/question tables are now owned by SPEC-006; attempt remains a fixture.
+            # Assessment tables are owned by SPEC-006; retain this analytics fact setup.
             db.execute("INSERT INTO question(id,course_id) VALUES(1,?)", (course_id,))
             db.execute("INSERT INTO question_version(id,question_id,version,type,stem,options_json,answer_json,difficulty) "
                        "VALUES(1,1,1,'boolean','fixture','[]','true','easy')")
             db.execute("INSERT INTO paper(id,course_id,title,kind,confidential) VALUES(1,?,'fixture','quiz',0)", (course_id,))
             db.execute("INSERT INTO paper_item VALUES(1,1,1,1,5000)")
+            db.execute("INSERT INTO paper_participant VALUES(1,?)", (student_id,))
             db.execute("UPDATE paper SET status='published',start_at=?,end_at=?,review_at=? WHERE id=1",
                        (beginning, ending, ending))
-            db.execute("INSERT INTO attempt VALUES(1,1,?,'graded',2500)", (student_id,))
+            db.execute("INSERT INTO attempt(id,paper_id,student_id,status,score_hundredths,partial_score_hundredths,submitted_at) "
+                       "VALUES(1,1,?,'graded',2500,2500,?)", (student_id, beginning))
         finally:
             db.close()
         endpoint = f"/api/v1/courses/{course_id}/analytics?dimension=attendance&performance_paper_ids=1"
