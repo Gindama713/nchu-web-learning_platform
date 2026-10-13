@@ -73,7 +73,7 @@ Windows Python3.13.12、Node24.14.0；全量后端31项（develop原19+本轮12�
 
 失败与修复：首次新迁移使预警测试自建question表冲突，适配其测试夹具后原断言通过；新增停用用例直接停用负责教师被001合法移交规则409拒绝，改用已撤课学生验证停用；首次ruff报告app导入格式和浏览器脚本过宽异常捕获，分别整理导入及收窄脱敏异常边界后通过。没有修改队友业务来让测试通过。
 
-真实浏览器：[复现脚本](../scripts/verify_spec006_questions.py)、[可选依赖](../backend/requirements-browser.txt)。使用已安装headless Chrome154.0.8037.98和真实HTTP/Vue；仅bootstrap管理员/教师，课程/学生/成员通过真实API准备，完全不建立知识/试卷夹具。四组检查：教师登录空题库且知识缺失禁用新增、实际HTTP创建503且无半份题目、390px无横向溢出、学生登录空题库且无教师控件。所有page_errors为空。结果见[browser-results.json](evidence/spec-006/questions/browser-results.json)，截图[教师依赖提示](evidence/spec-006/questions/chrome-teacher-blocked.png)及[学生空题库](evidence/spec-006/questions/chrome-student-empty.png)已目视检查。脚本结束关闭新建浏览器、Vite/API服务器及临时库，无密码/Cookie/token存档。
+真实浏览器：[复现脚本](../scripts/verify_spec006_questions.py)、[可选依赖](../backend/requirements-browser.txt)。执行人：黄俊诚任务下的Codex自动执行；时间2026-10-13 21:26:20—21:26:24（Asia/Shanghai，仅此测试时段）。使用已安装headless Chrome154.0.8037.98和真实HTTP/Vue；仅bootstrap管理员/教师，课程/学生/成员通过真实API准备，完全不建立知识/试卷夹具。四组检查：教师登录空题库且知识缺失禁用新增、实际HTTP创建503且无半份题目、390px无横向溢出、学生登录空题库且无教师控件。所有page_errors为空。结果见[browser-results.json](evidence/spec-006/questions/browser-results.json)，截图[教师依赖提示](evidence/spec-006/questions/chrome-teacher-blocked.png)及[学生空题库](evidence/spec-006/questions/chrome-student-empty.png)已目视检查。脚本结束关闭新建浏览器、Vite/API服务器及临时库，无密码/Cookie/token存档。
 
 ## 提交与下一恢复
 
@@ -81,7 +81,8 @@ Windows Python3.13.12、Node24.14.0；全量后端31项（develop原19+本轮12�
 |---|---|---|
 | 后端模型/版本/迁移/API与测试 | d582039 | 已推送006 feature |
 | 教师页面/客户端测试/真实浏览器脚本 | df4f1b5b04d7e03a831740c6cf8ecf138430400d | 已推送；浏览器原始报告的tested_head |
+| 首轮正式契约与证据 | cfd868b1f58a8deae199e9f05e1e046e5e83a6e5 | 已推送；CI38405502738通过 |
 
-PR保持草稿，目标develop；未合并006/005、未发布。正式证据提交、新head CI、PR编号及评审在个人交接与PR中按实际结果补录，不沿用旧head成功。
+[PR #7](https://github.com/Gindama713/nchu-web-learning_platform/pull/7)保持草稿，目标develop；未合并006/005、未发布。上述cfd868b对应[CI38405502738](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38405502738)已完成success，jobs核对policy/lint/test/build/required全success、grader skipped；查询reviews为空，没有真实非作者批准。后续提交的新head CI在个人交接与PR中按实际结果核对，不沿用此旧head成功。
 
 下一恢复：优先个人会话计划第6节，继续006同分支fetch/核对PR与CI；C02b可继续实施本人编卷/固定版本/名单/保密发布及教师页面，不将夹具当真实试卷；005进入develop后merge同步并优先补真实知识标签和完整题库保存联测。003仍由队友负责。006未完成，C03/C04及008等其他包未启动；005独立分支仍保留图文/性能恢复点及草稿PR。涉及API/数据库/权限的真实两名非作者批准、CI、课堂/生产验收分别记录。
