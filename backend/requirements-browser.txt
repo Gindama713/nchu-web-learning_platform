@@ -1,0 +1,2 @@
+# Optional local SPEC-005 browser acceptance; uses installed Chrome/Edge channels.
+playwright==1.63.0
