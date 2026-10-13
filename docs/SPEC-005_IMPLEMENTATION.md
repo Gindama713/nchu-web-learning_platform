@@ -57,8 +57,10 @@ PRD/README声明团队设计评审完成；2026-10-13读取框架[PR #1](https:/
 
 ## 提交、PR与下一恢复点
 
-- 后端第一部分：`8ed56b5`，已推送origin/feature/spec-005-knowledge（完整SHA以git记录为准）。
-- 第二部分前端及边界回归：`e7189ad`，已推送同一feature；第三部分接缝对齐及草稿PR/CI结果提交后补录，未合并develop、未发布。
+- 后端第一部分：`8ed56b56d24b0e4de536d0bb7a7b7c01ade68a5c`，已推送origin/feature/spec-005-knowledge。
+- 第二部分前端及边界回归：`e7189ad8e375319ba50af74b8b5ab440e1045b44`；第三部分接缝对齐：`0e38730b59a4224bf32fb55ee0ac3e2790201708`，均已推送同一feature。
+- [草稿PR #4](https://github.com/Gindama713/nchu-web-learning_platform/pull/4)，feature→develop。当前基线仍为96601372，未合并develop、未发布；依赖及真实验收未关闭，不能转正式合并就绪。
+- 代码提交0e38730的[Actions 38344996554](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38344996554)已核验：ci-policy/ci-lint/ci-test/ci-build/ci-required全部success；ci-grader在develop按现有规则skipped，不能写成真实引擎成功。CI使用Node22/Python3.12，和本机环境分开。后续文档提交触发的新head检查应单独查询，不能沿用旧head成功。
 - 下一会话继续C01，同分支fetch最新origin/develop，先核对001及公共runner是否真实合入；只有就绪后才对接course_security和模块迁移。不要用FixtureSecurity接运行应用，也不要自行实现001或公共runner。
 - 对接后在受控真实课程执行教师新增/改名/排序/发布→学生登录检索→收藏/完成→刷新/登出重登→撤销成员/下架隐藏→再次发布恢复历史，记录SHA及真实测试结果；完成副本迁移/重复执行/回滚边界验证。
 - C06补R38聚合null及from/to同集合输出，C10补011索引失效联测；其他工作包未开始。
