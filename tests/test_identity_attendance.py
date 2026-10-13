@@ -261,6 +261,7 @@ class FlowTest(TestCase):
         self.call(self.teacher, "POST", f"/api/v1/courses/{course_id}/members",
                   {"user_id": student_id, "member_role": "student"})
         beginning = (self.at - timedelta(minutes=2)).isoformat()
+        ending = (self.at + timedelta(minutes=2)).isoformat()
         task = self.call(self.teacher, "POST", f"/api/v1/courses/{course_id}/attendance-tasks",
                          {"title": "Lab", "start_at": beginning,
                           "late_at": (self.at + timedelta(minutes=1)).isoformat(),
@@ -270,14 +271,16 @@ class FlowTest(TestCase):
         self.call(self.teacher, "POST", f"/api/v1/attendance-tasks/{task['id']}/close", {})
         db = connect(self.path)
         try:
-            db.executescript("CREATE TABLE paper (id INTEGER PRIMARY KEY,course_id INTEGER,status TEXT,"
-                             "kind TEXT,start_at TEXT);"
-                             "CREATE TABLE paper_item (paper_id INTEGER,question_version_id INTEGER,"
-                             "points_hundredths INTEGER);"
-                             "CREATE TABLE attempt (id INTEGER PRIMARY KEY,paper_id INTEGER,student_id INTEGER,"
+            db.executescript("CREATE TABLE attempt (id INTEGER PRIMARY KEY,paper_id INTEGER,student_id INTEGER,"
                              "status TEXT,score_hundredths INTEGER);")
-            db.execute("INSERT INTO paper VALUES(1,?,'published','quiz',?)", (course_id, beginning))
-            db.execute("INSERT INTO paper_item VALUES(1,1,5000)")
+            # Paper/question tables are now owned by SPEC-006; attempt remains a fixture.
+            db.execute("INSERT INTO question(id,course_id) VALUES(1,?)", (course_id,))
+            db.execute("INSERT INTO question_version(id,question_id,version,type,stem,options_json,answer_json,difficulty) "
+                       "VALUES(1,1,1,'boolean','fixture','[]','true','easy')")
+            db.execute("INSERT INTO paper(id,course_id,title,kind,confidential) VALUES(1,?,'fixture','quiz',0)", (course_id,))
+            db.execute("INSERT INTO paper_item VALUES(1,1,1,1,5000)")
+            db.execute("UPDATE paper SET status='published',start_at=?,end_at=?,review_at=? WHERE id=1",
+                       (beginning, ending, ending))
             db.execute("INSERT INTO attempt VALUES(1,1,?,'graded',2500)", (student_id,))
         finally:
             db.close()

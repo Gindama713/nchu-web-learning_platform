@@ -1,6 +1,6 @@
-"""Real SPEC-001 API tests, plus explicitly isolated knowledge/paper schema fixtures.
+"""Real SPEC-001/paper API tests, plus an explicitly isolated knowledge schema fixture.
 
-FixtureVersionTest does NOT certify integration with unmerged SPEC-005 or future papers.
+FixtureVersionTest does NOT certify integration with unmerged SPEC-005.
 """
 
 import secrets
@@ -71,12 +71,6 @@ class QuestionApiBase(TestCase):
             db.execute('INSERT INTO chapter VALUES(1,?)', (self.course_id,))
             db.execute('INSERT INTO knowledge_point VALUES(1,1)')
             db.execute('INSERT INTO knowledge_point VALUES(2,1)')
-
-    def paper_fixture(self):
-        with closing(connect(self.path)) as db:
-            db.executescript('CREATE TABLE paper(id INTEGER PRIMARY KEY,status TEXT,confidential INTEGER,review_at TEXT);'
-                             'CREATE TABLE paper_item(paper_id INTEGER,question_id INTEGER,question_version_id INTEGER);')
-
 
 class RealQuestionApiTest(QuestionApiBase):
     def test_real_auth_empty_list_missing_knowledge_rejects_without_partial_write(self):
@@ -171,12 +165,8 @@ class FixtureVersionTest(QuestionApiBase):
         self.call(self.student, 'PATCH', f"/questions/{item['id']}", {'stem': 'steal'}, 403)
         self.call(self.teacher, 'PATCH', f"/questions/{item['id']}", {'knowledge_ids': [3]}, 400)
 
-    def test_opening_requires_paper_guard_and_public_history_is_monotonic(self):
-        self.call(self.teacher, 'POST', self.url, question(practice_available=True), 503)
-        self.assertEqual(self.call(self.teacher, 'GET', self.url).json['total'], 0)
+    def test_opening_uses_real_paper_guard_and_public_history_is_monotonic(self):
         item = self.create()
-        self.call(self.teacher, 'PATCH', f"/questions/{item['id']}", {'practice_available': True}, 503)
-        self.paper_fixture()
         opened = self.call(self.teacher, 'PATCH', f"/questions/{item['id']}", {'practice_available': True}).json['data']
         student_item = self.call(self.student, 'GET', self.url).json['data'][0]
         self.assertEqual(student_item['version_id'], opened['version_id'])
@@ -189,12 +179,15 @@ class FixtureVersionTest(QuestionApiBase):
                 db.execute('UPDATE question SET ever_public=0 WHERE id=?', (item['id'],))
 
     def test_reserved_identity_blocks_all_versions_and_abnormal_public_list(self):
-        self.paper_fixture()
         item = self.create(practice_available=True)
         self.call(self.teacher, 'PATCH', f"/questions/{item['id']}", {'stem': 'v2'})
         with closing(connect(self.path)) as db:
-            db.execute("INSERT INTO paper VALUES(1,'published',1,NULL)")
-            db.execute('INSERT INTO paper_item VALUES(1,?,?)', (item['id'], item['version_id']))
+            # Deliberately abnormal historical data bypasses API public eligibility.
+            db.execute("INSERT INTO paper(id,course_id,title,kind,confidential) VALUES(1,?,'legacy','quiz',1)",
+                       (self.course_id,))
+            db.execute('INSERT INTO paper_item VALUES(1,?,?,1,100)', (item['version_id'], item['id']))
+            db.execute("UPDATE paper SET status='published',start_at='2026-10-13T10:00:00.000Z',"
+                       "end_at='2026-10-13T11:00:00.000Z',confidentiality_note='legacy anomaly' WHERE id=1")
         self.call(self.teacher, 'PATCH', f"/questions/{item['id']}", {'practice_available': True}, 409)
         response = self.call(self.student, 'GET', self.url, status=409)
         self.assertEqual(response.json['error']['code'], 'QUESTION_RESERVED')

@@ -15,6 +15,7 @@ from backend.apis import (
     attendance,
     courses,
     identity,
+    papers,
     questions,
     recognition,
     warnings,
@@ -42,7 +43,8 @@ def create_app(config=None):
     if config:
         app.config.update(config)
     app.teardown_appcontext(close_db)
-    for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp, recognition.bp, questions.bp):
+    for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
+                      recognition.bp, questions.bp, papers.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
 
     @app.before_request

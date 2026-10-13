@@ -21,8 +21,6 @@ class WarningFactsTest(TestCase):
             migrate(path)
             db = connect(path)
             db.executescript("""
-                CREATE TABLE paper(id INTEGER PRIMARY KEY,course_id INTEGER,status TEXT,start_at TEXT);
-                CREATE TABLE paper_item(paper_id INTEGER,question_version_id INTEGER,points_hundredths INTEGER);
                 CREATE TABLE attempt(id INTEGER PRIMARY KEY,paper_id INTEGER,student_id INTEGER,submitted_at TEXT);
                 CREATE TABLE answer(id INTEGER PRIMARY KEY,attempt_id INTEGER,question_version_id INTEGER,
                     score_hundredths INTEGER,answered INTEGER);
@@ -49,8 +47,10 @@ class WarningFactsTest(TestCase):
             db.execute("INSERT INTO question(id,course_id) VALUES(1,1)")
             db.execute("INSERT INTO question_version(id,question_id,version,type,stem,options_json,answer_json,difficulty) "
                        "VALUES(1,1,1,'single','fixture','[]','\"A\"','easy')")
-            db.execute("INSERT INTO paper VALUES(1,1,'published',?)", (START,))
-            db.execute("INSERT INTO paper_item VALUES(1,1,1000)")
+            db.execute("INSERT INTO paper(id,course_id,title,kind,confidential) VALUES(1,1,'fixture','homework',0)")
+            db.execute("INSERT INTO paper_item VALUES(1,1,1,1,1000)")
+            db.execute("UPDATE paper SET status='published',start_at=?,end_at=?,review_at=? WHERE id=1",
+                       (START, END, END))
             db.execute("INSERT INTO attempt VALUES(1,1,1,?)", (AT,))
             db.execute("INSERT INTO answer VALUES(1,1,1,0,1)")
             for identifier, correct in enumerate((0, 0, 1, 0), 1):

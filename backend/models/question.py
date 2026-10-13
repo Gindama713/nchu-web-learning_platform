@@ -131,17 +131,24 @@ def check_knowledge(db, course_id, ids):
             invalid('知识标签须属于本课程')
 
 
-def ensure_practice_unreserved(db, question_ids):
+def ensure_questions_unreserved(db, question_ids, *, confidential=False, at=None):
     """Shared question-identity guard. Caller holds the read/write transaction."""
     require_tables(db, {'paper', 'paper_item'}, '试卷保密保护尚未接入，暂不能开放或读取公开练习')
-    at = stamp()
+    from backend.models.paper import ready as papers_ready
+
+    papers_ready(db)
+    at = at or stamp()
     for question_id in question_ids:
         reserved = db.execute(
             'SELECT 1 FROM paper p JOIN paper_item i ON i.paper_id=p.id '
-            "WHERE i.question_id=? AND p.status='published' AND p.confidential=1 "
-            'AND (p.review_at IS NULL OR p.review_at>?) LIMIT 1', (question_id, at)).fetchone()
+            "WHERE i.question_id=? AND p.status='published' AND (p.confidential=1 OR ?=1) "
+            'AND (p.review_at IS NULL OR p.review_at>?) LIMIT 1', (question_id, int(confidential), at)).fetchone()
         if reserved:
-            raise ApiError(409, 'QUESTION_RESERVED', '题目仍被保密试卷保护，不能开放练习')
+            raise ApiError(409, 'QUESTION_RESERVED', '题目仍被试卷保护，不能公开或再次发布')
+
+
+def ensure_practice_unreserved(db, question_ids, *, at=None):
+    ensure_questions_unreserved(db, question_ids, at=at)
 
 
 def latest(db, question_id):
