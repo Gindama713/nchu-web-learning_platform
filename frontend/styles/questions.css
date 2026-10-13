@@ -1,0 +1,15 @@
+.question-bank { min-width: 0; }
+.question-bank .actions h2 { margin: 0 auto 0 0; }
+.question-bank button:disabled { opacity: .55; cursor: wait; }
+.question-bank label, .question-bank fieldset { min-width: 0; }
+.question-bank [role="alert"] { color: #922f25; }
+.question-editor { display: grid; gap: 16px; max-width: 800px; }
+.question-editor fieldset { border: 1px solid #dce4ee; border-radius: 7px; padding: 16px; }
+.question-option { display: grid; grid-template-columns: 100px 1fr auto; align-items: end; gap: 12px; margin: 12px 0; }
+.question-check { display: flex; align-items: center; gap: 8px; margin: 8px 0; font-weight: normal; }
+.question-detail { border-top: 1px solid #dce4ee; padding-top: 16px; }
+.question-text, .question-bank .rows button { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 620px) {
+  .question-option { grid-template-columns: 1fr; }
+  .question-bank .rows button { max-width: 100%; }
+}

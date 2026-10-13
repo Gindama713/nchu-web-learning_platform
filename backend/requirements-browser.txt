@@ -1,0 +1,2 @@
+# Optional local browser verification; not an application or CI dependency.
+playwright==1.63.0

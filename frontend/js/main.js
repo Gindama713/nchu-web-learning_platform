@@ -1,8 +1,11 @@
 import { createApp, onMounted, reactive, ref } from 'vue'
 import { apiRequest, readApi } from './api.js'
+import { QuestionBankView } from './question-view.js'
 import '../styles/main.css'
+import '../styles/questions.css'
 
 createApp({
+  components: { QuestionBankView },
   setup() {
     const user = ref(null)
     const csrf = ref('')
@@ -318,6 +321,7 @@ createApp({
               <label v-if="recognition.status !== 'confirmed'">结构草稿（可删改 symbol、bbox、label）<textarea v-model="draft" rows="8"></textarea></label>
               <button v-if="recognition.status !== 'confirmed'" type="button" @click="confirm">人工确认草稿</button></template></section>
         </template>
+        <QuestionBankView v-if="user.role !== 'admin'" :key="user.id + ':' + user.role" :user="user" />
       </template>
     </main>`,
 }).mount('#app')
