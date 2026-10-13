@@ -224,6 +224,8 @@ attendance-performance-v1的唯一计算定义及C01—C04见PRD第4.4节：同�
 
 当前模板、定位与模板哈希属于 `recognition-template-v1-provisional`；仅合成图测试已执行，PRD所列固定 SHA 的 F01—F05 原始图片尚未进入仓库，TV-03 实测与版本冻结前不得声称达到固定图片验收。上传保存图片所有权和哈希；确认仅更新 `recognition.confirmed_items_json`，不会写电路网表、实验状态或分数。
 
+confirm的items数量不得超过本次识别的items数量；因此unrecognized的确认只能提交空数组，不能通过识别确认接口创建原本未检出的符号。
+
 ## 6 实验与连线接口 SPEC-009/017
 
 ExperimentVersion读模型：id、experiment_id、version、title、objectives、knowledge_ids、instructions、submission_modes（wiring/circuit的非空子集）、panel（components及terminals，wiring模式必需）、rules、judge_profile_id（服务端派生；circuit草稿未配置时为null，已发布circuit版本必须非空，wiring-only版本为null）、published_at。端子字段id字符串、component_id字符串、name、direction枚举in/out、width整数1—8、required布尔。每版本发布后不可变，teacher可创建新版本。

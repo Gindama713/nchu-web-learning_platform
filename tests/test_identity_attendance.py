@@ -120,6 +120,71 @@ class FlowTest(TestCase):
         response = self.call(self.admin, "PATCH", f"/api/v1/users/{admin_id}", {"active": False})
         self.assertEqual(response.status_code, 409)
 
+    def test_uc01_leave_rejection_resubmission_close_and_correction(self):
+        students = [self.student, self.other, self.app.test_client()]
+        student_ids = [self.register(client, f"STUDENT0{index}")
+                       for index, client in enumerate(students, 1)]
+        teacher_id = self.teacher.get("/api/v1/auth/session").json["data"]["user"]["id"]
+        course_id = self.call(self.admin, "POST", "/api/v1/courses",
+                              {"title": "CPU", "teacher_id": teacher_id}).json["data"]["id"]
+        for student_id in student_ids:
+            self.assertEqual(self.call(self.teacher, "POST", f"/api/v1/courses/{course_id}/members",
+                                       {"user_id": student_id, "member_role": "student"}).status_code, 201)
+        with patch("backend.apis.attendance.secrets.randbelow", return_value=12345):
+            created = self.call(self.teacher, "POST", f"/api/v1/courses/{course_id}/attendance-tasks",
+                                {"title": "Lab", "start_at": self.at.isoformat(),
+                                 "late_at": (self.at + timedelta(minutes=10)).isoformat(),
+                                 "end_at": (self.at + timedelta(minutes=30)).isoformat()})
+        self.assertEqual(created.status_code, 201, created.json)
+        task_id = created.json["data"]["id"]
+        self.assertEqual(created.json["data"]["code"], "012345")
+        self.assertNotIn("code", self.teacher.get(
+            f"/api/v1/courses/{course_id}/attendance-tasks").json["data"][0])
+        self.advance(5)
+        first = self.call(students[0], "POST", f"/api/v1/attendance-tasks/{task_id}/check-ins",
+                          {"code": "012345"})
+        self.assertEqual(first.status_code, 201, first.json)
+        self.assertEqual(self.call(students[0], "POST", f"/api/v1/attendance-tasks/{task_id}/check-ins",
+                                   {"code": "012345"}).json["data"]["id"], first.json["data"]["id"])
+        leave = self.call(students[1], "POST", f"/api/v1/attendance-tasks/{task_id}/leave-requests",
+                          {"reason": "ill"})
+        self.assertEqual(leave.status_code, 201, leave.json)
+        leave_id = leave.json["data"]["id"]
+        self.assertEqual(self.call(students[0], "PATCH", f"/api/v1/leave-requests/{leave_id}",
+                                   {"status": "approved", "note": "not allowed"}).status_code, 403)
+        self.assertEqual(self.call(self.teacher, "PATCH", f"/api/v1/leave-requests/{leave_id}",
+                                   {"status": "rejected", "note": "need detail"}).status_code, 200)
+        self.assertEqual(self.call(students[1], "PUT", f"/api/v1/leave-requests/{leave_id}",
+                                   {"reason": "medical leave"}).status_code, 200)
+        self.assertEqual(self.call(self.teacher, "PATCH", f"/api/v1/leave-requests/{leave_id}",
+                                   {"status": "approved", "note": "verified"}).status_code, 200)
+        self.assertEqual(self.call(students[1], "POST", f"/api/v1/attendance-tasks/{task_id}/check-ins",
+                                   {"code": "012345"}).json["data"]["status"], "leave")
+        closed = self.call(self.teacher, "POST", f"/api/v1/attendance-tasks/{task_id}/close", {})
+        self.assertEqual(closed.json["data"]["counts"],
+                         {"present": 1, "late": 0, "leave": 1, "absent": 1})
+        self.assertEqual(self.call(students[0], "POST", f"/api/v1/attendance-tasks/{task_id}/check-ins",
+                                   {"code": "012345"}).json["data"]["id"], first.json["data"]["id"])
+        self.assertEqual(self.call(students[2], "POST", f"/api/v1/attendance-tasks/{task_id}/check-ins",
+                                   {"code": "012345"}).status_code, 409)
+        records = self.teacher.get(f"/api/v1/courses/{course_id}/attendance-records").json["data"]
+        self.assertEqual(len(records), 3)
+        self.assertEqual({row["status"] for row in records}, {"present", "leave", "absent"})
+        corrected = self.call(self.teacher, "PATCH", f"/api/v1/leave-requests/{leave_id}",
+                              {"status": "rejected", "note": "correction", "restore_status": "absent"})
+        self.assertEqual(corrected.status_code, 200, corrected.json)
+        db = connect(self.path)
+        try:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM leave_review_event WHERE leave_id=?",
+                                        (leave_id,)).fetchone()[0], 4)
+            self.assertEqual(db.execute("SELECT status FROM attendance_record WHERE task_id=? AND student_id=?",
+                                        (task_id, student_ids[1])).fetchone()[0], "absent")
+            self.assertTrue(db.execute("SELECT 1 FROM audit_event WHERE action='leave.review' ").fetchone())
+            self.assertTrue(db.execute("SELECT 1 FROM notification WHERE user_id=? AND target_type='leave_request'",
+                                       (student_ids[1],)).fetchone())
+        finally:
+            db.close()
+
     def test_warning_run_is_atomic_idempotent_and_teacher_only(self):
         teacher_id = self.teacher.get("/api/v1/auth/session").json["data"]["user"]["id"]
         course_id = self.call(self.admin, "POST", "/api/v1/courses",
@@ -169,6 +234,9 @@ class FlowTest(TestCase):
         invalid = self.call(self.student, "POST", f"/api/v1/recognitions/{recognition_id}/confirm",
                             {"items": [{"symbol": "AND", "bbox": [0, 0, 900, 100]}]})
         self.assertEqual(invalid.status_code, 400)
+        added = self.call(self.student, "POST", f"/api/v1/recognitions/{recognition_id}/confirm",
+                          {"items": [{"symbol": "AND", "bbox": [80, 60, 160, 120], "label": "A"}] * 2})
+        self.assertEqual(added.status_code, 400)
         confirmed = self.call(self.student, "POST", f"/api/v1/recognitions/{recognition_id}/confirm",
                               {"items": [{"symbol": "AND", "bbox": [80, 60, 160, 120], "label": "A"}]})
         self.assertEqual(confirmed.status_code, 200, confirmed.json)

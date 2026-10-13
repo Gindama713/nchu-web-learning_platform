@@ -236,6 +236,8 @@ def confirm(recognition_id):
             raise ApiError(500, "INTERNAL_ERROR", "Invalid stored image key")
         _, width, height = dimensions((storage_root() / key).read_bytes())
         originals = json.loads(row["items_json"])
+        if len(data["items"]) > len(originals):
+            raise ApiError(400, "VALIDATION_ERROR", "Confirmation cannot add undetected symbols")
         items = []
         for item in data["items"]:
             if not isinstance(item, dict) or set(item) - {"symbol", "bbox", "label"} or not {"symbol", "bbox"} <= set(item):
