@@ -166,6 +166,14 @@ QuizStatistics={quiz_id,source_until,expected_count,submitted_count,missing_coun
 
 演示preset为内置可信场景：gate为AND/OR/NOT/XOR真值；comb为多路选择/组合ALU；sequential为REG8；alu为ALU8；memory为ROM16X8读取；cpu为CPU-EDU-8固定程序执行。gate/comb/memory无实验关联也可用，禁止任意脚本。场景只读定义固定scene_version，demo_session固化版本和初态；state动作只允许该场景的白名单输入。CPU演示使用可信内置状态机和ROM，不调用学生.circ；circuit-only的EXP-04可关联CPU演示而不要求wiring panel。组合场景step仅重新传播，时序场景按PRD周期推进。教学演示不写学生实验成绩。
 
+### 4.1 SPEC-006题库版本实现阶段（C02a）
+
+当前实现本节三个questions端点，编卷/发布/作答/批阅/练习提交/错题留给C02b—C04。教师创建、PATCH和列表共享`id,version_id,version,type,stem,options,answer,explanation,difficulty,tolerance,knowledge_ids,practice_available`；id为稳定question身份，version_id为固定内容版本，version从1递增。列表只选未归档question的最新版本，按question.id升序；学生仅看practice_available=true版本并始终删除answer/explanation。题库列表不承担试卷讲评后的答案入口。
+
+创建必传type/stem/options/answer/difficulty/knowledge_ids，其余按本节默认值；未知字段、空PATCH、重复或非法知识ID拒绝400。stem及选项text为1—5000字符，explanation为0—5000字符；知识标签必须非空且同课。每次有效PATCH以当前最新字段为基础合并并完整校验，在同一短写事务追加版本及知识关联，不更新旧行；公开版本置question.ever_public=1，后续私有版本不清除公开历史。简答不支持单题公开练习。
+
+公共001提供会话/CSRF/Origin和事务内权限复核；005未进入当前基线时知识写入返回503 DEPENDENCY_UNAVAILABLE，模块迁移缺失/校验失败返回503 MAINTENANCE。开放练习及学生公开题读取通过question身份的统一保密检查；paper/paper_item尚未接入时503，有未到讲评的published保密卷时409 QUESTION_RESERVED，不按end_at提前释放。C02b/C04须复用并完成其他入口的保护，当前隔离用例不代表已实现试卷发布。实现与证据见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
+
 ## 5 分析与智能接口 SPEC-010—016
 
 | 方法与路径 | 入参 | 返回data | 权限及约束 |

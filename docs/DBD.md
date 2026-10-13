@@ -181,6 +181,8 @@ grading_run增加部分唯一索引：同submission_id在status IN ('queued','ru
 
 迁移带版本和校验和，先备份和副本演练。增加字段先兼容旧数据，删除/重命名不得未经数据迁移直接上线。恢复数据库前保留当前状态，明确恢复点之后新增提交的处置；只回退代码不能自动撤销数据库变更，具体见CHG-RB。
 
+SPEC-006/C02a迁移单一定义为`backend/migrations/006_question_versions.sql`，由既有公共runner按文件stem及UTF-8文本SHA-256登记；只创建question/question_version/question_knowledge、查询索引和保留约束，不建立知识、试卷、作答或成绩替身。question_version及已有知识关联禁止UPDATE/DELETE；新增版本和标签同事务写入，ever_public禁止1→0。SQLite允许先声明到knowledge_point的外键，但当前基线未包含005时知识写入仍返回503，不关闭foreign_keys或允许无标签写入。目标集成须在005正式进入develop后由公共runner接入父表并做真实联测，不能仅凭空表迁移成功宣布知识依赖已完成。具体测试性质及恢复点见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
+
 ## 9 跨模块事务不变量
 
 字段未写类型的哈希/状态/时间为TEXT，快照为经验证JSON TEXT，*_id为INTEGER FK。冻结名单及结果不随成员active变化更新；所有历史实体禁止级联删除。course_member创建/恢复必须与全局角色匹配；course负责人需active teacher成员。角色/active变更在同一短写事务检查“至少一位active admin”、移交负责课程并失效不兼容成员与会话；SQLite串行写锁覆盖计数和更新，不能事务外先计数。

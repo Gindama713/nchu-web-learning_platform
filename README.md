@@ -150,6 +150,21 @@ npm run build
 
 完整追加验收及现行契约位置见[PRD第12节](docs/PRD.md#supplemental-acceptance)。文档一致性核对与未来运行验收分别记录。
 
+### 8.4 SPEC-006题库与版本（C02a部分实现）
+
+沿用第8节启动和迁移命令。教师登录后可从课程题库列表按题型/难度/知识点筛选，新增五题型或将题目编辑为新版本；旧版本保留。学生列表只显示最新公开练习版本，不含标准答案或解析。题库导入、编卷发布、作答判分、批阅和错题尚未实现，不能将C02a记作006完成。
+
+当前分支从develop独立起步，未包含尚未合入的005。题目必须绑定真实同课知识标签；知识接口缺失时页面明确提示并禁用新增，后端返回503 DEPENDENCY_UNAVAILABLE且不写半份题目。试卷保密检查未接入时同样阻止开放练习。测试性质、完整验收待办及恢复点见[SPEC-006实施记录](docs/SPEC-006_IMPLEMENTATION.md)。
+
+可选本地Chrome验证（空闲5000/5173端口、已安装Chrome及前后端依赖）：
+
+```powershell
+python -m pip install -r backend/requirements-browser.txt
+python -m scripts.verify_spec006_questions
+```
+
+脚本用临时库和新浏览器上下文，验证真实登录、空题库、依赖失败及窄屏，不创建知识或试卷替身。默认结果在被忽略的logs/spec-006-questions；它不证明带知识标签的真实保存或全量浏览器验收。
+
 <a id="submission-check"></a>
 ## 9 本次提交状态与自查
 
