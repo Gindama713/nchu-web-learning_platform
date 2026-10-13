@@ -123,4 +123,6 @@ fetch后origin/develop为`ca8ae47f6ad987d1af11c4212a116c4fb7ece5bc`（队友PR #
 
 2026-10-13 19:59（Asia/Shanghai）恢复核对：fetch后develop仍为`ca8ae47`，本地/远端005 feature及PR head均为上述`5bb3641`，develop已包含于feature，无需再次merge。重新查询[Actions 38393278642](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38393278642)及jobs，policy/lint/test/build/required全部success、grader skipped；PR为open/draft、未合并，reviews为空。队友未完成的依赖仍保留。本轮随后修正README过期浏览器说明并补测试入口索引，没有改变业务或APIC/DBD契约；新文档head的CI另行核验。
 
-下一恢复：继续C01同分支fetch最新develop并核对PR最新head/CI。浏览器双端指定版本已补证；优先等003真实授权图片入口就绪并完成上述APIC/DBD对接，再实施图文及资源撤权联测。目标Linux4核8GB/50会话/worker性能仍未执行，需队友worker及目标环境；不以本机WSL探测冒充通过。001及公共runner已接入，不重做或重复当缺失阻塞。不启动C02、不接管003、不合并005或发布；PR保留draft，真实非作者批准/课堂验收另记。C06补R38正式聚合、C10补索引失效；其他本人工作包未开始。
+下一恢复：继续C01同分支fetch最新develop并核对PR最新head/CI。浏览器双端指定版本已补证；优先等003真实授权图片入口就绪并完成上述APIC/DBD对接，再实施图文及资源撤权联测。目标Linux4核8GB/50会话/worker性能仍未执行，需队友worker及目标环境；不以本机WSL探测冒充通过。001及公共runner已接入，不重做或重复当缺失阻塞。不接管003、不合并005或发布；PR保留draft，真实非作者批准/课堂验收另记。C06补R38正式聚合、C10补索引失效。
+
+用户本轮已明确调整计划：允许先推进C02中不依赖队友的部分。006从核验的origin/develop建立独立feature，先做C02a题目模型校验和不可变版本；不复制未合入005代码。Question的knowledge_ids仍须非空并引用真实同课知识，因此005未合入时相关创建/编辑和知识标签联测须明确阻断，不能去掉标签约束或用夹具冒充真实接入。此调整不解除005缺口或合并门禁。
