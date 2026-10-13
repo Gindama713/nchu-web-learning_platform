@@ -132,6 +132,8 @@ def check_in(task_id):
         existing = db.execute("SELECT * FROM attendance_record WHERE task_id=? AND student_id=?",
                               (task_id, user["id"])).fetchone()
         if existing:
+            if task["status"] != "open" and existing["checked_at"] is None and existing["status"] != "leave":
+                raise ApiError(409, "STATE_CONFLICT", "Attendance window is closed")
             return result(record_json(existing))
         timestamp = stamp()
         if task["status"] != "open" or not task["start_at"] <= timestamp < task["end_at"]:
