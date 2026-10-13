@@ -48,16 +48,6 @@ def integrity_error(error):
     return error_response(409, "STATE_CONFLICT", "数据状态冲突，请刷新后重试")
 
 
-@blueprint.errorhandler(Exception)
-def unexpected_error(error):
-    request_id = uuid4().hex
-    current_app.logger.error("Knowledge request failed: %s request_id=%s", type(error).__name__, request_id)
-    result = jsonify(error={"code": "INTERNAL_ERROR", "message": "服务异常，请稍后重试", "details": {}},
-                     request_id=request_id)
-    result.headers["Cache-Control"] = "no-store"
-    return result, 500
-
-
 def endpoint(function):
     @wraps(function)
     def dispatch(**kwargs):

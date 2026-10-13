@@ -201,7 +201,8 @@ class KnowledgeTest(TestCase):
 
     def test_http_closed_security_csrf_and_validation(self):
         del self.app.extensions["course_security"]
-        self.assertEqual(self.client.get("/api/v1/knowledge-points/1").status_code, 503)
+        # SPEC-001 now exists on develop; without a cookie its real helper rejects 401.
+        self.assertEqual(self.client.get("/api/v1/knowledge-points/1").status_code, 401)
         self.app.extensions["course_security"] = self.security
         self.security.user_id = None
         self.assertEqual(self.client.get("/api/v1/knowledge-points/1").status_code, 401)
