@@ -145,3 +145,5 @@ docs仅保留PRD、README、APIC、ADR、CHG-RB和DBD六份主文档。将重复
 仓库管理员经 GitHub API 为 main/develop 启用经典分支保护，并在设置后重新 GET 读回核对：两者均要求 PR、至少1名批准者、新提交撤销旧批准、最后推送者以外的批准、解决讨论、strict 最新目标分支检查；管理员受规则约束，禁止强推及删除。develop 必需检查为 ci-policy、ci-lint、ci-test、ci-build、ci-required；main 另要求 ci-grader。仓库只允许 merge commit，关闭 squash/rebase，关闭合并后自动删除分支。PR #5 对应 Actions 运行 `38382725263` 为 success，证明该 PR 的现阶段 CI 通过，不证明完整系统或 main 发布就绪。
 
 保护配置的 API 读取不是直推拒绝、故意失败检查、旧批准失效等负向演练；这些及 release/* 保护、检查来源绑定、Gitea 归档 SHA 核对尚未执行。main 的 ci-grader 仍是故意失败的真实引擎占位，SPEC-018 未完成前不得发布。
+
+记录本次配置的 PR #6 在 Actions 运行 `38383932326` 成功后，GitHub API 返回 `mergeable_state=blocked`，该文档 PR 因尚无非作者批准而保持开放。这只验证了当前审批阻断，不替代直推、失败检查或新提交撤销批准演练。
