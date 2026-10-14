@@ -25,7 +25,7 @@
 
 ## 2 建设范围与开发约束
 
-先评审规格，再开发，再依据验收条目编写测试。业务规格以 PRD 中的 SPEC 编号为入口，接口和表结构分别引用 APIC、DBD；三个文档共同组成模块规格，不另造一套相互冲突的编号。规格改变必须先评审并同步更新三处及PRD内的验收索引。
+先核对规格，再开发，再依据验收条目编写测试。业务规格以 PRD 中的 SPEC 编号为入口，接口和表结构分别引用 APIC、DBD；三个文档共同组成模块规格，不另造一套相互冲突的编号。规格改变必须在同一PR中说明原因并同步更新三处及PRD内的验收索引。
 
 按用户确认，GitHub负责日常开发、PR与GitHub Actions，Gitea负责课堂提交。GitHub为唯一开发合并来源，Gitea以专用归档分支及固定tag保留同一提交历史和SHA；不得把同步归档变成绕过main保护的直推。操作规约见ADR-004和README附录A。任务书要求Gitea托管及PR评审，并未明确PR必须在Gitea内；GitHub评审证据随Gitea归档，课堂另有要求时登记调整。
 
@@ -54,7 +54,7 @@ README 置于仓库根；docs/ 保留五份需求设计文档。backend/apis 按
 
 测试分为接口/数据库约束测试、前端交互测试、真实 Logisim 集成测试、浏览器端到端测试。每项关联 SPEC 与 AC 编号。检查点 2 之前落实测试入口与命令；检查点 5 必须在干净环境按本说明完成安装、测试、构建和启动。
 
-GitHub PR 到 main 必须自动执行测试、构建、lint；门禁还覆盖真实评测冒烟和规格完整性检查，具体见 README附录A。缺少源码或测试时不能用“无测试即成功”、空命令或跳过 job 冒充绿色 CI。框架检查现已落地；main/release 的真实评测检查会明确失败，直到 SPEC-018 实测通过。分支保护仍需在 GitHub 配置并验证。
+GitHub PR 到 main 必须自动执行测试、构建、lint；门禁还覆盖真实评测冒烟和规格完整性检查，具体见 README附录A。缺少源码或测试时不能用“无测试即成功”、空命令或跳过 job 冒充绿色 CI。框架及已实现业务检查现已落地；main/release 的真实评测检查会明确失败，直到 SPEC-018 实测通过。main/develop 分支保护已配置并经 API 读取核对，拒绝直推等负向演练及未来 release 规则仍待验证。
 
 两条关键端到端验收：学生打开实验箱→连接端子→观察逻辑输出→保存并重开→提交记录→教师查看；学生提交 .circ→后端校验并入队→隔离运行固定引擎→按测试判分→查看报告→教师按班级统计。错误电路、越权访问、超时、评测服务不可用均必须有测试。
 
@@ -121,7 +121,7 @@ npm run build
 | SPEC-010A | Pandas 考勤成绩配对、C01—C04 测试、不可变快照与同快照 CSV | 组员测评的 `paper/paper_item/attempt` 真实迁移和数据；缺表时 503 |
 | SPEC-014 | 规则与固定参数 KMeans、批次保存、处理记录和合成测试 | 组员题库、实验、评测事实表；缺表时 503，不伪造预警 |
 | SPEC-016 | PNG/JPEG 边界校验、固定字典模板、人工确认及成绩隔离；合成图测试 | PRD 固定 SHA 的 F01—F05 原图未在当前资料中找到，TV-03 尚不能宣称通过；模板 SHA/定位版本仍为 provisional |
-| SPEC-019 | 本分支复用 GitHub PR 门禁，锁定后端依赖版本 | SPEC-017/018 实验与真实 Logisim 冒烟、目标环境检查及 GitHub 分支保护仍为发布阻断项 |
+| SPEC-019 | GitHub PR 门禁、依赖锁定及 main/develop 分支保护已落地 | SPEC-017/018 真实 Logisim 冒烟、目标环境检查、release 保护及远端拒绝场景演练仍为发布阻断项 |
 
 
 ### 8.2 完整系统实施契约（待实现）
@@ -174,7 +174,7 @@ GitHub开发仓库：[nchu-web-learning_platform](https://github.com/Gindama713/
 <a id="git-workflow"></a>
 ## 附录A Git分支与CI协作规范
 
-以下为已评审工程设计。工作流已加入本分支；GitHub 分支保护与远端拒绝合并行为尚待配置和验证。关联SPEC-019，软件发布回滚细则见CHG-RB。
+以下为已评审工程设计。工作流已加入仓库；main/develop 分支保护于2026-10-13配置并通过 API 读回核对，负向阻断演练与 release 保护尚待执行。关联SPEC-019，实际设置记录见CHG-RB，软件发布回滚细则亦见CHG-RB。
 
 ### A.1 分支和权限
 
@@ -184,32 +184,32 @@ GitHub开发仓库：[nchu-web-learning_platform](https://github.com/Gindama713/
 | develop | main | 创建release候选 | 日常集成；接feature PR与release/hotfix修复回灌PR；禁止直推、强推、删除 |
 | feature/spec-编号-主题 | 最新远端develop | develop | 一项规格或已编号子规格一个主责任人；文档先行，3—5天为建议周期，超期先拆合理独立任务而非合入坏代码 |
 | release/v主.次.修订 | 已集成develop | main；再回灌develop | 冻结后只修阻断缺陷、测试及发布文档，不夹带新功能 |
-| hotfix/spec-编号-主题 | 最新main | main；再回灌develop及仍活动的release | 线上紧急修复，仍需评审和CI，不能因紧急绕过门禁 |
+| hotfix/spec-编号-主题 | 最新main | main；再回灌develop及仍活动的release | 线上紧急修复，仍需PR和CI，不能因紧急绕过门禁 |
 
-文档和测试通常在对应feature内完成，提交type区分用途，无须为每个文件增加分支类型。发布修复若多人协作，使用从release切出的release-fix/spec-编号-主题分支并PR回原release；release本身也启用PR和禁止强推。组长姜苏豪负责合并和发布，黄俊诚为代理；作者不得批准自己的PR。组长本人改动同样由他人评审。
+文档和测试通常在对应feature内完成，提交type区分用途，无须为每个文件增加分支类型。发布修复若多人协作，使用从release切出的release-fix/spec-编号-主题分支并PR回原release；release本身也启用PR和禁止强推。组长姜苏豪负责合并和发布，黄俊诚为代理；不设置必须等待组员批准的合并条件，作者也必须提交PR并通过同样的自动检查。
 
 “每天同步”和“频繁提交”是协作建议，不设置每天3—6次等机械指标。每个提交聚焦一件可解释的事；组长也须有独立业务开发和统计模块贡献。
 
 ### A.2 规格驱动的日常流程
 
 1. 确定SPEC及AC，检查依赖、接口和数据库；从已fetch的远端develop建立命名feature。
-2. 先提交PRD/APIC/DBD相关规格，通过PR或草稿PR中的明确规格评审后再写代码；PR中记录规格批准人、日期和版本。
+2. 先核对PRD/APIC/DBD相关规格再写代码；规格变更在PR中记录原因、版本、受影响接口与验收，不虚构批准人。
 3. 开发与测试分成可审查提交，提交信息为type(spec-编号): 具体改动，例如“feat(spec-017): 支持端子连接与位宽校验”。公共变更可用ci/db scope，但正文Refs必须列出SPEC-019及相关业务Spec。
-4. 个人独占、尚未评审且无人基于其开发的分支允许rebase同步，确需改写远端时仅使用带明确预期远端提交的force-with-lease。已共享/已评审分支用merge同步，不强推。禁止对main/develop/release改写历史。
+4. 个人独占且无人基于其开发的分支允许rebase同步，确需改写远端时仅使用带明确预期远端提交的force-with-lease。已共享分支用merge同步，不强推。禁止对main/develop/release改写历史。
 5. 作者解决冲突，检查工作区及暂存区差异、残留冲突标记，重新执行受影响测试。冲突解决写入PR说明，不能只保留其中一人的代码。
 6. feature PR目标为develop，描述关联Spec、改动原因、接口/数据影响、AC对照、真实测试结果及回滚方式；无证据的项目填“未执行”，不能全部勾选通过。
-7. 至少一名非作者批准、必需检查通过、讨论解决后，由合并负责人使用Create a merge commit合入。触及权限、数据库、判分、工作流、APIC时额外请求第二名非作者复核，记录两人身份。
+7. 必需检查全部通过、已有讨论解决后，由合并负责人使用Create a merge commit合入；不把组员审批设为必需条件。触及权限、数据库、判分、工作流、APIC时在PR描述中列明风险、测试与回退方式，仍须通过同一CI门禁。
 8. 合并后验证develop健康并补追溯矩阵；确认不再有依赖后删除feature。release/hotfix只有main与回灌PR均完成后才删除。
 
 远端develop、本地origin/develop和本地develop不是同一个引用。origin/develop是上次通信取得的远程跟踪状态，fetch后才用于判断最新基线；不能凭分支名字认定已经同步。
 
 ### A.3 GitHub保护规则
 
-必须启用“合并前需要PR”“至少1人批准”“新提交使旧批准失效”“解决全部评审讨论”“必需状态检查”“合并前与目标分支保持最新”。main/develop禁止强推和删除，并使管理员受相同规则约束。只允许merge commit策略，不同时要求linear history，以免与合并节点策略冲突。自动删除分支不应在main合并后立即删掉尚待回灌的release。
+必须启用“合并前需要PR”“解决全部已有讨论”“必需状态检查”“合并前与目标分支保持最新”；必需批准人数为0。main/develop禁止强推和删除，并使管理员受相同规则约束。只允许merge commit策略，不同时要求linear history，以免与合并节点策略冲突。自动删除分支不应在main合并后立即删掉尚待回灌的release。
 
-main来源限定release/*或hotfix/*；develop来源允许feature/*、release/*、hotfix/*以及backport/*回灌。来源限制由固定ci-policy检查和评审共同核实，不能仅靠PR作者填写标题。新分支受保护规则覆盖，工作流及CODEOWNERS修改必须有人复核，不能让修改自身门禁的PR自行证明安全。
+main来源限定release/*或hotfix/*；develop来源允许feature/*、release/*、hotfix/*以及backport/*回灌。来源限制由ci-policy检查，不能仅靠PR作者填写标题。工作流修改可能影响自己的CI门禁，因此该类PR须在合并前单独核对工作流差异和预期检查结果；此项为发布负责人操作责任，当前未实现独立于PR代码的技术强制。
 
-CODEOWNERS用于自动指定相关模块评审人，真实GitHub用户名在建仓时补入。它不自动等于两人签字：同一匹配规则写多个owner通常任意一人批准即可满足该要求。敏感变更需要两名非作者复核是团队额外政策；若要求技术上对所有敏感路径强制两人，须单独实现并验证对应规则，不将手工流程写成平台已保证。[官方CODEOWNERS说明](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
+CODEOWNERS可作为自愿审阅提示，不设为合并阻断条件；真实GitHub用户名在需要启用时再补入。它不替代自动测试，也不保证未实现的两人审批规则。[官方CODEOWNERS说明](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners)
 
 GitHub仓库可见性/账号方案影响保护能力。建仓验收须确认实际能启用所需规则；如果不可用，不允许声称“CI强制阻断已生效”，应调整合适方案并记录。所有状态检查名称固定且唯一，并尽可能绑定GitHub Actions来源；依赖检查必须在最新提交上完成。[官方分支保护说明](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 
@@ -217,7 +217,7 @@ GitHub仓库可见性/账号方案影响保护能力。建仓验收须确认实�
 
 工作流配置位于.github/workflows/，当前已有框架检查YAML；真实评测冒烟、完整规格检查和合并后回归仍须随对应实现补齐。PR的base为main/develop/release/*时触发，包含首次打开、更新提交、重新打开和准备评审；后续须在合并至main/develop后再运行回归。分支过滤针对目标分支，不误写成只有源分支叫main才运行。main PR不通过路径过滤跳过必需检查。
 
-当前落地的ci-policy仅检查来源分支与六份主文档的本地链接；ci-test仅有框架冒烟，ci-build仅构建前端。下表其余业务检查为发布前必须补齐的验收目标，不能把当前框架CI视为已通过完整软件门禁。
+当前落地的ci-policy仅检查来源分支与六份主文档的本地链接；ci-test包括已实现的姜苏豪模块测试，ci-build构建前端。下表其余业务检查为发布前必须补齐的验收目标，不能把当前局部CI视为已通过完整软件门禁。
 
 | 固定检查名 | 执行内容 | 失败判定与证据 |
 |---|---|---|
@@ -238,13 +238,13 @@ CI运行只读仓库权限、无生产密钥，第三方Action固定版本/提�
 
 CP-1是文档基线，检查六文档、实名分工、Spec覆盖和链接；没有应用时不伪造ci-test/build/grader成功。CP-1可以在develop的文档提交上建立checkpoint-1-docs tag并同步Gitea，main不因交作业而接收未经完整门禁的软件。
 
-建仓初期develop使用文档阶段门禁：ci-policy、文档lint及一名非作者评审；这不是软件门禁通过。开始编码时，develop按实际落地单元依次增加前后端测试、构建、lint，评测引擎接入后增加ci-grader；每次门禁升级以SPEC-019评审留痕，只能增加，不能因失败降低。main从首个软件发布PR起必须具备附录A.4完整六项门禁，无文档例外。这样既能提交先行规格，又不会要求空仓库伪造应用测试。
+建仓初期develop使用文档阶段门禁：ci-policy和文档lint；这不是软件门禁通过。开始编码时，develop按实际落地单元依次增加前后端测试、构建、lint，评测引擎接入后增加ci-grader；每次门禁升级以SPEC-019的PR和配置读回留痕，只能增加，不能因失败降低。main从首个软件发布PR起必须具备附录A.4完整六项门禁，无文档例外。这样既能提交先行规格，又不会要求空仓库伪造应用测试。
 
 首次建仓只产生仓库基础引用，不能称该初始提交为可发布软件；保护规则生效后所有实际变更走PR。本项目main首次软件发布始于通过完整门禁的版本。文档提交和软件发布的边界在检查报告中明确记录。
 
 ### A.6 发布及回灌
 
-从验收范围完整的develop创建release/v0.1.0等，冻结范围并记录基线SHA。所有修复再次测试，提交release→main PR，按完整门禁和非作者批准合并。合并后回归通过，将不可变附注版本tag指向main实际merge SHA，发布清单记录该SHA与产物哈希。
+从验收范围完整的develop创建release/v0.1.0等，冻结范围并记录基线SHA。所有修复再次测试，提交release→main PR，按完整CI门禁合并，不等待组员审批。合并后回归通过，将不可变附注版本tag指向main实际merge SHA，发布清单记录该SHA与产物哈希。
 
 通过release→develop PR回灌冻结期修复；若main已有hotfix或发布提交有额外差异，核对差异并通过独立回灌PR补齐。验收是“develop包含发布修复”，而不是“develop必须完全等于main”。未回灌不得删除release。hotfix从main开始，同样有main PR和develop/活动release回灌PR。
 
@@ -252,7 +252,7 @@ CP-1是文档基线，检查六文档、实名分工、Spec覆盖和链接；没
 
 ### A.7 Gitea课堂提交操作规约
 
-1. 在GitHub完成相应检查点评审，准备已提交的阶段报告。由报告记录实际证据，不编造“通过”。
+1. 在GitHub完成相应检查点的PR及CI，准备已提交的阶段报告。由报告记录实际证据，不编造“通过”。
 2. 建立唯一checkpoint tag指向选定提交；报告可引用预先约定的tag名，避免要求报告把自身提交SHA写进自身形成循环。最终SHA记在Gitea提交说明或发布记录中。
 3. 将该Git对象历史、submission/checkpoint-N归档分支及tag传到Gitea。只同步指定引用，不使用会删除/覆盖远端引用的无差别mirror/force操作；普通成员不直接写Gitea main/develop。
 4. 从Gitea读取归档tag/分支SHA与GitHub源SHA逐字核对，抽查六文档、源码/测试（相应阶段）及个人作者记录。传输不改变作者身份，不把全组内容压为组长一次提交。
@@ -262,14 +262,14 @@ CP-1是文档基线，检查六文档、实名分工、Spec覆盖和链接；没
 
 ### A.8 规范生效的实测清单
 
-SPEC-019验收必须记录：普通成员及管理员直推main被拒绝；失败测试、失败构建、失败lint分别阻断PR；跳过ci-grader不会获得ci-required成功；新提交撤销旧批准；feature直接指向main被策略拒绝；目标更新后旧检查不能继续放行；修复PR正常通过；发布修复回灌；Gitea归档tag SHA一致。
+SPEC-019验收必须记录：普通成员及管理员直推main被拒绝；失败测试、失败构建、失败lint分别阻断PR；跳过ci-grader不会获得ci-required成功；feature直接指向main被策略拒绝；目标更新后旧检查不能继续放行；修复PR正常通过；发布修复回灌；Gitea归档tag SHA一致。组员审批已按组长要求从必需门禁移除，故不再把“新提交撤销旧批准”列为本项目当前验收项。
 
-可用临时演练PR测试这些阻断，失败提交不合入main。保存截图/日志、操作者、日期、规则配置及对应SHA。当前这些项均未执行，不能把本文件当作已配置证明。
+可用临时演练PR测试这些阻断，失败提交不合入main。保存截图/日志、操作者、日期、规则配置及对应SHA。2026-10-13已通过 GitHub API 核对 main/develop 保护配置及 PR #5 的真实 CI 成功；直推拒绝、故意失败检查、目标分支更新、release 回灌与 Gitea SHA 核对仍未演练，不能把配置读取当作负向测试已通过。
 
 
 ### A.9 分支×阶段的唯一门禁矩阵
 
-阶段由受保护配置及评审确定，不能由PR作者标签自由降级。文档阶段不创建虚假应用检查；一旦升级不得因失败退回。
+阶段由受保护配置和实际代码范围确定，不能由PR作者标签自由降级。文档阶段不创建虚假应用检查；一旦升级不得因失败退回。
 
 | 目标与阶段 | 允许来源 | ci-required必须核验实际成功的集合 |
 |---|---|---|
@@ -279,8 +279,8 @@ SPEC-019验收必须记录：普通成员及管理员直推main被拒绝；失�
 | release/*，软件冻结 | release-fix/*、hotfix/*、backport/* | 上述完整五项 |
 | main，任何软件PR | release/*、hotfix/* | 上述完整五项 |
 
-ci-required自身也是每阶段必需检查，必须总执行并验证该阶段每项真实success，missing/skipped/cancelled不得放行。develop从首次带应用源码的PR起启用应用门禁；仅实现的单元参与测试，但该单元0测试失败。涉及评测实现的首个PR即启用ci-grader，不推迟到发布。应用门禁升级PR需两名非作者审查，配置升级与相应源码同PR；分支保护的新增required checks由管理员按评审结论设置并截图验证。main/release不接受渐进式门禁。
+ci-required自身也是每阶段必需检查，必须总执行并验证该阶段每项真实success，missing/skipped/cancelled不得放行。develop从首次带应用源码的PR起启用应用门禁；仅实现的单元参与测试，但该单元0测试失败。涉及评测实现的首个PR即启用ci-grader，不推迟到发布。应用门禁升级与相应源码同PR记录；分支保护的新增required checks由管理员配置、API读回并留证，不要求组员审批。main/release不接受渐进式门禁。
 
-release-fix/*仅从目标release建立且只回该release。backport/*从接收修复的develop/活动release建立，只移植已批准的发布/热修复提交，PR必须引用来源SHA及原PR；不得借回灌带新功能。普通feature只回develop。main的revert走hotfix，其他共享分支的revert按其允许来源提交。分支前缀规则及目标在ci-policy验证。
+release-fix/*仅从目标release建立且只回该release。backport/*从接收修复的develop/活动release建立，只移植已通过PR与CI合入的发布/热修复提交，PR必须引用来源SHA及原PR；不得借回灌带新功能。普通feature只回develop。main的revert走hotfix，其他共享分支的revert按其允许来源提交。分支前缀规则及目标在ci-policy验证。
 
 CP-1可在通过文档门禁的develop提交上打文档tag；main的初始化不是软件发布。六项完整软件检查没有文档例外，也不声称每个develop文档PR都执行尚不存在的引擎。
