@@ -152,9 +152,14 @@ npm run build
 
 ### 8.3 SPEC-005课程知识（主体接入，验收仍有缺口）
 
-启动方式沿用第8节。登录后知识组件提供教师章节新增/改名/排序、知识编辑/发布/下架/基础标记，以及学生检索/详情/收藏/完成状态。页面读取真实auth/session、courses和知识API，不内置默认身份或成功数据。001已从develop同步接入，真实登录/课程/收藏进度/重登的受控API链通过CI；指定Chrome/Edge受控浏览器检查已完成，授权图片及目标环境性能仍待补，真实教学账号/课堂验收另记。
+登录后知识组件提供教师章节新增/改名/排序、知识编辑/发布/下架/基础标记，以及学生检索/详情/收藏/完成状态。后端沿用001会话和公共SQL runner；`db-upgrade`包含005_knowledge迁移。受控API链及Chrome/Edge检查已通过，授权图片、目标环境性能和课堂验收仍待补。契约、证据和恢复步骤见[SPEC-005实施记录](docs/SPEC-005_IMPLEMENTATION.md)。
 
-005后端Blueprint在create_app注册，沿用真实001会话与公共SQL runner，执行第8节db-upgrade包含005_knowledge迁移；缺少/校验失败仍503，未登录401。所需契约、负责人、完整AC/R矩阵、测试性质及恢复步骤见[SPEC-005实施记录](docs/SPEC-005_IMPLEMENTATION.md)。保留/恢复数据库按DBD及CHG-RB，不通过删除库重做真实验收。
+### 8.4 SPEC-006题库、测评与公开练习（C02a—C04）
+
+教师可创建五题型题目及不可变版本、编卷发布并冻结名单；学生可按固定版本交卷、查看讲评、做公开客观练习和重练错题。简答支持教师整批评分、更正及审计；保密题在实际讲评前禁止通过练习或旧版本泄露答案。当前分支已合入005知识模块并注册题目、试卷、作答、练习页面；题目必须关联真实同课知识。新测试通过实际知识 API 准备标签并验证联动；旧浏览器报告仍只证明其原测试提交，不能冒充本次合并后的浏览器验收。集成证据见[SPEC-006实施记录](docs/SPEC-006_IMPLEMENTATION.md)。
+
+运行与迁移沿用第8节，006_question_versions、006b_papers、006c_attempts、006d_practice_wrong按公共runner顺序接入。C05专用测验发布/显式讲评、003资源与004备课接缝、目标环境性能及课堂验收仍未完成；SPEC-006不标记为整体通过。可用`python -m unittest discover -s tests -q`和`npm test`复核当前代码；可选Chrome/Edge脚本位于`scripts/verify_spec006_*.py`，仅在两浏览器及相应依赖已安装时执行。
+
 
 <a id="submission-check"></a>
 ## 9 本次提交状态与自查

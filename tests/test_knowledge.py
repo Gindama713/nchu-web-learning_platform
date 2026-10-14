@@ -363,4 +363,3 @@ class KnowledgeTest(TestCase):
         result = self.client.get("/api/v1/courses/1/chapters")
         self.assertEqual(result.status_code, 503)
         self.assertEqual(result.json["error"]["code"], "MAINTENANCE")
-

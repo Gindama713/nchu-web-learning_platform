@@ -99,4 +99,3 @@ test('unavailable and non-JSON errors cannot become successful empty data', asyn
   const html = new KnowledgeClient(async () => ({ status: 404, json: async () => { throw new Error('HTML') } }))
   await assert.rejects(html.session(), error => error.status === 404)
 })
-

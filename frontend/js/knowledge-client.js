@@ -92,4 +92,3 @@ export class KnowledgeClient {
   bookmark(id, bookmarked) { return this.write(`/knowledge-points/${id}/bookmark`, 'PUT', { bookmarked }) }
   progress(id, completed) { return this.write(`/knowledge-points/${id}/progress`, 'PUT', { completed }) }
 }
-

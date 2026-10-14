@@ -302,4 +302,3 @@ class KnowledgeStore:
                 "LEFT JOIN learning_progress p ON p.knowledge_id=k.id AND p.user_id=? "
                 "WHERE c.course_id=? AND k.published=1 ORDER BY k.id", (user_id, course_id)).fetchall()
             return [dict(row) for row in rows]
-

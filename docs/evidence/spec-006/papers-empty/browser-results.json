@@ -1,0 +1,31 @@
+{
+  "started_at": "2026-10-13T14:00:30.918483+00:00",
+  "tested_head": "67358dca1f05ec78f0251458e855e6585794756d",
+  "scope": "real empty paper/001 HTTP/UI and missing knowledge failure; NO dependency fixtures",
+  "knowledge_fixture": false,
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "154.0.8037.98",
+      "checks": [
+        "real_teacher_empty_list_and_empty_draft_disabled_without_dependency_fixtures",
+        "real_missing_knowledge_503_and_no_partial_paper",
+        "390px_empty_editor_without_horizontal_overflow",
+        "student_without_teacher_controls"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "checks": [
+        "real_teacher_empty_list_and_empty_draft_disabled_without_dependency_fixtures",
+        "real_missing_knowledge_503_and_no_partial_paper",
+        "390px_empty_editor_without_horizontal_overflow",
+        "student_without_teacher_controls"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "status": "passed",
+  "finished_at": "2026-10-13T14:00:38.442399+00:00"
+}

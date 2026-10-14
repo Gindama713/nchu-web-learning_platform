@@ -1,2 +1,2 @@
-# Optional local SPEC-005 browser acceptance; uses installed Chrome/Edge channels.
+# Optional local browser verification for SPEC-005/006; not a CI dependency.
 playwright==1.63.0

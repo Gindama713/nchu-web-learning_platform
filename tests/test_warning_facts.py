@@ -21,15 +21,6 @@ class WarningFactsTest(TestCase):
             migrate(path)
             db = connect(path)
             db.executescript("""
-                CREATE TABLE paper(id INTEGER PRIMARY KEY,course_id INTEGER,status TEXT,start_at TEXT);
-                CREATE TABLE paper_item(paper_id INTEGER,question_version_id INTEGER,points_hundredths INTEGER);
-                CREATE TABLE attempt(id INTEGER PRIMARY KEY,paper_id INTEGER,student_id INTEGER,submitted_at TEXT);
-                CREATE TABLE answer(id INTEGER PRIMARY KEY,attempt_id INTEGER,question_version_id INTEGER,
-                    score_hundredths INTEGER,answered INTEGER);
-                CREATE TABLE question(id INTEGER PRIMARY KEY,course_id INTEGER);
-                CREATE TABLE question_version(id INTEGER PRIMARY KEY,question_id INTEGER,type TEXT);
-                CREATE TABLE practice_attempt(id INTEGER PRIMARY KEY,student_id INTEGER,question_version_id INTEGER,
-                    correct INTEGER,created_at TEXT);
                 CREATE TABLE experiment(id INTEGER PRIMARY KEY,course_id INTEGER);
                 CREATE TABLE experiment_version(id INTEGER PRIMARY KEY,experiment_id INTEGER,
                     submission_modes_json TEXT,status TEXT,end_at TEXT);
@@ -47,14 +38,23 @@ class WarningFactsTest(TestCase):
             db.execute("INSERT INTO course(id,title,teacher_id,created_at,updated_at) VALUES(1,'CPU',2,?,?)", (AT, AT))
             db.execute("INSERT INTO course_member(course_id,user_id,member_role,created_at,updated_at) "
                        "VALUES(1,1,'student',?,?)", (AT, AT))
-            db.execute("INSERT INTO question VALUES(1,1)")
-            db.execute("INSERT INTO question_version VALUES(1,1,'single')")
-            db.execute("INSERT INTO paper VALUES(1,1,'published',?)", (START,))
-            db.execute("INSERT INTO paper_item VALUES(1,1,1000)")
-            db.execute("INSERT INTO attempt VALUES(1,1,1,?)", (AT,))
-            db.execute("INSERT INTO answer VALUES(1,1,1,0,1)")
+            # SPEC-006 now owns these tables; keep other missing modules as fixtures.
+            db.execute("INSERT INTO question(id,course_id) VALUES(1,1)")
+            db.execute("INSERT INTO question_version(id,question_id,version,type,stem,options_json,answer_json,difficulty,practice_available) "
+                       "VALUES(1,1,1,'single','fixture','[]','\"A\"','easy',1)")
+            db.execute("INSERT INTO paper(id,course_id,title,kind,confidential) VALUES(1,1,'fixture','homework',0)")
+            db.execute("INSERT INTO paper_item VALUES(1,1,1,1,1000)")
+            db.execute("INSERT INTO paper_participant VALUES(1,1)")
+            db.execute("UPDATE paper SET status='published',start_at=?,end_at=?,review_at=? WHERE id=1",
+                       (START, END, END))
+            db.execute("INSERT INTO attempt(id,paper_id,student_id,status,score_hundredths,partial_score_hundredths,submitted_at) "
+                       "VALUES(1,1,1,'graded',0,0,?)", (AT,))
+            db.execute("INSERT INTO answer(id,attempt_id,question_version_id,value_json,score_hundredths,answered) "
+                       "VALUES(1,1,1,'\"B\"',0,1)")
             for identifier, correct in enumerate((0, 0, 1, 0), 1):
-                db.execute("INSERT INTO practice_attempt VALUES(?,?,1,?,?)", (identifier, 1, correct, AT))
+                db.execute("INSERT INTO practice_attempt(id,student_id,question_version_id,answer_json,answered,"
+                           "correct,score_hundredths,created_at) VALUES(?,1,1,?,1,?,?,?)",
+                           (identifier, '"A"' if correct else '"B"', correct, correct*10000, AT))
             for task_id, status in ((1, "late"), (2, "absent")):
                 db.execute("INSERT INTO attendance_task(id,course_id,title,start_at,late_at,end_at,"
                            "code_hash,code_expires_at,status,created_at,updated_at) "

@@ -86,7 +86,7 @@ attendance_task.code_expires_at不得晚于end_at，初次生成有效到end_at�
 | paper_item | paper_id FK；question_version_id FK；question_id FK；position INTEGER；points_hundredths INTEGER | UQ(paper_id,question_id)，UQ(paper_id,position)；(question_version_id,question_id)复合FK保证版本属于题目；分值以百分之一分整数存储避免浮点累计 |
 | attempt | paper_id FK；student_id FK；status TEXT；score_hundredths INTEGER可空；partial_score_hundredths INTEGER NN；revision INTEGER NN；submitted_at TEXT | 单次测验/作业/考试UQ(paper_id,student_id)；练习另表；待人工评分时记录partial |
 | answer | attempt_id FK；question_version_id FK；value_json TEXT；score_hundredths INTEGER可空；answered INTEGER NN；graded_by FK可空；comment TEXT | UQ(attempt_id,question_version_id)；分数不超过paper_item配分，引用须属于该试卷 |
-| practice_attempt | student_id FK；question_version_id FK；answer_json TEXT；correct INTEGER；score_hundredths INTEGER | 多次练习保留全部记录；关联幂等表防网络重复 |
+| practice_attempt | student_id FK；question_version_id FK；answer_json TEXT；answered/correct INTEGER；score_hundredths INTEGER；created_at TEXT | 多次练习保留全部记录；关联幂等表防网络重复 |
 | wrong_question | student_id FK；question_id FK；last_attempt_type TEXT；last_attempt_id INTEGER；resolved INTEGER | UQ(student_id,question_id)；重练成功可标已掌握，不删除历史作答 |
 | quiz（API视图，不建表） | id=paper.id；kind=quiz | status由paper时间计算；review_published_at别名paper.review_at；复用同一提交服务 |
 | demo_session | course_id FK；experiment_version_id FK可空；preset TEXT；scene_version TEXT；teacher_id FK；revision INTEGER；state_json TEXT；active INTEGER | revision条件更新防旧帧覆盖；状态只允许教师写 |
@@ -185,10 +185,21 @@ SPEC-005模块迁移的单一定义为`backend/migrations/005_knowledge.sql`：�
 
 本次模块约束：chapter的course_id/title/position非空；知识字段非空，example默认空，published及is_foundational限定0/1，content_revision初始1；收藏和进度用(user_id,knowledge_id)唯一约束。completed=true时completed_at非空，false时为null；重复设true保留第一次完成时间，取消再完成产生新时间。四表外键不级联删除，下架只改published及revision。当前发布知识及其本人进度由同一读事务获取，作为010B输入；005不新增聚合成绩表。
 
+SPEC-006/C02a迁移单一定义为`backend/migrations/006_question_versions.sql`，由既有公共runner按文件stem及UTF-8文本SHA-256登记；只创建question/question_version/question_knowledge、查询索引和保留约束，不建立知识、试卷、作答或成绩替身。question_version及已有知识关联禁止UPDATE/DELETE；新增版本和标签同事务写入，ever_public禁止1→0。SQLite允许先声明到knowledge_point的外键，但缺少005迁移或知识表时知识写入仍返回503，不关闭foreign_keys或允许无标签写入。005已进入develop，需对真实知识标签、题目和作答执行联合回归；不能仅凭空表迁移成功宣布知识依赖已完成。具体测试性质及恢复点见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
+
 ## 9 跨模块事务不变量
+
+SPEC-006/C02b迁移为`backend/migrations/006b_papers.sql`，排序在006_question_versions之后且不修改已应用的C02a文件。新增真实paper/paper_item/paper_participant、查询索引、同课条目检查、复合版本外键和发布冻结触发器；分值存正整数百分之一分。名单只在draft发布事务插入有效同课学生，发布后不能增删改；成员退出仅收紧当前访问，不变更原名单。published的内容/时间不可修改，quiz仅预留review_at从null到不早于截止的一次讲评更新，实际C05入口仍待实现；试卷不能删除。generation_snapshot_id外键及表留待013迁移接入，当前没有算法快照或替身表。普通发布、身份公开历史检查、名单和审计同一短写事务，失败回滚全部；带数据备份测试仅知识使用明确夹具，生产演练未执行。
+
+SPEC-006/C03a新增`backend/migrations/006c_attempts.sql`，不修改既有迁移。接入attempt/answer和第7节公共idempotency_record；attempt复合外键指向原paper_participant，每人每卷唯一，revision默认0；answer有稳定id供事实去重。所有分值为整数百分之一分；partial总分NULL、graded总分等于partial_score，漏答value_json='null'/answered=0/score=0。触发器限定版本属本卷、分数≤原配分、客观分数仅0/满分、待批NULL仅已作答简答，并禁止更改提交身份/原作答或删除历史。C03b复用已作答简答评分字段，不新增或修改迁移：整批先校验，在同一写事务更新score_hundredths/comment/graded_by，重算全卷partial/graded汇总，按原revision条件递增并追加attempt.manual_scores审计（前后每题整数分、评语、评分人及revision）；失败回滚全部评分/汇总/审计。用户+operation+UUID唯一的成功快照保留24小时；paper/quiz共用paper_attempt，原响应JSON和状态码原子保存，批阅/更正不改原快照。C04消费本次完整answer评分事实接入练习及wrong_question，详见下一段；漏答和简答仍不得当作实际客观错答。实际带数据备份副本的迁移重放、完整性/外键和HTTP最新人工分数/原提交重放用例通过，仅知识为明确夹具；生产恢复未执行。
 
 字段未写类型的哈希/状态/时间为TEXT，快照为经验证JSON TEXT，*_id为INTEGER FK。冻结名单及结果不随成员active变化更新；所有历史实体禁止级联删除。course_member创建/恢复必须与全局角色匹配；course负责人需active teacher成员。角色/active变更在同一短写事务检查“至少一位active admin”、移交负责课程并失效不兼容成员与会话；SQLite串行写锁覆盖计数和更新，不能事务外先计数。
 
 文件先落受控临时区、校验SHA、原子改名，再写引用事务；失败留下的无引用文件超过24小时才清理。内容端点必须从业务资源/提交/识别对象鉴权，不提供按file_object.id任意下载接口。所有查询投影（quiz、effective_run、统计汇总）复用事实表，不另设可写成绩镜像。
 
 通知target_type/target_id只用于导航，不授权；目标读取仍回所属模块鉴权。
+
+
+SPEC-006/C04新增`backend/migrations/006d_practice_wrong.sql`，不修改已应用迁移。practice_attempt保存固定公开客观版本、原answer_json、answered/correct、整数百分之一分（0/10000）及created_at，与既有预警事实适配器时间字段兼容；不可UPDATE/DELETE。wrong_question只保存UQ(student_id,question_id)状态和最近错误来源（paper=attempt.id，practice=practice_attempt.id），触发器确保来源是同学生/同question的实际客观错误，身份不变、不能删除。wrong_count和来源版本/标签从原answer及practice事实派生，不存易漂移的重复计数。迁移按submitted_at/id倒序回填已有客观错答，漏答/简答排除；迁移重放不重复导入。业务后续交卷/练习与状态投影、审计及公共幂等快照同事务，正确练习只设resolved=1，新错误再置0。
+
+C04独立迁移和带数据备份副本的完整性/外键、HTTP错题/原键重放恢复验证见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。当前SPEC-014适配器按practice_attempt.correct计样本但尚未筛answered=1：本包保留未作答事实并在错题/以后010B口径排除，014的漏答样本筛选需姜苏豪在其分支对接，未改队友统计业务。该依赖不能被既有全部为已作答的适配器测试通过替代。生产恢复、003/004和005真实联测仍须按原边界完成。

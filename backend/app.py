@@ -10,7 +10,18 @@ from flask import Flask, g, jsonify, request
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import generate_password_hash
 
-from backend.apis import analytics, attendance, courses, identity, recognition, warnings
+from backend.apis import (
+    analytics,
+    attempts,
+    attendance,
+    courses,
+    identity,
+    papers,
+    practices,
+    questions,
+    recognition,
+    warnings,
+)
 from backend.apis.knowledge import blueprint as knowledge_blueprint
 from backend.shared.api import ApiError, request_id, result, stamp
 from backend.shared.auth import COOKIE, check_csrf
@@ -35,7 +46,8 @@ def create_app(config=None):
     if config:
         app.config.update(config)
     app.teardown_appcontext(close_db)
-    for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp, recognition.bp):
+    for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
+                      recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
     app.register_blueprint(knowledge_blueprint)
 
