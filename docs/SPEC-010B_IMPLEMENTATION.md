@@ -156,4 +156,8 @@ C07a [Actions38574944772](https://github.com/Gindama713/nchu-web-learning_platfo
 
 本地全量后端147项通过（256.870秒；原010B131+新合入00815+本续包1），前端62项、lint/build、全仓ruff（含新浏览器脚本）、六文档链接/diff通过。初轮Chrome155.0.8059.40/Edge155.0.4283.45各6组通过，page_errors=[]，含专用统计16.7%、知识50%、quiz3/2/1/partial与0分、讲评UI、旧ID刷新/重登与CSV、新22.5%、390px截图；初轮工作区有脚本/测试改动，不作最终干净源码证据。浏览器最初遗漏“刷新逐题统计”，及查询后未等待新scores结果导致读到旧knowledge ID，脚本按真实页面等待修复后双浏览器通过，业务未改。正式证据待干净提交复跑登记。
 
-下一恢复：专用008→010B联测已补证，待本轮干净浏览器/CI收口。之后优先核验PR #10最新head/真实评审，完整010B仍有003/004/目标性能/生产恢复/课堂缺口。013 C08已保存在独立PR #11，继续C09前须在013原分支merge最新develop，不能从010B feature复制代码；保留snapshot迁移，追加draft/item/FK及API/页面。本轮未合并、部署或发布。
+本轮新增代码提交`5f60dda06454b187db04331d5a23ece8c08c540e`首次push因外部更新被拒；fetch确认远端`0d1ad349fe761cdbd99e53e05a89e34bfbf684ab`已追加专用scores联测并由外部以`7759d650e9b0a9b6c2a8070471f1040af603a22f`合入develop（PR #10已merged，2026-10-15 00:10:10 Asia/Shanghai）。随后merge远端原feature产生`6ddd6df`，保留双方测试/文档，README唯一冲突保留新专用联测入口及剩余验收；再merge实际develop产生`36e2f38c9ab9d70eacb6c9f1f71e7780dad33cea`，已成功推送同一feature，没有强推或自动合并。同步后两处专用联测重跑2项通过（6.130秒），运行时代码/页面/新脚本相对5f60dda没有差异。147项全量的256.870秒是同步前证据，不能把合并后额外测试计入该次数。
+
+正式干净浏览器证据：[report.json](evidence/spec-010b/quiz-browsers/report.json)，tested_head=`36e2f38c9ab9d70eacb6c9f1f71e7780dad33cea`，dirty_paths=[]。Chrome155.0.8059.40及Edge155.0.4283.45各6组全部通过，page_errors=[]；390px截图为[Chrome知识](evidence/spec-010b/quiz-browsers/chrome-quiz-knowledge.png)、[Chrome成绩](evidence/spec-010b/quiz-browsers/chrome-quiz-scores.png)、[Edge知识](evidence/spec-010b/quiz-browsers/msedge-quiz-knowledge.png)、[Edge成绩](evidence/spec-010b/quiz-browsers/msedge-quiz-scores.png)。截图已目视核对，页面无整页水平溢出、宽表在容器内滚动。只保存本轮合成受控结果，无口令/CSRF/会话/学生答卷/数据库。
+
+续包PR创建请求遇GitHub连接transport失败，尚未确认成功；不得把猜测编号当成真实PR。Git HTTPS亦报TLS WRONG_VERSION_NUMBER，外部网络暂阻后续推送/CI核验。旧PR #10已合并，续包应从当前feature新建→develop PR，说明增量为本测试/双浏览器证据；先查是否已有同head开放PR，避免重复。最新docs/evidence提交及后续网络结果须更新本节。完整010B仍有003/004/目标性能/生产恢复/课堂和真实评审缺口。013 C08独立PR #11需同步最近核验develop 7759d65后继续C09，不能从010B feature复制代码。本轮未自行合并、部署或发布。
