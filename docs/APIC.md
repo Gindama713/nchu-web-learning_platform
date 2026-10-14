@@ -255,6 +255,8 @@ C07 scores实施口径：`algorithm_version=scores-frozen-participants-v1`；查
 
 C07新建knowledge/scores结果增加filters（与parameters_json一致的解析筛选及实际对象ID）供原页面标示；旧快照无该字段时仍按原保存结果读取，不补算。CSV采用UTF-8 BOM，先写ID/时间/算法/样本/口径/单位/警告/filters，再以overall和series输出全部标量及对象集合；knowledge_items按知识ID升序列原title/作答/正确/错题/mastery，scores另列overall_bin/series_bin及原有序分箱。数值直接序列化快照JSON精度、null为空，ratio/percent单位分别标注；页面比率以百分数两位显示。含逗号/引号/换行的单元格使用标准CSV引用，字符串公式前缀=、+、-、@（含前导空白）及首字符tab/CR/LF加单引号。读取与导出不重查事实，批分后旧ID的JSON和CSV保持原样。
 
+010B页面使用以上统计与快照接口，用户操作见[README§8.5](../README.md)。CSV的knowledge_series_items还按原周序列顺序输出每周知识明细，不遗漏series中的items；页面显示总计知识明细及周汇总表。浏览器仅以当前用户ID/角色为本地存储键保存课程/快照ID，恢复重新鉴权；过滤条件或身份变更会废弃迟到响应，恢复/导出失败清除旧结果，不静默回退新统计。此说明不改变QA或推荐契约。
+
 ### 5.2 问答与推荐
 
 QA按当前已发布知识语料revision按需重建TF-IDF；重建失败返回503 INDEX_UNAVAILABLE，不返回旧内容；空语料found=false、matches=[]。推荐始终返回对象，items可为空，外层reason与source_until仍存在；确定算法及reason枚举见PRD第4.3节。

@@ -211,6 +211,7 @@ class ScoreAnalyticsTest(test_attempts.AttemptApiBase):
         self.assertEqual(original.headers['Cache-Control'], 'no-store')
         rows = list(csv.reader(io.StringIO(original.data.decode('utf-8-sig'))))
         self.assertIn(['item', '1', "'" + title, '0', '0', '0', ''], rows)
+        self.assertEqual(len([r for r in rows if r[0] == 'series_item']), 2 * len(data['series']))
         migrate(self.path)
         backup = self.path.with_name('backup.db')
         with closing(connect(self.path)) as source, closing(connect(backup)) as target:

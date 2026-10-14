@@ -42,6 +42,10 @@ def response(data):
         row(['knowledge_items', *columns])
         for item in metrics['items']:
             row(['item', *(item[key] for key in columns)])
+        row(['knowledge_series_items', 'period_start', 'period_end', *columns])
+        for period in data['series']:
+            for item in period['metrics']['items']:
+                row(['series_item', period['period_start'], period['period_end'], *(item[key] for key in columns)])
     else:
         row(['score_bins', 'period_start', 'period_end', 'label', 'count'])
         for item in metrics['score_bins']:
