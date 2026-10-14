@@ -161,6 +161,10 @@ npm run build
 运行与迁移沿用第8节，006_question_versions、006b_papers、006c_attempts、006d_practice_wrong按公共runner顺序接入。C05专用测验发布/显式讲评、003资源与004备课接缝、目标环境性能及课堂验收仍未完成；SPEC-006不标记为整体通过。可用`python -m unittest discover -s tests -q`和`npm test`复核当前代码；可选Chrome/Edge脚本位于`scripts/verify_spec006_*.py`，仅在两浏览器及相应依赖已安装时执行。
 
 
+### 8.6 SPEC-013组卷算法与快照（C08）
+
+C08提供内部候选冻结、确定性回溯和不可变generation_snapshot，尚无组卷HTTP入口或教师操作页。沿用第8节公共`db-upgrade`，新增013_generation_snapshot迁移；不修改已应用SQL。专题验证：`python -m unittest tests.test_generation_input tests.test_generation_solver tests.test_generation_snapshot -v`。快照保存全部候选、真实历史c/n、排序键、参数及seed；新增题/作答后按原快照仍复算相同选题和整数百分之一分。确定无解与搜索预算耗尽分开返回内部ApiError，不生成不合规卷。C09接入draft paper/item事务、replay_of权限和教师页面，再沿用现有发布检查；实施、验收映射及下一恢复见[SPEC-013实施记录](docs/SPEC-013_IMPLEMENTATION.md)。
+
 <a id="submission-check"></a>
 ## 9 本次提交状态与自查
 

@@ -97,7 +97,7 @@ class Snapshot:
             if snapshot.input_sha256 != expected_hash:
                 raise ValueError('input checksum mismatch')
             return snapshot
-        except (ValueError, TypeError, KeyError, ZeroDivisionError, ApiError) as exc:
+        except (ValueError, TypeError, KeyError, AttributeError, OverflowError, ZeroDivisionError, ApiError) as exc:
             raise ApiError(503, 'SNAPSHOT_UNAVAILABLE', '组卷快照不可用或校验失败') from exc
 
 
@@ -131,7 +131,7 @@ def normalize(body, source_until):
     confidential = body.get('confidential', body['kind'] == 'exam')
     if type(confidential) is not bool:
         question.invalid('保密标志须为JSON布尔')
-    seed = body.get('seed', secrets.randbits(63))
+    seed = body['seed'] if 'seed' in body else secrets.randbits(63)
     if type(seed) is not int or not -question.MAX_ID - 1 <= seed <= question.MAX_ID:
         question.invalid('seed须为可存储的JSON整数')
     source = parse_time(source_until, 'source_until')

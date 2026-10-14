@@ -102,6 +102,8 @@ attempt.status只取partial/graded，score_hundredths在partial时NULL，partial
 
 generation_snapshot中的版本ID由事务校验并禁止删除引用版本，JSON仅为不可变算法证据，不替代paper_item外键。跨试卷题目配分按整数百分之一分校验。
 
+C08新增迁移`backend/migrations/013_generation_snapshot.sql`，公共runner按stem/checksum接入，不修改旧SQL。表保存全部有序候选（含版本身份/类型/难度/标签/排序键）、并行历史c/n/rate、标准化参数、原seed、算法版本、source_until、输入SHA-256和有序selected_ids；UPDATE/DELETE触发器禁止覆盖历史，插入触发器与模型在调用方事务校验全部版本同课程且选中版本属于候选。现有question_version全局保留规则保护引用。配分从total_hundredths和选中顺序精确重算，不另存浮点分数或新成绩表。C08只落算法证据，paper的seed/algorithm_version/generation_snapshot_id列及外键留待C09追加迁移，并与paper/item/审计同一事务保存。模型save不自提交，任何后续失败由调用方整体回滚；生产迁移和恢复仍未验收。
+
 演示状态追加last_tick_at TEXT可空及running INTEGER；单Web进程按服务端时钟推进，pause/close/重启后不补发停机期间时钟，重启一律暂停。revision与state/last_tick_at条件更新原子完成，防止轮询请求造成重复推进。输入动作和元件语义与PRD一致。
 
 ## 5 智能与分析 SPEC-010—016
