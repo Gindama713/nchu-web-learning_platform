@@ -111,9 +111,9 @@ def fingerprint(paper_id, answers):
     return hashlib.sha256(data.encode()).hexdigest()
 
 
-def replay(db, user_id, key, request_hash, at):
+def replay(db, user_id, key, request_hash, at, *, operation=OPERATION):
     row = db.execute('SELECT * FROM idempotency_record WHERE user_id=? AND operation=? AND key=?',
-                     (user_id, OPERATION, key)).fetchone()
+                     (user_id, operation, key)).fetchone()
     if row and row['expires_at'] > at:
         if row['request_hash'] != request_hash:
             raise ApiError(409, 'IDEMPOTENCY_CONFLICT', '同一幂等键已用于其他内容')
@@ -159,16 +159,19 @@ def submit(db, row, user_id, rows, answers, at):
     db.executemany('INSERT INTO answer(attempt_id,question_version_id,value_json,score_hundredths,answered) '
                    'VALUES(?,?,?,?,?)', [(attempt_id, item['id'], json.dumps(value, ensure_ascii=False, allow_nan=False),
                                         score, int(value is not None)) for item, value, score in scored])
-    # Answers are the authoritative C04 wrong-question inputs; no duplicate mutable fact table here.
+    from backend.models.practice import record_paper_errors
+
+    record_paper_errors(db, attempt_id, user_id)
     audit('attempt.submit', 'attempt', attempt_id,
           after={'paper_id': row['id'], 'status': 'partial' if pending else 'graded', 'answer_count': len(rows)})
     return attempt_id
 
 
-def save_response(db, user_id, key, request_hash, attempt_id, response, status):
+def save_response(db, user_id, key, request_hash, attempt_id, response, status, *,
+                  operation=OPERATION, resource_type='attempt'):
     db.execute('INSERT INTO idempotency_record(user_id,operation,key,request_hash,resource_type,resource_id,'
                'response_status,response_json,expires_at) VALUES(?,?,?,?,?,?,?,?,?)',
-               (user_id, OPERATION, key, request_hash, 'attempt', attempt_id, status,
+               (user_id, operation, key, request_hash, resource_type, attempt_id, status,
                 response.get_data(as_text=True), stamp(now() + timedelta(hours=24))))
 
 
