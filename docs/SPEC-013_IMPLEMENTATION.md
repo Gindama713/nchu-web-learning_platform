@@ -44,4 +44,10 @@ C08b专题验证：`python -m unittest tests.test_generation_solver tests.test_g
 
 ## 当前交接与下一恢复
 
-C08a提交`16c1928`已推送本feature；C08b算法/持久快照已实施，全量回归通过，正在PR收口，最终SHA/CI见本节后续更新。SPEC-013完整验收未关闭，无generated-papers API、教师页面或C09真实HTTP重放链。恢复先fetch核验develop/#9/#10；008合入时优先在010B原分支merge develop补专用联测。008仍未合入则C09继续本013分支，先对齐新增013快照迁移，再追加paper.seed/algorithm_version/generation_snapshot_id FK及发布冻结治理；API首次/replay_of二选一，冻结→无写锁求解→重新授权/资格核验→短事务保存snapshot+draft paper/item+审计。重放只接新title，读取旧快照，不读新题库；发布仍用006/008现行保护，不自动发布，不接管队友模块。
+C08a `16c1928`、C08b `30d2948130e1fbc42dbc8e6ddc8327ede355a356`已推送本feature，并创建open/draft [PR #11](https://github.com/Gindama713/nchu-web-learning_platform/pull/11)。初次基线253a736时#9未合入；随后#9由外部以b4a376b合入，#10亦由外部以`7759d650e9b0a9b6c2a8070471f1040af603a22f`合入develop。本轮按用户优先级返回010B原feature补专用HTTP及干净Chrome/Edge各6组联测，新测试/证据在独立draft [PR #12](https://github.com/Gindama713/nchu-web-learning_platform/pull/12)，解除专用008链阻塞，不带入本013。
+
+本013分支已merge最新成功fetch的origin/develop 7759d65，产生`6a0094e`，README唯一冲突保留010B§8.5及013§8.6、APIC/DBD/PRD/CHG-RB自动合并保留双方契约；同步提交已推送。现有008/010B来自已合入develop，不复制其未合入feature；C08源码与旧SQL均未因同步改写。网络曾短暂TLS失败，恢复后推送成功；此项不再是阻塞。PR #11/#12 reviews=[]，当前head CI分别核验，不沿用旧feature CI。
+
+同步develop后全量本地回归165项通过（245.257秒），前端62项、ruff/lint/build/六文档链接/diff通过。`6a0094e22d7eac9a54be2d4f04de2c78a8ff273e`的[Actions38596794698](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38596794698)实际jobs均已完成：policy/lint/test/build/required全success，grader按develop规则skipped。已读取ci-test日志：后端165项（84.502秒）、前端62项，tested merge=`351e40a1d80205a40eda072827232834020746f0`，base=7759d65、head=6a0094e；此merge只是CI测试引用，不是实际合并。本文后续纯文档提交的当前head检查仍需单独核验，以PR当前检查及个人交接为准，不将本run偷换成之后head。
+
+SPEC-013完整验收未关闭，无generated-papers API、教师页面或C09真实HTTP重放链。下一恢复先fetch核验develop与PR #11/#12及当前head CI，再继续C09本013分支；若目标更新则merge最新develop。追加paper.seed/algorithm_version/generation_snapshot_id FK及发布冻结治理；首次/replay_of二选一，冻结→无写锁求解→重新授权/资格核验→短事务保存snapshot+draft paper/item+审计。重放只接新title，读取旧快照，不读新题库；发布仍用006/008现行保护，不自动发布，不接管队友模块。003/004、Linux4核8GB/50会话/真实worker、完整生产恢复/课堂/实际评审仍待补。本轮未自行合并、部署或发布。
