@@ -130,6 +130,9 @@ Question写模型：type枚举single/multiple/boolean/numeric/short，stem非空
 Attempt统一读模型：{id,paper_id,student_id,revision,status,score,partial_score,total_points,submitted_at,answers:[{question_version_id,value,answered,grading_status,score,max_score,comment,correct,answer?,explanation?}]}。revision初始0；status=partial/graded；grading_status=unanswered/pending/graded；pending的score、correct均null，客观题已评分correct为布尔（漏答false），简答correct始终null。score字段始终存在，部分批阅时null。学生只在允许讲评时获得标准answer/explanation，教师可读取；这里的学生value与标准answer不可混用。
 
 manual-scores仅允许非空items，题号唯一、属于本卷且为已作答简答；每题0≤score≤max_score，comment为0—1000字符。整批先校验，类型/重复/精度错误全批400；分值超配分、非本卷或非可批简答全批422；均不更改revision；revision冲突409。成功同事务评分、汇总、审计并revision+1，返回完整Attempt；允许更正已批简答，保留前后分及操作者，不允许批改客观题或漏答0分。
+
+C03a已接入整卷提交及答卷详情/分页查询；POST paper/quiz两个入口均返回201并使用第11节的同一paper_attempt作用域。成功快照保存完整JSON响应（含首次request_id）及状态码，与attempt/answer/审计同事务；重放不更新答卷或重新判分，当前状态另GET。省略/null/多选空数组/简答空白统一未答；答案条目和多选key排序，数值1与1.0相同，简答仅按本节规定去首尾空白，内部文本不改变。同键异paper_id亦409。UUID使用带连字符格式，大小写归一；到期新受理仍受每人每卷唯一约束。学生所有入口在实际review_at前去掉标准answer/explanation，讲评后仍复核question身份级保护；教师可见原冻结答案。人工批阅及页面留待C03b，quiz专用发布/显式讲评留待C05，当前别名仅提交。
+
 | 方法与路径 | 入参 | 返回 | 权限/特例 |
 |---|---|---|---|
 | POST /courses/{id}/questions | Question写模型 | {id,version_id,...Question} | T |

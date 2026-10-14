@@ -1,8 +1,54 @@
-# SPEC-006 / C02a—C02b 实施与验证记录
+# SPEC-006 / C02a—C03a 实施与验证记录
 
-责任人：黄俊诚（24201716）。日期：2026-10-13，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-006)、[APIC§4](APIC.md)、[DBD§4/8](DBD.md)。当前状态：C02a/C02b可独立实施部分已完成并在006 feature验证；005知识真实联测仍阻断，C03/C04及C05专用quiz入口未实施，006未关闭。
+责任人：黄俊诚（24201716）。当前记录日期：2026-10-14，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-006)、[APIC§4/11](APIC.md)、[DBD§4/7/8/9](DBD.md)。当前状态：C02a/C02b/C03a独立部分已实施；005知识真实联测仍阻断，C03b人工批阅/页面、C04及C05专用quiz发布/讲评未实施，006未关闭。
 
-## C02b当前恢复与证据（优先读取）
+## C03a当前恢复与证据（优先读取）
+
+继续`feature/spec-006-exercises`，本轮fetch核对origin/develop仍`ca8ae47f6ad987d1af11c4212a116c4fb7ece5bc`，原HEAD/远端为`7b7c0ffe83a2b68f58329329a2acc7e83595564a`；原head的Actions38410442151重新查询确认completed/success。[PR #7](https://github.com/Gindama713/nchu-web-learning_platform/pull/7)仍草稿、目标develop，reviews=[]；005实施记录仅从其原分支读取，未复制005代码。C03a新增提交及最新CI按本节下方和PR实际head核验；未合并、部署、生产发布或取得真实两名非作者批准。
+
+下一步C03b：复用`backend/models/attempt.py`、`backend/apis/attempts.py`和`006c_attempts.sql`，实现简答整批批阅/更正、revision冲突、审计及学生作答/历史/结果和教师待批阅页面。不能在重放时返回最新分数；最新状态走GET。C04仍须按原answer事实接入客观错题和重练，不得漏答计为实际错答；005正式合入后同步并补真实标签→发布→交卷联测。C05专用发布/讲评、003/004/worker及目标性能保持原负责人/后续包边界。
+
+### C03a行为与迁移
+
+- `006c_attempts.sql`由公共runner按版本/校验和接入真实attempt/answer及公共idempotency_record。原名单复合外键、每人每卷唯一、整数分值、partial/graded汇总和保留触发器；answer须为本卷固定版本且分数不超配分，原作答不可改。未修改旧迁移或队友业务。两处既有队友测评测试仅改真实表装载、补原名单及显式字段，原断言不变。
+- 五题型严格校验，未知/重复/非本卷（含题目新版）版本及非法值整批400。省略/null/multiple=[]/short空白写完整未答行，0分；判断仅布尔，数值仅有限JSON数值，多选集合全等才满分。数值用足够精度十进制绝对差比较容差，0.3对0.2±0.1满分，0.30000000000000004不满分。简答仅去首尾空白，非空作答pending、score/correct=null；漏答简答0分且correct=null。整数配分精确累计，原题新版本不参与判分。
+- `POST /papers/{id}/attempts`及`POST /quizzes/{id}/attempts`共用paper_attempt。当前会话/成员/原名单和基础语法先检查；带连字符UUID规范化、全卷未答/条目/多选/等值数值规范化后比对指纹。成功键先重放原201/JSON字节（含首次request_id），新请求才检查start≤now<end及每人每卷一次。异内容/异目标409，换键不能重交；24小时到期可复用键接受别卷，但不绕过本卷唯一约束。
+- BEGIN IMMEDIATE内写答卷、全部答案、汇总、审计及响应快照；任一点失败全部回滚、不占成功键。真实并发同键同内容只一份答卷/审计并返回同一响应，同键异内容或异键均只有一个201。沿用公共5秒busy_timeout和503 DB_BUSY，不改001事务/限流业务。
+- `GET /attempts/{id}`及课程分页答卷列表供读取最新状态，教师看本课、学生仅本人并检查当前授权/原名单，退出或停用不能重放或读取；转入不补历史名单。所有响应no-store，学生review_at未到或null时无标准answer/explanation，到实际讲评后仍复核question身份保护。quiz alias只接受kind=quiz，不等于C05发布/统计/讲评已完成。
+
+### C03a验证及验收性质
+
+执行人：黄俊诚任务下的Codex自动执行，本轮记录日期2026-10-14（Asia/Shanghai；用例内固定服务器时刻主要为2026-10-13，不是实际执行时间）。Windows Python3.13.12/Node24.14.0；全量后端63项（原44+本包19）、前端18项及全仓ruff、前端lint/build、文档链接/diff检查通过。后端测试入口：[test_attempts.py](../tests/test_attempts.py)，RealAttemptApiTest两项完全无知识夹具；KnowledgeFixtureAttemptTest十七项仅知识schema/标签为明确005夹具，身份/CSRF/课程/名单/试卷/评分/幂等/迁移均真实HTTP及SQLite连接。不是005真实联测、人工批阅或教师验收。C03a无页面修改，未新跑浏览器；下方C02b浏览器证据保持原tested_head，不冒充本轮截图。
+
+```powershell
+.venv/Scripts/python.exe -m unittest discover -s tests -v
+.venv/Scripts/python.exe -m unittest tests.test_attempts.KnowledgeFixtureAttemptTest.test_database_constraints_retention_and_populated_backup -v
+.venv/Scripts/python.exe -m ruff check backend tests scripts
+.venv/Scripts/python.exe scripts/check_docs.py
+git diff --check
+# frontend目录：npm test；npm run lint；npm run build
+```
+
+| 有效验收 | 本包结果（未关闭整项） | 剩余执行 |
+|---|---|---|
+| AC-01 | 通过（C03a固定旧版/四客观题评分子集，知识为夹具） | 005真实联测及UC-02 |
+| AC-02、R25、R36 | 通过（提交/详情/列表/重放脱敏与null/定时讲评、异常受保护身份拒读子集） | C04全入口、C05实际review、003/004联测 |
+| AC-03 | 待执行；原始answered/score/版本事实已保存 | C04错题及重练 |
+| AC-04、R27 | 通过（五题型全批校验、漏答0、简答pending/null子集） | C03b人工评分/revision/更正及页面 |
+| AC-05、R18 | 通过（受理幂等子集；截止后精确重放、别名、指纹/过期/唯一及并发） | 005真实联测及UC-02/C05完整测验 |
+| R02、R12、R16 | 通过（最新答卷分页/详情、真实窗口/当前授权及冻结名单子集） | C03b页面、C04固定版本练习、完整应交/缺交流程 |
+| R01、R44 | 阻断；003/004和完整UC-02尚未接齐 | 原负责人及C03b—C05/C12 |
+| R22/R45/R46/R47 | R46本轮文档范围通过；R22/R45待执行，R47阻断 | 全项目记录及两名真实非作者批准 |
+| NF-SEC/NF-DATA | 通过（本包真实权限/CSRF/失败回滚/并发/5秒锁拒绝与带数据备份副本HTTP读取/幂等重放子集） | 005真实联测及生产迁移/完整备份恢复演练 |
+| NF-UI/NF-PERF | 待执行/阻断；旧页面回归18项，不是新作答UI/性能验收 | C03b页面与目标Linux/50会话/worker |
+
+关键恢复验证：带答卷/答案/成功快照的一致性备份副本执行迁移重放，integrity_check=ok、foreign_key_check=[]，切换受控API到副本后GET内容和原键POST成功字节一致。人工分数更新后的旧响应测试仅在测试库模拟C03b后续写入，证明重放快照不随revision变化；不宣称manual-scores已实施。故障注入分别在第二个answer、audit_event和idempotency_record插入时触发ABORT，确认所有三表及提交审计0行后，同键可成功重试。
+
+失败与修复：首轮ruff发现SQL集合内隐式字符串拼接、导入排序和并发测试闭包未绑定循环变量，补括号/排序/默认参数后全仓通过；首批17测试通过后增加真实锁超时与过期键跨卷复用用例，并补备份副本HTTP恢复检查。未删除失败用例、变更评分口径或降低门禁。
+
+代码提交`557261f7bb68ec88f10d5f495a1772ce2d7fa509`已推送006 feature；对应[Actions38413864567](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38413864567)已查询run及全部jobs，head_sha精确匹配、completed/success，policy/lint/test/build/required全success，grader按develop规则skipped。ci-test日志确认Python3.12后端63/Node22前端18通过，实际checkout的tested merge SHA为`7f85302d49a7230285f87c6c6b04dac702003427`（将该head测试合入base `ca8ae47f6ad987d1af11c4212a116c4fb7ece5bc`）；这是Actions合并测试，未实际合并PR。最终文档head须另按PR和个人交接核验，不能沿用代码head或原7b7c0ff成功；最新CI与真实评审状态保存在[PR #7](https://github.com/Gindama713/nchu-web-learning_platform/pull/7)。
+
+## C02b历史恢复与证据（由上方C03a恢复覆盖）
 
 继续`feature/spec-006-exercises`，本轮fetch核对origin/develop仍`ca8ae47f6ad987d1af11c4212a116c4fb7ece5bc`，未复制005 feature业务。后端提交`4a49abb6931df46fd9ae1b8f46e04f84051e8248`、页面/浏览器脚本提交`67358dca1f05ec78f0251458e855e6585794756d`已推送；[PR #7](https://github.com/Gindama713/nchu-web-learning_platform/pull/7)继续草稿、目标develop。新的文档head与CI在PR和个人交接按完整SHA核对；不沿用C02a旧CI。当前没有真实非作者批准，未合并、部署或生产发布。
 

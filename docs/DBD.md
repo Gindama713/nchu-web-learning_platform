@@ -187,6 +187,8 @@ SPEC-006/C02a迁移单一定义为`backend/migrations/006_question_versions.sql`
 
 SPEC-006/C02b迁移为`backend/migrations/006b_papers.sql`，排序在006_question_versions之后且不修改已应用的C02a文件。新增真实paper/paper_item/paper_participant、查询索引、同课条目检查、复合版本外键和发布冻结触发器；分值存正整数百分之一分。名单只在draft发布事务插入有效同课学生，发布后不能增删改；成员退出仅收紧当前访问，不变更原名单。published的内容/时间不可修改，quiz仅预留review_at从null到不早于截止的一次讲评更新，实际C05入口仍待实现；试卷不能删除。generation_snapshot_id外键及表留待013迁移接入，当前没有算法快照或替身表。普通发布、身份公开历史检查、名单和审计同一短写事务，失败回滚全部；带数据备份测试仅知识使用明确夹具，生产演练未执行。
 
+SPEC-006/C03a新增`backend/migrations/006c_attempts.sql`，不修改既有迁移。接入attempt/answer和第7节公共idempotency_record；attempt复合外键指向原paper_participant，每人每卷唯一，revision默认0；answer有稳定id供事实去重。所有分值为整数百分之一分；partial总分NULL、graded总分等于partial_score，漏答value_json='null'/answered=0/score=0。触发器限定版本属本卷、分数≤原配分、客观分数仅0/满分、待批NULL仅已作答简答，并禁止更改提交身份/原作答或删除历史。仅已作答简答的评分字段预留更新能力，C03b须同事务汇总/revision/审计。用户+operation+UUID唯一的成功快照保留24小时；paper/quiz共用paper_attempt，原响应JSON和状态码原子保存。当前未接入练习及wrong_question，C04消费本次完整answer评分事实，不能把该待办当作已完成错题本。实际带数据备份副本的迁移重放、完整性/外键和HTTP读取/重放用例通过，仅知识为明确夹具；生产恢复未执行。
+
 字段未写类型的哈希/状态/时间为TEXT，快照为经验证JSON TEXT，*_id为INTEGER FK。冻结名单及结果不随成员active变化更新；所有历史实体禁止级联删除。course_member创建/恢复必须与全局角色匹配；course负责人需active teacher成员。角色/active变更在同一短写事务检查“至少一位active admin”、移交负责课程并失效不兼容成员与会话；SQLite串行写锁覆盖计数和更新，不能事务外先计数。
 
 文件先落受控临时区、校验SHA、原子改名，再写引用事务；失败留下的无引用文件超过24小时才清理。内容端点必须从业务资源/提交/识别对象鉴权，不提供按file_object.id任意下载接口。所有查询投影（quiz、effective_run、统计汇总）复用事实表，不另设可写成绩镜像。
