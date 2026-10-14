@@ -1,4 +1,4 @@
-"""C07 real 001/005/006 facts; dedicated 008 publication remains a separate dependency."""
+"""C07 independent facts; dedicated 008 union lives in test_quiz_analytics_integration."""
 
 import csv
 import io
