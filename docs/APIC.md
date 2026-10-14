@@ -143,7 +143,7 @@ Attempt统一读模型：{id,paper_id,student_id,revision,status,score,partial_s
 
 manual-scores仅允许非空items，题号唯一、属于本卷且为已作答简答；每题0≤score≤max_score，comment为0—1000字符。整批先校验，类型/重复/精度错误全批400；分值超配分、非本卷或非可批简答全批422；均不更改revision；revision冲突409。成功同事务评分、汇总、审计并revision+1，返回完整Attempt；允许更正已批简答，保留前后分及操作者，不允许批改客观题或漏答0分。
 
-C03a已接入整卷提交及答卷详情/分页查询；POST paper/quiz两个入口均返回201并使用第11节的同一paper_attempt作用域。成功快照保存完整JSON响应（含首次request_id）及状态码，与attempt/answer/审计同事务；重放不更新答卷或重新判分，当前状态另GET。省略/null/多选空数组/简答空白统一未答；答案条目和多选key排序，数值1与1.0相同，简答仅按本节规定去首尾空白，内部文本不改变。同键异paper_id亦409。UUID使用带连字符格式，大小写归一；到期新受理仍受每人每卷唯一约束。学生所有入口在实际review_at前去掉标准answer/explanation，讲评后仍复核question身份级保护；教师可见原冻结答案。C03b已接入manual-scores及学生作答/历史/结果、教师批阅/更正页面；quiz专用发布/显式讲评留待C05，当前别名仅提交。
+C03a已接入整卷提交及答卷详情/分页查询；POST paper/quiz两个入口均返回201并使用第11节的同一paper_attempt作用域。成功快照保存完整JSON响应（含首次request_id）及状态码，与attempt/answer/审计同事务；重放不更新答卷或重新判分，当前状态另GET。省略/null/多选空数组/简答空白统一未答；答案条目和多选key排序，数值1与1.0相同，简答仅按本节规定去首尾空白，内部文本不改变。同键异paper_id亦409。UUID使用带连字符格式，大小写归一；到期新受理仍受每人每卷唯一约束。学生所有入口在实际review_at前去掉标准answer/explanation，讲评后仍复核question身份级保护；教师可见原冻结答案。C03b已接入manual-scores及学生作答/历史/结果、教师批阅/更正页面；C05a已接入quiz专用发布与列表，显式讲评/逐题统计留待C05b。
 
 C03b复用006c表及BEGIN IMMEDIATE，事务内重新核对当前任课教师权限；不按学生是否仍在课内删除原名单或评分事实。revision须为非负JSON整数且可递增，负分/非有限数值/字符串/布尔/超精度/非法评语400；负分视为字段校验错误，超过本题原配分422。全部条目校验完成后才修改answer.score/comment/graded_by，汇总所有答案，pending存在则总分null，否则总分等于已定分；条件更新revision+1，追加attempt.manual_scores审计，记录前后分数/评语/操作者，任一点失败全部回滚。更正后的最新状态通过GET读取，原paper_attempt成功快照保持不变。页面在失败重试时保留原提交内容和键，冲突后禁用旧批阅并要求重载，不使用本机时间替代服务器窗口判断。
 
@@ -209,7 +209,17 @@ GET /users/me/wrong-questions仅学生本人，严格接受knowledge_id/page/pag
 
 wrong_count从原answer（answered=1、客观、0分）和practice_attempt（answered=1、correct=0）逐事实统计，同题/同学生只有一条wrong_question；漏答和简答不入本。正确公开练习仅把已有条目标记resolved=true；新客观错答置false，历史不删除。来源为paper时仅实际review_at已到并仍在原名单才answer_visible=true；来源为practice时依据该固定版本公开资格。两者先复核全部版本同question的保密占用，受保护时固定false且删除answer/explanation；can_practice另由固定版本客观公开资格、未归档和同一保护检查派生。
 
-学生页面提供公开练习/个人错题、固定版本作答、分页/已加载知识标签筛选及重练；丢响应锁住原内容并以原键重试，身份变化、权限/保护拒绝及读取失败清空旧结果。005真实知识标签、003题库源文件/导入和004备课保护联测仍待原模块接齐；C05专用quiz发布/显式讲评未实现。实施与完整006验收状态见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
+学生页面提供公开练习/个人错题、固定版本作答、分页/已加载知识标签筛选及重练；丢响应锁住原内容并以原键重试，身份变化、权限/保护拒绝及读取失败清空旧结果。005真实知识标签已接入；003题库源文件/导入和004备课保护联测仍待原模块接齐。C05a/C05b专用quiz发布/列表、显式讲评/逐题统计已接入，实施与完整006验收状态见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
+
+### 4.4 SPEC-008专用发布、统计与显式讲评（C05a/C05b）
+
+POST /courses/{id}/quizzes返回201；只接受paper_id/start_at/end_at及可选confidentiality_note，在原发布短写事务中冻结同课有效学生名单、写原paper发布时间与review_at=null、保密复核及审计。跨课/不存在404，非quiz/非draft409，未知字段、非法ID、无时区/超毫秒时间或开始不早于截止400。返回id=paper_id、paper_id、status=upcoming/open/closed（按服务器时间派生）及原paper元数据。GET /courses/{id}/quizzes固定kind=quiz，接受status=draft/published/page/page_size，不接受kind或重复/未知参数；返回Paper元数据，status仍是存储状态、window_state是时间状态；学生仅已发布且原冻结名单内，开始前不含题干，解析仍经原paper/attempt读取。两个入口响应no-store。
+
+quiz发布（包括普通paper发布quiz）复用公共notify，在发布事务向冻结名单写target_type=quiz、target_id=paper.id、event_key=quiz.published:{paper_id}，按(user_id,event_key)去重。通知读取不授予目标权限；重复发布409不多写通知，通知失败回滚名单/发布/审计。学生测验作答、历史与教师批阅复用006服务；页面倒计时仅为本机估计，服务器决定新请求窗口，原成功键截止后仍可重放。完整矩阵、依赖与恢复见[SPEC-008实施记录](SPEC-008_IMPLEMENTATION.md)。
+
+C05b GET /quizzes/{id}/statistics为当前同课教师专用，拒绝查询参数；返回第4节固定QuizStatistics，名单、答卷、固定版本及最新批分在同一读事务中聚合，source_until为该次服务器读时刻，不创建analysis_run。draft没有冻结名单/答卷，允许返回零统计；非quiz409、未知对象或无课程权限404、同课学生403、失效会话401。漏答参与提交分母及已定分均分，pending不混均分；选择题全部选项含零计数，顺序固定，无学生身份列表。后续批分只影响新查询，此接口不提供010B不可变快照/CSV。
+
+POST /quizzes/{id}/review接受空请求体或空JSON对象，拒绝业务字段、非对象、非法JSON及查询参数；复用公共CSRF/Origin及写事务内会话/同课教师复核。非quiz、draft或服务器now<end_at返回409；仅在原review_at=null时设服务器now，并同事务追加quiz.review审计，失败全部回滚。成功200返回{review_published_at}，等于原paper.review_at；重试/并发重试保留首次时刻及一份审计。普通paper发布quiz已设定的review_at保持不变，不能经此入口提前或延后定时讲评。所有响应no-store；学生原paper/attempt/错题读取按实际review_at及题目身份保护判断，讲评不会改分或改写原提交成功快照。
 
 ## 5 分析与智能接口 SPEC-010—016
 
