@@ -55,6 +55,8 @@ class WarningFactsTest(TestCase):
                 db.execute("INSERT INTO practice_attempt(id,student_id,question_version_id,answer_json,answered,"
                            "correct,score_hundredths,created_at) VALUES(?,1,1,?,1,?,?,?)",
                            (identifier, '"A"' if correct else '"B"', correct, correct*10000, AT))
+            db.execute("INSERT INTO practice_attempt(id,student_id,question_version_id,answer_json,answered,"
+                       "correct,score_hundredths,created_at) VALUES(5,1,1,'null',0,0,0,?)", (AT,))
             for task_id, status in ((1, "late"), (2, "absent")):
                 db.execute("INSERT INTO attendance_task(id,course_id,title,start_at,late_at,end_at,"
                            "code_hash,code_expires_at,status,created_at,updated_at) "

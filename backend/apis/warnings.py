@@ -107,7 +107,7 @@ def read_facts(db, course_id, start, end, cutoff):
             "JOIN question_version qv ON qv.id=pa.question_version_id "
             "JOIN question q ON q.id=qv.question_id WHERE q.course_id=? "
             "AND pa.created_at>=? AND pa.created_at<? AND pa.created_at<=? "
-            "AND qv.type<>'short' ORDER BY pa.id", (course_id, start, end, cutoff))]
+            "AND pa.answered=1 AND qv.type<>'short' ORDER BY pa.id", (course_id, start, end, cutoff))]
         for item in practice:
             row = facts.get(item["student_id"])
             if row is not None:
