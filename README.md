@@ -161,6 +161,14 @@ npm run build
 运行与迁移沿用第8节，006_question_versions、006b_papers、006c_attempts、006d_practice_wrong按公共runner顺序接入。C05专用测验发布/显式讲评、003资源与004备课接缝、目标环境性能及课堂验收仍未完成；SPEC-006不标记为整体通过。可用`python -m unittest discover -s tests -q`和`npm test`复核当前代码；可选Chrome/Edge脚本位于`scripts/verify_spec006_*.py`，仅在两浏览器及相应依赖已安装时执行。
 
 
+### 8.5 SPEC-010B知识与分类成绩分析（C06—C07）
+
+登录后在“知识与分类成绩分析”选择课程和维度。知识页显示掌握度、错题表及本人完成进度；教师留空学生编号查看班级掌握度，填写学生编号查看该生。分类成绩选择作业/考试/随堂测，可按试卷编号查看单卷原分均值；跨卷查看百分比均值及分布，缺交和待批不当0分。日期按本机时区输入，留空为最近28天，最长366天；知识按作答日期筛选，成绩按试卷开始时间选择任务。
+
+“查询统计”保存新快照。记录“原快照编号”后，可在同一账号、同一课程用“恢复原快照”读取原结果；刷新或重登会尝试恢复该账号上次快照，浏览器仅本地保存课程和快照编号。教师可点“导出当前快照 CSV”，下载与页面相同ID的数据；更正成绩不会改变旧快照。修改筛选、读取/导出失败会清空当前结果；快照已清理或当前无权访问时，须显式重新查询，不会自动用最新数据冒充原结果。表格支持横向滚动和键盘聚焦，空样本显示无数据。
+
+运行沿用第8节，无新增迁移。独立API测试为`python -m unittest tests.test_knowledge_analytics tests.test_score_analytics -v`；可选真实Chrome/Edge回归为`python -m scripts.verify_spec010b_analytics`（需已安装两浏览器、`backend/requirements-browser.txt`依赖及前端依赖，5000/5173端口空闲）。测试使用临时受控课程，不写教学库；报告和剩余验收见[SPEC-010B实施记录](docs/SPEC-010B_IMPLEMENTATION.md)。008专用测验链已合入develop，并补真实发布、交卷、统计、批阅、讲评到010B快照/CSV的接口回归；合并后的双浏览器、目标环境性能、完整生产恢复及课堂验收仍未关闭。
+
 ### 8.6 SPEC-013组卷算法与快照（C08）
 
 C08提供内部候选冻结、确定性回溯和不可变generation_snapshot，尚无组卷HTTP入口或教师操作页。沿用第8节公共`db-upgrade`，新增013_generation_snapshot迁移；不修改已应用SQL。专题验证：`python -m unittest tests.test_generation_input tests.test_generation_solver tests.test_generation_snapshot -v`。快照保存全部候选、真实历史c/n、排序键、参数及seed；新增题/作答后按原快照仍复算相同选题和整数百分之一分。确定无解与搜索预算耗尽分开返回内部ApiError，不生成不合规卷。C09接入draft paper/item事务、replay_of权限和教师页面，再沿用现有发布检查；实施、验收映射及下一恢复见[SPEC-013实施记录](docs/SPEC-013_IMPLEMENTATION.md)。

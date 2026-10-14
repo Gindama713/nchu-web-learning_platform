@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 from flask import Blueprint, make_response, request
 
+from backend.apis import knowledge_analytics, score_analytics
 from backend.shared.api import (
     ApiError,
     date_range,
@@ -28,6 +29,12 @@ METRIC_KEYS = ("expected_count", "present_count", "late_count", "leave_count", "
                "attendance_rate", "performance_mean_percentage", "performance_correlation",
                "correlation_reason", "candidate_count", "paired_count", "missing_performance_count",
                "selected_paper_ids")
+
+
+@bp.after_request
+def no_store(response):
+    response.headers['Cache-Control'] = 'no-store'
+    return response
 
 
 def selected_ids():
@@ -156,25 +163,33 @@ def permitted_run(course_id, run_id):
     user = require_user()
     course_access(course_id)
     row = get_db().execute("SELECT * FROM analysis_run WHERE id=? AND course_id=? AND creator_id=? "
-                           "AND kind='attendance'", (run_id, course_id, user["id"])).fetchone()
+                           "AND kind IN ('attendance','knowledge','scores')", (run_id, course_id, user["id"])).fetchone()
     if not row:
         raise ApiError(404, "NOT_FOUND", "Analysis snapshot not found")
     if user["role"] == "student" and (row["scope"] != "self" or row["subject_student_id"] != user["id"]):
         raise ApiError(404, "NOT_FOUND", "Analysis snapshot not found")
     if user["role"] == "teacher" and row["scope"] == "self":
         raise ApiError(404, "NOT_FOUND", "Analysis snapshot not found")
+    if row['kind'] in ('knowledge', 'scores'):
+        knowledge_analytics.authorize(course_id, row['subject_student_id'])
     return row
 
 
 @bp.get("/courses/<int:course_id>/analytics")
 def analytics(course_id):
-    if request.args.get("analysis_run_id"):
+    if 'analysis_run_id' in request.args:
         if set(request.args) != {"analysis_run_id"}:
             raise ApiError(400, "VALIDATION_ERROR", "Snapshot read cannot mix filters")
-        row = permitted_run(course_id, positive_int(request.args["analysis_run_id"], "analysis_run_id"))
+        if len(request.args.getlist('analysis_run_id')) != 1:
+            raise ApiError(400, 'VALIDATION_ERROR', 'Duplicate snapshot ID')
+        row = permitted_run(course_id, knowledge_analytics.identifier(request.args["analysis_run_id"], "analysis_run_id"))
         return result(json.loads(row["result_json"]))
+    if request.args.get('dimension') == 'knowledge':
+        return knowledge_analytics.create(course_id, request.args)
+    if request.args.get('dimension') == 'scores':
+        return score_analytics.create(course_id, request.args)
     if request.args.get("dimension") != "attendance":
-        raise ApiError(400, "VALIDATION_ERROR", "Only attendance dimension is available")
+        raise ApiError(400, "VALIDATION_ERROR", "Supported dimensions: attendance, knowledge, scores")
     if set(request.args) - {"dimension", "from", "to", "student_id", "performance_paper_ids"}:
         raise ApiError(400, "VALIDATION_ERROR", "Invalid attendance filters")
     user = require_user()
@@ -220,13 +235,17 @@ def analytics(course_id):
 
 @bp.get("/courses/<int:course_id>/analytics/export")
 def export(course_id):
-    if set(request.args) != {"analysis_run_id", "format"} or request.args["format"] != "csv":
+    if (set(request.args) != {"analysis_run_id", "format"} or request.args["format"] != "csv" or
+            any(len(request.args.getlist(key)) != 1 for key in request.args)):
         raise ApiError(400, "VALIDATION_ERROR", "Expected analysis_run_id and format=csv")
     _, role = course_access(course_id)
     if role != "teacher":
         raise ApiError(403, "FORBIDDEN", "Course teacher required")
-    row = permitted_run(course_id, positive_int(request.args["analysis_run_id"], "analysis_run_id"))
+    row = permitted_run(course_id, knowledge_analytics.identifier(request.args["analysis_run_id"], "analysis_run_id"))
     data = json.loads(row["result_json"])
+    if row['kind'] in ('knowledge', 'scores'):
+        from backend.apis.statistics_csv import response as statistics_csv
+        return statistics_csv(data)
     stream = io.StringIO()
     writer = csv.writer(stream)
     for key in ("analysis_run_id", "source_until", "generated_at", "algorithm_version"):

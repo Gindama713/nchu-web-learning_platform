@@ -26,12 +26,13 @@ const flush = async () => { await setImmediate(); await nextTick() }
 const submit = (root, css) => form(root, css).props.onSubmit({ preventDefault() {} })
 const change = (root, label, value, checked = false) => control(root, label).props[checked ? 'onChange' : 'onInput']({ target: { value, checked: value } })
 
-async function mount(t, role = 'student', history = false) {
+async function mount(t, role = 'student', history = false, quiz = false) {
   const user = reactive({ id: 7, role })
   const paper = { id: 3, title: 'CPU卷', window_state: 'open', items: [
     { question_version_id: 1, position: 1, type: 'boolean', stem: 'PC？', options: [], points: 1 },
     { question_version_id: 2, position: 2, type: 'short', stem: '解释PC', options: [], points: 2 },
   ] }
+  if (quiz) Object.assign(paper, { kind: 'quiz', end_at: '2026-10-13T14:00:00.000Z', review_at: null })
   const fixture = { userId: 7, rows: [], writes: [], reads: [], unavailable: false, failSubmit: false, conflict: false, waitDetail: null, latest: null, total: null }
   const attempt = { id: 9, paper_id: 3, student_id: 7, revision: 0, status: 'partial', score: null, partial_score: 1,
     total_points: 3, submitted_at: '2026-10-14T04:00:00Z', answers: [
@@ -71,6 +72,22 @@ async function mount(t, role = 'student', history = false) {
   await flush()
   return { root, fixture, user, attempt }
 }
+
+test('quiz displays deadline and retries original key after local countdown expires', async t => {
+  const { root, fixture } = await mount(t, 'student', false, true)
+  assert.match(content(root), /本机估计剩余 0 分 0 秒/)
+  assert.match(content(root), /收卷以服务器时间为准/)
+  fixture.failSubmit = true
+  change(root, '确认交卷，接受漏答0分且提交后不可修改', true, true)
+  submit(root, 'attempt-answer-form'); await flush()
+  const first = fixture.writes[0]
+  assert.equal(first.path, '/api/v1/quizzes/3/attempts')
+  assert.ok(button(root, '重试原交卷'))
+  submit(root, 'attempt-answer-form'); await flush()
+  assert.equal(first.options.headers['Idempotency-Key'], fixture.writes[1].options.headers['Idempotency-Key'])
+  assert.deepEqual(first.payload, fixture.writes[1].payload)
+  assert.equal(button(root, '提交整份答卷'), undefined)
+})
 
 test('student false answer and short text submit once and then display latest pending result', async t => {
   const { root, fixture } = await mount(t)

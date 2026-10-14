@@ -1,0 +1,46 @@
+{
+  "date": "2026-10-14T13:56:04.841804+00:00",
+  "executor": "Codex, user-authorized automatic verification",
+  "tested_head": "29ade52f8ef27eeb7f287dd7f41ab35aaa83b88e",
+  "dirty_paths": [],
+  "scope": "controlled real 001/005/006 HTTP + SQLite + Vue; no dedicated008 or target Linux performance",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.40",
+      "checks": [
+        "real_student_4_answers_3_correct_75_percent_progress_and_export403",
+        "reload_restores_exact_student_snapshot_id",
+        "teacher_selected_student_matches_page_and_real_csv_formula_escape",
+        "frozen_3_expected_2_submitted_1_missing_1_partial_graded_zero_old_json_csv_survive_grade_and_reload",
+        "new_query_reflects_grade40_percent_single_paper8_points_80_percent",
+        "delayed_real_http_dropped_after_filter_change_exam_empty_unknown",
+        "unavailable_old_id_clears_report_explicit_restore_original_id_only",
+        "390px_knowledge_and_scores_tables_scroll_without_document_overflow",
+        "logout_login_restores_creator_original_score_snapshot",
+        "real_member_revocation_blocks_old_selected_snapshot_and_csv404"
+      ],
+      "page_errors": [],
+      "result": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "checks": [
+        "real_student_4_answers_3_correct_75_percent_progress_and_export403",
+        "reload_restores_exact_student_snapshot_id",
+        "teacher_selected_student_matches_page_and_real_csv_formula_escape",
+        "frozen_3_expected_2_submitted_1_missing_1_partial_graded_zero_old_json_csv_survive_grade_and_reload",
+        "new_query_reflects_grade40_percent_single_paper8_points_80_percent",
+        "delayed_real_http_dropped_after_filter_change_exam_empty_unknown",
+        "unavailable_old_id_clears_report_explicit_restore_original_id_only",
+        "390px_knowledge_and_scores_tables_scroll_without_document_overflow",
+        "logout_login_restores_creator_original_score_snapshot",
+        "real_member_revocation_blocks_old_selected_snapshot_and_csv404"
+      ],
+      "page_errors": [],
+      "result": "passed"
+    }
+  ],
+  "result": "passed"
+}

@@ -17,9 +17,9 @@ export class AttemptClient extends QuestionClient {
   paper(id) { return this.request(`/papers/${id}`).then(result => result.data) }
   detail(id) { return this.request(`/attempts/${id}`).then(result => result.data) }
   grade(id, payload) { return this.write(`/attempts/${id}/manual-scores`, 'PATCH', payload) }
-  async submit(id, payload, key) {
+  async submit(id, payload, key, quiz = false) {
     const session = await this.verifySession()
-    return (await this.request(`/papers/${id}/attempts`, { method: 'POST',
+    return (await this.request(`/${quiz ? 'quizzes' : 'papers'}/${id}/attempts`, { method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': session.csrf_token, 'Idempotency-Key': key },
       body: JSON.stringify(payload) })).data
   }
