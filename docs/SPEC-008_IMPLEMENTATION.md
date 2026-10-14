@@ -39,6 +39,12 @@
 | NF-UI | 当前基线Chrome/Edge各8组真实HTTP/UI及390px截图，正式提交SHA下方补录 | 本机headless受控数据，非课堂/所有006页面完整验收 |
 | NF-PERF | 未执行 | Linux4核8GB/50会话/真实worker仍阻断，本机测试秒数不是性能证据 |
 
+### C05b正式浏览器及代码提交
+
+代码/测试/契约/复现脚本提交`917ea08736a001220922f130d090ff35eeb7e5da`已推送origin/feature/spec-008-quiz；继续[PR #9](https://github.com/Gindama713/nchu-web-learning_platform/pull/9)，目标develop 253a736，open/draft、未合并。代码CI [Actions38568683749](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38568683749)已查询run、全部jobs及ci-test日志：completed/success，policy/lint/test/build/required全部success，grader按develop规则skipped；实际后端122项（101.798秒）、前端54项。tested merge=`e6adf1740343347bd80f8b776900d5611eea4fcb`，head=917ea08，base=253a736；此为CI临时merge引用，不是实际合并。正式证据文档的后续提交另核对最新head CI，不沿用代码run当最终head批准；本轮查询reviews=[]，没有008两名非作者批准。
+
+2026-10-14 21:03:37—21:04:04（Asia/Shanghai）在干净工作区正式运行双浏览器，tested_head=`917ea08736a001220922f130d090ff35eeb7e5da`、working_tree_dirty=false；Chrome 155.0.8059.40、Edge 155.0.4283.45各8组通过（共16组）、page_errors=[]。原始报告：[browser-results.json](evidence/spec-008/browsers/browser-results.json)。截图：[Chrome待批](evidence/spec-008/browsers/chrome-student-pending.png)、[Chrome统计](evidence/spec-008/browsers/chrome-teacher-statistics.png)、[Chrome讲评](evidence/spec-008/browsers/chrome-student-reviewed.png)、[Edge待批](evidence/spec-008/browsers/msedge-student-pending.png)、[Edge统计](evidence/spec-008/browsers/msedge-teacher-statistics.png)、[Edge讲评](evidence/spec-008/browsers/msedge-student-reviewed.png)。全部为390px受控课程页面；证据后续文档提交不改变tested_head，不能由此宣称所有006页面、课堂/生产或目标性能验收完成。
+
 复现：`.venv/Scripts/python.exe -m scripts.verify_spec008_quizzes --output docs/evidence/spec-008/browsers`（需要可选requirements-browser.txt、Chrome/Edge及空闲5000/5173；自动关闭所建浏览器/服务器和临时库）。失败记录：首次测试使用同线程嵌套Flask请求导致共用连接500，改独立线程真实请求后快照用例通过；退出预期状态改为真实204；浏览器首次对两个相同B选项文本用单元素断言失败，修正计数后通过。无业务响应替身、无隐去失败、无依赖升级。
 
 ## C05a实现与约束
