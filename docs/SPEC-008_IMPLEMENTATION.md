@@ -58,3 +58,9 @@ git diff --check
 ```
 
 没有修改旧迁移、判分规则、队友模块或CI。回退须保存本轮发布、通知、答卷、审计和幂等增量并使用配套代码/一致性备份恢复点；不可删历史paper/attempt或把review_at提前改成截止来绕过保护。没有部署、生产迁移、合并或发布。
+
+## 提交、PR与CI证据
+
+C05a代码/测试/契约记录提交`ce6dbfeb7cd1ce7312f9ab73a23cfe28566c06c6`已推送origin/feature/spec-008-quiz；[PR #9](https://github.com/Gindama713/nchu-web-learning_platform/pull/9)为open/draft，目标develop，实际base为`253a736a79a6b6778e8bde0e58673d1f4c7641d7`。没有008真实非作者批准或实际合并；005/006既有合并及课程评审缺口不因本PR变化。
+
+代码[Actions38564909856](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38564909856)已查询run、全部jobs和ci-test日志：completed/success，ci-policy/ci-lint/ci-test/ci-build/ci-required全部success，ci-grader按develop规则skipped。实际日志后端114项（62.390秒）、前端50项，tested merge=`7a378cf6132ce662b92d7b0b66aa7f413d8cb1e7`，head=ce6dbfe、base=253a736；该merge是CI临时测试引用，不是PR实际合并。随后仅补本节证据的文档提交须独立核对最新head CI，不沿用代码run作最终head批准。最新恢复仍为C05b；完整008/006、真实浏览器/跨模块/目标环境和两名非作者评审未关闭。
