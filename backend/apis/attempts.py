@@ -75,6 +75,17 @@ def get_attempt(attempt_id):
     return result(data)
 
 
+@bp.patch('/attempts/<int:attempt_id>/manual-scores')
+def grade_attempt(attempt_id):
+    user = require_user()
+    with write() as db:
+        attempt.ready(db)
+        row = attempt.find(db, attempt_id)
+        course_access(row['course_id'], teacher=True)
+        data = attempt.manual_scores(db, row, write_body(), user['id'])
+    return result(data)
+
+
 @bp.get('/courses/<int:course_id>/attempts')
 def list_attempts(course_id):
     identifier(course_id)

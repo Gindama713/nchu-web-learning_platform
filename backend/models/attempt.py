@@ -9,6 +9,7 @@ from uuid import UUID
 
 from backend.models import paper
 from backend.models.question import (
+    MAX_ID,
     ensure_practice_unreserved,
     identifier,
     invalid,
@@ -178,6 +179,67 @@ def find(db, attempt_id):
     if not row:
         raise ApiError(404, 'NOT_FOUND', '答卷不存在或不可见')
     return row
+
+
+def manual_scores(db, row, body, actor_id):
+    """Validate the entire batch before updating facts in the caller's write transaction."""
+    if set(body) != {'revision', 'items'} or type(body['revision']) is not int or not 0 <= body['revision'] < MAX_ID:
+        invalid('批阅须带合法revision和items')
+    if type(body['items']) is not list or not body['items']:
+        invalid('批阅items须为非空数组')
+    normalized, seen = [], set()
+    for item in body['items']:
+        if type(item) is not dict or set(item) != {'question_version_id', 'score', 'comment'}:
+            invalid('批阅条目仅接受question_version_id、score和comment')
+        version_id = identifier(item['question_version_id'])
+        if version_id in seen:
+            invalid('批阅题号不能重复')
+        seen.add(version_id)
+        number(item['score'], 'score')
+        score = Decimal(str(item['score']))
+        if score < 0:
+            invalid('评分须为非负数')
+        with localcontext() as context:
+            context.prec = 1100
+            scaled = score * 100
+        if scaled != scaled.to_integral_value():
+            invalid('评分最多两位小数')
+        if type(item['comment']) is not str or len(item['comment']) > 1000:
+            invalid('评语须为0至1000字符文本')
+        normalized.append((version_id, int(scaled), item['comment']))
+    facts = {item['question_version_id']: item for item in db.execute(
+        'SELECT a.*,v.type,i.points_hundredths FROM answer a '
+        'JOIN question_version v ON v.id=a.question_version_id '
+        'JOIN paper_item i ON i.paper_id=? AND i.question_version_id=a.question_version_id '
+        'WHERE a.attempt_id=?', (row['paper_id'], row['id']))}
+    for version_id, score, _ in normalized:
+        fact = facts.get(version_id)
+        if not fact or fact['type'] != 'short' or not fact['answered'] or score > fact['points_hundredths']:
+            raise ApiError(422, 'INVALID_MANUAL_SCORE', '仅可批阅本卷已作答简答，且分数不能超过配分')
+    if body['revision'] != row['revision']:
+        raise ApiError(409, 'REVISION_CONFLICT', '答卷评分已变化，请重新加载后批阅')
+    before = [{'question_version_id': version_id, 'score_hundredths': facts[version_id]['score_hundredths'],
+               'comment': facts[version_id]['comment'], 'graded_by': facts[version_id]['graded_by']}
+              for version_id, _, _ in normalized]
+    db.executemany('UPDATE answer SET score_hundredths=?,comment=?,graded_by=? '
+                   'WHERE attempt_id=? AND question_version_id=?',
+                   [(score, comment, actor_id, row['id'], version_id) for version_id, score, comment in normalized])
+    summary = db.execute('SELECT coalesce(sum(score_hundredths),0) AS partial,'
+                          'sum(score_hundredths IS NULL) AS pending FROM answer WHERE attempt_id=?',
+                          (row['id'],)).fetchone()
+    partial, pending = summary['partial'], summary['pending']
+    updated = db.execute('UPDATE attempt SET status=?,score_hundredths=?,partial_score_hundredths=?,revision=revision+1 '
+                         'WHERE id=? AND revision=?', ('partial' if pending else 'graded',
+                         None if pending else partial, partial, row['id'], body['revision']))
+    if updated.rowcount != 1:
+        raise ApiError(409, 'REVISION_CONFLICT', '答卷评分已变化，请重新加载后批阅')
+    audit('attempt.manual_scores', 'attempt', row['id'],
+          before={'revision': row['revision'], 'items': before},
+          after={'revision': row['revision'] + 1, 'items': [
+              {'question_version_id': version_id, 'score_hundredths': score, 'comment': comment, 'graded_by': actor_id}
+              for version_id, score, comment in normalized], 'status': 'partial' if pending else 'graded',
+              'partial_score_hundredths': partial}, actor_id=actor_id)
+    return detail(db, find(db, row['id']), teacher=True)
 
 
 def detail(db, row, *, teacher=False, at=None):
