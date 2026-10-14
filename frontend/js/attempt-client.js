@@ -44,7 +44,7 @@ export function scorePayload(revision, drafts) {
     const text = String(item.score).trim()
     if (!/^\d+(\.\d{1,2})?$/.test(text)) throw new Error('评分须为非负数，最多两位小数。')
     const score = Number(text)
-    if (!Number.isFinite(score) || score > item.max_score) throw new Error('评分不能超过本题配分。')
+    if (!Number.isFinite(score) || score * 100 > Number.MAX_SAFE_INTEGER || score > item.max_score) throw new Error('评分超出可用范围或超过本题配分。')
     if (item.comment.length > 1000) throw new Error('评语最多1000字符。')
     return { question_version_id: item.question_version_id, score, comment: item.comment }
   })

@@ -140,11 +140,21 @@ def full(app, password, browser, page, context, course_id, at, output, channel, 
         expect(second.get_by_role('button', name='保存本次批阅', exact=True)).to_be_disabled()
         checks.append('two_actual_teacher_sessions_stale_revision_conflict_locks_form')
         second.get_by_role('button', name='重新加载此答卷', exact=True).click()
+        expect(second.get_by_text('正在加载或保存答卷…', exact=True)).to_have_count(0)
         second.get_by_label('批阅第 6 题', exact=True).check()
         second.get_by_label('第 6 题评分', exact=True).fill('2.02')
         second.get_by_role('button', name='保存本次批阅', exact=True).click()
-        expect(second.get_by_text('总分：6.36 / 10.4', exact=True)).to_be_visible()
+        try:
+            expect(second.get_by_text('总分：6.36 / 10.4', exact=True)).to_be_visible()
+        except AssertionError:
+            second.screenshot(path=str(output/f'{channel}-failure.png'))
+            (output/f'{channel}-diagnostics.json').write_text(json.dumps({
+                'alerts': second.locator('[role="alert"]').all_text_contents(),
+                'summary': second.locator('.attempt-summary').all_text_contents(),
+            }, ensure_ascii=False), encoding='utf-8')
+            raise
         first.get_by_role('button', name='重新加载此答卷', exact=True).click()
+        expect(first.get_by_text('正在加载或保存答卷…', exact=True)).to_have_count(0)
         first.get_by_label('批阅第 5 题', exact=True).check()
         first.get_by_label('第 5 题评分', exact=True).fill('0')
         first.get_by_label('第 5 题评语', exact=True).fill('更正为零分')

@@ -32,7 +32,7 @@ async function mount(t, role = 'student', history = false) {
     { question_version_id: 1, position: 1, type: 'boolean', stem: 'PC？', options: [], points: 1 },
     { question_version_id: 2, position: 2, type: 'short', stem: '解释PC', options: [], points: 2 },
   ] }
-  const fixture = { userId: 7, rows: [], writes: [], reads: [], failSubmit: false, conflict: false, waitDetail: null, latest: null, total: null }
+  const fixture = { userId: 7, rows: [], writes: [], reads: [], unavailable: false, failSubmit: false, conflict: false, waitDetail: null, latest: null, total: null }
   const attempt = { id: 9, paper_id: 3, student_id: 7, revision: 0, status: 'partial', score: null, partial_score: 1,
     total_points: 3, submitted_at: '2026-10-14T04:00:00Z', answers: [
       { question_version_id: 1, value: false, answered: true, grading_status: 'graded', score: 1, max_score: 1, comment: '', correct: true },
@@ -42,6 +42,7 @@ async function mount(t, role = 'student', history = false) {
   const previous = globalThis.fetch
   globalThis.fetch = async (path, options) => {
     fixture.reads.push(path)
+    if (fixture.unavailable) return { ok: false, status: 503, json: async () => ({ error: { message: '服务未就绪' } }) }
     const result = (data, total) => ({ ok: true, status: 200, json: async () => ({ data, ...(total === undefined ? {} : { total }) }) })
     if (path.endsWith('/auth/session')) return result({ user: { id: fixture.userId, role: user.role }, csrf_token: 'fresh' })
     if (options.method) {
@@ -144,4 +145,18 @@ test('identity change drops late results and prevents old teacher writes', async
   assert.equal(button(root, '保存本次批阅'), undefined)
   assert.doesNotMatch(content(root), /原作答：原文/)
   assert.equal(fixture.writes.length, 0)
+})
+
+test('failed refresh removes old result and retry loads current state', async t => {
+  const { root, fixture, attempt } = await mount(t)
+  fixture.rows = [attempt]
+  await button(root, '重新加载答卷').props.onClick(); await flush()
+  assert.match(content(root), /原作答：原文/)
+  fixture.unavailable = true
+  await button(root, '重新加载答卷').props.onClick(); await flush()
+  assert.doesNotMatch(content(root), /原作答：原文/)
+  assert.match(content(root), /服务未就绪/)
+  fixture.unavailable = false
+  await button(root, '重新加载答卷').props.onClick(); await flush()
+  assert.match(content(root), /原作答：原文/)
 })

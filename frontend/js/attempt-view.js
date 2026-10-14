@@ -24,7 +24,7 @@ export const AttemptView = {
       values.value = {}; drafts.value = []; pending.value = null; confirmed.value = false; conflict.value = false
       loaded.value = false
     }
-    async function run(action) {
+    async function run(action, writing = false) {
       if (busy.value) return
       const ticket = epoch
       busy.value = true; error.value = ''; notice.value = ''
@@ -34,6 +34,7 @@ export const AttemptView = {
       } catch (failure) {
         if (ticket !== epoch) return
         error.value = failure.message
+        if (!writing) reset()
         if ([401, 403, 404].includes(failure.status)) {
           reset(); selectedPaper.value = null; courses.value = []; papers.value = []; course.value = ''
         }
@@ -143,7 +144,7 @@ export const AttemptView = {
       return input(label, values.value[id] ?? '', value => { values.value[id] = value }, { type: 'number', step: 'any', disabled })
     }
     function answerForm() {
-      return h('form', { class: 'attempt-answer-form', onSubmit: e => { e.preventDefault(); run(send) } }, [
+      return h('form', { class: 'attempt-answer-form', onSubmit: e => { e.preventDefault(); run(send, true) } }, [
         h('h4', '填写答卷'), h('p', '漏答得0分；已作答简答等待教师评分。提交后不能修改。'),
         h('ol', { class: 'attempt-questions' }, props.paper.items.map(q => h('li', { key: q.question_version_id }, [
           h('p', `第 ${q.position} 题 · ${questionTypes[q.type]} · ${q.points} 分`),
@@ -169,7 +170,9 @@ export const AttemptView = {
           const q = questions.get(a.question_version_id)
           return h('li', { key: a.question_version_id }, [
             h('p', `第 ${q?.position ?? '?'} 题 · ${questionTypes[q?.type] ?? '题目'} · ${gradeNames[a.grading_status]}`),
-            h('p', { class: 'attempt-text' }, q?.stem ?? ''), h('p', { class: 'attempt-text' }, `原作答：${showValue(a.value)}`),
+            h('p', { class: 'attempt-text' }, q?.stem ?? ''),
+            q?.options?.length > 0 && h('ul', q.options.map(option => h('li', { key: option.key }, `${option.key} · ${option.text}`))),
+            h('p', { class: 'attempt-text' }, `原作答：${showValue(a.value)}`),
             h('p', `得分：${a.score === null ? '待评分' : a.score} / ${a.max_score}`),
             a.comment && h('p', { class: 'attempt-text' }, `评语：${a.comment}`),
             Object.hasOwn(a, 'answer') && h('div', { class: 'attempt-reference' }, [
@@ -178,7 +181,7 @@ export const AttemptView = {
             ]),
           ])
         })),
-        teacher() && drafts.value.length > 0 && h('form', { class: 'attempt-grade-form', onSubmit: e => { e.preventDefault(); if (!conflict.value) run(grade) } }, [
+        teacher() && drafts.value.length > 0 && h('form', { class: 'attempt-grade-form', onSubmit: e => { e.preventDefault(); if (!conflict.value) run(grade, true) } }, [
           h('h4', '简答批阅 / 更正'), h('p', '勾选本次要保存的题目；可以分批批阅，也可更正已批分数。'),
           ...drafts.value.map(draft => {
             const position = questions.get(draft.question_version_id)?.position
