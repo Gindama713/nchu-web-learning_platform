@@ -150,6 +150,12 @@ npm run build
 
 完整追加验收及现行契约位置见[PRD第12节](docs/PRD.md#supplemental-acceptance)。文档一致性核对与未来运行验收分别记录。
 
+### 8.3 SPEC-005课程知识（主体接入，验收仍有缺口）
+
+启动方式沿用第8节。登录后知识组件提供教师章节新增/改名/排序、知识编辑/发布/下架/基础标记，以及学生检索/详情/收藏/完成状态。页面读取真实auth/session、courses和知识API，不内置默认身份或成功数据。001已从develop同步接入，真实登录/课程/收藏进度/重登的受控API链通过CI；指定Chrome/Edge受控浏览器检查已完成，授权图片及目标环境性能仍待补，真实教学账号/课堂验收另记。
+
+005后端Blueprint在create_app注册，沿用真实001会话与公共SQL runner，执行第8节db-upgrade包含005_knowledge迁移；缺少/校验失败仍503，未登录401。所需契约、负责人、完整AC/R矩阵、测试性质及恢复步骤见[SPEC-005实施记录](docs/SPEC-005_IMPLEMENTATION.md)。保留/恢复数据库按DBD及CHG-RB，不通过删除库重做真实验收。
+
 <a id="submission-check"></a>
 ## 9 本次提交状态与自查
 

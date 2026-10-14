@@ -1,6 +1,6 @@
 # 中央处理器课程学习系统接口契约
 
-版本0.6，需求设计已完成团队评审；业务接口仍为设计，当前仅有下述框架探针运行。接口统一前缀 /api/v1。模块编号、实验逻辑及判分以PRD为准，持久化以DBD为准。
+版本0.6，需求设计已完成团队评审；框架探针可运行，SPEC-005主体实现已接入001/公共迁移，受控真实API链通过本地及CI；其他业务按各模块记录区分设计和运行。接口统一前缀 /api/v1。模块编号、实验逻辑及判分以PRD为准，持久化以DBD为准。005实际验证及阻塞见[SPEC-005实施记录](SPEC-005_IMPLEMENTATION.md)。
 
 ## 1 公共协议
 
@@ -112,6 +112,18 @@ Resource增加visibility，普通资源默认students，题库源文件永久tea
 GET /courses/{id}/chapters提供分页{id,title,position}，排序position升序并返回chapters_revision；权限L，学生只列含已发布知识点的章节，教师可看空章节。GET /resources/{id}/versions提供分页ResourceVersion，按当前资源权限鉴权。
 
 签到码公开模型：AttendanceTask查询/关闭响应仅含id/course_id/title/start_at/late_at/end_at/status/code_expires_at，不含code或code_hash；创建响应额外含一次性code（6位字符串，保留前导0），轮换响应含code/expires_at/扫码内容，均Cache-Control: no-store。DBD只存哈希，不保存明文到日志、通知或幂等响应缓存。教师刷新或忘记码时通过轮换获得新码，原码立即失效；关闭后不得轮换。没有“找回旧码”界面或查询接口。R40按PRD SPEC-002 AC-05验收。旧码失败用尚未签到学生验证，已成功签到者重复请求仍返回原记录，不能据此判断码是否有效；错误明文不回显。
+
+### 3.1 SPEC-005实现字段与接入
+
+Knowledge列表、创建、更新和详情共享字段：`id,chapter_id,title,content,example,published,is_foundational,content_revision`；详情另有`is_bookmarked`及`progress:{completed,completed_at}`。未完成/无记录时`completed=false,completed_at=null`。`PUT progress`的`updated_at`为本次操作UTC时间，重复完成保留原`completed_at`。它是自报进度，不是掌握度或成绩。
+
+正文/例题输入最长5000字符；保存时富文本仅保留p/br/b/strong/i/em/u/ul/ol/li/pre/code/blockquote/sub/sup/h2/h3标签，去除全部属性及其他标签，文本转义。公式可用sub/sup或文本，图片、链接和主动内容暂不支持。title仍按公共1—100字符约束。未知写字段、非JSON布尔状态、空PATCH拒绝400。
+
+知识创建`content_revision=1`，持久字段实际变化时在同事务递增；相同值PATCH不递增。发布/下架、基础标记变更均纳入revision。011应每次从当前已发布集合及各知识revision派生语料版本；005不创建索引或返回旧索引。章节新增/重排递增`chapters_revision`，仅改名不改变排序revision。
+
+005的knowledge_security适配层消费已从develop同步的001实现的`backend.shared.auth.require_user/check_csrf`；缺少依赖时保持503 MAINTENANCE，不提供默认用户。适配层核对APP_ORIGIN，并将共享ApiError转为005统一错误。实际会话超时、撤销、版本及CSRF算法仍由001负责。在业务事务取得锁后再调用require_user，防止请求鉴权后、写入前的会话撤销竞态；同时复核user.active/role及active member，teacher_id不能独立授权，管理员不自动获得教师编辑权限。
+
+如组长选择显式注册`app.extensions['course_security']`，需实现`current_user_id()`、`verify_write_request()`及`verify_transaction(connection,user)`三个方法；缺少事务内会话复核拒绝503。此内部适配点已按develop f242d2b接入并通过受控真实API测试；不能把测试替身注册到运行应用。已接入但未登录401，模块迁移不存在/校验失败503。005不改001业务逻辑。
 
 ## 4 习题课堂接口 SPEC-006—008
 

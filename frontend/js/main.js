@@ -1,8 +1,11 @@
 import { createApp, onMounted, reactive, ref } from 'vue'
 import { apiRequest, readApi } from './api.js'
+import { KnowledgeView } from './knowledge-view.js'
 import '../styles/main.css'
+import '../styles/knowledge.css'
 
 createApp({
+  components: { KnowledgeView },
   setup() {
     const user = ref(null)
     const csrf = ref('')
@@ -277,6 +280,7 @@ createApp({
           <ul class="rows"><li v-for="person in people" :key="person.id">{{ person.name }} · {{ person.student_no }} · {{ person.role }}
             <button v-if="person.role === 'student'" type="button" class="secondary" @click="promote(person)">设为教师</button>
             <button v-if="person.role !== 'admin' && person.active" type="button" class="secondary" @click="deactivate(person)">停用</button></li></ul></section>
+        <knowledge-view />
         <section class="card"><h2>通知</h2><ul class="rows"><li v-for="item in notifications" :key="item.id">{{ item.title }} · {{ item.read_at ? '已读' : '未读' }}
           <button v-if="!item.read_at" type="button" class="secondary" @click="markRead(item.id)">标记已读</button></li></ul></section>
         <template v-if="courseId && user.role !== 'admin'">
