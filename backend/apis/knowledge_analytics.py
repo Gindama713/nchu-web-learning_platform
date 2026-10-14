@@ -58,6 +58,7 @@ def create(course_id, args):
         scope = 'class' if subject is None else 'self' if role == 'student' else 'student'
         parameters = {'from': start, 'to': end, 'student_id': subject,
                       'knowledge_ids': [row['id'] for row in snapshot['knowledge']]}
+        data['filters'] = parameters
         with write() as db:
             authorize(course_id, requested)
             cursor = db.execute(

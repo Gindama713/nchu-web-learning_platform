@@ -162,7 +162,7 @@ class KnowledgeAnalyticsTest(test_attempts.AttemptApiBase):
         selected = self.query(self.teacher, f'&student_id={self.student_id}').json['data']
         self.assertEqual(selected['metrics'], personal['metrics'])
         self.call(self.teacher, 'GET', self.analytics_url +
-                  f"/export?analysis_run_id={class_data['analysis_run_id']}&format=csv", status=503)
+                  f"/export?analysis_run_id={class_data['analysis_run_id']}&format=csv")
         self.call(self.student, 'GET', self.analytics_url +
                   f"/export?analysis_run_id={personal['analysis_run_id']}&format=csv", status=403)
         self.restore(personal['analysis_run_id'], self.teacher, 404)

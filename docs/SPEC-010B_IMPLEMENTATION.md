@@ -1,6 +1,6 @@
-# SPEC-010B / C06 知识统计基础实施与验证
+# SPEC-010B / C06—C07 知识与分类成绩分析实施与验证
 
-责任人：黄俊诚（24201716）。2026-10-14，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-010b)、[APIC§5.1](APIC.md)、[DBD§5](DBD.md)。本包交付knowledge计算与持久快照API；010B整体验收未关闭，统计页面/CSV及scores留C07，不新增自己的AC编号。
+责任人：黄俊诚（24201716）。2026-10-14，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-010b)、[APIC§5.1](APIC.md)、[DBD§5](DBD.md)。C06交付knowledge计算与持久快照API；C07分段追加分类成绩、同快照CSV和页面，当前状态及下一恢复见文末。010B整体验收未关闭，不新增自己的AC编号。下述C06段落保留当时证据，后续实现以文末C07记录为准。
 
 ## 基线、边界与依赖
 
@@ -12,7 +12,7 @@
 | 005当前发布集合、本人完成事实 | 经真实章节/知识/进度API产生，R38全部数值及日期不改集合可复算 | 本包补005/R38聚合证据，图文/003缺口不因此解除 |
 | 006固定题目版本、练习和卷内作答/批阅 | 真实HTTP提交、成功键重试与人工批分；漏答保留但不计掌握度 | 本包只读，不写评分或另建成绩来源 |
 | 008专用测验链 | develop尚无专用008实现；共同answer结构已可消费 | #9合入后按GitFlow同步develop，再补真实008→010B；不称已完成008 AC-04联合 |
-| 页面、scores/CSV | 本轮未实施 | C07同分支继续；教师knowledge导出503，学生导出403，不能记父AC-04/05通过 |
+| 页面、scores/CSV | C07a后端分类成绩及knowledge/scores CSV已实施 | C07b页面/浏览器分段验证见文末；不以API通过代替完整验收 |
 | 003/004、Linux4核8GB/50会话/真实worker、课堂与正式评审 | 未执行/外部依赖 | 原负责人接缝与目标环境完成后补证，不用本机测试时间冒充性能 |
 
 ## 实现和可复算口径
@@ -72,3 +72,25 @@ git diff --check
 环境失败记录：GitHub连接器取状态/日志时曾返回临时403，专用工作流查询及后续重试成功；ci-test运行中第一次请求日志404 BlobNotFound，完成后取得日志并核对上述真实测试数/SHA，没有隐藏业务测试失败或用其他分支CI替代。
 
 下一恢复：先fetch并核对origin/develop和008 PR #9。C06独立knowledge计算/快照API已实施，C07继续此010B分支：已共享分支使用merge同步develop；008合入后补专用quiz→knowledge真实链，再做scores分类指标、统计页面、原ID恢复与同快照CSV、公式转义及完整父AC-01—05/各R。008尚未合入时不能从其feature复制代码或误称联合已通过。005 R38本包仅补聚合证据，003图文/011索引/目标环境缺口仍保留。
+
+
+## C07a：分类成绩与同快照CSV（2026-10-14）
+
+本轮继续原010B分支；先fetch核验develop仍为253a736，008 [PR #9](https://github.com/Gindama713/nchu-web-learning_platform/pull/9)为open/draft、merged=false，head=fafc69a；没有复制其feature。公共analytics只新增scores分派/快照白名单及010B CSV出口；attendance计算及其CSV内容保持原实现。
+
+实现为[score_analysis.py](../backend/models/score_analysis.py)、[score_analytics.py](../backend/apis/score_analytics.py)、[statistics_csv.py](../backend/apis/statistics_csv.py)及[真实API测试](../tests/test_score_analytics.py)。完整字段见APIC§5.1，存储见DBD§5。按任务start_at选卷，冻结名单左连source_until前提交；expected=submitted+missing，submitted=graded+partial。实际已批0分计均值，缺交/partial不计；跨卷只出等权百分比。Pandas均值及NumPy未舍入百分比分箱，100计最后箱。范围仅SQL中提取本人；保存前再次检查会话/当前课程及选定学生。新结果filters随快照保存，原ID不更新；CSV仅遍历result_json，包含总计/周序列/知识明细或全部分箱。公式前缀含空白、换行、逗号与引号用例通过。
+
+验证执行人：Codex（黄俊诚授权开发下的自动验证，非非作者批准）。10项C07测试全部通过，21.661秒；此前knowledge+scores共22项通过46.177秒（当时scores为8项），新增停用及quiz共享服务/成绩备份两项后独立10项重跑。ruff通过。测试输入/预期/实际由测试断言保存：
+
+| 编号 | 用例及结果 | 边界 |
+|---|---|---|
+| 父AC-01 / R15 | real_frozen_assignments、percentage_edges：3应交/2已交/1缺交/1待批/1已批0分；批阅后新查询均百分比40，旧JSON/CSV相同；7份不同满分的边界分箱为2/1/1/1/2，均百分比65.7 | 001/005/006真实API，非教学数据 |
+| 父AC-02 | strict_filters、snapshot_export_permissions、deactivation：混筛选/重复参数400、跨课/他人/清理/非统计kind/撤权404、学生导出403、停用401；停用/撤权计算不保存 | 班级教师关系和会话重新鉴权；目标环境未测 |
+| 父AC-03 | empty_quiz：0样本均值null，计数0；真实空白交卷为已批0且计入 | quiz空查询非008专用联合 |
+| 父AC-04 | frozen_assignments、knowledge_csv、quiz_shared_service：批分后旧CSV字节一致，备份完整性/外键及同ID JSON/CSV相同 | 页面/双浏览器留C07b；非完整资源/生产恢复 |
+| 父AC-05 / R16 | exit_and_join：冻结人卷分母3，退出后仍3；个人输入只含本人 | homework/exam由HTTP发布/提交；quiz_shared_service通过已有共享publish服务准备，仅作为服务接缝测试，008专用HTTP链仍阻断 |
+| R12/R27 / NF-DATA | WAL期间真实第二请求批阅：原快照partial，下一查询80%；INSERT/UPDATE故障、缺表/计算失败503无半快照 | 不改判分规则/原迁移 |
+
+失败与修复：首轮8项中3项失败，原因是测试时钟等于右开to及重复保密考试复用同一道题；调整查询时钟/独立题目后22项通过。新增停用测试最初试图停用仍负责课程的教师，被001真实约束拒绝；改为学生停用用例后通过，不修改001规则。没有删除失败测试或降低断言。
+
+下一恢复：C07a后端已准备分段提交推送；继续C07b页面、刷新/重登原ID恢复、导出下载及真实Chrome/Edge验证，再全量回归并更新PR #10。008专用链、R33、目标Linux4核8GB/50会话/worker、完整资源恢复及课堂/实际评审仍未通过；不得关闭010B完整验收。

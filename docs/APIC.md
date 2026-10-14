@@ -249,7 +249,11 @@ analytics响应增加source_until、population_basis、warnings和unit；series�
 
 C06 knowledge实施口径：`algorithm_version=knowledge-objective-v1`，`sample_size=answered_count`；总体按`(source,sample_id)`去重，source为practice或answer，分别使用practice_attempt.id与answer.id，避免两表数字ID碰撞。固定question_version的多标签在各点分别计入，同一样本不重复累计总体；总体保留本课区间内真实历史客观作答（包括已下架知识的作答），items只投影当前发布集合K。班级范围汇总本课历史作答，不因学生后来退出丢失历史事实；本人/教师选学生范围仅提取该学生输入。个人进度按上述K交集；教师未选学生时`completed_knowledge_count=null,progress=null`，`published_knowledge_count=|K|`，warnings提示选择学生查看个人进度，不将全班完成条数套入个人分母。series按上海周一00:00切分左闭右开区间，首尾裁剪到from/to，每段作答按事件时间计算，进度仍使用同一当前快照。此范围边界由本轮用户采用推荐方案确认，不代替团队评审。
 
-C06已接入knowledge首次查询、同表完整输入/结果保存及按ID读取；只接受dimension/from/to/student_id，空值、重复参数、无关筛选和超范围ID均400。保存前再次复核会话、当前课程权限及指定学生的有效学生成员关系；计算/事实缺失/保存失败返回503 ANALYSIS_UNAVAILABLE，无半份快照或可用ID。读取只允许创建者及当前有权访问的保存范围，已撤权选定学生同样404；所有统计响应no-store。knowledge页面与CSV尚待C07，当前教师导出knowledge快照返回503 DEPENDENCY_UNAVAILABLE，学生导出仍403；不称该阶段满足父AC-04。详见[SPEC-010B实施记录](SPEC-010B_IMPLEMENTATION.md)。
+C06已接入knowledge首次查询、同表完整输入/结果保存及按ID读取；只接受dimension/from/to/student_id，空值、重复参数、无关筛选和超范围ID均400。保存前再次复核会话、当前课程权限及指定学生的有效学生成员关系；计算/事实缺失/保存失败返回503 ANALYSIS_UNAVAILABLE，无半份快照或可用ID。读取只允许创建者及当前有权访问的保存范围，已撤权选定学生同样404；所有统计响应no-store。C07已补knowledge/scores教师CSV；学生仍403，重复导出参数及混筛选400。详见[SPEC-010B实施记录](SPEC-010B_IMPLEMENTATION.md)。
+
+C07 scores实施口径：`algorithm_version=scores-frozen-participants-v1`；查询必须kind，仅另接受from/to/student_id/paper_id。paper_id必须为本课该类别的已发布卷；个人范围还须在原冻结名单，否则404。按paper.start_at左闭右开选择已发布卷，读取同一数据库快照中的冻结名单及source_until前attempt；不按提交/批阅日期重新筛任务。expected/submitted/missing/graded/partial的单位均为“学生×试卷”人卷次，历史退出不减全班分母，转入不补历史任务；个人输入只保存本人。partial不计最终均分，实际已批0分照常计入。mean_score仅实际集合包含一张卷且有已批成绩时有值（原分单位分，百分之一分转两位）；跨卷mean_score=null，mean_percentage按每份已批卷百分比等权平均、保留两位。sample_size=graded_count；score_bins固定有序`[{label,count}]`，label依次为`[0,60)`、`[60,70)`、`[70,80)`、`[80,90)`、`[90,100]`，按未舍入百分比分箱，100计最后箱；空样本计数0而均分null。metrics另含selected_paper_ids升序；series按上海周一分段并按同一paper.start_at口径。当前没有独立pending状态，partial_count即待批数。
+
+C07新建knowledge/scores结果增加filters（与parameters_json一致的解析筛选及实际对象ID）供原页面标示；旧快照无该字段时仍按原保存结果读取，不补算。CSV采用UTF-8 BOM，先写ID/时间/算法/样本/口径/单位/警告/filters，再以overall和series输出全部标量及对象集合；knowledge_items按知识ID升序列原title/作答/正确/错题/mastery，scores另列overall_bin/series_bin及原有序分箱。数值直接序列化快照JSON精度、null为空，ratio/percent单位分别标注；页面比率以百分数两位显示。含逗号/引号/换行的单元格使用标准CSV引用，字符串公式前缀=、+、-、@（含前导空白）及首字符tab/CR/LF加单引号。读取与导出不重查事实，批分后旧ID的JSON和CSV保持原样。
 
 ### 5.2 问答与推荐
 
