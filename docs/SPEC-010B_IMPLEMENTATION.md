@@ -65,6 +65,10 @@ git diff --check
 
 ## 提交、PR、CI与下一恢复
 
-当前本地验证与最终提交/推送/PR在本轮结束前补录；不得将未执行CI或待评审写成通过。仅feature推送/草稿PR属于已授权范围，没有合并/部署/发布。
+代码/测试/契约提交`3de34d1d62a57282f61adbbf97cdb2abaa10e6f0`已推送origin/feature/spec-010b-knowledge-analysis；[PR #10](https://github.com/Gindama713/nchu-web-learning_platform/pull/10)为open/draft，目标develop `253a736a79a6b6778e8bde0e58673d1f4c7641d7`。未合并/部署/发布，没有本包真实非作者批准证据。
+
+代码[Actions38571993686](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38571993686) completed/success；已核对jobs：ci-policy/ci-lint/ci-test/ci-build/ci-required全success，ci-grader按develop规则skipped，不视为真实评测通过。ci-test实际日志后端121项（69.554秒）、前端46项通过，checkout tested merge=`299d10fbf8a7122eb7bdbf7e5fb3fd3969b1116d`，head=3de34d1、base=253a736。该merge为CI测试引用，不是实际合并。后续证据文档提交需单独核对最新head CI，本代码run不冒充最终文档head的检查。
+
+环境失败记录：GitHub连接器取状态/日志时曾返回临时403，专用工作流查询及后续重试成功；ci-test运行中第一次请求日志404 BlobNotFound，完成后取得日志并核对上述真实测试数/SHA，没有隐藏业务测试失败或用其他分支CI替代。
 
 下一恢复：先fetch并核对origin/develop和008 PR #9。C06独立knowledge计算/快照API已实施，C07继续此010B分支：已共享分支使用merge同步develop；008合入后补专用quiz→knowledge真实链，再做scores分类指标、统计页面、原ID恢复与同快照CSV、公式转义及完整父AC-01—05/各R。008尚未合入时不能从其feature复制代码或误称联合已通过。005 R38本包仅补聚合证据，003图文/011索引/目标环境缺口仍保留。
