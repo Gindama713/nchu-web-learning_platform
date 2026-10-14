@@ -223,7 +223,7 @@ class ScoreAnalyticsTest(test_attempts.AttemptApiBase):
         self.assertEqual(self.export(run).data, original.data)
 
     def test_quiz_shared_service_fixture_scores_and_scores_backup_original_id(self):
-        # 008 is unmerged. This calls the existing shared publish service, NOT its dedicated HTTP API.
+        # Keep the shared publication path covered; the dedicated HTTP path is tested below.
         q = self.create_question()
         paper = self.make_paper([q], kind='quiz', points=[20], quiz_publish=True)
         self.at(13)
@@ -241,6 +241,40 @@ class ScoreAnalyticsTest(test_attempts.AttemptApiBase):
         self.app.config['DATABASE_PATH'] = str(self.path.with_name('scores-backup.db'))
         self.assertEqual(self.restore(run).json['data'], data)
         self.assertEqual(self.export(run).data, csv_bytes)
+
+    def test_dedicated_quiz_statistics_grading_review_and_saved_scores(self):
+        objective = self.create_question()
+        short = self.create_question(type='short', options=[], answer='参考')
+        draft = self.call(self.teacher, 'POST', f'/courses/{self.course_id}/papers',
+                          {'title': '专用随堂测联测', 'kind': 'quiz', 'confidential': True,
+                           'items': [{'question_version_id': objective['version_id'], 'points': 10},
+                                     {'question_version_id': short['version_id'], 'points': 5}]}, 201).json['data']
+        quiz_id = draft['id']
+        published = self.call(self.teacher, 'POST', f'/courses/{self.course_id}/quizzes',
+                              {'paper_id': quiz_id, 'start_at': test_attempts.WINDOW['start_at'],
+                               'end_at': test_attempts.WINDOW['end_at'],
+                               'confidentiality_note': '确认未公开且非简单复制'}, 201).json['data']
+        self.assertIsNone(published['review_at'])
+        self.at(13)
+        attempt = self.submit(quiz_id, [self.answer(objective, 'A'),
+                                        self.answer(short, '学生作答')], quiz=True).json['data']
+        self.at(14)
+        stats = self.call(self.teacher, 'GET', f'/quizzes/{quiz_id}/statistics').json['data']
+        self.assertEqual((stats['expected_count'], stats['submitted_count'], stats['objective_correct_rate']),
+                         (1, 1, 1))
+        self.assertEqual(stats['questions'][1]['pending_count'], 1)
+        pending = self.query(f'&kind=quiz&paper_id={quiz_id}').json['data']
+        self.assertEqual((pending['metrics']['partial_count'], pending['metrics']['graded_count']), (1, 0))
+        original_csv = self.export(pending['analysis_run_id']).data
+        self.grade(attempt, short, 5)
+        reviewed = self.call(self.teacher, 'POST', f'/quizzes/{quiz_id}/review', {}).json['data']
+        self.assertEqual(reviewed['review_published_at'], self.call(
+            self.student, 'GET', f'/papers/{quiz_id}').json['data']['review_at'])
+        graded = self.query(f'&kind=quiz&paper_id={quiz_id}').json['data']
+        self.assertEqual((graded['metrics']['partial_count'], graded['metrics']['graded_count'],
+                          graded['metrics']['mean_score']), (0, 1, 15))
+        self.assertEqual(self.restore(pending['analysis_run_id']).json['data'], pending)
+        self.assertEqual(self.export(pending['analysis_run_id']).data, original_csv)
 
     def test_csv_prefixes_and_account_deactivation_during_compute_and_export(self):
         for value in ('=1', '+cmd', '-1', '@SUM(1)', '\ttext', '\rtext', '\ntext', '  =SUM(1)'):

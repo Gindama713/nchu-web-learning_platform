@@ -16,7 +16,7 @@ from backend.models.question import (
 from backend.models.question import (
     ready as questions_ready,
 )
-from backend.shared.api import ApiError, audit, parse_time, stamp, text_field
+from backend.shared.api import ApiError, audit, notify, parse_time, stamp, text_field
 
 KINDS = frozenset({'homework', 'exam', 'quiz'})
 SQL = Path(__file__).resolve().parents[1] / 'migrations' / '006b_papers.sql'
@@ -140,6 +140,10 @@ def publish(db, row, body, *, quiz=False):
     count = db.execute('SELECT count(*) FROM paper_participant WHERE paper_id=?', (row['id'],)).fetchone()[0]
     audit('paper.publish', 'paper', row['id'], before={'status': 'draft'},
           after={'status': 'published', 'participant_count': count, **times})
+    if row['kind'] == 'quiz':
+        for participant in db.execute('SELECT student_id FROM paper_participant WHERE paper_id=?', (row['id'],)):
+            notify(participant['student_id'], row['course_id'], f"随堂测已发布：{row['title']}",
+                   'quiz', row['id'], f"quiz.published:{row['id']}")
 
 
 def metadata(db, row, *, teacher=False, at=None):
