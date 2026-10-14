@@ -247,6 +247,10 @@ analytics响应增加source_until、population_basis、warnings和unit；series�
 - scores：kind:homework/exam/quiz（查询必需），paper_id?；expected_count,submitted_count,missing_count,graded_count,partial_count,mean_score,mean_percentage,score_bins；不同满分按百分比分箱[0,60)、[60,70)、[70,80)、[80,90)、[90,100]，原始均分仅同一paper有值；缺交不自动算0，pending不混入已批均分。
 四人分工中010B承担scores，003承担resources；所有维度都支持同口径CSV。
 
+C06 knowledge实施口径：`algorithm_version=knowledge-objective-v1`，`sample_size=answered_count`；总体按`(source,sample_id)`去重，source为practice或answer，分别使用practice_attempt.id与answer.id，避免两表数字ID碰撞。固定question_version的多标签在各点分别计入，同一样本不重复累计总体；总体保留本课区间内真实历史客观作答（包括已下架知识的作答），items只投影当前发布集合K。班级范围汇总本课历史作答，不因学生后来退出丢失历史事实；本人/教师选学生范围仅提取该学生输入。个人进度按上述K交集；教师未选学生时`completed_knowledge_count=null,progress=null`，`published_knowledge_count=|K|`，warnings提示选择学生查看个人进度，不将全班完成条数套入个人分母。series按上海周一00:00切分左闭右开区间，首尾裁剪到from/to，每段作答按事件时间计算，进度仍使用同一当前快照。此范围边界由本轮用户采用推荐方案确认，不代替团队评审。
+
+C06已接入knowledge首次查询、同表完整输入/结果保存及按ID读取；只接受dimension/from/to/student_id，空值、重复参数、无关筛选和超范围ID均400。保存前再次复核会话、当前课程权限及指定学生的有效学生成员关系；计算/事实缺失/保存失败返回503 ANALYSIS_UNAVAILABLE，无半份快照或可用ID。读取只允许创建者及当前有权访问的保存范围，已撤权选定学生同样404；所有统计响应no-store。knowledge页面与CSV尚待C07，当前教师导出knowledge快照返回503 DEPENDENCY_UNAVAILABLE，学生导出仍403；不称该阶段满足父AC-04。详见[SPEC-010B实施记录](SPEC-010B_IMPLEMENTATION.md)。
+
 ### 5.2 问答与推荐
 
 QA按当前已发布知识语料revision按需重建TF-IDF；重建失败返回503 INDEX_UNAVAILABLE，不返回旧内容；空语料found=false、matches=[]。推荐始终返回对象，items可为空，外层reason与source_until仍存在；确定算法及reason枚举见PRD第4.3节。
