@@ -30,7 +30,7 @@ const flush = async () => { await setImmediate(); await nextTick() }
 const submit = (root, css) => all(root).find(item => item.type === 'form' && item.props.class === css)
   .props.onSubmit({ preventDefault() {} })
 
-async function mount(t, role = 'teacher') {
+async function mount(t, role = 'teacher', quizOnly = false) {
   const fixture = { userId: 7, writes: [], rows: [], detail: null, unavailable: false, waitQuestions: null }
   const user = reactive({ id: 7, role })
   const previous = globalThis.fetch
@@ -41,7 +41,8 @@ async function mount(t, role = 'teacher') {
     if (options.method) {
       const values = JSON.parse(options.body)
       fixture.writes.push({ path, values })
-      const item = path.endsWith('/publish') ? { ...fixture.detail, ...values, status: 'published', window_state: 'upcoming', participant_count: 2 }
+      const item = path.endsWith('/publish') || path.endsWith('/quizzes') ? { ...fixture.detail, ...values,
+        status: 'published', window_state: 'upcoming', participant_count: 2, ...(quizOnly ? { review_at: null } : {}) }
         : { ...values, id: 3, status: 'draft', total_points: 20, participant_count: 0,
           items: values.items.map((item, index) => ({ ...item, position: index + 1, version: 1,
             stem: 'fixture', options: [], answer: true, explanation: '' })) }
@@ -53,18 +54,40 @@ async function mount(t, role = 'teacher') {
       if (fixture.waitQuestions) await fixture.waitQuestions
       return result([{ id: 1, version_id: 8, version: 2, stem: 'PC' }, { id: 2, version_id: 9, version: 1, stem: 'ALU' }], 2)
     }
-    if (path.includes('/papers?')) return result(fixture.rows, fixture.rows.length)
+    if (path.includes('/papers?') || path.includes('/quizzes?')) return result(fixture.rows, fixture.rows.length)
     if (path.includes('/attempts?')) return result([], 0)
     if (path.endsWith('/papers/3')) return result(fixture.detail)
     throw new Error(`Unexpected path ${path}`)
   }
   const root = element('root')
-  const app = renderer.createApp(PaperView, { user })
+  const app = renderer.createApp(PaperView, { user, quizOnly })
   app.mount(root)
   t.after(() => { app.unmount(); globalThis.fetch = previous })
   await flush()
   return { root, fixture, user }
 }
+
+test('dedicated quiz screen creates quiz drafts and publishes without automatic review', async t => {
+  const { root, fixture } = await mount(t, 'teacher', true)
+  assert.ok(find(root, 'h2', '随堂测'))
+  assert.equal(find(root, 'span', '筛选试卷类型'), undefined)
+  await find(root, 'button', '编排新试卷').props.onClick(); await flush()
+  assert.equal(find(root, 'span', '试卷类型'), undefined)
+  field(root, '试卷标题', 'input').props.onInput({ target: { value: 'CPU随堂测' } })
+  field(root, '选择题目版本', 'select').props.onChange({ target: { value: '1' } }); await flush()
+  find(root, 'button', '加入试卷').props.onClick(); await flush()
+  submit(root, 'paper-editor'); await flush()
+  assert.equal(fixture.writes[0].values.kind, 'quiz')
+  assert.equal(find(root, 'span', '试卷讲评'), undefined)
+  field(root, '试卷开始', 'input').props.onInput({ target: { value: '2026-10-13T21:00' } })
+  field(root, '试卷截止', 'input').props.onInput({ target: { value: '2026-10-13T22:00' } })
+  submit(root, 'paper-publication'); await flush()
+  assert.equal(fixture.writes[1].path, '/api/v1/courses/1/quizzes')
+  assert.equal(fixture.writes[1].values.paper_id, 3)
+  assert.equal(Object.hasOwn(fixture.writes[1].values, 'review_at'), false)
+  assert.match(content(root), /待教师讲评/)
+  assert.equal(find(root, 'button', '发布随堂测并冻结名单'), undefined)
+})
 
 test('teacher selects fixed versions, changes order and publishes with confirmation', async t => {
   const { root, fixture } = await mount(t)

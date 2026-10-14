@@ -18,6 +18,8 @@ export const AttemptView = {
     const values = ref({}), drafts = ref([]), pending = ref(null), confirmed = ref(false), conflict = ref(false)
     const busy = ref(false), error = ref(''), notice = ref('')
     const loaded = ref(false)
+    const clock = ref(Date.now())
+    let timer
 
     function reset() {
       rows.value = []; total.value = 0; selected.value = null; selectedPaper.value = props.paper
@@ -87,7 +89,7 @@ export const AttemptView = {
     async function send(ticket) {
       if (!confirmed.value) throw new Error('请先确认提交；漏答得0分，每人每卷只能提交一次。')
       if (!pending.value) pending.value = { payload: answerPayload(props.paper.items, values.value), key: crypto.randomUUID() }
-      const submitted = await api.submit(props.paper.id, pending.value.payload, pending.value.key)
+      const submitted = await api.submit(props.paper.id, pending.value.payload, pending.value.key, props.paper.kind === 'quiz')
       if (ticket !== epoch) return
       pending.value = null; confirmed.value = false
       setAttempt(submitted, props.paper)
@@ -109,8 +111,11 @@ export const AttemptView = {
       epoch++; busy.value = false; reset(); courses.value = []; papers.value = []; course.value = props.courseId
       api = new AttemptClient(props.user); run(boot)
     })
-    onMounted(() => run(boot))
-    onUnmounted(() => { epoch++ })
+    onMounted(() => {
+      run(boot)
+      if (props.paper?.kind === 'quiz') timer = globalThis.setInterval(() => { clock.value = Date.now() }, 1000)
+    })
+    onUnmounted(() => { epoch++; globalThis.clearInterval(timer) })
 
     const button = (text, action, disabled = false) => h('button', { type: 'button', disabled: busy.value || disabled, onClick: action }, text)
     const field = (text, node) => h('label', [h('span', text), node])
@@ -144,8 +149,11 @@ export const AttemptView = {
       return input(label, values.value[id] ?? '', value => { values.value[id] = value }, { type: 'number', step: 'any', disabled })
     }
     function answerForm() {
+      const remaining = Math.max(0, Math.ceil((Date.parse(props.paper.end_at) - clock.value) / 1000))
       return h('form', { class: 'attempt-answer-form', onSubmit: e => { e.preventDefault(); run(send, true) } }, [
         h('h4', '填写答卷'), h('p', '漏答得0分；已作答简答等待教师评分。提交后不能修改。'),
+        props.paper.kind === 'quiz' && h('p', { class: 'quiz-time' },
+          `截止：${props.paper.end_at} · 本机估计剩余 ${Math.floor(remaining / 60)} 分 ${remaining % 60} 秒。收卷以服务器时间为准。`),
         h('ol', { class: 'attempt-questions' }, props.paper.items.map(q => h('li', { key: q.question_version_id }, [
           h('p', `第 ${q.position} 题 · ${questionTypes[q.type]} · ${q.points} 分`),
           h('p', { class: 'attempt-text' }, q.stem), answerInput(q),

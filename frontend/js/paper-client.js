@@ -36,14 +36,14 @@ export function paperPayload(form, items) {
   return { title: form.title.trim(), kind: form.kind, confidential: form.confidential, items: values }
 }
 
-export function publicationPayload(form, confidential) {
-  const times = Object.fromEntries(['start_at', 'end_at', 'review_at'].map(key => {
-    if (!form[key]) throw new Error('请填写开始、截止和讲评时间。')
+export function publicationPayload(form, confidential, quiz = false) {
+  const times = Object.fromEntries((quiz ? ['start_at', 'end_at'] : ['start_at', 'end_at', 'review_at']).map(key => {
+    if (!form[key]) throw new Error(quiz ? '请填写开始和截止时间。' : '请填写开始、截止和讲评时间。')
     const date = new Date(form[key])
     if (!Number.isFinite(date.getTime())) throw new Error('时间格式不合法。')
     return [key, date.toISOString()]
   }))
-  if (times.start_at >= times.end_at || times.end_at > times.review_at) {
+  if (times.start_at >= times.end_at || (!quiz && times.end_at > times.review_at)) {
     throw new Error('开始须早于截止，讲评不得早于截止。')
   }
   if (confidential && (!form.confidentiality_note.trim() || form.confidentiality_note.trim().length > 1000)) {
