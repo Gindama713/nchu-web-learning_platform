@@ -124,4 +124,3 @@ test('protection rejection clears saved references and retry payload; failed ref
   assert.doesNotMatch(content(root), /本次解析|旧题干/)
   assert.match(content(root), /暂不可用/)
 })
-
