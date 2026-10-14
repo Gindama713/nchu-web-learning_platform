@@ -1,23 +1,27 @@
 import { cloneVNode, h, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { PaperClient, paperKinds, paperPayload, publicationPayload, windowStates } from './paper-client.js'
 import { AttemptView } from './attempt-view.js'
+import { QuizClient } from './quiz-client.js'
 
 export const PaperView = {
-  props: { user: { type: Object, required: true } },
+  props: { user: { type: Object, required: true }, quizOnly: { type: Boolean, default: false } },
   setup(props) {
-    let api = new PaperClient(props.user.id), epoch = 0
+    const client = () => new (props.quizOnly ? QuizClient : PaperClient)(props.user.id)
+    let api = client(), epoch = 0
     const teacher = () => props.user.role === 'teacher'
     const courses = ref([]), courseId = ref(''), rows = ref([]), selected = ref(null), candidates = ref([])
     const items = ref([]), editing = ref(false), candidatePage = ref(1), questionId = ref('')
     const page = ref(1), total = ref(0), busy = ref(false), error = ref(''), notice = ref('')
     const filters = reactive({ kind: '', status: '' })
-    const form = reactive({ title: '', kind: 'homework', confidential: false })
+    const form = reactive({ title: '', kind: props.quizOnly ? 'quiz' : 'homework', confidential: false })
     const times = reactive({ start_at: '', end_at: '', review_at: '', confidentiality_note: '' })
+    const statistics = ref(null)
 
     function clear() {
+      statistics.value = null
       rows.value = []; total.value = 0; selected.value = null; candidates.value = []; items.value = []
       editing.value = false; questionId.value = ''; candidatePage.value = 1
-      Object.assign(form, { title: '', kind: 'homework', confidential: false })
+      Object.assign(form, { title: '', kind: props.quizOnly ? 'quiz' : 'homework', confidential: false })
       Object.assign(times, { start_at: '', end_at: '', review_at: '', confidentiality_note: '' })
     }
     async function run(action, success = '') {
@@ -38,6 +42,7 @@ export const PaperView = {
       } finally { if (ticket === epoch) busy.value = false }
     }
     async function load(ticket) {
+      statistics.value = null
       rows.value = []; selected.value = null; total.value = 0
       if (!courseId.value) return
       const result = await api.list(courseId.value, { page: page.value, ...filters })
@@ -74,6 +79,7 @@ export const PaperView = {
       if (ticket === epoch) selected.value = item
     }
     async function open(id, ticket) {
+      statistics.value = null
       selected.value = null; editing.value = false; items.value = []; candidates.value = []
       const item = await api.detail(id)
       if (ticket !== epoch) return
@@ -82,15 +88,27 @@ export const PaperView = {
     }
     async function publish(ticket) {
       const item = selected.value
-      const payload = publicationPayload(times, item.confidential)
-      const updated = await api.publish(item.id, payload)
+      const payload = publicationPayload(times, item.confidential, props.quizOnly)
+      const updated = await api.publish(item.id, payload, courseId.value)
       if (ticket !== epoch) return
       await load(ticket)
       if (ticket === epoch) selected.value = updated
     }
+    async function loadStatistics(ticket) {
+      statistics.value = null
+      const result = await new QuizClient(props.user.id).statistics(selected.value.id)
+      if (ticket === epoch) statistics.value = result
+    }
+    async function review(ticket) {
+      const id = selected.value.id
+      await new QuizClient(props.user.id).review(id)
+      if (ticket !== epoch) return
+      await open(id, ticket)
+      if (ticket === epoch) await loadStatistics(ticket)
+    }
     watch(() => `${props.user.id}:${props.user.role}`, () => {
       epoch++; busy.value = false; clear(); courses.value = []; courseId.value = ''
-      api = new PaperClient(props.user.id)
+      api = client()
       run(boot)
     })
     onUnmounted(() => { epoch++ })
@@ -108,6 +126,31 @@ export const PaperView = {
     }, [...(placeholder ? [h('option', { value: '' }, placeholder)] : []),
       ...Object.entries(values).map(([id, label]) => h('option', { value: id }, label))])
     const submit = label => h('button', { type: 'submit', disabled: busy.value }, label)
+    const rate = value => value == null ? '—' : `${(value * 100).toFixed(1)}%`
+    const score = value => value == null ? '—' : String(Number(value.toFixed(2)))
+
+    function quizStatistics(item) {
+      const stats = statistics.value
+      return h('section', { class: 'quiz-statistics' }, [
+        h('h4', '逐题统计与讲评'),
+        h('div', { class: 'actions' }, [button('刷新逐题统计', () => run(loadStatistics)),
+          !item.review_at && button('发布讲评并开放答案', () => run(review, '讲评已发布。学生重新加载后可查看答案与解析。'),
+            { disabled: busy.value || item.window_state !== 'closed' })]),
+        !item.review_at && h('p', '截止后才可发布讲评。发布将向参与学生开放标准答案与解析。'),
+        stats && h('div', [
+          h('p', `统计截至：${stats.source_until}`),
+          h('p', `应交 ${stats.expected_count} · 已交 ${stats.submitted_count} · 缺交 ${stats.missing_count} · 客观正确率 ${rate(stats.objective_correct_rate)}`),
+          h('p', '漏答计入客观正确率分母；均分只计已定分；“—”表示无样本或不适用。多选各选项比例之和可以超过100%。'),
+          h('ol', { class: 'paper-items' }, stats.questions.map((q, index) => h('li', { key: q.question_version_id }, [
+            h('p', `第 ${index + 1} 题 · 版本 #${q.question_version_id} · 满分 ${q.max_score}`),
+            h('p', `已交 ${q.submitted_count} · 已答 ${q.answered_count} · 漏答 ${q.unanswered_count}`),
+            h('p', `已定分 ${q.graded_count} · 待批 ${q.pending_count} · 正确数 ${q.correct_count ?? '—'} · 正确率 ${rate(q.correct_rate)} · 均分 ${score(q.mean_score)}`),
+            h('ul', q.options.map(option => h('li', { key: option.key },
+              `${option.key} · ${option.text}：${option.selected_count} 人 · ${rate(option.selection_rate)}`))),
+          ]))),
+        ]),
+      ])
+    }
 
     function editor() {
       const choices = candidates.value.filter(row => !items.value.some(item => item.question_id === row.id))
@@ -115,7 +158,7 @@ export const PaperView = {
       return h('form', { class: 'paper-editor', onSubmit: event => { event.preventDefault(); run(save, '草稿已保存，题目版本与配分已固定。') } }, [
         h('h3', '编排试卷草稿'),
         field('试卷标题', input(form.title, value => { form.title = value }, { required: true, maxlength: 100 })),
-        field('试卷类型', select(form.kind, value => { form.kind = value; form.confidential = value === 'exam' }, paperKinds)),
+        !props.quizOnly && field('试卷类型', select(form.kind, value => { form.kind = value; form.confidential = value === 'exam' }, paperKinds)),
         h('label', { class: 'paper-check' }, [h('input', { type: 'checkbox', checked: form.confidential,
           disabled: busy.value, onChange: event => { form.confidential = event.target.checked } }), '要求保密（曾公开的题目不能发布）']),
         field('选择题目版本', select(questionId.value, value => { questionId.value = value },
@@ -157,19 +200,22 @@ export const PaperView = {
         teacher() && item.status === 'draft' && h('form', { class: 'paper-publication', onSubmit: event => {
           event.preventDefault(); run(publish, '发布成功，试卷内容、时间和参与名单已冻结。')
         } }, [h('h4', '设置窗口并发布'),
-          h('p', '普通发布采用定时讲评。时间按本机时区输入；服务器复核后生效。发布后不可修改。'),
-          ...[['start_at', '试卷开始'], ['end_at', '试卷截止'], ['review_at', '试卷讲评']].map(([key, label]) =>
+          h('p', props.quizOnly ? '随堂测截止后由教师发布讲评，讲评前不开放答案。时间按本机时区输入，服务器复核后生效。发布后不可修改。'
+            : '普通发布采用定时讲评。时间按本机时区输入；服务器复核后生效。发布后不可修改。'),
+          ...(props.quizOnly ? [['start_at', '试卷开始'], ['end_at', '试卷截止']]
+            : [['start_at', '试卷开始'], ['end_at', '试卷截止'], ['review_at', '试卷讲评']]).map(([key, label]) =>
             field(label, input(times[key], value => { times[key] = value }, { type: 'datetime-local', required: true }))),
           item.confidential && field('保密确认说明', h('textarea', { value: times.confidentiality_note, required: true, maxlength: 1000,
             disabled: busy.value, onInput: event => { times.confidentiality_note = event.target.value } })),
           item.confidential && h('p', '请确认所有题目未公开且并非对公开题的简单复制。系统会复核可追踪的公开历史。'),
-          submit('发布试卷并冻结名单'),
+          submit(props.quizOnly ? '发布随堂测并冻结名单' : '发布试卷并冻结名单'),
         ]),
-        item.status === 'published' && h(AttemptView, { key: `${epoch}:${item.id}`, user: props.user, paper: item, courseId: courseId.value }),
+        teacher() && item.kind === 'quiz' && item.status === 'published' && quizStatistics(item),
+        item.status === 'published' && h(AttemptView, { key: `${epoch}:${item.id}:${item.review_at}`, user: props.user, paper: item, courseId: courseId.value }),
       ])
     }
     return () => h('section', { class: 'card paper-bank', 'aria-busy': busy.value }, [
-      h('div', { class: 'actions' }, [h('h2', '课程试卷'), button('重新加载试卷', () => run(boot))]),
+      h('div', { class: 'actions' }, [h('h2', props.quizOnly ? '随堂测' : '课程试卷'), button('重新加载试卷', () => run(boot))]),
       busy.value && h('p', { role: 'status' }, '正在加载或保存试卷…'),
       error.value && h('div', { role: 'alert' }, [h('p', error.value), button('重试试卷', () => run(boot))]),
       notice.value && h('p', { role: 'status' }, notice.value),
@@ -179,7 +225,7 @@ export const PaperView = {
       }, Object.fromEntries(courses.value.map(item => [String(item.id), item.title])))),
       courseId.value && h('div', [
         h('form', { class: 'inline-form paper-filters', onSubmit: event => { event.preventDefault(); page.value = 1; run(load) } }, [
-          field('筛选试卷类型', select(filters.kind, value => { filters.kind = value }, paperKinds, '全部类型')),
+          !props.quizOnly && field('筛选试卷类型', select(filters.kind, value => { filters.kind = value }, paperKinds, '全部类型')),
           field('筛选试卷状态', select(filters.status, value => { filters.status = value }, { draft: '草稿', published: '已发布' }, '全部状态')),
           submit('筛选试卷'), teacher() && button('编排新试卷', () => run(edit)),
         ]),
