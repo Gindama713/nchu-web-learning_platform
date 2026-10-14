@@ -131,7 +131,9 @@ Attempt统一读模型：{id,paper_id,student_id,revision,status,score,partial_s
 
 manual-scores仅允许非空items，题号唯一、属于本卷且为已作答简答；每题0≤score≤max_score，comment为0—1000字符。整批先校验，类型/重复/精度错误全批400；分值超配分、非本卷或非可批简答全批422；均不更改revision；revision冲突409。成功同事务评分、汇总、审计并revision+1，返回完整Attempt；允许更正已批简答，保留前后分及操作者，不允许批改客观题或漏答0分。
 
-C03a已接入整卷提交及答卷详情/分页查询；POST paper/quiz两个入口均返回201并使用第11节的同一paper_attempt作用域。成功快照保存完整JSON响应（含首次request_id）及状态码，与attempt/answer/审计同事务；重放不更新答卷或重新判分，当前状态另GET。省略/null/多选空数组/简答空白统一未答；答案条目和多选key排序，数值1与1.0相同，简答仅按本节规定去首尾空白，内部文本不改变。同键异paper_id亦409。UUID使用带连字符格式，大小写归一；到期新受理仍受每人每卷唯一约束。学生所有入口在实际review_at前去掉标准answer/explanation，讲评后仍复核question身份级保护；教师可见原冻结答案。人工批阅及页面留待C03b，quiz专用发布/显式讲评留待C05，当前别名仅提交。
+C03a已接入整卷提交及答卷详情/分页查询；POST paper/quiz两个入口均返回201并使用第11节的同一paper_attempt作用域。成功快照保存完整JSON响应（含首次request_id）及状态码，与attempt/answer/审计同事务；重放不更新答卷或重新判分，当前状态另GET。省略/null/多选空数组/简答空白统一未答；答案条目和多选key排序，数值1与1.0相同，简答仅按本节规定去首尾空白，内部文本不改变。同键异paper_id亦409。UUID使用带连字符格式，大小写归一；到期新受理仍受每人每卷唯一约束。学生所有入口在实际review_at前去掉标准answer/explanation，讲评后仍复核question身份级保护；教师可见原冻结答案。C03b已接入manual-scores及学生作答/历史/结果、教师批阅/更正页面；quiz专用发布/显式讲评留待C05，当前别名仅提交。
+
+C03b复用006c表及BEGIN IMMEDIATE，事务内重新核对当前任课教师权限；不按学生是否仍在课内删除原名单或评分事实。revision须为非负JSON整数且可递增，负分/非有限数值/字符串/布尔/超精度/非法评语400；负分视为字段校验错误，超过本题原配分422。全部条目校验完成后才修改answer.score/comment/graded_by，汇总所有答案，pending存在则总分null，否则总分等于已定分；条件更新revision+1，追加attempt.manual_scores审计，记录前后分数/评语/操作者，任一点失败全部回滚。更正后的最新状态通过GET读取，原paper_attempt成功快照保持不变。页面在失败重试时保留原提交内容和键，冲突后禁用旧批阅并要求重载，不使用本机时间替代服务器窗口判断。
 
 | 方法与路径 | 入参 | 返回 | 权限/特例 |
 |---|---|---|---|

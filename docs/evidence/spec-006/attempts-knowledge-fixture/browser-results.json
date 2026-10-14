@@ -1,0 +1,43 @@
+{
+  "started_at": "2026-10-14T04:33:34.820252+00:00",
+  "tested_head": "7c7daf7e9f8d9ba602f91ee078e5e696daef6b0f",
+  "knowledge_fixture": true,
+  "scope": "real 001/paper/attempt/manual-score HTTP/UI; only knowledge schema fixture",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.40",
+      "checks": [
+        "prestart_has_metadata_and_no_answer_form",
+        "five_type_form_fixed_old_version_confirmation_and_390px_layout",
+        "real_committed_response_loss_retry_preserves_key_and_original_201_bytes",
+        "pending_short_answers_null_total_and_fixed_objective_score",
+        "teacher_history_partial_manual_batch_keeps_null_total",
+        "two_actual_teacher_sessions_stale_revision_conflict_locks_form",
+        "reload_then_complete_and_correct_zero_grade_with_390px_layout",
+        "persisted_single_attempt_revision_three_exact_score_and_three_audits",
+        "student_relogin_latest_correction_and_no_answers_at_deadline",
+        "exact_review_boundary_reveals_fixed_answer_and_390px_result"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "checks": [
+        "prestart_has_metadata_and_no_answer_form",
+        "five_type_form_fixed_old_version_confirmation_and_390px_layout",
+        "real_committed_response_loss_retry_preserves_key_and_original_201_bytes",
+        "pending_short_answers_null_total_and_fixed_objective_score",
+        "teacher_history_partial_manual_batch_keeps_null_total",
+        "two_actual_teacher_sessions_stale_revision_conflict_locks_form",
+        "reload_then_complete_and_correct_zero_grade_with_390px_layout",
+        "persisted_single_attempt_revision_three_exact_score_and_three_audits",
+        "student_relogin_latest_correction_and_no_answers_at_deadline",
+        "exact_review_boundary_reveals_fixed_answer_and_390px_result"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "status": "passed",
+  "finished_at": "2026-10-14T04:33:54.939389+00:00"
+}
