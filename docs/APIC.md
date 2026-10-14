@@ -173,7 +173,7 @@ QuizStatistics={quiz_id,source_until,expected_count,submitted_count,missing_coun
 
 ### 4.1 SPEC-006题库版本实现阶段（C02a）
 
-当前实现本节三个questions端点及C02b的paper创建、普通发布、详情与分页列表；作答/批阅/练习提交/错题留给C03/C04。教师创建、PATCH和列表共享`id,version_id,version,type,stem,options,answer,explanation,difficulty,tolerance,knowledge_ids,practice_available`；id为稳定question身份，version_id为固定内容版本，version从1递增。列表只选未归档question的最新版本，按question.id升序；学生仅看practice_available=true版本并始终删除answer/explanation。题库列表不承担试卷讲评后的答案入口。
+当前实现本节三个questions端点及C02b的paper创建、普通发布、详情与分页列表；C03已接入作答/批阅，C04练习提交/错题见第4.3节。教师创建、PATCH和列表共享`id,version_id,version,type,stem,options,answer,explanation,difficulty,tolerance,knowledge_ids,practice_available`；id为稳定question身份，version_id为固定内容版本，version从1递增。列表只选未归档question的最新版本，按question.id升序；学生仅看practice_available=true版本并始终删除answer/explanation。题库列表不承担试卷讲评后的答案入口。
 
 创建必传type/stem/options/answer/difficulty/knowledge_ids，其余按本节默认值；未知字段、空PATCH、重复或非法知识ID拒绝400。stem及选项text为1—5000字符，explanation为0—5000字符；知识标签必须非空且同课。每次有效PATCH以当前最新字段为基础合并并完整校验，在同一短写事务追加版本及知识关联，不更新旧行；公开版本置question.ever_public=1，后续私有版本不清除公开历史。简答不支持单题公开练习。
 
@@ -186,6 +186,18 @@ QuizStatistics={quiz_id,source_until,expected_count,submitted_count,missing_coun
 普通POST /papers/{id}/publish支持三种kind，必须提供有时区的start_at/end_at/review_at，精度最多毫秒，归一到UTC并满足start<end≤review；confidential=true必填1—1000字符说明。quiz经普通入口发布时也是定时讲评；C05专用quiz入口才允许review_at初始null和显式讲评。成功将同课当前active且全局active student名单、发布状态、时间、说明及审计同事务写入，返回教师详情含participant_count；重复发布409 STATE_CONFLICT，发布后不可修改。保密卷禁止与所有尚受保护的已发布卷共享question，普通卷禁止与尚受保护的保密卷共享question；曾公开版本/ever_public/任何已到start_at的published卷构成可追踪公开历史，保密发布409 QUESTION_PUBLIC。检查、冻结与题目公开写入共享BEGIN IMMEDIATE，不依赖异步标记。
 
 列表接受kind/status/page/page_size，拒绝未知/重复参数，page_size≤100，按paper.id升序，返回元数据，不含items或答案。教师能查所有本课draft/published及冻结人数；学生必须当前仍有课程权限、在原冻结名单且published，转入者不补历史名单。详情开始前不含items；开始及截止后返回固定版本题干/选项/配分，review_at未到或null去掉answer/explanation，实际到讲评时才开放标准答案并再次检查身份级保密保护。详情条目含question_version_id、稳定id、version_id/version、position/points及题目读字段；学生不返回教师确认说明、冻结人数。所有paper响应no-store。C02b没有收卷或评分入口，不代表UC-02完整验收。
+
+### 4.3 SPEC-006公开练习与错题实现阶段（C04）
+
+POST /questions/{id}/practice-attempts仅当前同课学生可调用，严格接受question_version_id与answer及UUID Idempotency-Key。版本须属于路径题目、未归档且practice_available=true的客观版本，不要求它是最新版；私有/简答版本409 PRACTICE_UNAVAILABLE，版本不匹配404，类型/未知字段/非法key等400。复用五题型值校验和客观判分，有限数值按十进制容差、多选集合全等；空作答（null/多选[]）记0分和answered=false，不计实际错题。响应201含attempt_id、question_version_id、correct、score（0/100）、explanation。没有公开GET标准答案入口。
+
+practice_attempt独立作用域复用第11节公共快照：版本与数值/多选等值规范化后比指纹，业务、错题状态、审计、首次201完整JSON字节同事务保存；24小时内原键原内容返回原字节，不增加错误次数，异题/异版本/异内容409 IDEMPOTENCY_CONFLICT。当前身份/课程权限、版本公开资格和question身份保护在重放前复核，异常已开放或带旧解析快照的受保护身份仍409 QUESTION_RESERVED。新键可创建新练习，失败不占成功键。
+
+GET /users/me/wrong-questions仅学生本人，严格接受knowledge_id/page/page_size，page_size最多100；无student_id等代查参数，教师/管理员403。按wrong_question.id倒序，返回当前仍有学生成员权限课程内的错误来源版本，knowledge_id按该固定版本标签筛选；退出课程后隐藏，恢复成员后历史仍保留。表格约定字段外附题目只读字段id/version_id/version/type/stem/options/difficulty/tolerance/practice_available及can_practice，供无需猜ID的页面选择重练；id=question_id，version_id=question_version_id。last_attempt_type取paper/practice，last_attempt_id分别是attempt.id/practice_attempt.id，只指最近实际客观错误，不因正确重练替换错误来源。
+
+wrong_count从原answer（answered=1、客观、0分）和practice_attempt（answered=1、correct=0）逐事实统计，同题/同学生只有一条wrong_question；漏答和简答不入本。正确公开练习仅把已有条目标记resolved=true；新客观错答置false，历史不删除。来源为paper时仅实际review_at已到并仍在原名单才answer_visible=true；来源为practice时依据该固定版本公开资格。两者先复核全部版本同question的保密占用，受保护时固定false且删除answer/explanation；can_practice另由固定版本客观公开资格、未归档和同一保护检查派生。
+
+学生页面提供公开练习/个人错题、固定版本作答、分页/已加载知识标签筛选及重练；丢响应锁住原内容并以原键重试，身份变化、权限/保护拒绝及读取失败清空旧结果。005真实知识标签、003题库源文件/导入和004备课保护联测仍待原模块接齐；C05专用quiz发布/显式讲评未实现。实施与完整006验收状态见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
 
 ## 5 分析与智能接口 SPEC-010—016
 

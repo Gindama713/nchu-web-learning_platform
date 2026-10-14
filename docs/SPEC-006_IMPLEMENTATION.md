@@ -1,8 +1,70 @@
-# SPEC-006 / C02a—C03b 实施与验证记录
+# SPEC-006 / C02a—C04 实施与验证记录
 
-责任人：黄俊诚（24201716）。当前记录日期：2026-10-14，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-006)、[APIC§4/11](APIC.md)、[DBD§4/7/8/9](DBD.md)。当前状态：C02a/C02b/C03a/C03b独立部分已实施；005知识真实联测仍阻断，C04及C05专用quiz发布/讲评未实施，006未关闭。
+责任人：黄俊诚（24201716）。当前记录日期：2026-10-14，Asia/Shanghai。依据：[PRD有效验收](PRD.md#accept-spec-006)、[APIC§4/11](APIC.md)、[DBD§4/7/8/9](DBD.md)。当前状态：C02a—C04独立部分已实施；005知识真实联测、003/004接缝及目标环境仍阻断，C05专用quiz发布/讲评未实施，006未关闭。
 
-## C03b当前恢复与证据（优先读取）
+## C04当前恢复与证据（优先读取）
+
+继续`feature/spec-006-exercises`，本轮起点HEAD/远端`015d1b2f65ee49fc7ec214880b2bfca256ce121a`，fetch核对origin/develop仍`ca8ae47f6ad987d1af11c4212a116c4fb7ece5bc`；工作区原本干净。没有复制005代码。代码/最终证据提交、PR及CI按本节末尾真实记录核验，旧C03b证据保持其原tested_head。[PR #7](https://github.com/Gindama713/nchu-web-learning_platform/pull/7)仍为006→develop草稿，2026-10-14查询reviews=[]，未合并、部署、生产迁移或发布。
+
+下一恢复：C04独立实现与回归已完成，待两名真实非作者复核；先推动005/006按团队门禁合入develop并补真实知识联测。下一业务包C05（SPEC-008）必须从包含006的已核验origin/develop建立`feature/spec-008-quiz`，不从未合入006偷带代码。003源文件永久teacher_only/旧版本下载/原子导入由石佰合资源能力与本人006接缝在C12补，004由罗浩铭接入同一保护服务；当前不接管队友模块。SPEC-014由姜苏豪对接practice_attempt.answered=1筛选（见下方），目标Linux/50会话/worker仍待原负责人/目标环境。005恢复点仍在其原分支，当前006没有005实施记录文件。
+
+### C04行为、迁移与页面
+
+- `006d_practice_wrong.sql`通过公共校验和runner新增真实practice_attempt/wrong_question，不改旧迁移。按原answer回填最近实际客观错误，排除漏答/简答；错题UQ(student_id,question_id)、错误来源触发器和历史保留约束。固定版本、原始作答、整数0/10000分、answered/correct及created_at保留；wrong_count从原answer/practice事实派生，正确重练resolved=true，新错误恢复false，不删除作答或更换最近错误来源为成功来源。
+- `POST /questions/{id}/practice-attempts`校验当前同课学生、固定公开客观版本、CSRF/Origin、完整字段和UUID，复用原五题型规范化/客观评分，返回201、固定version_id、correct、0/100及explanation。单题可多次提交；空答保留为answered=false、0分且不计错题。路径/版本不匹配404，私有/简答409 PRACTICE_UNAVAILABLE，语法/类型400，异常已开放的受保护question任何版本409 QUESTION_RESERVED。BEGIN IMMEDIATE内作答、错题、审计、幂等快照同事务；paper原答卷事务消费原answer错误事实，不重做幂等或更改原响应。
+- 公共ledger增加practice_attempt作用域参数，保留paper_attempt原默认行为和快照。数值1/1.0、排序多选及未答规范化；同键同内容精确重放原201/JSON字节，异目标/内容409，24小时过期可新受理，不把原重放增计错误。当前身份/成员、版本公开与question全版本保护在重放前复核，旧含解析快照也不能绕过新增保护。
+- `GET /users/me/wrong-questions`仅学生本人，分页/knowledge_id严格校验，固定错误来源版本及标签筛选，退出课程隐藏、重新加入/重新登录历史保留。每项含来源、wrong_count/resolved、固定版本题干/选项及can_practice；answer_visible由question保密占用先决检查和来源paper实际review/原名单或practice固定公开资格派生。受保护时false、无answer/explanation、不能重练；不依赖最新版或截止释放。公开题库、paper/attempt详情及列表、题目开放/发布继续使用原同一question身份保护服务。
+- `PracticeView/PracticeClient`提供公开练习/错题、固定版本的四客观题作答、分页、已加载知识标签筛选、正确已掌握/新错恢复；暂不能重练的考试来源显示等待讲评/开放。无结果前不显示练习解析，丢响应锁住原内容/键并可重试；当前身份/角色变化丢弃迟到响应，权限/保护拒绝和读取失败清空旧内容。保留既有视觉样式，390px无横向溢出。
+- `tests/test_warning_facts.py`只移除对已由006真实迁移创建的practice_attempt夹具、按实际字段插入原4条已作答记录并补公开标志；原5样本/1正确等断言不变，没有修改SPEC-014统计业务。实际014适配器虽然created_at兼容，仍未按answered=1排除漏答；后续原负责人须接入并补漏答样本回归，现有已作答适配器测试通过不能冒充该项完成。010B后续直接消费answered及原版本事实。
+
+### C04验证与失败记录
+
+执行人：黄俊诚任务下Codex自动执行；日期2026-10-14（Asia/Shanghai）。Windows Python3.13.12/Node24.14.0。后端全量86（原72+本包14）、前端34（原27+本包7），ruff、前端lint/build、六文档链接/diff检查通过。后端入口：[test_practices.py](../tests/test_practices.py)；前端入口：[practice-client.test.js](../frontend/js/practice-client.test.js)、[practice-view.test.js](../frontend/js/practice-view.test.js)。后端成功题目只以明确知识schema/标签夹具隔离005；其余权限/课程/题目/试卷/答卷/评分/错题/审计/快照/迁移为实际SQLite/HTTP，前端单元组件HTTP替身不代表真实集成。
+
+用例覆盖：四题型严格值/十进制容差/多选全等、旧版新私有版本、null/[]不计错题、简答不练习/不计错题、同题去重、跨paper/practice历史错误计数、正确重练/新错恢复、最近错误固定标签分页筛选/重登；同键同内容/数值等值/异目标异内容/独立作用域/过期键、双真实会话同内容一次和异内容仅一成功；当前学生/他人/教师/管理员/退出课程/停用/CSRF/Origin；错题更新/审计/快照故障全部回滚且不占键，paper错题投影失败也回滚答卷/答案；旧C03数据实际runner回填/重放、错误来源和历史保留约束、带数据一致性备份副本integrity_check=ok/foreign_key_check=[]和HTTP错题读取/原键重放。保护回归含定时review精确边界、保密quiz截止review=null、新旧全部版本、异常开放和旧含解析快照重放；quiz实际review路由留待C05，不把受控数据库边界变更称为该路由完成。
+
+失败记录：初轮保护测试构造kind=quiz时漏设confidential=true，默认普通quiz可合法公开练习，导致预期409实际201；修正测试为显式保密quiz后通过，未放宽保护。首次全量83项因旧预警测试重复CREATE practice_attempt失败，改装载真实表并按其既有created_at时间契约保存练习事实，原断言通过。新增严格UUID用例时测试helper把空字符串通过`key or uuid4()`替换成合法键，导致预期400实际201；改为仅None生成键，原空键用例及全量86通过。未删除失败用例、降低门禁或修改队友统计。首次暂存检查另报两处新回归文件尾空行，已追加style提交清除并重新通过暂存diff检查，没有改写已推送历史。
+
+浏览器复现：[verify_spec006_practices.py](../scripts/verify_spec006_practices.py)，Chrome155.0.8059.40/Edge155.0.4283.45，共22组（无夹具4/仅知识夹具18），page_errors=[]。正式[无夹具](evidence/spec-006/practices-empty/browser-results.json)与[仅知识夹具](evidence/spec-006/practices-knowledge-fixture/browser-results.json)按代码提交后同一tested_head执行，截图见[错题重练](evidence/spec-006/practices-knowledge-fixture/chrome-wrong-repractice.png)、[保护状态](evidence/spec-006/practices-knowledge-fixture/msedge-protected-wrong.png)；最终tested_head/时间见本节末尾。实际HTTP成功后故意丢响应，页面锁答/导航、原键201字节重试；教师另会话改新版为私有后旧版正确重练、再错恢复，四题型实际作答，实际paper UI错答入错题、截止前解析保护和服务器定时讲评后显示、重新登录保留6份练习/2个错题/6条练习审计通过。临时库/服务/新建浏览器退出均关闭，报告不保存密码/Cookie/token；旧C02b/C03b证据不改写为C04结果。
+
+```powershell
+.venv/Scripts/python.exe -m unittest discover -s tests -v
+.venv/Scripts/python.exe -m ruff check backend tests scripts
+.venv/Scripts/python.exe scripts/check_docs.py
+git diff --check
+# frontend目录：npm test；npm run lint；npm run build
+.venv/Scripts/python.exe -m scripts.verify_spec006_practices --output docs/evidence/spec-006/practices-empty
+.venv/Scripts/python.exe -m scripts.verify_spec006_practices --knowledge-fixture --output docs/evidence/spec-006/practices-knowledge-fixture
+```
+
+C04代码提交`37cd0d716d02e65decb6303f9c7b8a1b4bbf4083`及仅文件尾空行修正`408c29a8171b3ab86f8eb6f4114f6543aeaf0b0e`已推送006 feature；正式两个浏览器报告tested_head均为后者。无夹具时段2026-10-14 18:08:20—18:08:29、仅知识夹具18:08:31—18:08:47（Asia/Shanghai），仅为验证执行时间，不是生产性能证据；22组通过，page_errors=[]，上述390px截图已目视检查。代码[Actions38547456600](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38547456600)已查询run/全部jobs，completed/success，policy/lint/test/build/required全部success、grader按develop规则skipped。ci-test实际日志Python3.12.15后端86、Node22前端34通过；tested merge=`7d7ed5b937f615969e2cfae27f7f338b1e20967d`，将head408c29a测试合入base ca8ae47，未实际合并PR。最终证据文档head另独立核验CI，不沿用本条或旧C03b成功。
+
+### SPEC-006完整有效验收核对（C04后的状态）
+
+| 有效编号 | 结果及本包实际覆盖 | 剩余/阻塞 |
+|---|---|---|
+| AC-01 | 通过（原卷/固定练习版本客观判分子集；知识夹具） | 005真实标签及完整UC-02 |
+| AC-02 | 通过（公开历史、新私有版本保密拒绝、各006入口全版本解析保护子集） | 003/004入口、005真实UC-02 |
+| AC-03 | 通过（实际客观错误自动入本、去重/筛选/重练/恢复/重登子集） | 005真实UC-02；不视为整模块验收 |
+| AC-04 | 通过（漏答0、简答pending/null/人工评分原回归；简答排除错题） | 005真实UC-02 |
+| AC-05 | 通过（paper/quiz原快照及practice原键去重/冲突/并发子集） | 完整真实UC-02/C05 |
+| R01 | 阻断（006内部标准答案保护通过） | 003源文件/旧下载/题库导入及004接缝 |
+| R02 | 通过（试卷/答卷/错题列表进入、分页和页面子集） | 演示等他人模块由原负责人 |
+| R12 | 通过（固定练习版本及原作答状态子集） | 完整真实UC-02 |
+| R16 | 通过（原名单/当前授权不漂移原回归） | 005与完整真实UC-02 |
+| R18 | 通过（整卷截止后/quiz同作用域原字节回归，练习独立作用域） | C05专用发布/讲评真实流程 |
+| R22 | 待执行 | 全项目检查点证据 |
+| R25 | 通过（公开历史、全部版本占用、并发开放/保密发布原回归） | C05及003/004实际入口 |
+| R27 | 通过（原五题型/人工评分全量回归；练习严格值/0或100） | 完整真实UC-02 |
+| R36 | 通过（截止/null/定时讲评、异常开放、练习/错题/快照全部版本保护子集） | C05实际review API/004/003 |
+| R44 | 阻断（006独立页面/权限/失败流程通过） | UC-02跨资源/备课/知识完整角色流程 |
+| R45 | 待执行 | 全项目评审/材料检查 |
+| R46 | 通过（本包API/DBD/实施/测试契约登记子集） | 全模块正式交付证据 |
+| R47 | 阻断 | 当前reviews=[]，需两名真实非作者 |
+| NF-SEC/NF-DATA/NF-UI | 通过（本包权限/全版本保护/并发回滚/副本HTTP恢复/双浏览器390px子集） | 真实知识/资源联测、生产迁移/完整恢复 |
+| NF-PERF | 阻断 | 4核8GB Linux/50会话/worker未测 |
+
+## C03b历史恢复与证据（由上方C04恢复覆盖）
 
 继续`feature/spec-006-exercises`，本轮fetch的origin/develop仍`ca8ae47f6ad987d1af11c4212a116c4fb7ece5bc`，起点HEAD/远端`8cf56e89ce26472531c17ab59d74f1ddba7210e1`的[Actions38509534637](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38509534637)重新核验completed/success。代码分段提交`1b2ed20`（批阅事务）、`880257b`（页面/浏览器脚本）、`7c7daf7e9f8d9ba602f91ee078e5e696daef6b0f`（失败重试/恢复回归）均推送006 feature；最新CI按下方记录及[PR #7](https://github.com/Gindama713/nchu-web-learning_platform/pull/7)实际head核验。PR继续草稿、目标develop，重新查询reviews=[]；未合并、部署、生产发布或取得两名真实非作者批准。005记录从其原分支读取，未复制005代码。
 
