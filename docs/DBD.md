@@ -181,7 +181,11 @@ grading_run增加部分唯一索引：同submission_id在status IN ('queued','ru
 
 迁移带版本和校验和，先备份和副本演练。增加字段先兼容旧数据，删除/重命名不得未经数据迁移直接上线。恢复数据库前保留当前状态，明确恢复点之后新增提交的处置；只回退代码不能自动撤销数据库变更，具体见CHG-RB。
 
-SPEC-006/C02a迁移单一定义为`backend/migrations/006_question_versions.sql`，由既有公共runner按文件stem及UTF-8文本SHA-256登记；只创建question/question_version/question_knowledge、查询索引和保留约束，不建立知识、试卷、作答或成绩替身。question_version及已有知识关联禁止UPDATE/DELETE；新增版本和标签同事务写入，ever_public禁止1→0。SQLite允许先声明到knowledge_point的外键，但当前基线未包含005时知识写入仍返回503，不关闭foreign_keys或允许无标签写入。目标集成须在005正式进入develop后由公共runner接入父表并做真实联测，不能仅凭空表迁移成功宣布知识依赖已完成。具体测试性质及恢复点见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
+SPEC-005模块迁移的单一定义为`backend/migrations/005_knowledge.sql`：版本取文件stem `005_knowledge`，校验和取SQL文件read_text(encoding="utf-8")的UTF-8 SHA-256，与001候选runner一致（文本读取统一CRLF/LF）。公共runner负责顺序、版本/校验和、重复执行跳过、BEGIN/COMMIT/ROLLBACK及同事务写schema_migration；005 SQL只创建chapter/knowledge_point/bookmark/learning_progress及查询索引，不初始化公共身份或课程。knowledge_migration.py只提供SQL身份及隔离测试的apply辅助，不另建runner。公共runner已随develop f242d2b同步并对接，实际命令为`python -m flask --app backend.app db-upgrade`，受控库重复迁移/校验和拒绝/一致性备份恢复已通过CI；生产迁移和完整备份集尚未验收。005请求只打开现存库、校验已登记迁移，不自动建库或迁移。
+
+本次模块约束：chapter的course_id/title/position非空；知识字段非空，example默认空，published及is_foundational限定0/1，content_revision初始1；收藏和进度用(user_id,knowledge_id)唯一约束。completed=true时completed_at非空，false时为null；重复设true保留第一次完成时间，取消再完成产生新时间。四表外键不级联删除，下架只改published及revision。当前发布知识及其本人进度由同一读事务获取，作为010B输入；005不新增聚合成绩表。
+
+SPEC-006/C02a迁移单一定义为`backend/migrations/006_question_versions.sql`，由既有公共runner按文件stem及UTF-8文本SHA-256登记；只创建question/question_version/question_knowledge、查询索引和保留约束，不建立知识、试卷、作答或成绩替身。question_version及已有知识关联禁止UPDATE/DELETE；新增版本和标签同事务写入，ever_public禁止1→0。SQLite允许先声明到knowledge_point的外键，但缺少005迁移或知识表时知识写入仍返回503，不关闭foreign_keys或允许无标签写入。005已进入develop，需对真实知识标签、题目和作答执行联合回归；不能仅凭空表迁移成功宣布知识依赖已完成。具体测试性质及恢复点见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
 
 ## 9 跨模块事务不变量
 

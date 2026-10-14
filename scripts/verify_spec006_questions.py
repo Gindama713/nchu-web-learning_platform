@@ -1,4 +1,4 @@
-"""C02a real Chrome/HTTP check on develop's baseline: no knowledge/paper fixtures.
+"""C02a real Chrome/HTTP check with an empty, migrated SPEC-005 course.
 
 Run from the repository root: python -m scripts.verify_spec006_questions
 Requires installed Chrome, optional requirements-browser.txt, and free 5000/5173 ports.
@@ -129,16 +129,16 @@ def main():
                 login(page, 'B006TEACH', password)
                 bank = page.locator('.question-bank')
                 expect(bank.get_by_text('共 0 道题目')).to_be_visible()
-                expect(bank.get_by_text('知识标签暂不可用，请等待知识模块接入后重新加载。')).to_be_visible()
+                expect(bank.get_by_text('请先在课程中创建知识点，再添加题目。')).to_be_visible()
                 expect(bank.get_by_role('button', name='新增题目')).to_be_disabled()
-                report['checks'].append('teacher_real_login_empty_list_missing_knowledge_disables_creation')
+                report['checks'].append('teacher_real_login_empty_list_missing_tag_disables_creation')
                 session = context.request.get(ORIGIN+'/api/v1/auth/session').json()['data']
                 response = context.request.post(ORIGIN+f'/api/v1/courses/{course_id}/questions',
                                                 headers={'Origin': ORIGIN, 'X-CSRF-Token': session['csrf_token']},
                                                 data={'type': 'boolean', 'stem': 'PC保存指令地址？', 'options': [],
                                                       'answer': True, 'difficulty': 'easy', 'knowledge_ids': [1]})
-                assert response.status == 503
-                assert response.json()['error']['code'] == 'DEPENDENCY_UNAVAILABLE'
+                assert response.status == 400
+                assert response.json()['error']['code'] == 'VALIDATION_ERROR'
                 assert context.request.get(ORIGIN+f'/api/v1/courses/{course_id}/questions').json()['total'] == 0
                 report['checks'].append('real_http_missing_knowledge_rejects_without_partial_question')
                 page.set_viewport_size({'width': 390, 'height': 844})

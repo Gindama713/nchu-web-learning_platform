@@ -1,7 +1,4 @@
-"""C03a real 001/paper/attempt/ledger HTTP tests; only knowledge is a named fixture.
-
-The fixture does not certify SPEC-005 integration or C03b manual scoring/UI.
-"""
+"""C03a actual 001/005/006 session, knowledge, paper and attempt HTTP tests."""
 
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
@@ -29,7 +26,7 @@ class AttemptApiBase(QuestionApiBase):
 
 
 class RealAttemptApiTest(AttemptApiBase):
-    def test_real_empty_permissions_and_dependency(self):
+    def test_real_empty_permissions_and_missing_knowledge_tag(self):
         path = f'/courses/{self.course_id}/attempts'
         for client in (self.teacher, self.student):
             self.assertEqual(self.call(client, 'GET', path).json['data'], [])
@@ -37,7 +34,7 @@ class RealAttemptApiTest(AttemptApiBase):
         self.call(self.app.test_client(), 'GET', path, status=401)
         self.call(self.student, 'GET', '/attempts/999', status=404)
         self.submit(999, [], status=404)
-        self.call(self.teacher, 'POST', self.url, question(), 503)
+        self.call(self.teacher, 'POST', self.url, question(), 400)
         with closing(connect(self.path)) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM attempt').fetchone()[0], 0)
             self.assertEqual(db.execute('SELECT count(*) FROM idempotency_record').fetchone()[0], 0)

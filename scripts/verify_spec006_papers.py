@@ -1,4 +1,4 @@
-"""C02b real HTTP/UI checks. --knowledge-fixture is explicitly NOT SPEC-005 integration.
+"""C02b real HTTP/UI checks; --knowledge-fixture seeds knowledge via SPEC-005 API.
 
 Paper/identity/migrations/publication are always the actual implementation.
 Requires free 5000/5173 ports, installed Chrome/Edge and requirements-browser.txt.
@@ -13,7 +13,7 @@ import subprocess
 import threading
 import time
 import traceback
-from contextlib import closing, contextmanager
+from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -24,7 +24,6 @@ from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import expect, sync_playwright
 from werkzeug.serving import make_server
 
-from backend.shared.db import connect
 from scripts.verify_spec006_questions import ORIGIN, ROOT, QuietHandler, login, prepare
 
 
@@ -41,11 +40,18 @@ def running(knowledge_fixture):
         at = datetime.now(UTC).replace(second=0, microsecond=0)
         app.config['TEST_NOW'] = at
         if knowledge_fixture:
-            with closing(connect(path)) as db:
-                db.executescript('CREATE TABLE chapter(id INTEGER PRIMARY KEY,course_id INTEGER REFERENCES course(id));'
-                                 'CREATE TABLE knowledge_point(id INTEGER PRIMARY KEY,chapter_id INTEGER REFERENCES chapter(id));')
-                db.execute('INSERT INTO chapter VALUES(1,?)', (course_id,))
-                db.execute('INSERT INTO knowledge_point VALUES(1,1)')
+            teacher = app.test_client()
+            login_response = teacher.post('/api/v1/auth/login',
+                                          json={'student_no': 'B006TEACH', 'password': password},
+                                          headers={'Origin': ORIGIN})
+            assert login_response.status_code == 200
+            headers = {'Origin': ORIGIN, 'X-CSRF-Token': login_response.json['data']['csrf_token']}
+            chapter = teacher.post(f'/api/v1/courses/{course_id}/chapters',
+                                   json={'title': 'CPU'}, headers=headers)
+            assert chapter.status_code == 201
+            point = teacher.post(f"/api/v1/chapters/{chapter.json['data']['id']}/knowledge-points",
+                                 json={'title': 'CPU基础', 'content': '教学正文', 'published': True}, headers=headers)
+            assert point.status_code == 201 and point.json['data']['id'] == 1
         server = make_server('127.0.0.1', 5000, app, request_handler=QuietHandler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
@@ -94,10 +100,10 @@ def check_empty(page, context, bank, course_id, checks):
     checks.append('real_teacher_empty_list_and_empty_draft_disabled_without_dependency_fixtures')
     result = write(context, 'POST', f'/courses/{course_id}/questions',
                    {'type': 'boolean', 'stem': 'PC保存指令地址？', 'options': [], 'answer': True,
-                    'difficulty': 'easy', 'knowledge_ids': [1]}, 503)
-    assert result['error']['code'] == 'DEPENDENCY_UNAVAILABLE'
+                   'difficulty': 'easy', 'knowledge_ids': [1]}, 400)
+    assert result['error']['code'] == 'VALIDATION_ERROR'
     assert context.request.get(ORIGIN+f'/api/v1/courses/{course_id}/papers').json()['total'] == 0
-    checks.append('real_missing_knowledge_503_and_no_partial_paper')
+    checks.append('real_missing_knowledge_tag_400_and_no_partial_paper')
     page.set_viewport_size({'width': 390, 'height': 844})
     bank.scroll_into_view_if_needed()
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
@@ -105,7 +111,7 @@ def check_empty(page, context, bank, course_id, checks):
 
 
 def check_publication(app, password, page, context, bank, course_id, at, checks, output, channel):
-    # Only the minimal knowledge schema above is a fixture; create/edit questions through 006 API.
+    # Knowledge was created through the actual 005 API; questions use the 006 API.
     q = write(context, 'POST', f'/courses/{course_id}/questions',
               {'type': 'boolean', 'stem': 'PC保存指令地址？', 'options': [], 'answer': True,
                'difficulty': 'easy', 'knowledge_ids': [1]}, 201)['data']
@@ -170,8 +176,8 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     report = {'started_at': datetime.now(UTC).isoformat(),
               'tested_head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
-              'scope': 'real paper/001 migrations and HTTP/UI; knowledge ONLY fixture' if args.knowledge_fixture
-                       else 'real empty paper/001 HTTP/UI and missing knowledge failure; NO dependency fixtures',
+              'scope': 'real 001/005/006 knowledge, paper and HTTP/UI' if args.knowledge_fixture
+                       else 'real empty 001/005/006 HTTP/UI and missing tag rejection',
               'knowledge_fixture': args.knowledge_fixture, 'browsers': [], 'page_errors': []}
     try:
         with sync_playwright() as playwright:

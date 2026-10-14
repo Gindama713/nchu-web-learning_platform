@@ -1,4 +1,4 @@
-"""C04 Chrome/Edge actual API/SQLite/UI regression; only knowledge can be a fixture.
+"""C04 Chrome/Edge actual API/SQLite/UI regression with real SPEC-005 knowledge.
 
 Run twice, with and without --knowledge-fixture. New contexts/services are closed on exit.
 No passwords, cookies, CSRF tokens, answers or request payloads are written to reports.
@@ -155,8 +155,8 @@ def main():
     report = {'started_at': datetime.now(UTC).isoformat(),
               'tested_head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
               'knowledge_fixture': args.knowledge_fixture,
-              'scope': 'actual identity/question/paper/attempt/practice/wrong HTTP/UI; only knowledge schema fixture'
-                       if args.knowledge_fixture else 'actual empty practice/wrong HTTP/UI without dependency fixtures',
+              'scope': 'actual 001/005/006 knowledge, identity, practice and wrong-question HTTP/UI'
+                       if args.knowledge_fixture else 'actual empty practice/wrong HTTP/UI with migrated 005',
               'browsers': [], 'page_errors': []}
     try:
         with sync_playwright() as playwright:

@@ -22,6 +22,7 @@ from backend.apis import (
     recognition,
     warnings,
 )
+from backend.apis.knowledge import blueprint as knowledge_blueprint
 from backend.shared.api import ApiError, request_id, result, stamp
 from backend.shared.auth import COOKIE, check_csrf
 from backend.shared.catalog import MODULES
@@ -48,6 +49,7 @@ def create_app(config=None):
     for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
                       recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
+    app.register_blueprint(knowledge_blueprint)
 
     @app.before_request
     def protect_writes():

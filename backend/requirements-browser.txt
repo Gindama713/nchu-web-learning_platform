@@ -1,2 +1,2 @@
-# Optional local browser verification; not an application or CI dependency.
+# Optional local browser verification for SPEC-005/006; not a CI dependency.
 playwright==1.63.0

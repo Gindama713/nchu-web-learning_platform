@@ -1,7 +1,4 @@
-"""C02b real paper migration/API/001 tests; successful questions use only a 005 fixture.
-
-No fake auth, paper tables or publication service. This does not certify SPEC-005 integration.
-"""
+"""C02b real SPEC-001/005/006 knowledge, paper and publication API tests."""
 
 import sqlite3
 from concurrent.futures import ThreadPoolExecutor
@@ -20,7 +17,7 @@ WINDOW = {'start_at': START, 'end_at': END, 'review_at': REVIEW}
 
 
 class RealPaperApiTest(QuestionApiBase):
-    def test_real_empty_lists_permissions_and_missing_dependency(self):
+    def test_real_empty_lists_permissions_and_missing_knowledge_tag(self):
         path = f'/courses/{self.course_id}/papers'
         for client in (self.teacher, self.student):
             response = self.call(client, 'GET', path)
@@ -28,7 +25,7 @@ class RealPaperApiTest(QuestionApiBase):
             self.assertEqual(response.headers['Cache-Control'], 'no-store')
         self.call(self.outsider, 'GET', path, status=404)
         self.call(self.student, 'POST', path, {'title': 'x', 'kind': 'exam', 'items': []}, 403)
-        self.call(self.teacher, 'POST', self.url, question(), 503)
+        self.call(self.teacher, 'POST', self.url, question(), 400)
         self.call(self.teacher, 'POST', path, {'title': 'x', 'kind': 'exam',
                                             'items': [{'question_version_id': 1, 'points': 1}]}, 400)
         self.call(self.app.test_client(), 'GET', path, status=401)

@@ -1,7 +1,4 @@
-"""Real SPEC-001/paper API tests, plus an explicitly isolated knowledge schema fixture.
-
-FixtureVersionTest does NOT certify integration with unmerged SPEC-005.
-"""
+"""SPEC-001/005/006 integration through real sessions, knowledge and paper APIs."""
 
 import secrets
 import sqlite3
@@ -64,23 +61,23 @@ class QuestionApiBase(TestCase):
         client.csrf = data['csrf_token']
 
     def knowledge_fixture(self):
-        with closing(connect(self.path)) as db:
-            # Minimal DBD shape for isolated tests only. Not SPEC-005 implementation/migration.
-            db.executescript('CREATE TABLE chapter(id INTEGER PRIMARY KEY,course_id INTEGER REFERENCES course(id));'
-                             'CREATE TABLE knowledge_point(id INTEGER PRIMARY KEY,chapter_id INTEGER REFERENCES chapter(id));')
-            db.execute('INSERT INTO chapter VALUES(1,?)', (self.course_id,))
-            db.execute('INSERT INTO knowledge_point VALUES(1,1)')
-            db.execute('INSERT INTO knowledge_point VALUES(2,1)')
+        chapter = self.call(self.teacher, 'POST', f'/courses/{self.course_id}/chapters',
+                            {'title': 'CPU'}, 201).json['data']['id']
+        for expected in (1, 2):
+            point = self.call(self.teacher, 'POST', f'/chapters/{chapter}/knowledge-points',
+                              {'title': f'知识点{expected}', 'content': '教学正文', 'published': True},
+                              201).json['data']['id']
+            self.assertEqual(point, expected)
 
 class RealQuestionApiTest(QuestionApiBase):
-    def test_real_auth_empty_list_missing_knowledge_rejects_without_partial_write(self):
+    def test_real_auth_empty_list_missing_knowledge_tag_rejects_without_partial_write(self):
         result = self.call(self.teacher, 'GET', self.url)
         self.assertEqual(result.json['data'], [])
         self.assertEqual(result.json['total'], 0)
         self.assertEqual(result.headers['Cache-Control'], 'no-store')
         self.call(self.student, 'GET', self.url)
-        response = self.call(self.teacher, 'POST', self.url, question(), 503)
-        self.assertEqual(response.json['error']['code'], 'DEPENDENCY_UNAVAILABLE')
+        response = self.call(self.teacher, 'POST', self.url, question(), 400)
+        self.assertEqual(response.json['error']['code'], 'VALIDATION_ERROR')
         with closing(connect(self.path)) as db:
             self.assertEqual(db.execute('SELECT count(*) FROM question').fetchone()[0], 0)
             self.assertEqual(db.execute('SELECT count(*) FROM question_version').fetchone()[0], 0)
@@ -151,9 +148,13 @@ class FixtureVersionTest(QuestionApiBase):
     def test_same_course_validation_and_failed_insert_roll_back(self):
         other_course = self.call(self.admin, 'POST', '/courses',
                                  {'title': 'other', 'teacher_id': self.teacher_id}, 201).json['data']['id']
+        other_chapter = self.call(self.teacher, 'POST', f'/courses/{other_course}/chapters',
+                                  {'title': '其他课程'}, 201).json['data']['id']
+        other_point = self.call(self.teacher, 'POST', f'/chapters/{other_chapter}/knowledge-points',
+                                {'title': '跨课知识', 'content': '隔离数据', 'published': True},
+                                201).json['data']['id']
+        self.assertEqual(other_point, 3)
         with closing(connect(self.path)) as db:
-            db.execute('INSERT INTO chapter VALUES(2,?)', (other_course,))
-            db.execute('INSERT INTO knowledge_point VALUES(3,2)')
             db.executescript("CREATE TRIGGER fail_version BEFORE INSERT ON question_version "
                              "WHEN NEW.stem='fail' BEGIN SELECT RAISE(ABORT,'fixture failure'); END;")
         self.call(self.teacher, 'POST', self.url, question(knowledge_ids=[1, 3]), 400)
