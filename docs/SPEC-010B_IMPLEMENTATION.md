@@ -124,3 +124,16 @@ git diff --check
 | NF-PERF | 待执行 | Linux4核8GB、50会话及真实worker；本地运行时间不作达标证据 |
 
 全量本地回归：`.venv/Scripts/python.exe -m unittest discover -s tests -v`后端131项通过，204.533秒；前端`npm test`54项、lint/build通过。全量回归启动后补了CSV每周知识明细断言，该受影响单项另行通过1.149秒；其余后端逻辑未变。正式运行SHA/CI和干净浏览器证据随后独立登记，不把本机时长当NF-PERF。
+
+
+## C07提交、CI与下一恢复（当前交接）
+
+后端提交`3d1def696c76da24b02278afa65f8ec6af7bd20f`及页面提交`29ade52f8ef27eeb7f287dd7f41ab35aaa83b88e`均已推送origin/feature/spec-010b-knowledge-analysis。[PR #10](https://github.com/Gindama713/nchu-web-learning_platform/pull/10)为open/draft，目标develop `253a736a79a6b6778e8bde0e58673d1f4c7641d7`，reviews=[]；未合并、部署或发布。代码及页面独立部分可恢复，不把CI或AI自查当真实非作者批准。
+
+正式双浏览器证据：[report.json](evidence/spec-010b/browsers/report.json)，tested_head=29ade52完整SHA，dirty_paths=[]。Chrome155.0.8059.40及Edge155.0.4283.45各10组全部通过，page_errors=[]；390px截图为[Chrome知识](evidence/spec-010b/browsers/chrome-knowledge-mobile.png)、[Chrome成绩](evidence/spec-010b/browsers/chrome-scores-mobile.png)、[Edge知识](evidence/spec-010b/browsers/msedge-knowledge-mobile.png)、[Edge成绩](evidence/spec-010b/browsers/msedge-scores-mobile.png)。初轮含工作区改动的报告不是正式源码证据；本目录只保存干净29ade52结果，新增内容均为合成受控数据，无口令/会话/数据库。
+
+C07a [Actions38574944772](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38574944772) completed/success。C07b [Actions38576022315](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38576022315)也completed/success；已核对jobs：policy/lint/test/build/required全success，grader按develop阶段规则skipped，不代表真实worker通过。ci-test日志实际后端131项（109.162秒）及前端54项全通过；checkout tested merge=`040e8e0bfbc1190c298370db3bb7112f68b49e02`，head=29ade52，base=253a736。此merge为CI测试引用，不是实际合并。证据文档提交后的最终head须单独核对CI，不能以本代码run代替。读取运行中日志曾返回404 BlobNotFound，完成后重取成功并核对上述数目/SHA，无隐藏业务失败。
+
+**下一恢复**：C07独立scores、页面、原ID恢复及同快照CSV已实施、验证并推送；不重做。先fetch并核验develop、008 PR #9和本PR最新head/CI。#9本轮结束核验仍open/draft、head=fafc69aecf723d06181e807bc1124aed2bd915de、未合入；不得复制其feature。待008合入develop后，在本010B共享分支merge origin/develop，按真实专用quiz发布→提交（含漏答/partial）→逐题统计/显式讲评→knowledge/scores→旧ID恢复/CSV补R33及联合证据，再更新完整矩阵。处理APIC/DBD/CHG-RB可能冲突时保留双方契约，不覆盖队友变更。
+
+008仍阻断时可按个人计划另开C08，从最新origin/develop创建/复用013 feature，不从本010B或008偷带代码。本次不开发013。003/004接缝、Linux4核8GB/50会话/真实worker、完整资源/电路生产恢复、教学账号及课堂/真实评审仍保留；父AC-01—05的独立链证据不等于010B全部验收。回退先备份事实和所有analysis_run，再恢复配套代码；旧代码无法处理新快照时明确不可用，不改写/删除历史或重算冒充原结果。
