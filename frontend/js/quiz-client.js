@@ -10,4 +10,6 @@ export class QuizClient extends PaperClient {
     await this.write(`/courses/${courseId}/quizzes`, 'POST', { paper_id: id, ...values })
     return this.detail(id)
   }
+  statistics(id) { return this.request(`/quizzes/${id}/statistics`).then(result => result.data) }
+  review(id) { return this.write(`/quizzes/${id}/review`, 'POST', {}) }
 }

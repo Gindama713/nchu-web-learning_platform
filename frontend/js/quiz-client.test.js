@@ -35,3 +35,22 @@ test('quiz list and publication use dedicated endpoints then read the original p
   await assert.rejects(api.publish(3, payload, 1), /登录状态已变化/)
   assert.equal(calls.filter(item => item.options.method).length, 1)
 })
+
+test('statistics uses teacher endpoint and review rechecks CSRF and identity', async () => {
+  const calls = []
+  let id = 7
+  const api = new QuizClient(7, async (path, options) => {
+    calls.push({ path, options })
+    return { ok: true, status: 200, json: async () => ({ data: path.endsWith('/auth/session')
+      ? { user: { id }, csrf_token: 'fresh' } : { quiz_id: 3 } }) }
+  })
+  assert.equal((await api.statistics(3)).quiz_id, 3)
+  assert.equal(calls[0].path, '/api/v1/quizzes/3/statistics')
+  await api.review(3)
+  assert.equal(calls[2].path, '/api/v1/quizzes/3/review')
+  assert.equal(calls[2].options.headers['X-CSRF-Token'], 'fresh')
+  assert.deepEqual(JSON.parse(calls[2].options.body), {})
+  id = 8
+  await assert.rejects(api.review(3), /登录状态已变化/)
+  assert.equal(calls.filter(item => item.options.method).length, 1)
+})

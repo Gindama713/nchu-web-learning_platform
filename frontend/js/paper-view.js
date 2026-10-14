@@ -15,8 +15,10 @@ export const PaperView = {
     const filters = reactive({ kind: '', status: '' })
     const form = reactive({ title: '', kind: props.quizOnly ? 'quiz' : 'homework', confidential: false })
     const times = reactive({ start_at: '', end_at: '', review_at: '', confidentiality_note: '' })
+    const statistics = ref(null)
 
     function clear() {
+      statistics.value = null
       rows.value = []; total.value = 0; selected.value = null; candidates.value = []; items.value = []
       editing.value = false; questionId.value = ''; candidatePage.value = 1
       Object.assign(form, { title: '', kind: props.quizOnly ? 'quiz' : 'homework', confidential: false })
@@ -40,6 +42,7 @@ export const PaperView = {
       } finally { if (ticket === epoch) busy.value = false }
     }
     async function load(ticket) {
+      statistics.value = null
       rows.value = []; selected.value = null; total.value = 0
       if (!courseId.value) return
       const result = await api.list(courseId.value, { page: page.value, ...filters })
@@ -76,6 +79,7 @@ export const PaperView = {
       if (ticket === epoch) selected.value = item
     }
     async function open(id, ticket) {
+      statistics.value = null
       selected.value = null; editing.value = false; items.value = []; candidates.value = []
       const item = await api.detail(id)
       if (ticket !== epoch) return
@@ -89,6 +93,18 @@ export const PaperView = {
       if (ticket !== epoch) return
       await load(ticket)
       if (ticket === epoch) selected.value = updated
+    }
+    async function loadStatistics(ticket) {
+      statistics.value = null
+      const result = await new QuizClient(props.user.id).statistics(selected.value.id)
+      if (ticket === epoch) statistics.value = result
+    }
+    async function review(ticket) {
+      const id = selected.value.id
+      await new QuizClient(props.user.id).review(id)
+      if (ticket !== epoch) return
+      await open(id, ticket)
+      if (ticket === epoch) await loadStatistics(ticket)
     }
     watch(() => `${props.user.id}:${props.user.role}`, () => {
       epoch++; busy.value = false; clear(); courses.value = []; courseId.value = ''
@@ -110,6 +126,31 @@ export const PaperView = {
     }, [...(placeholder ? [h('option', { value: '' }, placeholder)] : []),
       ...Object.entries(values).map(([id, label]) => h('option', { value: id }, label))])
     const submit = label => h('button', { type: 'submit', disabled: busy.value }, label)
+    const rate = value => value == null ? '—' : `${(value * 100).toFixed(1)}%`
+    const score = value => value == null ? '—' : String(Number(value.toFixed(2)))
+
+    function quizStatistics(item) {
+      const stats = statistics.value
+      return h('section', { class: 'quiz-statistics' }, [
+        h('h4', '逐题统计与讲评'),
+        h('div', { class: 'actions' }, [button('刷新逐题统计', () => run(loadStatistics)),
+          !item.review_at && button('发布讲评并开放答案', () => run(review, '讲评已发布。学生重新加载后可查看答案与解析。'),
+            { disabled: busy.value || item.window_state !== 'closed' })]),
+        !item.review_at && h('p', '截止后才可发布讲评。发布将向参与学生开放标准答案与解析。'),
+        stats && h('div', [
+          h('p', `统计截至：${stats.source_until}`),
+          h('p', `应交 ${stats.expected_count} · 已交 ${stats.submitted_count} · 缺交 ${stats.missing_count} · 客观正确率 ${rate(stats.objective_correct_rate)}`),
+          h('p', '漏答计入客观正确率分母；均分只计已定分；“—”表示无样本或不适用。多选各选项比例之和可以超过100%。'),
+          h('ol', { class: 'paper-items' }, stats.questions.map((q, index) => h('li', { key: q.question_version_id }, [
+            h('p', `第 ${index + 1} 题 · 版本 #${q.question_version_id} · 满分 ${q.max_score}`),
+            h('p', `已交 ${q.submitted_count} · 已答 ${q.answered_count} · 漏答 ${q.unanswered_count}`),
+            h('p', `已定分 ${q.graded_count} · 待批 ${q.pending_count} · 正确数 ${q.correct_count ?? '—'} · 正确率 ${rate(q.correct_rate)} · 均分 ${score(q.mean_score)}`),
+            h('ul', q.options.map(option => h('li', { key: option.key },
+              `${option.key} · ${option.text}：${option.selected_count} 人 · ${rate(option.selection_rate)}`))),
+          ]))),
+        ]),
+      ])
+    }
 
     function editor() {
       const choices = candidates.value.filter(row => !items.value.some(item => item.question_id === row.id))
@@ -169,7 +210,8 @@ export const PaperView = {
           item.confidential && h('p', '请确认所有题目未公开且并非对公开题的简单复制。系统会复核可追踪的公开历史。'),
           submit(props.quizOnly ? '发布随堂测并冻结名单' : '发布试卷并冻结名单'),
         ]),
-        item.status === 'published' && h(AttemptView, { key: `${epoch}:${item.id}`, user: props.user, paper: item, courseId: courseId.value }),
+        teacher() && item.kind === 'quiz' && item.status === 'published' && quizStatistics(item),
+        item.status === 'published' && h(AttemptView, { key: `${epoch}:${item.id}:${item.review_at}`, user: props.user, paper: item, courseId: courseId.value }),
       ])
     }
     return () => h('section', { class: 'card paper-bank', 'aria-busy': busy.value }, [

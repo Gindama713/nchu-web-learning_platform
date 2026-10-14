@@ -1,14 +1,45 @@
-# SPEC-008 / C05a 专用测验发布与限时作答
+# SPEC-008 / C05a—C05b 随堂测、逐题统计与显式讲评
 
-责任人：黄俊诚（24201716）。记录日期：2026-10-14，Asia/Shanghai。依据：[PRD完整验收](PRD.md#accept-spec-008)、[APIC§4/9/11](APIC.md)、[DBD§4/7/9](DBD.md)。C05a已实施；C05b逐题统计与显式讲评未实施，008与006完整验收均未关闭。
+责任人：黄俊诚（24201716）。记录日期：2026-10-14，Asia/Shanghai。依据：[PRD完整验收](PRD.md#accept-spec-008)、[APIC§4/9/11](APIC.md)、[DBD§4/7/9](DBD.md)。C05a/C05b本人功能已实施；完整008/006验收、跨模块依赖及非作者评审未关闭。最新C05b记录优先于下方C05a历史证据。
 
 ## 当前恢复点
 
 复用`feature/spec-008-quiz`，原起点为005/006已合入的develop `5718fabf73c39f49ce8231d30620cfe08dd2283a`；本轮fetch后快进到`253a736`，纳入组长PR #8的014漏答筛选修复，不接管014。C05a代码、测试、规格实施说明随本分支提交；实际提交、推送、PR和CI证据在本记录后续补录，不能由本地通过推断远程批准或合并。
 
-下一恢复：先fetch并复核本分支/PR实际head与develop，继续C05b `GET /quizzes/{id}/statistics`、`POST /quizzes/{id}/review`及页面。复用原paper、paper_item、paper_participant、attempt、answer和身份级保密保护；一致读快照统计，零分母null、漏答计入提交分母、简答正确率null、多选比例可超过1。review只允许已published且服务器now≥end_at，在短写事务中把原paper.review_at从null设为now后释放保护。普通paper入口的定时讲评保持原契约。
+下一恢复：C05b统计/显式review及页面已实现，继续本分支补真实两名非作者复核、003/004与目标环境依赖；先fetch核对PR #9最新head/CI，不自动合并。下一开发包C06从核验且包含008所需事实的origin/develop起步；008尚未合入时按个人计划推进不依赖008的知识统计基础，不能把008 feature作为010B起点。010B成绩分析/不可变快照及CSV在C06/C07补，不因008逐题统计已实现而记AC-04成绩分析全部完成。
 
-合并后005/006真实知识双浏览器闭环、003源文件/旧版授权与原子导入、004备课关联/保护联测、目标Linux4核8GB/50会话/worker、完整备份恢复及第二名非作者评审仍待补。C05b后补当前head的真实Chrome/Edge闭环，不把旧006夹具截图当本轮证据。
+本轮Chrome/Edge已使用合入005/006的基线走通知、编卷、限时作答、批阅、统计与显式讲评；原始证据按本轮tested_head单独登记，不提升旧006所有页面的验收状态。003源文件/旧版授权与原子导入、004备课关联/保护联测、目标Linux4核8GB/50会话/worker、完整备份恢复及真实评审仍待补。
+
+## C05b实现及验证（最新）
+
+- [quiz模型](../backend/models/quiz.py)在一个读事务内从原名单、唯一答卷及固定版本聚合完整QuizStatistics，按原题目/选项顺序返回；partial也属于有效提交。缺交=冻结应交−提交，漏答参与正确率分母，简答correct_count/correct_rate为null，未定分不混均分，无提交/无客观题/无定分的对应指标null。选项零计数仍返回，多选总比例可超过1。SQLite AVG避免多个合法大配分导致整数SUM溢出。不输出学生身份，不新增事实表或010B快照。
+- [quiz接口](../backend/apis/quizzes.py)统计仅当前同课教师可读；讲评复用CSRF/Origin、BEGIN IMMEDIATE及锁内会话/教师复核，仅截止后从null设服务器now，quiz.review审计同事务，故障回滚。空body或{}可调用，业务字段/非法JSON/查询参数拒绝；重复与并发返回原时刻且不重复审计，原普通定时quiz不提前或延后。
+- [原试卷页面](../frontend/js/paper-view.js)增加教师逐题统计、冻结缺交、均分/待批/选项比例和显式讲评操作，显示null为“—”，刷新读取最新批分。讲评后重读原paper，学生原详情/答卷/错题按原身份级保护返回固定版本答案。页面失败、课程/身份变化与迟到响应会清除旧数据，学生没有教师操作入口。
+- 不改006判分、答卷、原幂等成功快照、旧迁移、003/004、014或CI。原paper/quiz同键截止重放、未知/越权、冻结分母、全部版本保护在本轮回归；正常讲评备份副本已核对完整性/外键并经真实会话读回，不称生产完整资源恢复。
+
+新增8项后端C05b真实API测试（本文件测试集合由7增至15）和4项前端测试（总54）；[后端入口](../tests/test_quizzes.py)、[页面入口](../frontend/js/paper-view.test.js)、[客户端入口](../frontend/js/quiz-client.test.js)。首次完整后端120项通过（201.462秒）；新增发布/开放竞态后14项quiz通过（31.740秒），合法大配分回归单项通过（1.566秒）；最终完整后端122项通过（172.002秒）。前端54、全仓ruff、lint/build、六文档链接及diff检查全部通过；这些是本机验证，不是远程CI/非作者批准。
+
+[双浏览器脚本](../scripts/verify_spec008_quizzes.py)以临时库、公共迁移、真实001/005/006/008 HTTP及Vue页面运行，只有初始admin/teacher bootstrap；学生注册、课程/名单、知识标签、题库、编卷、专用发布、提交、批阅、统计和review全部走真实API。TEST_NOW控制开始/截止，网络故障仅abort真实已提交响应/统计请求，不替换成功业务数据。Chrome 155.0.8059.40、Edge 155.0.4283.45各8组受控闭环通过，page_errors=[]；390px的统计、待批答卷及讲评结果截图已目视确认无横向溢出。首次预运行带未提交变更，只作预验证；代码提交后正式重跑并保存对应SHA，不能将预运行的旧HEAD写为新代码证据。
+
+| 完整有效编号 | 本轮证据/入口 | 剩余限制 |
+|---|---|---|
+| AC-01 / AC-02 / R18 | exact_start_end/new_submission测试及浏览器真实交卷响应丢失→截止→原键字节一致重放；唯一attempt | 课堂真实账号/生产未执行 |
+| AC-03 / R33 | statistics_five_types/only_short/read_snapshot/large_scores；浏览器零提交、漏答、缺交、简答null、待批、均分、多选200%及最新批分 | 不替代010B快照及CSV |
+| AC-04 / R36 | review_exact_end与closed_unreviewed；讲评前paper/attempt/错题及全部版本继续保护；显式review后原固定答案开放/其他版本可开放；定时quiz保持原时间 | AC-04成绩纳入分析由C06/C07补；003/004旁路仍阻断 |
+| R02 / R12 / R27 | 原列表、五题型、历史及人工批阅回归；浏览器不猜ID操作、漏数值0分、待批总分null及7.01批分 | 演示为007负责人，完整跨模块UC-02待联测 |
+| R16 | publication/five_types/empty_roster；转入不补名单、退出仍保留提交/应交分母，空名单0/0 | 课堂账号验收未执行 |
+| R25 | public_identity/concurrent_publication及quiz_publication_and_practice_opening竞态；全版本占用/释放 | 004真实联合待补 |
+| R01 / R37 | 本人原quiz ID、名单、窗口与解析接口已就绪 | 003源文件旧版授权/原子导入、004关联发布/保护由原负责人联测 |
+| R44 | 开始前、截止、幂等、非法输入/权限、失败回滚及真实网络故障恢复均有入口 | 007演示、实验/电路及003/004的完整UC-02故障分支仍待原负责人 |
+| R22 / R45 | 本人范围、依赖和实施登记 | 全组工时/风险证据未核验 |
+| R46 | APIC固定输出/单一事实定义、DBD原表/事务、CHG-RB同步 | 跨模块接缝待实际联测 |
+| R47 | PR #9仍无真实非作者批准 | 权限/API/讲评需两名真实非作者复核；AI检查不是批准 |
+| NF-SEC | permissions/strict_payload、会话退出401、学生403/外课404、CSRF拒绝及原锁内鉴权回归 | 教学账号/生产未执行 |
+| NF-DATA | review故障回滚、并发审计一次、WAL真实第二请求批分后同次统计保留旧快照、备份完整性/外键及真实HTTP读取 | WAL只为并发测试条件，未改运行配置；完整资源/电路恢复及生产演练未执行 |
+| NF-UI | 当前基线Chrome/Edge各8组真实HTTP/UI及390px截图，正式提交SHA下方补录 | 本机headless受控数据，非课堂/所有006页面完整验收 |
+| NF-PERF | 未执行 | Linux4核8GB/50会话/真实worker仍阻断，本机测试秒数不是性能证据 |
+
+复现：`.venv/Scripts/python.exe -m scripts.verify_spec008_quizzes --output docs/evidence/spec-008/browsers`（需要可选requirements-browser.txt、Chrome/Edge及空闲5000/5173；自动关闭所建浏览器/服务器和临时库）。失败记录：首次测试使用同线程嵌套Flask请求导致共用连接500，改独立线程真实请求后快照用例通过；退出预期状态改为真实204；浏览器首次对两个相同B选项文本用单元素断言失败，修正计数后通过。无业务响应替身、无隐去失败、无依赖升级。
 
 ## C05a实现与约束
 

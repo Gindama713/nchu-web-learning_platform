@@ -1,14 +1,14 @@
 """SPEC-008 dedicated publication; all quiz facts remain in SPEC-006 tables."""
 
-from flask import Blueprint
+from flask import Blueprint, request
 
 from backend.apis.papers import list_papers
 from backend.apis.questions import write_body
-from backend.models import paper
+from backend.models import attempt, paper, quiz
 from backend.models.question import identifier, invalid
-from backend.shared.api import ApiError, result
-from backend.shared.auth import course_access
-from backend.shared.db import write
+from backend.shared.api import ApiError, result, stamp
+from backend.shared.auth import course_access, require_user
+from backend.shared.db import get_db, write
 
 bp = Blueprint('quizzes', __name__)
 
@@ -41,3 +41,33 @@ def publish_quiz(course_id):
         item = paper.metadata(db, paper.find(db, paper_id), teacher=True)
         item.update(paper_id=paper_id, status=item['window_state'])
     return result(item, 201)
+
+
+@bp.get('/quizzes/<int:quiz_id>/statistics')
+def quiz_statistics(quiz_id):
+    require_user()
+    if request.args:
+        invalid('逐题统计不接受查询参数')
+    db = get_db()
+    db.execute('BEGIN')
+    try:
+        attempt.ready(db)
+        row = paper.find(db, quiz_id)
+        course_access(row['course_id'], teacher=True)
+        item = quiz.statistics(db, row, stamp())
+    finally:
+        db.rollback()
+    return result(item)
+
+
+@bp.post('/quizzes/<int:quiz_id>/review')
+def review_quiz(quiz_id):
+    require_user()
+    with write() as db:
+        paper.ready(db)
+        row = paper.find(db, quiz_id)
+        course_access(row['course_id'], teacher=True)
+        if request.args or (request.get_data() and write_body()):
+            invalid('讲评不接受查询参数或业务字段')
+        at = quiz.review(db, row, stamp())
+    return result({'review_published_at': at})

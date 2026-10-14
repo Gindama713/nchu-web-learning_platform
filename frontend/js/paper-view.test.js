@@ -31,7 +31,8 @@ const submit = (root, css) => all(root).find(item => item.type === 'form' && ite
   .props.onSubmit({ preventDefault() {} })
 
 async function mount(t, role = 'teacher', quizOnly = false) {
-  const fixture = { userId: 7, writes: [], rows: [], detail: null, unavailable: false, waitQuestions: null }
+  const fixture = { userId: 7, writes: [], rows: [], detail: null, unavailable: false, waitQuestions: null,
+    waitStatistics: null, statistics: null }
   const user = reactive({ id: 7, role })
   const previous = globalThis.fetch
   globalThis.fetch = async (path, options) => {
@@ -41,6 +42,10 @@ async function mount(t, role = 'teacher', quizOnly = false) {
     if (options.method) {
       const values = JSON.parse(options.body)
       fixture.writes.push({ path, values })
+      if (path.endsWith('/review')) {
+        fixture.detail = { ...fixture.detail, review_at: '2026-10-13T14:00:00Z' }
+        return result({ review_published_at: fixture.detail.review_at })
+      }
       const item = path.endsWith('/publish') || path.endsWith('/quizzes') ? { ...fixture.detail, ...values,
         status: 'published', window_state: 'upcoming', participant_count: 2, ...(quizOnly ? { review_at: null } : {}) }
         : { ...values, id: 3, status: 'draft', total_points: 20, participant_count: 0,
@@ -56,6 +61,11 @@ async function mount(t, role = 'teacher', quizOnly = false) {
     }
     if (path.includes('/papers?') || path.includes('/quizzes?')) return result(fixture.rows, fixture.rows.length)
     if (path.includes('/attempts?')) return result([], 0)
+    if (path.endsWith('/statistics')) {
+      const snapshot = fixture.statistics
+      if (fixture.waitStatistics) await fixture.waitStatistics
+      return result(snapshot)
+    }
     if (path.endsWith('/papers/3')) return result(fixture.detail)
     throw new Error(`Unexpected path ${path}`)
   }
@@ -165,4 +175,64 @@ test('changing identity discards a late candidate response and teacher form', as
   await flush()
   assert.equal(find(root, 'button', '保存试卷草稿'), undefined)
   assert.doesNotMatch(content(root), /PC|ALU/)
+})
+
+const publishedQuiz = { id: 3, title: 'CPU随堂测', kind: 'quiz', status: 'published', window_state: 'closed',
+  total_points: 10, participant_count: 2, review_at: null, items: [] }
+const quizStatistics = { quiz_id: 3, source_until: '2026-10-13T14:00:00Z', expected_count: 2,
+  submitted_count: 1, missing_count: 1, objective_correct_rate: null, questions: [
+    { question_version_id: 8, type: 'short', max_score: 10, submitted_count: 1, answered_count: 1,
+      unanswered_count: 0, graded_count: 0, pending_count: 1, correct_count: null, correct_rate: null,
+      mean_score: null, options: [] },
+  ] }
+
+async function openQuiz(root, fixture, state = 'closed') {
+  fixture.detail = { ...publishedQuiz, window_state: state }
+  fixture.rows = [fixture.detail]; fixture.statistics = quizStatistics
+  await find(root, 'button', '重新加载试卷').props.onClick()
+  await find(root, 'button', `#3 · CPU随堂测 · ${state === 'closed' ? '已截止' : '进行中'}`).props.onClick()
+  await flush()
+}
+
+test('teacher statistics shows nulls and pending; explicit review refreshes original paper', async t => {
+  const { root, fixture } = await mount(t, 'teacher', true)
+  await openQuiz(root, fixture)
+  await find(root, 'button', '刷新逐题统计').props.onClick(); await flush()
+  assert.match(content(root), /应交 2 · 已交 1 · 缺交 1 · 客观正确率 —/)
+  assert.match(content(root), /已定分 0 · 待批 1 · 正确数 — · 正确率 — · 均分 —/)
+  await find(root, 'button', '发布讲评并开放答案').props.onClick(); await flush()
+  assert.equal(fixture.writes[0].path, '/api/v1/quizzes/3/review')
+  assert.deepEqual(fixture.writes[0].values, {})
+  assert.match(content(root), /讲评已发布/)
+  assert.equal(find(root, 'button', '发布讲评并开放答案'), undefined)
+  fixture.unavailable = true
+  await find(root, 'button', '刷新逐题统计').props.onClick(); await flush()
+  assert.doesNotMatch(content(root), /应交 2|CPU随堂测/)
+  assert.ok(find(root, 'button', '重试试卷'))
+})
+
+test('review controls follow server window and session verification prevents writes', async t => {
+  const { root, fixture } = await mount(t, 'teacher', true)
+  await openQuiz(root, fixture, 'open')
+  assert.equal(find(root, 'button', '发布讲评并开放答案').props.disabled, true)
+  await openQuiz(root, fixture)
+  fixture.userId = 8
+  await find(root, 'button', '发布讲评并开放答案').props.onClick(); await flush()
+  assert.equal(fixture.writes.length, 0)
+  assert.match(content(root), /登录状态已变化/)
+  assert.equal(find(root, 'button', '发布讲评并开放答案'), undefined)
+})
+
+test('student has no statistics/review controls and late teacher statistics is discarded on identity change', async t => {
+  const { root, fixture, user } = await mount(t, 'teacher', true)
+  await openQuiz(root, fixture)
+  let release
+  fixture.waitStatistics = new Promise(resolve => { release = resolve })
+  find(root, 'button', '刷新逐题统计').props.onClick(); await flush()
+  user.id = 8; user.role = 'student'; fixture.userId = 8
+  await flush(); release(); await flush()
+  assert.doesNotMatch(content(root), /应交 2/)
+  await find(root, 'button', '#3 · CPU随堂测 · 已截止').props.onClick(); await flush()
+  assert.equal(find(root, 'button', '刷新逐题统计'), undefined)
+  assert.equal(find(root, 'button', '发布讲评并开放答案'), undefined)
 })
