@@ -1,5 +1,6 @@
 import { cloneVNode, h, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { PaperClient, paperKinds, paperPayload, publicationPayload, windowStates } from './paper-client.js'
+import { AttemptView } from './attempt-view.js'
 
 export const PaperView = {
   props: { user: { type: Object, required: true } },
@@ -146,7 +147,7 @@ export const PaperView = {
         item.status === 'published' && h('p', `开始：${item.start_at} · 截止：${item.end_at} · 讲评：${item.review_at ?? '待教师讲评'}`),
         teacher() && h('p', `发布冻结人数：${item.participant_count}`),
         !teacher() && !item.items && h('p', '试卷尚未开始，开始后可查看题目。'),
-        h('ol', { class: 'paper-items' }, (item.items ?? []).map(q => h('li', { key: q.question_version_id }, [
+        (teacher() || item.window_state === 'closed') && h('ol', { class: 'paper-items' }, (item.items ?? []).map(q => h('li', { key: q.question_version_id }, [
           h('p', `第 ${q.position} 题 · ${q.points} 分 · v${q.version}`), h('p', { class: 'paper-text' }, q.stem),
           h('ul', q.options.map(option => h('li', `${option.key} · ${option.text}`))),
           (teacher() || (item.review_at && item.window_state === 'closed')) && Object.hasOwn(q, 'answer') && h('div', [
@@ -164,6 +165,7 @@ export const PaperView = {
           item.confidential && h('p', '请确认所有题目未公开且并非对公开题的简单复制。系统会复核可追踪的公开历史。'),
           submit('发布试卷并冻结名单'),
         ]),
+        item.status === 'published' && h(AttemptView, { key: `${epoch}:${item.id}`, user: props.user, paper: item, courseId: courseId.value }),
       ])
     }
     return () => h('section', { class: 'card paper-bank', 'aria-busy': busy.value }, [

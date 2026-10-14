@@ -2,12 +2,14 @@ import { createApp, onMounted, reactive, ref } from 'vue'
 import { apiRequest, readApi } from './api.js'
 import { QuestionBankView } from './question-view.js'
 import { PaperView } from './paper-view.js'
+import { AttemptView } from './attempt-view.js'
 import '../styles/main.css'
 import '../styles/questions.css'
 import '../styles/papers.css'
+import '../styles/attempts.css'
 
 createApp({
-  components: { QuestionBankView, PaperView },
+  components: { QuestionBankView, PaperView, AttemptView },
   setup() {
     const user = ref(null)
     const csrf = ref('')
@@ -325,6 +327,7 @@ createApp({
         </template>
         <QuestionBankView v-if="user.role !== 'admin'" :key="user.id + ':' + user.role" :user="user" />
         <PaperView v-if="user.role !== 'admin'" :key="'papers:' + user.id + ':' + user.role" :user="user" />
+        <AttemptView v-if="user.role !== 'admin'" :key="'attempts:' + user.id + ':' + user.role" :user="user" />
       </template>
     </main>`,
 }).mount('#app')

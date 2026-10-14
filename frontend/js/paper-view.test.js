@@ -54,6 +54,7 @@ async function mount(t, role = 'teacher') {
       return result([{ id: 1, version_id: 8, version: 2, stem: 'PC' }, { id: 2, version_id: 9, version: 1, stem: 'ALU' }], 2)
     }
     if (path.includes('/papers?')) return result(fixture.rows, fixture.rows.length)
+    if (path.includes('/attempts?')) return result([], 0)
     if (path.endsWith('/papers/3')) return result(fixture.detail)
     throw new Error(`Unexpected path ${path}`)
   }
