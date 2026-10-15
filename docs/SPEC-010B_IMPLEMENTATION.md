@@ -160,4 +160,8 @@ C07a [Actions38574944772](https://github.com/Gindama713/nchu-web-learning_platfo
 
 正式干净浏览器证据：[report.json](evidence/spec-010b/quiz-browsers/report.json)，tested_head=`36e2f38c9ab9d70eacb6c9f1f71e7780dad33cea`，dirty_paths=[]。Chrome155.0.8059.40及Edge155.0.4283.45各6组全部通过，page_errors=[]；390px截图为[Chrome知识](evidence/spec-010b/quiz-browsers/chrome-quiz-knowledge.png)、[Chrome成绩](evidence/spec-010b/quiz-browsers/chrome-quiz-scores.png)、[Edge知识](evidence/spec-010b/quiz-browsers/msedge-quiz-knowledge.png)、[Edge成绩](evidence/spec-010b/quiz-browsers/msedge-quiz-scores.png)。截图已目视核对，页面无整页水平溢出、宽表在容器内滚动。只保存本轮合成受控结果，无口令/CSRF/会话/学生答卷/数据库。
 
-续包PR创建请求遇GitHub连接transport失败，尚未确认成功；不得把猜测编号当成真实PR。Git HTTPS亦报TLS WRONG_VERSION_NUMBER，外部网络暂阻后续推送/CI核验。旧PR #10已合并，续包应从当前feature新建→develop PR，说明增量为本测试/双浏览器证据；先查是否已有同head开放PR，避免重复。最新docs/evidence提交及后续网络结果须更新本节。完整010B仍有003/004/目标性能/生产恢复/课堂和真实评审缺口。013 C08独立PR #11需同步最近核验develop 7759d65后继续C09，不能从010B feature复制代码。本轮未自行合并、部署或发布。
+网络短暂transport/TLS失败后已恢复；正式证据提交`1d598b5895a87e98fcdccd31d889cc0a13b0332b`已推送，并核实无同head开放PR后新建draft [PR #12](https://github.com/Gindama713/nchu-web-learning_platform/pull/12)（旧PR #10已合入，不能更新成未合入续包）。本轮不再有网络阻塞。
+
+证据head 1d598b5的[Actions38596864000](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38596864000)实际jobs均已完成，policy/lint/test/build/required全success，grader按develop规则skipped。已读取ci-test日志：后端148项（123.412秒）、前端62项；tested merge=`d96af20847cb2c5996201617307be8fb32e11d0a`，base=7759d65、head=1d598b5。此merge是CI测试引用，不是实际合并，148包含保留的双方专用联测；reviews=[]，不把自动验证记成真实非作者批准。本文后续纯文档提交的当前head CI须另核验，以PR当前检查及个人交接为准。
+
+下一恢复：专用008联测、原ID/CSV和干净双浏览器已补证，无需重复C07业务。先fetch核验PR #12当前head CI/实际评审，再按授权收口。完整010B仍有003/004、Linux4核8GB/50会话/真实worker、完整生产恢复/课堂缺口。013 C08独立PR #11已merge develop 7759d65并完成165项/62项回归，后续C09继续其原feature，不能从本010B未合入续包复制代码。本轮未自行合并、部署或发布。
