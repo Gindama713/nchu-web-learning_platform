@@ -58,7 +58,11 @@ C08a `16c1928`、C08b `30d2948130e1fbc42dbc8e6ddc8327ede355a356`已推送本feat
 
 同步develop后全量本地回归165项通过（245.257秒），前端62项、ruff/lint/build/六文档链接/diff通过。`6a0094e22d7eac9a54be2d4f04de2c78a8ff273e`的[Actions38596794698](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38596794698)实际jobs均已完成：policy/lint/test/build/required全success，grader按develop规则skipped。已读取ci-test日志：后端165项（84.502秒）、前端62项，tested merge=`351e40a1d80205a40eda072827232834020746f0`，base=7759d65、head=6a0094e；此merge只是CI测试引用，不是实际合并。本文后续纯文档提交的当前head检查仍需单独核验，以PR当前检查及个人交接为准，不将本run偷换成之后head。
 
-SPEC-013完整验收未关闭，无generated-papers API、教师页面或C09真实HTTP重放链。下一恢复先fetch核验develop与PR #11/#12及当前head CI，再继续C09本013分支；若目标更新则merge最新develop。追加paper.seed/algorithm_version/generation_snapshot_id FK及发布冻结治理；首次/replay_of二选一，冻结→无写锁求解→重新授权/资格核验→短事务保存snapshot+draft paper/item+审计。重放只接新title，读取旧快照，不读新题库；发布仍用006/008现行保护，不自动发布，不接管队友模块。003/004、Linux4核8GB/50会话/真实worker、完整生产恢复/课堂/实际评审仍待补。本轮未自行合并、部署或发布。
+2026-10-15再次恢复核验：#11已由外部合入develop，实际merge=`bcda8c468e9054579639f3f66c709a54283494aa`，最后head=`d7a0e7819eabbab68899381e322ce6df97b9f4ad`，包含外部新增的专用quiz固定版本历史c/n=1/1回归及文档修正。已读取真实review：Gindama713于2026-10-15 11:07:23（Asia/Shanghai）APPROVED；[Actions38674159512](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38674159512)的policy/lint/test/build/required全success、grader按develop规则skipped，实际日志后端166项82.173秒/前端62，tested merge=`5704ef5`（CI测试引用，非实际merge bcda8c4），base7759d65/head d7a0e78。此为外部集成结果，不是本轮AI自行合并；一份真实批准不替代全部课程/敏感改动评审或课堂验收。C08内部组件已合入，C09仍未开发。本轮010B续包PR #12同步该develop，保留双方测试与文档，合并后完整回归及最新CI在PR当前结果/个人交接登记。
+
+当前010B续包同步develop bcda8c4后，全量本地后端167项通过（244.462秒），C08十九项（含外部专用quiz历史回归）与双方010B专用联测均保留；同树CI Actions38675507503实际167项131.268秒/前端62，required全success/grader skipped，详细head/base/tested见正式010B记录文末。本数据是同步后的联合回归，不能改写旧125/165项运行的次数或SHA。
+
+SPEC-013完整验收未关闭，无generated-papers API、教师页面或C09真实HTTP重放链。下一恢复先fetch核验develop与PR #12当前head CI，再继续C09的013原分支，先merge最新develop且保留外部d7a0e78历史，不能复制未合入010B续包。追加paper.seed/algorithm_version/generation_snapshot_id FK及发布冻结治理；首次/replay_of二选一，冻结→无写锁求解→重新授权/资格核验→短事务保存snapshot+draft paper/item+审计。重放只接新title，读取旧快照，不读新题库；发布仍用006/008现行保护，不自动发布，不接管队友模块。003/004、Linux4核8GB/50会话/真实worker、完整生产恢复/课堂/实际评审仍待补。本轮未自行合并、部署或发布。
 
 ## 当前交接与下一恢复（C09，2026-10-15）
 
@@ -100,3 +104,7 @@ C09b提交`e3d92e8`已推送：教师“课程试卷/随堂测→智能组卷”
 `fd89dab00baedaf0d743c8cfe51f03a86f1e4444`的[Actions38677844614](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38677844614)已核验policy/lint/test/build/required全success、grader按develop规则skipped。真实ci-test日志176项131.484秒/前端68，tested merge=`5adaae934bdb918dc2d0f99f1542adb532929aad`、base=`bcda8c468e9054579639f3f66c709a54283494aa`/head=fd89dab；不是实际merge。正式证据提交`cdec71e8a9995a8b93ec965ae1a9bfb5951814ff`和本段最终文档不改业务源码；它们的检查不能冒充fd89dab运行，按PR #13当前head状态及个人交接另核验。
 
 C09实现、本地全量及干净双浏览器已就绪，交付新PR #13真实非作者评审；本段提交后仅更新PR评审状态/说明和本地两份交接，不再追加业务改动。下一恢复先查#13当前head的CI（缺失/运行中不能记成功）及实际review；需要两名真实非作者复核的API/数据库改动仍未满足，不能自行合并。课堂与全模块依赖仍按上表保留，未授权或执行教学环境部署/发布。两份个人文件为本地排除，不随PR提交，恢复时优先计划第6节/个人10.1，再读本节。
+
+### 收口期间外部develop更新
+
+最后fetch发现#12已由外部于2026-10-15 11:45:05（Asia/Shanghai）合入develop，merge=`cdbda1e4a6bce19e2a5c4016a528d1d3d8b2aceb`，最后head ab91dc1。本013随后merge origin/develop，唯一冲突在本文末；保留对方C08/010B真实历史及本方全部C09记录，README/CHG-RB自动合并。纳入已合入的010B测试/证据及analytics-view在课程加载前禁用筛选的修复，不复制未合入feature、不接管其业务，也不重做专用联测。此前“#12未合入”均为当时核验事实。新同步树的完整后端/前端、C09浏览器及当前PR CI须分别登记；旧176/68和fd89dab截图保留原SHA，不能冒充新同步树。
