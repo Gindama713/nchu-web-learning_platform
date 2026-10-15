@@ -108,3 +108,13 @@ C09实现、本地全量及干净双浏览器已就绪，交付新PR #13真实�
 ### 收口期间外部develop更新
 
 最后fetch发现#12已由外部于2026-10-15 11:45:05（Asia/Shanghai）合入develop，merge=`cdbda1e4a6bce19e2a5c4016a528d1d3d8b2aceb`，最后head ab91dc1。本013随后merge origin/develop，唯一冲突在本文末；保留对方C08/010B真实历史及本方全部C09记录，README/CHG-RB自动合并。纳入已合入的010B测试/证据及analytics-view在课程加载前禁用筛选的修复，不复制未合入feature、不接管其业务，也不重做专用联测。此前“#12未合入”均为当时核验事实。新同步树的完整后端/前端、C09浏览器及当前PR CI须分别登记；旧176/68和fd89dab截图保留原SHA，不能冒充新同步树。
+
+### 同步后最终验证与下一步（当前结论）
+
+同步提交`d14054d4edc56dcd6635a9e3de6fc042f3e10ca6`已推送：全量本地后端177项通过288.776秒，前端69项、全仓ruff/lint/build/六文档链接/diff通过，原始日志在docs/evidence/spec-013/c09-synced-*.txt。比原176/68多出的用例来自外部已合入#12；旧统计保留原SHA，不改写为本次次数。这里的全量自动回归包含已合入的专用quiz历史及统计测试，未重新开发或另起010B手工/浏览器联测。
+
+干净d14054d（dirty_paths=[]）C09 Chrome155.0.8059.41、Edge155.0.4283.45各5组通过，page_errors=[]，六图/JSON及390px验证见[同步后C09证据](evidence/spec-013/c09-browsers-synced/REPORT.md)。原fd89dab报告及全部C08/010B历史保留。
+
+同步代码的[Actions38678429264](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38678429264)已核验policy/lint/test/build/required全success、grader按develop规则skipped；真实ci-test日志177项129.855秒/前端69，tested merge=`91a376436b4634176cbcb72c45eede2b6bc84731`、base=`cdbda1e4a6bce19e2a5c4016a528d1d3d8b2aceb`、head=d14054d。这是CI测试引用，不是013实际合并；随后仅提交本段和证据，最终文档head的CI按PR当前状态及两份个人交接核验，不把旧run冒充新head。
+
+新[PR #13](https://github.com/Gindama713/nchu-web-learning_platform/pull/13)已open/非draft，C09实现和本地证据就绪待真实评审，目前reviews=[]；#12已由组长外部合并，#11亦早已合并。本轮没有合入共享分支、部署或发布到教学环境；临时合成库中的显式发布仅为006/008验收。下一恢复先查#13当前CI/head/base及实际review，必要时只修评审缺陷；不要重复C08/C07/C09或010B专用联测。无缺陷后按另行任务卡进入C10。003/004、图文/授权图片、目标Linux4核8GB/50会话/worker、完整生产恢复、两名真实非作者复核及课堂证据仍未完成，完整013未关闭。
