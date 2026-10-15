@@ -110,9 +110,13 @@ I-01/02/03完整链结果均为**阻断**，不是不适用。I-04、生产部�
 
 ## 正式复验与下一恢复
 
-代码分段提交caf7d730b0d904716f083a014978da4795a0b494（新增接缝脚本）、79a133c（010B时区展示）、2fa4a2b04533bb8023d0e4a7f35de909c38a1e75（脱敏诊断lint及显示断言）均推送原010B feature。后续正式证据/矩阵文档单独提交，创建新的feature→develop续包PR；#10/#12保留实际已合入状态，不重开旧PR。
+代码分段提交caf7d730b0d904716f083a014978da4795a0b494（新增接缝脚本）、79a133c（010B时区展示）、2fa4a2b04533bb8023d0e4a7f35de909c38a1e75（脱敏诊断lint及显示断言）、db83da52b8feeb903c61977f593aad764d34c16c（正式证据/矩阵）均推送原010B feature。新[PR #16](https://github.com/Gindama713/nchu-web-learning_platform/pull/16)已创建，open/非draft→develop；#10/#12保留实际已合入状态，不重开旧PR。
 
-本地7项真实handler通过8.950秒、前端70项、ruff/backend/tests/本脚本、lint/build、六文档链接/diff通过。B12干净源码SHA固定为2fa4a2b；正式附件提交不伪称该附件已经在自身SHA下执行。新PR的base/head、CI测试ref（tested）、实际merge各自登记；文档收口后的最新head CI必须再次查询。最终head检查与真实reviews/threads/comments落在续包PR说明及个人本地交接，不能把#14/#15或旧#12 CI当作本续包结果。
+证据head db83da5的[Actions38697994792](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38697994792)已单独读取run/jobs及ci-test原始日志：policy/lint/test/build/required全部success，grader依develop规则skipped；后端177项97.469秒、前端70项。base=f9c49b19c59053be2b171e0b7f2a35d1e050e57e，tested=`7a5ef3d81747f3db030fad30a6017fb7e1ace73f`是CI合并测试引用，actual merge不存在。真实reviews=[]、review_threads=[]、comments=[]；固定[CI与评审快照](evidence/c12a/code-head-ci.json)已版本化，不将AI检查作为非作者复核。
+
+本地7项真实handler通过8.950秒、前端70项、ruff/backend/tests/本脚本、lint/build、六文档链接/diff通过。B12干净源码SHA固定为2fa4a2b；正式附件提交不伪称该附件已经在自身SHA下执行。文档收口后的新head CI必须再次查询，不能沿用db83da5的run。最终head的base/head/tested/actual merge与真实reviews/threads/comments落在[PR #16说明](https://github.com/Gindama713/nchu-web-learning_platform/pull/16)及个人本地交接，避免把文档自身提交SHA写入自身造成循环，也不把#14/#15或旧#12 CI当作本续包结果。
+
+网络留痕：db83da5首次push与随后fetch/push遭本机OpenSSL TLS wrong-version错误；使用仅该命令的schannel后远端读回成功并推送，未降低证书校验、持久修改Git设置或更改CI。此已解除，不再列成业务/环境验收阻断。
 
 复现：根目录`.venv/Scripts/python.exe -m scripts.verify_c12a_seams --output logs/c12a-recheck`；需要当前已安装Chrome/Edge/浏览器可选依赖及空闲5000/5173。前端在frontend运行`npm test`、`npm run lint`、`npm run build`；前端时间测试为组件替身，B12为真实HTTP/UI。
 
