@@ -63,8 +63,11 @@ class KnowledgeGraphTest(TestCase):
         self.assertEqual(edge["type"], "prerequisite")
 
     def test_self_loop_rejected(self):
-        with self.assertRaises(sqlite3.IntegrityError):
+        # 应用层显式拒绝（400），不依赖数据库 CHECK 兜底成 500
+        with self.assertRaises(KnowledgeError) as ctx:
             self.store.add_edge(1, 1, {"source_id": self.alu, "target_id": self.alu, "type": "prerequisite"})
+        self.assertEqual(ctx.exception.code, "VALIDATION_ERROR")
+        self.assertEqual(ctx.exception.status, 400)
 
     def test_prerequisite_cycle_rejected(self):
         # 加法器 -> ALU 先修

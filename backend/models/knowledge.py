@@ -353,6 +353,8 @@ class KnowledgeStore:
         edge_type = values["type"]
         if edge_type not in ("prerequisite", "contains"):
             invalid("type 必须为 prerequisite 或 contains")
+        if source_id == target_id:
+            invalid("边两端不能指向同一知识点")
         with self.transaction(user_id, True) as (db, user):
             self.access(db, user, course_id, "teacher")
             src = self.knowledge(db, user, source_id, "teacher")
