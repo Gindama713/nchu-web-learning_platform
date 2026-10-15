@@ -1,5 +1,7 @@
 # SPEC-013 智能组卷实施记录
 
+最新C09状态见文末“当前交接与下一恢复”；此前C08记录保留原SHA、范围和当时事实。
+
 ## C08历史：2026-10-15 与已合入模块的集成评审
 
 组长审查后，PR #9 的008与PR #10 的010B已分别合入develop（merge commits `b4a376b860e891a969c9507d69b4cefba5c7f290`、`7759d650e9b0a9b6c2a8070471f1040af603a22f`）。本013分支合并最新develop；README一处文本冲突按8.5统计、8.6组卷顺序保留两边内容，并修正DBD中“013快照表仍待接入”的过时描述。新增真实专用quiz发布、提交客观正确答案后，C08冻结候选历史得到该固定版本c/n=1/1的回归。原C08测试和浏览器/CI证据仅对应旧SHA，合并后的完整回归及CI以PR #11最新提交核验。
@@ -77,10 +79,18 @@ C09b提交`e3d92e8`已推送：教师“课程试卷/随堂测→智能组卷”
 | 权限/事务 | 学生/无关人/管理员/跨课/无快照/非法组合/CSRF拒绝；计算期间真实第二连接撤成员/会话，保存前拒绝；paper/item/audit三个位置触发器故障均整体回滚 | 本地通过；撤教师成员为明确SQL状态夹具，负责教师DELETE本身正确返回409 |
 | R22/R45/R46/R47及NF | 分工/依赖与两段提交可追溯；C08十九项与专用quiz历史保留 | 真实C09非作者评审、课堂、Linux4核8GB/50会话/worker、完整生产恢复仍待执行，不关闭完整SPEC |
 
-专题命令：`.venv/Scripts/python.exe -m unittest tests.test_generated_papers tests.test_generation_input tests.test_generation_snapshot tests.test_generation_solver -v`，29项通过46.366秒（C09新增10项、C08原19项）；全仓ruff通过。首轮测试的负责人DELETE预期及知识SQL缺必填字段已纠正：成员撤权标明SQL夹具、知识通过真实API创建，重跑通过，没有放宽业务保护。前端`npm test`68项通过，lint/build通过，六文档链接/diff通过。全量后端正在独立执行，最终结果随后追加，不能将专题次数代替全量。
+专题命令：`.venv/Scripts/python.exe -m unittest tests.test_generated_papers tests.test_generation_input tests.test_generation_snapshot tests.test_generation_solver -v`，29项通过46.366秒（C09新增10项、C08原19项）；全仓ruff通过。首轮测试的负责人DELETE预期及知识SQL缺必填字段已纠正：成员撤权标明SQL夹具、知识通过真实API创建，重跑通过，没有放宽业务保护。前端`npm test`68项通过，lint/build通过，六文档链接/diff通过。全量本地后端176项通过293.361秒、前端68项通过；日志见docs/evidence/spec-013/。后端源码对应3925d50、前端对应e3d92e8，后续仅浏览器脚本/文档/证据变化，不将旧010B分支167项当作本013树。
 
 真实浏览器预跑：Chrome155.0.8059.41与Edge155.0.4283.45各5组通过、page_errors=[]；覆盖首次精确seed/配分、新题/版本/作答后重放、390px无横向溢出、真实422保留参数/清旧结果、组卷quiz接原专用显式发布。运行时存在未提交UI/脚本，因此该轮只作为预跑，不当作干净SHA正式证据。首轮Chrome完成后出现Windows临时目录清理PermissionError；补充保留原始异常诊断及UTC时区后重跑两浏览器通过。正式证据将对提交后干净树重跑并记录tested_head/dirty_paths，不复用010B截图。浏览器仅初始管理员/教师账号SQL引导，其余课程/知识/题目/作答/生成/发布全部真实HTTP，无伪造API响应；是合成本地数据，不是课堂或生产数据。
 
-下一恢复：先读本节与个人会话计划第6节，fetch核验develop、010B #12和新的013续包PR当前head/CI/真实评审。C09实现已落地，不重做C08/C07/010B联测；先完成本轮干净浏览器证据、全量回归和续包PR当前head CI核验。若develop变化仅按同分支merge同步并复验受影响点，不复制未合入feature。队友003资源/004备课、图文/授权图片、目标性能、worker、完整生产恢复及实际两名非作者复核/课堂证据仍独立记录，不代写。
+下一恢复：先读本节与个人会话计划第6节，fetch核验develop、010B #12和新的013续包PR当前head/CI/真实评审。C09实现已落地，不重做C08/C07/010B联测；本轮干净浏览器和全量本地回归已完成，下一步优先核验续包PR当前head CI/真实评审，按实际评审修正；无新缺陷时按后续任务卡推进C10，不重复实现C09。若develop变化仅按同分支merge同步并复验受影响点，不复制未合入feature。队友003资源/004备课、图文/授权图片、目标性能、worker、完整生产恢复及实际两名非作者复核/课堂证据仍独立记录，不代写。
 
 回退：先备份当前题目版本、作答、paper/item、generation_snapshot及审计一致状态/增量，再使用匹配代码和数据库恢复点。013b是追加迁移，不能改旧checksum、DROP历史或清空快照外键来“回滚”；本轮临时库迁移/备份验证不能替代生产恢复演练。
+
+### C09正式收口证据
+
+干净`fd89dab00baedaf0d743c8cfe51f03a86f1e4444`两浏览器正式重跑通过：Chrome155.0.8059.41、Edge155.0.4283.45各5组，dirty_paths=[]、page_errors=[]，390px截图已目视核对；报告/原始JSON/6张截图在[正式浏览器证据](evidence/spec-013/c09-browsers/REPORT.md)。早期干净3b25284轮Edge并未通过：原始诊断为启动阶段等待/列表选择失败，随后Windows临时库清理还可能PermissionError遮盖原错。fd89dab仅修正测试登录先等待初始session响应、明确使用试卷“重新加载”恢复并等待目标模块；未改共享鉴权/队友业务、不伪造响应，最终通过轮单独登记，不能把失败轮改写为通过。
+
+新续包[PR #13](https://github.com/Gindama713/nchu-web-learning_platform/pull/13) open/draft→develop。3b25284的[Actions38677497071](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38677497071)已核验policy/lint/test/build/required全success，grader按develop规则skipped；读取真实ci-test日志为176项147.207秒、前端68项，tested merge=`1dce877f7c82183c8e024fb63edda3d5d02f8ab4`、base=`bcda8c468e9054579639f3f66c709a54283494aa`/head=`3b252840d506cf721d95d502ee5ae8c099c570a5`。这是CI测试引用，不是实际merge；脚本/证据后续head CI须另核验。
+
+本轮后续fetch观察#12由外部更新为head=`ab91dc1b666c1382d170fba189d1dc3e7654bf26`、open/非draft、reviews=[]，仍未合入；保留此评审状态且不复制增量。develop仍bcda8c4，C09源码/十九项C08与专用quiz历史均保留。C09实际非作者批准尚无，敏感API/数据库仍需课程规定的真实复核；003/004、目标性能/worker、完整生产恢复及课堂证据仍未关闭。
