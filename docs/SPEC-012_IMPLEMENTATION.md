@@ -32,7 +32,7 @@ recommend-v1用精确有理数计算未舍入排序分数和0.8边界；全候�
 
 实现/分段提交：`b1368e7`后端、`f508192`页面/入口与验证脚本、`e8da2410c87c1cf2173fad36aaf92fcacdf46e38`脚本诊断lint收口，均推送本人012 feature。起点远端状态单独保存于[接入快照](evidence/spec-012/c11-start-remote.json)，不能拿011 CI代替012。
 
-本地完整后端190项通过241.741秒、前端77项通过，013项012专题14.753秒（3算法组件、10真实handler/SQLite）。[后端完整日志](evidence/spec-012/c11-backend-tests.txt)、[前端日志](evidence/spec-012/c11-frontend-tests.txt)、[专题日志](evidence/spec-012/c11-topic-tests.txt)均保留实际输出。后端全量回归包含develop已有测试，没有重开C09/C07/010B专用联测。ruff（backend/tests及本轮浏览器脚本）、前端lint/build、六文档链接及diff检查通过；浏览器诊断代码曾有多余noqa，已在e8da241修复并重新检查，不将旧失败隐去。
+本地完整后端190项通过241.741秒、前端77项通过，13项012专题14.753秒（3算法组件、10真实handler/SQLite）。[后端完整日志](evidence/spec-012/c11-backend-tests.txt)、[前端日志](evidence/spec-012/c11-frontend-tests.txt)、[专题日志](evidence/spec-012/c11-topic-tests.txt)均保留实际输出。后端全量回归包含develop已有测试，没有重开C09/C07/010B专用联测。ruff（backend/tests及本轮浏览器脚本）、前端lint/build、六文档链接及diff检查通过；浏览器诊断代码曾有多余noqa，已在e8da241修复并重新检查，不将旧失败隐去。
 
 干净e8da241（dirty_paths=[]）的Chrome155.0.8059.41、Edge155.0.4283.45各7组通过，page_errors=[]；[报告/原始JSON及6图](evidence/spec-012/browsers/REPORT.md)已版本化并目视。真实HTTP503及作答201、撤权404均有实际服务响应；故障/延迟由明确服务端夹具注入，不能称生产故障自然复现。原始分数舍入前排序、大计数近同分等使用算法组件夹具，不能称真实课堂大样本。
 
@@ -55,6 +55,8 @@ recommend-v1用精确有理数计算未舍入排序分数和0.8边界；全候�
 
 ## 下一恢复点与回退
 
-本轮C11实现及适用本地验证已就绪，完整SPEC仍待真实复核/合入、目标性能、生产恢复及课堂证据。012 PR及最终head CI在创建后单独核验，收口记录随本feature保存；文档提交后的新head仍须独立核验，不能套用e8da241或011旧run。禁止自行合并、部署或发布。
+[PR #15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15)已创建，open/非draft→develop。证据head `d6617280888a148506b005a9bd1c51a04f681977`的[Actions38694148590](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38694148590)实际policy/lint/test/build/required全部success，grader按develop规则skipped；读取真实ci-test日志确认190项185.343秒及前端77项。base=`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`、tested merge=`108f8fbef3b566a85bcfeb3d02b4dd37016b6300`是CI测试引用，非实际合并。[固定CI快照](evidence/spec-012/c11-code-ci.json)及[日志摘录](evidence/spec-012/c11-code-ci-test-summary.txt)对应此head，不沿用011结果。
+
+最后读取真实reviews=[]、review_threads=[]、comments=[]，尚缺012实际非作者复核。最终收口文档提交的新head仍须独立核验，其最新Checks/真实评审以PR为准，核验结果同步PR说明和本地计划第6节/个人交接10.1；不能把本段d661728的run冒充后续head结果。本轮C11实现及适用本地验证已就绪，完整SPEC仍待真实复核/合入、目标性能、生产恢复及课堂证据。禁止自行合并、部署或发布。
 
 下一轮先fetch核验develop/012 PR的当前base/head、必需jobs与真实review/thread，再按所属SPEC实际问题修复；保留011 PR #14的独立评审状态。不重复C10/C09/C07/010B专用联测，不扩展C12整包。回退使用匹配代码及知识/作答/进度/schema一致性备份；不删除历史事实、不覆盖旧迁移，没有推荐缓存需要清理。
