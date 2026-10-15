@@ -209,7 +209,7 @@ def verify(playwright, channel, password, output):
         assert errors == []
         return {'channel': channel, 'version': browser.version, 'status': 'passed', 'checks': checks,
                 'page_errors': errors, 'course_id': cid}
-    except Exception:  # noqa: BLE001 - save synthetic UI diagnostics, never auth fields
+    except Exception:  # Save synthetic UI diagnostics, then preserve the original failure.
         page.locator('.practice-bank').screenshot(path=str(output/f'{channel}-diagnostic.png'))
         (output/f'{channel}-diagnostic.txt').write_text(page.locator('.practice-bank').inner_text(), encoding='utf-8')
         raise
