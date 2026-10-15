@@ -1,6 +1,21 @@
 import { h, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RecommendationClient, recommendationReasons, recommendationStates } from './recommendation-client.js'
 
+// Recommendation presentation only; source_until remains the original UTC cutoff.
+const sourceClock = new Intl.DateTimeFormat('zh-CN', {
+  timeZone: 'Asia/Shanghai', year: 'numeric', month: '2-digit', day: '2-digit',
+  hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+})
+function sourceTime(value) {
+  if (value === null || value === undefined || value === '') return '—'
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return '时间异常'
+  const date = new Date(value)
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number)
+  if (!Number.isFinite(date.getTime()) || day < 1 || day > new Date(Date.UTC(year, month, 0)).getUTCDate()) return '时间异常'
+  const parts = Object.fromEntries(sourceClock.formatToParts(date).map(part => [part.type, part.value]))
+  return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}:${parts.second} (Asia/Shanghai)`
+}
+
 export const RecommendationView = {
   props: { user: { type: Object, required: true } },
   emits: ['practice'],
@@ -83,7 +98,7 @@ export const RecommendationView = {
       !courses.value.length && !busy.value && !error.value && h('p', '暂无可访问的课程，请联系教师确认课程成员。'),
       data.value && h('div', { class: 'recommendation-result' }, [
         h('p', { role: 'status' }, recommendationStates[data.value.reason]),
-        h('p', { class: 'recommendation-meta' }, `依据截止 ${data.value.source_until} · 算法 ${data.value.algorithm_version}`),
+        h('p', { class: 'recommendation-meta' }, `依据截止 ${sourceTime(data.value.source_until)} · 算法 ${data.value.algorithm_version}`),
         h('p', '推荐分数仅用于排序，范围0—1；掌握度来自有效客观作答。'),
         h('ol', { class: 'rows' }, data.value.items.map(item => h('li', { key: item.knowledge_id }, [
           h('h3', `知识点 #${item.knowledge_id}`), h('p', recommendationReasons[item.reason]),

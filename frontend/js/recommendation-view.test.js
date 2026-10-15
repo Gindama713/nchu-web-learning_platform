@@ -60,6 +60,33 @@ test('reason, six decimals, unknown mastery, source metadata and safe title rend
   assert.ok(paths.includes('/api/v1/knowledge-points/1'))
 })
 
+test('recommendation cutoff crosses UTC Sunday into Shanghai Monday without changing UTC data or week window', async t => {
+  const { root, fixture } = await mount(t)
+  for (const [value, expected] of [
+    ['2026-10-18T15:59:59.000Z', '2026-10-18 23:59:59 (Asia/Shanghai)'],
+    ['2026-10-18T16:00:00.000Z', '2026-10-19 00:00:00 (Asia/Shanghai)'],
+    ['2026-10-19T00:00:00+08:00', '2026-10-19 00:00:00 (Asia/Shanghai)'],
+  ]) {
+    fixture.data = { ...recommendation(), source_until: value }
+    const before = JSON.stringify(fixture.data)
+    button(root, '刷新推荐').props.onClick(); await flush()
+    assert.ok(content(root).includes(`依据截止 ${expected}`))
+    assert.match(content(root), /recommend-v1/)
+    assert.equal(JSON.stringify(fixture.data), before)
+  }
+})
+
+test('recommendation missing or malformed cutoff never shows epoch, local time or Invalid Date', async t => {
+  const { root, fixture } = await mount(t)
+  for (const [value, expected] of [[null, '—'], [undefined, '—'], ['', '—'], ['bad', '时间异常'],
+    ['2026-10-18T16:00:00', '时间异常'], ['2026-02-30T16:00:00Z', '时间异常'], [0, '时间异常']]) {
+    fixture.data = { ...recommendation('all_mastered', []), source_until: value }
+    button(root, '刷新推荐').props.onClick(); await flush()
+    assert.ok(content(root).includes(`依据截止 ${expected}`))
+    assert.doesNotMatch(content(root), /1970-|Invalid Date|NaN/)
+  }
+})
+
 test('every empty reason keeps metadata, no made up item or exercise', async t => {
   const { root, fixture } = await mount(t)
   for (const [reason, text] of [['no_published_knowledge', '暂无已发布知识'], ['no_foundational_candidates', '暂无未完成的基础知识'], ['all_mastered', '均已完成']]) {
