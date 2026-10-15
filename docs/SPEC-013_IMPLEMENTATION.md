@@ -94,3 +94,9 @@ C09b提交`e3d92e8`已推送：教师“课程试卷/随堂测→智能组卷”
 新续包[PR #13](https://github.com/Gindama713/nchu-web-learning_platform/pull/13) open/draft→develop。3b25284的[Actions38677497071](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38677497071)已核验policy/lint/test/build/required全success，grader按develop规则skipped；读取真实ci-test日志为176项147.207秒、前端68项，tested merge=`1dce877f7c82183c8e024fb63edda3d5d02f8ab4`、base=`bcda8c468e9054579639f3f66c709a54283494aa`/head=`3b252840d506cf721d95d502ee5ae8c099c570a5`。这是CI测试引用，不是实际merge；脚本/证据后续head CI须另核验。
 
 本轮后续fetch观察#12由外部更新为head=`ab91dc1b666c1382d170fba189d1dc3e7654bf26`、open/非draft、reviews=[]，仍未合入；保留此评审状态且不复制增量。develop仍bcda8c4，C09源码/十九项C08与专用quiz历史均保留。C09实际非作者批准尚无，敏感API/数据库仍需课程规定的真实复核；003/004、目标性能/worker、完整生产恢复及课堂证据仍未关闭。
+
+### 最后核验与评审恢复点
+
+`fd89dab00baedaf0d743c8cfe51f03a86f1e4444`的[Actions38677844614](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38677844614)已核验policy/lint/test/build/required全success、grader按develop规则skipped。真实ci-test日志176项131.484秒/前端68，tested merge=`5adaae934bdb918dc2d0f99f1542adb532929aad`、base=`bcda8c468e9054579639f3f66c709a54283494aa`/head=fd89dab；不是实际merge。正式证据提交`cdec71e8a9995a8b93ec965ae1a9bfb5951814ff`和本段最终文档不改业务源码；它们的检查不能冒充fd89dab运行，按PR #13当前head状态及个人交接另核验。
+
+C09实现、本地全量及干净双浏览器已就绪，交付新PR #13真实非作者评审；本段提交后仅更新PR评审状态/说明和本地两份交接，不再追加业务改动。下一恢复先查#13当前head的CI（缺失/运行中不能记成功）及实际review；需要两名真实非作者复核的API/数据库改动仍未满足，不能自行合并。课堂与全模块依赖仍按上表保留，未授权或执行教学环境部署/发布。两份个人文件为本地排除，不随PR提交，恢复时优先计划第6节/个人10.1，再读本节。
