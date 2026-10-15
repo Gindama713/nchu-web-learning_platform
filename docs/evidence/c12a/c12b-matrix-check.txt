@@ -1,0 +1,3 @@
+131 unique IDs; exact AC/R/NF set retained. 80 local pass / 0 fail / 51 blocked.
+Only SPEC-006/NF-UI, SPEC-008/NF-UI, SPEC-012/NF-UI changed; their integration remains blocked.
+Other 128 row dictionaries unchanged, including all historical evidence and requirements.

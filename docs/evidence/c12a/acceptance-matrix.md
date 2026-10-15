@@ -2,6 +2,7 @@
 
 2026-10-15，执行人：黄俊诚授权下的Codex自动核对。131行：31条AC、37条业务R、28条共通R、35条NF用例组。NF标签不是新增需求编号。
 “通过”限于该行明确的本人本地适用范围；“集成结果”及依赖列保留未合入/跨模块阻断，不能据此关闭完整SPEC。无不适用项或虚构非作者批准。
+C12b增量：131行=80通过/0失败/51阻断。仅006/008/012的NF-UI本人范围修复通过，三个集成结果仍阻断；完整SPEC/真实评审/目标环境/课堂未关闭。固定head/tested/附件见JSON及正式记录。
 全部输入、预期、实际、执行人/日期、head/tested、附件字段见同目录 acceptance-matrix.json；证据代号、算法夹具/handler/HTTP/UI/课堂分层及手工恢复步骤见 ../../C12A_ACCEPTANCE_AUDIT.md。
 
 ## SPEC-005
@@ -50,7 +51,7 @@
 | SPEC-006/NF-PERF | PRD§8指定环境50会话，普通API p95<1秒等适用目标 | tests/papers.py#test_public_old_identity_and_started_papers_never_regain_secrecy; tests/practices.py#test_reserved_all_versions_anomalous_open_replay_and_all_read_paths; 对应实施记录共通/NF行 | E006; E008; H12; B12 Q1-Q3/Q6; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 缺目标Linux4核8GB/50会话/真实worker与API p95测量；测试耗时不替代 |
 | SPEC-006/NF-SEC | 本人权限/同课/CSRF/Origin/输入/转义/会话失效/审计 | tests/papers.py#test_public_old_identity_and_started_papers_never_regain_secrecy; tests/practices.py#test_reserved_all_versions_anomalous_open_replay_and_all_read_paths; 对应实施记录共通/NF行 | E006; E008; H12; B12 Q1-Q3/Q6; REMOTE / 复用本人适用证据；外部目标保持未完成 | 通过 / 通过 | 无本行本人阻断；完整验收仍看共通/NF行 |
 | SPEC-006/NF-DATA | 90天保留、持久化、原子事务与数据库/上传同点恢复 | tests/papers.py#test_public_old_identity_and_started_papers_never_regain_secrecy; tests/practices.py#test_reserved_all_versions_anomalous_open_replay_and_all_read_paths; 对应实施记录共通/NF行 | E006; E008; H12; B12 Q1-Q3/Q6; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 受控SQLite恢复已证；生产数据库/资源/电路同点恢复、90天保留治理及关闭批准未完成 |
-| SPEC-006/NF-UI | Chrome/Edge准确版本、加载/空/失败/重试、上海时间、图文适用范围 | tests/papers.py#test_public_old_identity_and_started_papers_never_regain_secrecy; tests/practices.py#test_reserved_all_versions_anomalous_open_replay_and_all_read_paths; 对应实施记录共通/NF行 | E006; E008; H12; B12 Q1-Q3/Q6; REMOTE / REMOTE当前状态核验；B12本人接缝；UI12上海时间跨日显示 | 失败 / 阻断 | C12a-UI-02：paper-view/attempt-view仍直接显示UTC时间；非业务阻断，所属006/008 feature的C12b待修 |
+| SPEC-006/NF-UI | Chrome/Edge准确版本、加载/空/失败/重试、上海时间、图文适用范围 | frontend/js/paper-time.test.js; frontend/js/paper-view.test.js; frontend/js/attempt-view.test.js; scripts/verify_c12b_paper_time.py | E006; E008; H12; B12 Q1-Q3/Q6; REMOTE; C12b-UI02 / 26项组件、5项真实handler14.788秒、Chrome/Edge各4组及8张390px截图 | 通过 / 阻断 | #17待真实复核/合入，008只经最新develop消费，不在008重复修复；目标性能/生产恢复/Gitea/课堂等原缺口保留 |
 | SPEC-006/NF-ISOLATION | 评测沙箱不能读主库/密钥/他人上传，无公网依赖 | tests/papers.py#test_public_old_identity_and_started_papers_never_regain_secrecy; tests/practices.py#test_reserved_all_versions_anomalous_open_replay_and_all_read_paths; 对应实施记录共通/NF行 | E006; E008; H12; B12 Q1-Q3/Q6; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 本人教学代码未执行学生代码；018沙箱/无网络/主库和他人文件隔离须石佰合真实环境证据，无不适用批准 |
 
 ## SPEC-008
@@ -79,7 +80,7 @@
 | SPEC-008/NF-PERF | PRD§8指定环境50会话，普通API p95<1秒等适用目标 | tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot; 对应实施记录共通/NF行 | E008; EQB; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 缺目标Linux4核8GB/50会话/真实worker与API p95测量；测试耗时不替代 |
 | SPEC-008/NF-SEC | 本人权限/同课/CSRF/Origin/输入/转义/会话失效/审计 | tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot; 对应实施记录共通/NF行 | E008; EQB; REMOTE / 复用本人适用证据；外部目标保持未完成 | 通过 / 通过 | 无本行本人阻断；完整验收仍看共通/NF行 |
 | SPEC-008/NF-DATA | 90天保留、持久化、原子事务与数据库/上传同点恢复 | tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot; 对应实施记录共通/NF行 | E008; EQB; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 受控SQLite恢复已证；生产数据库/资源/电路同点恢复、90天保留治理及关闭批准未完成 |
-| SPEC-008/NF-UI | Chrome/Edge准确版本、加载/空/失败/重试、上海时间、图文适用范围 | tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot; 对应实施记录共通/NF行 | E008; EQB; REMOTE / REMOTE当前状态核验；B12本人接缝；UI12上海时间跨日显示 | 失败 / 阻断 | C12a-UI-02：paper-view/attempt-view仍直接显示UTC时间；非业务阻断，所属006/008 feature的C12b待修 |
+| SPEC-008/NF-UI | Chrome/Edge准确版本、加载/空/失败/重试、上海时间、图文适用范围 | frontend/js/paper-time.test.js; frontend/js/paper-view.test.js; frontend/js/attempt-view.test.js; scripts/verify_c12b_paper_time.py | E008; EQB; REMOTE; C12b-UI02 / 26项组件、5项真实handler14.788秒、Chrome/Edge各4组及8张390px截图 | 通过 / 阻断 | #17待真实复核/合入，008只经最新develop消费，不在008重复修复；目标性能/生产恢复/Gitea/课堂等原缺口保留 |
 | SPEC-008/NF-ISOLATION | 评测沙箱不能读主库/密钥/他人上传，无公网依赖 | tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot; 对应实施记录共通/NF行 | E008; EQB; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 本人教学代码未执行学生代码；018沙箱/无网络/主库和他人文件隔离须石佰合真实环境证据，无不适用批准 |
 
 ## SPEC-010B
@@ -146,7 +147,7 @@
 | SPEC-012/NF-PERF | PRD§8指定环境50会话，普通API p95<1秒等适用目标 | tests/recommendations.py#test_formula_reason_and_completed_mastery_combinations; 对应实施记录共通/NF行 | E012; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 缺目标Linux4核8GB/50会话/真实worker与API p95测量；测试耗时不替代 |
 | SPEC-012/NF-SEC | 本人权限/同课/CSRF/Origin/输入/转义/会话失效/审计 | tests/recommendations.py#test_formula_reason_and_completed_mastery_combinations; 对应实施记录共通/NF行 | E012; REMOTE / 复用本人适用证据；外部目标保持未完成 | 通过 / 阻断 | 无本行本人阻断；完整验收仍看共通/NF行 |
 | SPEC-012/NF-DATA | 90天保留、持久化、原子事务与数据库/上传同点恢复 | tests/recommendations.py#test_formula_reason_and_completed_mastery_combinations; 对应实施记录共通/NF行 | E012; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 受控SQLite恢复已证；生产数据库/资源/电路同点恢复、90天保留治理及关闭批准未完成 |
-| SPEC-012/NF-UI | Chrome/Edge准确版本、加载/空/失败/重试、上海时间、图文适用范围 | tests/recommendations.py#test_formula_reason_and_completed_mastery_combinations; 对应实施记录共通/NF行 | E012; REMOTE / REMOTE当前状态核验；B12本人接缝；UI12上海时间跨日显示 | 失败 / 阻断 | C12a-UI-03：recommendation-view依据截止仍直接显示UTC；非业务阻断，所属012 feature的C12b待修 |
+| SPEC-012/NF-UI | Chrome/Edge准确版本、加载/空/失败/重试、上海时间、图文适用范围 | frontend/js/recommendation-view.test.js; scripts/verify_c12b_recommendation_time.py | E012; REMOTE; C12b-UI03 / 8项组件、2项真实handler4.659秒、Chrome/Edge各3组及2张390px截图 | 通过 / 阻断 | #15仍open，待真实复核/合入develop；完整跨链仍阻断；目标性能/生产恢复/Gitea/课堂等原缺口保留 |
 | SPEC-012/NF-ISOLATION | 评测沙箱不能读主库/密钥/他人上传，无公网依赖 | tests/recommendations.py#test_formula_reason_and_completed_mastery_combinations; 对应实施记录共通/NF行 | E012; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 本人教学代码未执行学生代码；018沙箱/无网络/主库和他人文件隔离须石佰合真实环境证据，无不适用批准 |
 
 ## SPEC-013

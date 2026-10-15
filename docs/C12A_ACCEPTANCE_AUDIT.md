@@ -1,27 +1,50 @@
 # C12a 七个本人SPEC验收缺口与必要接缝
 
-黄俊诚（24201716），2026-10-15，Asia/Shanghai。核对/自动执行人为本次授权下的Codex；不是非作者评审人或课堂验收人。本轮仅验收审计、已合入教学链补验和010B必要显示修复，不展开C12c整套报告。
+黄俊诚（24201716），2026-10-15，Asia/Shanghai。核对/自动执行人为本次授权下的Codex；不是非作者评审人或课堂验收人。本文保留C12a验收审计/010B修复，并记录C12b所属006/012 feature显示增量，不展开C12c整套报告。
 
 依据：[PRD§11.5完整索引](PRD.md#acceptance-index)、§4/8/9/10.5/11.1—11.5与有效追加R；[README§8及附录A](../README.md)、[CHG-RB](CHG-RB.md)发布/恢复约束。沿用现行APIC/DBD，不修改规格、旧迁移、CI或队友业务。
 
 ## 当前结论与完整集合
+
+2026-10-15 C12b增量优先：C12a-UI-02在006 feature由SPEC-006主修并引用008，已提交[后续PR #17](https://github.com/Gindama713/nchu-web-learning_platform/pull/17)；C12a-UI-03在原012 feature更新[PR #15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15)。三个NF-UI失败行经所属feature组件与真实HTTP/双浏览器复验改为本人适用范围“通过”，集成结果仍阻断，完整SPEC不关闭。代码没有互相复制到未合入分支；本010B分支只更新审计记录，不引入006/012实现。其余128行结果及原证据保持。
 
 完整逐行记录见[验收矩阵](evidence/c12a/acceptance-matrix.md)，可机器读取的[完整字段JSON](evidence/c12a/acceptance-matrix.json)保留每行来源、输入/预期、实现、测试/人工步骤、证据层、补验、实际、结果、执行人/日期、PR/head/tested和附件。
 
 | SPEC | AC | 业务R | 共通R | NF用例组 | 通过 | 失败 | 阻断 |
 |---|---|---|---|---|---|---|---|
 | 005 | 01—04 | 20/32/38 | 22/45/46/47 | 5 | 8 | 0 | 8 |
-| 006 | 01—05 | 01/02/12/16/18/25/27/36/44 | 同上 | 5 | 13 | 1 | 9 |
-| 008 | 01—04 | 01/02/12/16/18/25/27/33/36/37/44 | 同上 | 5 | 13 | 1 | 10 |
+| 006 | 01—05 | 01/02/12/16/18/25/27/36/44 | 同上 | 5 | 14 | 0 | 9 |
+| 008 | 01—04 | 01/02/12/16/18/25/27/33/36/37/44 | 同上 | 5 | 14 | 0 | 10 |
 | 010B | **继承父SPEC-010/AC-01—05** | 12/15/16/27/33/34/38 | 同上 | 5 | 15 | 0 | 6 |
 | 011 | 01—04 | 20/35，含未另编号的算法追加 | 同上 | 5 | 9 | 0 | 6 |
-| 012 | 01—04 | 20/34/35，含未另编号的算法追加 | 同上 | 5 | 9 | 1 | 6 |
+| 012 | 01—04 | 20/34/35，含未另编号的算法追加 | 同上 | 5 | 10 | 0 | 6 |
 | 013 | 01—05（含§4.2追加05） | 14/25 | 同上 | 5 | 10 | 0 | 6 |
-| 合计 | 31 | 37 | 28 | 35 | 77 | 3 | 51 |
+| 合计 | 31 | 37 | 28 | 35 | 80 | 0 | 51 |
 
 131行无遗漏，结果只用待执行/通过/失败/阻断/不适用；本轮没有“不适用”及其批准。NF名称是既有用例组，未新造AC/R。**“通过”限该行明确的本人本地适用行为，不等于完整SPEC关闭**。矩阵另列“集成结果”：011/012独立feature上的业务通过仍全部保留develop跨链阻断。统计数不能解读为课程通过率；真实课程复核、目标性能和生产/课堂缺口单独保留。
 
-## 最新远端与集成边界
+## C12b修复、验证与集成边界（最新）
+
+最新fetch后origin/develop仍`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`。#14/#15/#16/#17均open/非draft，实际reviews/threads/comments=[]；没有真实评审阻断、批准或实际merge，不自造讨论关闭。接入#14 bbd9ecd、#15旧36a9cff、#16旧cd38efb的当前head Actions/jobs/ci-test重新独立读取，必需成功、grader按develop跳过，原实际后端194/190/177及前端76/77/70吻合历史；不是仅复述旧快照。#14未改动。006原#7已合入，只在原SPEC feature快进最新develop后开后续#17。012原#15仍open，继续原feature。
+
+| 范围/主修 | 实际base / 最终实现及证据head | 本轮干净浏览器tested | actual merge / 消费条件 |
+|---|---|---|---|
+| UI-02，006主修/影响008，[#17](https://github.com/Gindama713/nchu-web-learning_platform/pull/17) | f9c49b19c59053be2b171e0b7f2a35d1e050e57e / e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85 | 4eadbcbcaf1df2cb8f1245c9fdfcbcfca4523072 | 无；008/其他feature只经负责人合入后的最新develop消费 |
+| UI-03，012，[#15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15) | f9c49b19c59053be2b171e0b7f2a35d1e050e57e / 9fefd17d99242efdd53847029d7d7cafbcadf59d | 03a03c7611bd2d00e07a33d8f8bd5842bc36f9c9 | 无；没有把012/011复制到006或010B |
+
+006固定[实施记录](https://github.com/Gindama713/nchu-web-learning_platform/blob/e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85/docs/SPEC-006_IMPLEMENTATION.md)、[原始报告](https://github.com/Gindama713/nchu-web-learning_platform/blob/e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85/docs/evidence/spec-006/c12b-time/report.json)及8图/日志：26项受影响组件/HTTP替身，5项真实handler/SQLite14.788秒；干净4eadbcb，Chrome155.0.8059.41（UTC）/Edge155.0.4283.45（America/Los_Angeles）各4组，page_errors=[]。真实005知识、006考试及008专用发布/UI交卷，跨日/上海周界、午夜00、null讲评；开始前/截止新交409、原键截止及讲评后201字节完全一致、讲评前paper/attempt不含答案、定时/显式讲评后开放。DB submitted_at保持2026-10-18T16:00:00.000Z，GET data渲染前后不变。8张390px图自动无溢出，代表图目视；null/非法值在组件层，不伪造真实API异常时间。
+
+012固定[实施记录](https://github.com/Gindama713/nchu-web-learning_platform/blob/9fefd17d99242efdd53847029d7d7cafbcadf59d/docs/SPEC-012_IMPLEMENTATION.md)、[原始报告](https://github.com/Gindama713/nchu-web-learning_platform/blob/9fefd17d99242efdd53847029d7d7cafbcadf59d/docs/evidence/spec-012/c12b-time/report.json)及2图/日志：8项组件/HTTP替身、2项既有真实handler/SQLite4.659秒（28天半开UTC边界、身份级保密入口及推荐故障不阻断提交）；干净03a03c7，两浏览器上述准确版本/不同时区各3组，page_errors=[]。依据截止UTC周日15:59:59/16:00显示上海周日23:59:59/周一00:00，原source_until/整个data不变；真实推荐→练习UI201、原键201字节重放样本仍1，DB created_at仍UTC。两张390px图已目视。
+
+仅显示层修复，数据库、接口、CSV、原始快照、服务器判断与判分/保密/幂等规则不变。相关lint/build、ruff本脚本、六文档/diff通过；没有迁移/无关CI/公共框架重构。006/008共用代码仅006一处主修，本文件及矩阵只引用固定证据。原E006/E008/EQB/E012及C12a快照/CSV证据复用，原测试SHA/边界不变；不重做C10/C11/C09/C07，不重跑008→010B专用联测。账号bootstrap/TEST_NOW与组件替身、真实handler、socket HTTP/UI、人工/课堂证据分层；没有课堂新证据。
+
+失败留痕：006预运行会话先登录后跳时钟而过期、GET动态信封误按字节比较、已登录late会话重复等待表单，均只修脚本后干净重跑；012首次fd64db7干净DOM/HTTP通过但Edge截图空白，调整完整卡片容纳于390×1200视口后03a03c7重跑目视通过；正式lint日志末尾空行由9fefd17修正，未改写已推送历史。正式源码/脚本/日志/截图在所属feature版本化，两份个人文件继续本地排除。
+
+独立核验最终实现/证据head：[固定CI/真实评审快照](evidence/c12a/c12b-code-head-ci.json)。#17 e1c2bcd的[Actions38739998112](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38739998112)：policy/lint/test/build/required全success、grader依develop skipped，真实日志后端177项140.523秒/前端77项，CI tested=273081714a48eb9b85df134230d802ed6d4c4ed4。#15 9fefd17的[Actions38740733563](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38740733563)：同样必需全success/grader skipped，真实190项146.828秒/前端79项，CI tested=f71b4865bfde8daca143cf209b9fce1f24b225e5。base均为f9c49b1；这些tested是CI引用，不是actual merge；各PR最终head reviews/threads/comments仍[]。文档矩阵[集合检查](evidence/c12a/c12b-matrix-check.txt)确认131个原编号完整、仅三个NF-UI行变更、其余128行字典完全不变。本审计最终文档head另推送并独立核验CI/真实评审，结果写PR #16和本地交接，避免把自身提交SHA写入自身形成循环；不沿用旧cd38efb成功冒充新head。
+
+剩余：上述PR未合入，三个NF-UI集成结果保留阻断；资源/备课/实验/评测等原依赖、I-01/02/03完整链、真实完整非作者复核、Linux4核8GB/50会话/worker、生产同点恢复/90天保留、Gitea与课堂均按原记录保留。下一恢复先fetch独立核对#14/#15/#16/#17最终head/CI/实际评审，真实问题回所属feature；若负责人合入，核对actual merge祖先后只消费最新develop，针对受影响行补集成登记。不自行合并、部署、发布或发协作消息；不展开C12c，不开发014/016。
+
+## C12a接入快照与历史集成边界
 
 开始工作区干净，位于012 feature。fetch成功后develop仍为`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`。实时读取PR元数据、实际reviews、review threads、issue comments和当前head Actions/jobs/ci-test原始日志，保存[接入快照](evidence/c12a/start-remote.json)及[日志摘录](evidence/c12a/open-pr-ci-summary.txt)。
 
@@ -88,10 +111,10 @@
 | 编号 | 判定与范围 | 处理 |
 |---|---|---|
 | C12a-UI-01 | 010B快照截止/生成/筛选/周区间直接显示UTC，违背PRD§8上海展示；实际截图复现 | 已在010B feature修复，显式Intl Asia/Shanghai、跨日h23；不改UTC存储/API/CSV或快照。组件8项、前端70项及干净B12通过 |
-| C12a-UI-02 | 006/008共用paper-view窗口及attempt-view提交/截止仍直接显示UTC；静态代码核对，有Z可辨认，不改变服务器受理/保护 | **NF-UI失败，非业务阻断**；登记C12b，按006/008所属feature修复和受影响页面复验，不将其他SPEC显示改动混入本010B续包 |
-| C12a-UI-03 | 012独立feature推荐依据截止仍直接显示UTC | **NF-UI失败，非业务阻断**；留012 feature C12b处理，不因#15算法/UI业务通过抹去此缺口 |
+| C12a-UI-02 | C12a登记006/008共用paper-view窗口及attempt-view提交/截止UTC显示缺口 | **C12b所属006 feature修复并复验通过**，#17待真实评审/合入，008只经develop消费；两个NF-UI集成结果仍阻断，见上方固定证据 |
+| C12a-UI-03 | C12a登记012推荐依据截止UTC显示缺口 | **C12b原012 feature修复并复验通过**，原#15待真实评审/合入；NF-UI集成结果仍阻断 |
 
-本轮未发现本人权限、判分、保密、幂等或持久化业务阻断。3个失败矩阵行对应UI-02的006/008及UI-03的012，不误报成三个独立根因。没有以N/A消除未验范围。
+本轮未发现本人权限、判分、保密、幂等或持久化业务阻断。C12a历史3个失败矩阵行对应UI-02的006/008及UI-03的012；C12b三个本地行均通过，集成仍阻断，不误报成三个独立根因或已合入。没有以N/A消除未验范围。
 
 验证过程失败留痕：首次脚本题型下拉定位超时；第二轮练习控件定位按实际radio修正；第三轮错误预期“下架删除历史样本”按现行APIC纠正，未改业务；第四轮DELETE204被旧helper当JSON解析，改本脚本helper；其后一次Edge本机socket ENOBUFS（并行handler期间）保留失败，不算通过。caf7d73干净重跑通过后发现UI-01，修复为79a133c；诊断改为脱敏异常后ruff报告宽泛捕获，2fa4a2b收窄异常并加入时区断言，重新ruff和干净双浏览器通过。正式JSON仅记录最终轮，早期调试不替代正式证据；诊断不输出密码、Cookie或CSRF。
 
@@ -108,7 +131,7 @@
 
 I-01/02/03完整链结果均为**阻断**，不是不适用。I-04、生产部署/恢复/Gitea归档/课堂演示本轮未执行，用户未授权AI合并、部署、发布或发送协作消息。
 
-## 正式复验与下一恢复
+## C12a正式复验与历史恢复点（C12b恢复见上方）
 
 代码分段提交caf7d730b0d904716f083a014978da4795a0b494（新增接缝脚本）、79a133c（010B时区展示）、2fa4a2b04533bb8023d0e4a7f35de909c38a1e75（脱敏诊断lint及显示断言）、db83da52b8feeb903c61977f593aad764d34c16c（正式证据/矩阵）均推送原010B feature。新[PR #16](https://github.com/Gindama713/nchu-web-learning_platform/pull/16)已创建，open/非draft→develop；#10/#12保留实际已合入状态，不重开旧PR。
 
