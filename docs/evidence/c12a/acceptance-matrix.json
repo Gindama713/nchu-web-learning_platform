@@ -874,9 +874,9 @@
     "非作者不适用批准": "未产生；本清单无不适用项",
     "base_SHA": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
     "actual_merge_SHA": null,
-    "集成核验": "2026-10-16 00:31 Asia/Shanghai；fetch后origin/develop=f9c49b19c59053be2b171e0b7f2a35d1e050e57e；#14/#15/#16/#17均open/非draft、merged=false/merged_at=null，当前head的policy/lint/test/build/required成功、grader跳过；reviews/threads/comments均空，无真实批准或实际merge。",
+    "集成核验": "2026-10-16 00:41 Asia/Shanghai；本轮重新fetch及读取四PR元数据、精确head的run/6 jobs/ci-test原始日志、真实reviews/threads/comments；develop仍f9c49b19c59053be2b171e0b7f2a35d1e050e57e。#14/#15/#16/#17均open/非draft、merged=false/merged_at=null，必需CI成功、grader按develop跳过，真实评审/讨论均空。#16接入head76a0deebaf117e8f783f4e19f96edc45f37c973a/run38769957787；actual merge为空，四head均非develop祖先。",
     "集成后补验": "未执行：修复尚未合入develop；复用原固定SHA的本地组件/handler/HTTP/UI证据，不重复整套测试。负责人真实复核并合入后，先核对actual merge属于origin/develop祖先，再同步develop补受影响集成验证；课堂未验收。",
-    "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck"
+    "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck_followups[0]"
   },
   {
     "spec": "SPEC-006",
@@ -1431,9 +1431,9 @@
     "非作者不适用批准": "未产生；本清单无不适用项",
     "base_SHA": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
     "actual_merge_SHA": null,
-    "集成核验": "2026-10-16 00:31 Asia/Shanghai；fetch后origin/develop=f9c49b19c59053be2b171e0b7f2a35d1e050e57e；#14/#15/#16/#17均open/非draft、merged=false/merged_at=null，当前head的policy/lint/test/build/required成功、grader跳过；reviews/threads/comments均空，无真实批准或实际merge。",
+    "集成核验": "2026-10-16 00:41 Asia/Shanghai；本轮重新fetch及读取四PR元数据、精确head的run/6 jobs/ci-test原始日志、真实reviews/threads/comments；develop仍f9c49b19c59053be2b171e0b7f2a35d1e050e57e。#14/#15/#16/#17均open/非draft、merged=false/merged_at=null，必需CI成功、grader按develop跳过，真实评审/讨论均空。#16接入head76a0deebaf117e8f783f4e19f96edc45f37c973a/run38769957787；actual merge为空，四head均非develop祖先。",
     "集成后补验": "未执行：修复尚未合入develop；复用原固定SHA的本地组件/handler/HTTP/UI证据，不重复整套测试。负责人真实复核并合入后，先核对actual merge属于origin/develop祖先，再同步develop补受影响集成验证；课堂未验收。",
-    "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck"
+    "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck_followups[0]"
   },
   {
     "spec": "SPEC-008",
@@ -2632,9 +2632,9 @@
     "非作者不适用批准": "未产生；本清单无不适用项",
     "base_SHA": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
     "actual_merge_SHA": null,
-    "集成核验": "2026-10-16 00:31 Asia/Shanghai；fetch后origin/develop=f9c49b19c59053be2b171e0b7f2a35d1e050e57e；#14/#15/#16/#17均open/非draft、merged=false/merged_at=null，当前head的policy/lint/test/build/required成功、grader跳过；reviews/threads/comments均空，无真实批准或实际merge。",
+    "集成核验": "2026-10-16 00:41 Asia/Shanghai；本轮重新fetch及读取四PR元数据、精确head的run/6 jobs/ci-test原始日志、真实reviews/threads/comments；develop仍f9c49b19c59053be2b171e0b7f2a35d1e050e57e。#14/#15/#16/#17均open/非draft、merged=false/merged_at=null，必需CI成功、grader按develop跳过，真实评审/讨论均空。#16接入head76a0deebaf117e8f783f4e19f96edc45f37c973a/run38769957787；actual merge为空，四head均非develop祖先。",
     "集成后补验": "未执行：修复尚未合入develop；复用原固定SHA的本地组件/handler/HTTP/UI证据，不重复整套测试。负责人真实复核并合入后，先核对actual merge属于origin/develop祖先，再同步develop补受影响集成验证；课堂未验收。",
-    "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck"
+    "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck_followups[0]"
   },
   {
     "spec": "SPEC-012",

@@ -4,3 +4,11 @@ Other 128 row dictionaries unchanged, including all historical evidence and requ
 2026-10-16 C12b integration recheck against dcf38ec: only the same three rows gained remote-gate registration/date fields.
 All 131 result/integration-result values and all fixed local tested/head/evidence fields unchanged.
 No merged implementation to consume, no new local business/browser test, no classroom acceptance or real approval.
+
+2026-10-16 C12b follow-up, baseline 76a0deebaf117e8f783f4e19f96edc45f37c973a.
+131 unique IDs, order and exact original set retained; 80 local pass / 0 fail / 51 blocked.
+Only SPEC-006/NF-UI, SPEC-008/NF-UI, SPEC-012/NF-UI integration registration and evidence pointer changed.
+Other 128 row dictionaries identical; all 131 result/integration-result/head/tested/attachment fields unchanged.
+Markdown 131-row IDs/results match JSON. Existing start/c12b_final/integration_recheck snapshots preserved.
+Fresh four-PR snapshots have exact matching run head SHA, six expected jobs, raw test summary excerpts and empty real discussions.
+No actual merge; no new local business/handler/browser test or classroom acceptance. Fixed local evidence reused.

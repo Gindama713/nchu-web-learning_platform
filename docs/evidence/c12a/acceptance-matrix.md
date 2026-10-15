@@ -3,7 +3,7 @@
 2026-10-15，执行人：黄俊诚授权下的Codex自动核对。131行：31条AC、37条业务R、28条共通R、35条NF用例组。NF标签不是新增需求编号。
 “通过”限于该行明确的本人本地适用范围；“集成结果”及依赖列保留未合入/跨模块阻断，不能据此关闭完整SPEC。无不适用项或虚构非作者批准。
 C12b增量：131行=80通过/0失败/51阻断。仅006/008/012的NF-UI本人范围修复通过，三个集成结果仍阻断；完整SPEC/真实评审/目标环境/课堂未关闭。固定head/tested/附件见JSON及正式记录。
-C12b集成续核（2026-10-16 00:31 Asia/Shanghai）：四PR尚未合入，当前head必需CI成功但真实评审为空；006/008/012三行仅更新集成登记，继续通过 / 阻断。未新增本地业务测试或课堂证据；见JSON集成核验字段及 c12b-code-head-ci.json 的 integration_recheck。
+C12b集成续核（2026-10-16 00:41 Asia/Shanghai）：本轮重新fetch/读取四PR精确head的CI与真实评审，均未合入且无新问题；#16接入76a0dee/run38769957787必需CI成功。006/008/012三行仅更新集成核验字段，继续通过 / 阻断；其余128行不变。复用固定本地证据，未新增本地业务/handler/浏览器或课堂验证；最新快照见 c12b-code-head-ci.json 的 integration_recheck_followups[0]，原 integration_recheck 保留。
 全部输入、预期、实际、执行人/日期、head/tested、附件字段见同目录 acceptance-matrix.json；证据代号、算法夹具/handler/HTTP/UI/课堂分层及手工恢复步骤见 ../../C12A_ACCEPTANCE_AUDIT.md。
 
 ## SPEC-005
