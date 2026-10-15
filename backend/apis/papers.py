@@ -3,9 +3,15 @@
 from flask import Blueprint, request
 
 from backend.apis.questions import query_integer, write_body
-from backend.models import paper
+from backend.models import (
+    generated_paper,
+    generation_input,
+    generation_snapshot,
+    generation_solver,
+    paper,
+)
 from backend.models.question import MAX_ID, identifier, invalid
-from backend.shared.api import ApiError, paged, result, stamp
+from backend.shared.api import ApiError, paged, result, stamp, text_field
 from backend.shared.auth import course_access, require_user
 from backend.shared.db import get_db, write
 
@@ -16,6 +22,34 @@ bp = Blueprint('papers', __name__)
 def no_cache(response):
     response.headers['Cache-Control'] = 'no-store'
     return response
+
+
+@bp.post('/courses/<int:course_id>/generated-papers')
+def generate_paper(course_id):
+    identifier(course_id)
+    course_access(course_id, teacher=True)
+    body = write_body()
+    if 'title' not in body:
+        invalid('须提供新试卷标题')
+    title = text_field(body['title'], 'title', 1, 100)
+    db = get_db()
+    generated_paper.ready(db)
+    replay_of = body.get('replay_of')
+    if 'replay_of' in body:
+        if set(body) != {'title', 'replay_of'}:
+            invalid('重放仅接受replay_of及新title，不能覆盖原参数')
+        identifier(replay_of)
+        snapshot, solution = generation_snapshot.replay(db, replay_of, course_id)
+    else:
+        snapshot = generation_input.freeze(db, course_id, {k: v for k, v in body.items() if k != 'title'},
+                                           source_until=stamp())
+        solution = generation_solver.solve(snapshot)
+    # Solving above owns no write transaction. Recheck session and membership
+    # after acquiring the lock, then save evidence, draft/items and audit atomically.
+    with write() as db:
+        course_access(course_id, teacher=True)
+        item = generated_paper.save(db, title, snapshot, solution, replay_of=replay_of)
+    return result(item, 201)
 
 
 @bp.post('/courses/<int:course_id>/papers')
