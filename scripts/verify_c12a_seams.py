@@ -236,7 +236,7 @@ def main():
         report['failure_type'] = type(error).__name__
         report['failure_location'] = [f'{frame.name}:{frame.lineno}' for frame in traceback.extract_tb(error.__traceback__)
                                       if frame.filename == __file__]
-        raise
+        raise RuntimeError('C12a verification failed; see redacted failure type/location in report.json') from None
     finally:
         report['finished_at'] = datetime.now(UTC).isoformat()
         (args.output / 'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
