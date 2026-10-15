@@ -1,13 +1,13 @@
 {
-  "started_at": "2026-10-15T03:44:36.563515+00:00",
-  "os": "Windows-11-10.0.26200-SP0",
-  "tested_head": "fd89dab00baedaf0d743c8cfe51f03a86f1e4444",
+  "started_at": "2026-10-15T03:56:26.185380+00:00",
+  "os": "Windows-11-10.0.26100-SP0",
+  "tested_head": "641d6aeb2cb116478de0b0c5599de7606272b9b3",
   "dirty_paths": [],
   "scope": "local real HTTP/UI with synthetic data; initial admin/teacher SQL bootstrap only; not classroom/performance",
   "browsers": [
     {
       "channel": "chrome",
-      "version": "155.0.8059.41",
+      "version": "150.0.7871.47",
       "status": "passed",
       "checks": [
         "real UI first generation: draft, exact 334/334/333, signed64 seed, fixed versions/coverage",
@@ -35,5 +35,5 @@
     }
   ],
   "status": "passed",
-  "finished_at": "2026-10-15T03:45:00.019818+00:00"
+  "finished_at": "2026-10-15T03:56:45.420655+00:00"
 }
