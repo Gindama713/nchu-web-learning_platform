@@ -1,5 +1,17 @@
 # SPEC-012 个性化推荐实施记录
 
+## 2026-10-15 C12b时间显示增量（最新）
+
+C12a-UI-03“依据截止”已改为明确Asia/Shanghai/h23，UTC周日15:59:59显示周日23:59:59、16:00显示周一00:00。空值为“—”，非法/无时区日期为“时间异常”，不按客户端时区猜测。改动仅RecommendationView内显示与回归；source_until、28天半开UTC窗口、排序/理由/入口资格、原始事实/快照不变，无迁移或公共框架重构。没有复制未合入010B/011或006 C12b显示修复，006/008共用缺口只由006 PR #17主修，012后续仅经已合入develop消费。
+
+继续原feature/spec-012-recommendation及open/非draft [PR #15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15)。base仍`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`；本轮接入重新fetch且独立读取#14/#15/#16的CI/reviews/threads/comments，必需成功、grader按develop跳过，实际评审/讨论均为空，无actual merge。代码fd64db75593adf18b938c5ed6b16fd61ffa7cd65、截图修正03a03c7611bd2d00e07a33d8f8bd5842bc36f9c9已分段推送；最终证据head的CI与真实评审独立核验后记录于PR及C12a正式记录，不沿用旧head。
+
+仅做受影响验证：[8项组件/HTTP替身](evidence/spec-012/c12b-time/components.txt)，新增2项覆盖跨日/周界/明确时区、空/异常/无时区与原UTC对象不变；[2项既有真实handler/SQLite](evidence/spec-012/c12b-time/handler-tests.txt)通过4.659秒，覆盖真实28天半开边界及身份级保密入口/推荐故障不阻断原提交。lint/build、ruff本脚本、六文档/diff通过。原C11算法/权限/故障/全部reason/课堂缺口仍按原固定证据复用，不重跑C11完整专题或C10/C09/C07/008→010B专用链。
+
+[正式真实HTTP/浏览器报告](evidence/spec-012/c12b-time/report.json)固定干净tested=`03a03c7611bd2d00e07a33d8f8bd5842bc36f9c9`，dirty_paths=[]，Chrome155.0.8059.41（UTC）/Edge155.0.4283.45（America/Los_Angeles）各3组，page_errors=[]。真实005知识/基础标记、006公开题及推荐练习入口；API source_until保持`2026-10-18T15:59:59.000Z`/`2026-10-18T16:00:00.000Z`，渲染前后GET data完全一致；真实UI练习201、原键201字节重放样本仍1、DB created_at仍UTC。账号bootstrap与TEST_NOW为受控夹具，非课堂账号/生产测量；空/异常时间只在组件替身验证，不伪造真实API非法值。
+
+同目录两张390px截图均目视确认截止/时区可读且页面无横向溢出。首次fd64db7干净浏览器DOM/HTTP通过，但Edge局部截图空白，改为截图前让完整卡片容纳于390×1200视口，03a03c7重新干净验证并取证；不将空图称为目视通过。复现：`.venv/Scripts/python.exe -m scripts.verify_c12b_recommendation_time --output logs/c12b/recommendation-recheck`。课堂/真实非作者复核、develop集成、Linux4核8GB/50会话、生产同点恢复/90天保留、Gitea及队友I-02依赖仍阻断，完整012未关闭。未自行合并、部署、发布或发送消息。
+
 负责人：黄俊诚（24201716），范围为C11。依据[PRD§4.3](PRD.md#qa-recommendation-acceptance)、[012有效验收](PRD.md#accept-spec-012)、[APIC§5.1/5.2](APIC.md)及[DBD§3/4](DBD.md)。
 
 ## 接入基线与边界
