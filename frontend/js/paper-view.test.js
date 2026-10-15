@@ -32,7 +32,7 @@ const submit = (root, css) => all(root).find(item => item.type === 'form' && ite
 
 async function mount(t, role = 'teacher', quizOnly = false) {
   const fixture = { userId: 7, writes: [], rows: [], detail: null, unavailable: false, waitQuestions: null,
-    waitStatistics: null, statistics: null }
+    waitStatistics: null, statistics: null, generationError: null, waitGeneration: null }
   const user = reactive({ id: 7, role })
   const previous = globalThis.fetch
   globalThis.fetch = async (path, options) => {
@@ -41,7 +41,18 @@ async function mount(t, role = 'teacher', quizOnly = false) {
     if (path.endsWith('/auth/session')) return result({ user: { id: fixture.userId, role: user.role }, csrf_token: 'token' })
     if (options.method) {
       const values = JSON.parse(options.body)
-      fixture.writes.push({ path, values })
+      fixture.writes.push({ path, values, raw: options.body })
+      if (path.endsWith('/generated-papers')) {
+        if (fixture.waitGeneration) await fixture.waitGeneration
+        if (fixture.generationError) return { ok: false, status: fixture.generationError.status,
+          json: async () => ({ error: fixture.generationError }) }
+        fixture.detail = { id: 3, title: values.title, kind: values.kind ?? 'homework', status: 'draft',
+          generation_snapshot_id: 12, algorithm_version: 'paper-backtrack-v1', total_points: 10.01,
+          participant_count: 0, items: [] }
+        fixture.rows = [fixture.detail]
+        return result({ paper_id: 3, generation_snapshot_id: 12, coverage: [1], seed_text: '9223372036854775807',
+          algorithm_version: 'paper-backtrack-v1', selected_version_ids: [8, 9, 10], points_hundredths: [334, 334, 333] })
+      }
       if (path.endsWith('/review')) {
         fixture.detail = { ...fixture.detail, review_at: '2026-10-13T14:00:00Z' }
         return result({ review_published_at: fixture.detail.review_at })
@@ -55,6 +66,7 @@ async function mount(t, role = 'teacher', quizOnly = false) {
       return result(item)
     }
     if (path.startsWith('/api/v1/courses?')) return result([{ id: 1, title: 'Fixture CPU' }], 1)
+    if (path.includes('/knowledge-points?')) return result([{ id: 1, title: '程序计数器' }], 1)
     if (path.includes('/questions?')) {
       if (fixture.waitQuestions) await fixture.waitQuestions
       return result([{ id: 1, version_id: 8, version: 2, stem: 'PC' }, { id: 2, version_id: 9, version: 1, stem: 'ALU' }], 2)
@@ -127,6 +139,58 @@ test('teacher selects fixed versions, changes order and publishes with confirmat
   assert.equal(fixture.writes[1].values.confidentiality_note, '确认未公开且非简单复制')
   assert.equal(find(root, 'button', '发布试卷并冻结名单'), undefined)
   assert.match(content(root), /发布冻结人数：2/)
+})
+
+test('teacher generation shows exact result and opens existing publication screen; replay hides constraints', async t => {
+  const { root, fixture } = await mount(t)
+  find(root, 'button', '智能组卷').props.onClick(); await flush()
+  field(root, '新试卷标题', 'input').props.onInput({ target: { value: '生成CPU卷' } })
+  field(root, '随机种子（可留空）', 'input').props.onInput({ target: { value: '9223372036854775807' } })
+  submit(root, 'generation-form'); await flush()
+  assert.match(content(root), /草稿已保存/)
+  assert.match(content(root), /3.34 分.*3.34 分.*3.33 分/)
+  assert.match(content(root), /9223372036854775807/)
+  assert.equal(fixture.writes.length, 1)
+  assert.match(fixture.writes[0].raw, /"seed":9223372036854775807/)
+  find(root, 'button', '查看草稿与发布设置').props.onClick(); await flush()
+  assert.ok(find(root, 'button', '发布试卷并冻结名单'))
+  find(root, 'button', '从此快照重放').props.onClick(); await flush()
+  assert.equal(find(root, 'span', '随机种子（可留空）'), undefined)
+  assert.equal(field(root, '原快照编号', 'input').props.value, '12')
+  field(root, '新试卷标题', 'input').props.onInput({ target: { value: '重放卷' } })
+  submit(root, 'generation-form'); await flush()
+  assert.deepEqual(fixture.writes[1].values, { title: '重放卷', replay_of: 12 })
+  assert.equal(fixture.writes.length, 2)
+})
+
+test('generation errors keep parameters and clear stale result; session change removes form', async t => {
+  const { root, fixture } = await mount(t)
+  find(root, 'button', '智能组卷').props.onClick(); await flush()
+  field(root, '新试卷标题', 'input').props.onInput({ target: { value: '保留标题' } })
+  submit(root, 'generation-form'); await flush()
+  fixture.generationError = { status: 503, code: 'SEARCH_LIMIT', message: '搜索预算耗尽' }
+  submit(root, 'generation-form'); await flush()
+  assert.match(content(root), /本次未生成草稿/)
+  assert.match(content(root), /缩小题量/)
+  assert.doesNotMatch(content(root), /固定版本 #8/)
+  assert.equal(field(root, '新试卷标题', 'input').props.value, '保留标题')
+  fixture.userId = 8
+  submit(root, 'generation-form'); await flush()
+  assert.match(content(root), /登录状态已变化/)
+  assert.equal(find(root, 'button', '生成并保存草稿').props.disabled, true)
+})
+
+test('late generation response is discarded after identity change and students have no entry', async t => {
+  const { root, fixture, user } = await mount(t)
+  find(root, 'button', '智能组卷').props.onClick(); await flush()
+  field(root, '新试卷标题', 'input').props.onInput({ target: { value: '旧身份' } })
+  let release
+  fixture.waitGeneration = new Promise(resolve => { release = resolve })
+  submit(root, 'generation-form'); await flush()
+  user.id = 8; user.role = 'student'; fixture.userId = 8; await flush()
+  release(); await flush()
+  assert.equal(find(root, 'button', '智能组卷'), undefined)
+  assert.doesNotMatch(content(root), /草稿已保存|固定版本 #8/)
 })
 
 test('student can open prestart metadata without teacher controls or premature answers', async t => {
