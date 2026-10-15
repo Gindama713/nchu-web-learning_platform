@@ -24,6 +24,7 @@ from backend.apis import (
     quizzes,
     recognition,
     warnings,
+    wiring,
 )
 from backend.apis.knowledge import blueprint as knowledge_blueprint
 from backend.shared.api import ApiError, request_id, result, stamp
@@ -51,7 +52,7 @@ def create_app(config=None):
     app.teardown_appcontext(close_db)
     for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
                       recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp,
-                      preparations.bp, demo.bp, quizzes.bp):
+                      preparations.bp, demo.bp, wiring.bp, quizzes.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
     app.register_blueprint(knowledge_blueprint)
 
