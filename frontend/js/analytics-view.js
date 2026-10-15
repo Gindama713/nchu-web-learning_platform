@@ -86,9 +86,9 @@ export const AnalyticsView = {
     onMounted(() => { if (props.user.role !== 'admin') run(boot) })
     onUnmounted(forget)
     const button = (label, action, disabled = false) => h('button', { type: 'button', onClick: action, disabled: busy.value || disabled }, label)
-    const input = (label, value, update, type = 'text') => h('label', [label, h('input', { 'aria-label': label, type, value,
+    const input = (label, value, update, type = 'text') => h('label', [label, h('input', { 'aria-label': label, type, value, disabled: !courses.value.length,
       onInput: event => { forget(); update(event.target.value) } })])
-    const select = (label, value, update, options) => h('label', [label, h('select', { 'aria-label': label, value,
+    const select = (label, value, update, options) => h('label', [label, h('select', { 'aria-label': label, value, disabled: !courses.value.length,
       onChange: event => { forget(); update(event.target.value) } }, options.map(([id, text]) => h('option', { value: id }, text)))])
     const table = (caption, headings, rows) => h('div', { class: 'analytics-scroll', tabindex: 0, role: 'region', 'aria-label': caption }, [h('table', [h('caption', caption),
       h('thead', [h('tr', headings.map(label => h('th', { scope: 'col' }, label)))]),
