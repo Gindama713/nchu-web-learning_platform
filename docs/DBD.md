@@ -116,7 +116,7 @@ C08新增迁移`backend/migrations/013_generation_snapshot.sql`，公共runner�
 | warning | analysis_run_id FK；student_id FK；reasons_json TEXT；status TEXT；handled_by FK可空；note TEXT | UQ(analysis_run_id,student_id)；status=open/handled |
 | knowledge_edge | source_id FK knowledge_point；target_id FK；type TEXT | UQ(source_id,target_id,type)；source≠target；先修无环由事务内图检查保证 |
 | qa_index | course_id FK UQ；corpus_revision TEXT；algorithm_version TEXT；built_at TEXT；status TEXT；error_code TEXT可空 | 向量索引可重建，索引缓存不作为唯一数据源 |
-| qa_query | user_id FK；course_id FK；question TEXT；matched_ids_json TEXT；similarities_json TEXT；index_revision TEXT | 学生只能看本人记录；最小化保留敏感原文 |
+| qa_query | user_id FK；course_id FK；question TEXT；matched_ids_json TEXT；similarities_json TEXT；index_revision TEXT；algorithm_version TEXT | 学生只能看本人记录；最小化保留敏感原文；相似度保存未舍入值，顺序对应matched_ids |
 | recognition | course_id FK；user_id FK；image_file_id FK；status TEXT；items_json TEXT；confirmed_items_json TEXT可空；algorithm_version TEXT；template_set_sha256 TEXT NN | status=recognized/unrecognized/confirmed；确认不意味着电路正确 |
 
 推荐可在线计算，组卷结果直接固化paper_item及seed，不为了“智能”再造缓存数据库。资源访问、作答、连线与评测的日期索引支撑按周统计。
