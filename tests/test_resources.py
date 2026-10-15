@@ -1,5 +1,6 @@
 """SPEC-003 resource tests. Each case maps to an acceptance criterion (T003-ACxx)."""
 
+import json
 from datetime import UTC, datetime
 from io import BytesIO
 from pathlib import Path
@@ -190,3 +191,194 @@ class ResourcesTest(TestCase):
         count = db.execute("SELECT COUNT(*) FROM resource_event WHERE event_id=?", (eid,)).fetchone()[0]
         db.close()
         self.assertEqual(count, 1)
+
+    # ===== R39 补充：HEAD 与 304 不计数 =====
+    def test_r39_head_and_304_not_counted(self):
+        """覆盖 R39：HEAD 请求与 304 协商缓存不记录访问事件。"""
+        r = self._upload(self.teacher, self.course_id, make_pdf("h.pdf"), "HEAD课件", "slides")
+        vid = r.json["data"]["id"]
+        # HEAD 请求返回内容元数据但不计数
+        head = self.student.open(f"/api/v1/resource-versions/{vid}/content?intent=view&event_id=evt-head",
+                                 method="HEAD", headers={"Origin": ORIGIN})
+        self.assertEqual(head.status_code, 200)
+        # 带 If-None-Match 的重复 GET 协商 304，不计数
+        first = self._content(self.student, vid, "view", "evt-304-a")
+        self.assertIn(first.status_code, (200, 206))
+        etag = first.headers.get("ETag")
+        self.assertTrue(etag)
+        again = self.student.open(f"/api/v1/resource-versions/{vid}/content?intent=view&event_id=evt-304-b",
+                                  headers={"Origin": ORIGIN, "If-None-Match": etag})
+        self.assertEqual(again.status_code, 304, again.data[:200])
+        db = connect(self.path)
+        rows = [row[0] for row in db.execute("SELECT event_id FROM resource_event ORDER BY id")]
+        db.close()
+        self.assertEqual(rows, ["evt-304-a"])
+
+
+def bank_file(questions, name="bank.json"):
+    bio = BytesIO(json.dumps(questions, ensure_ascii=False).encode("utf-8"))
+    bio.name = name
+    return bio
+
+
+def bank_question(**updates):
+    value = {"type": "single", "stem": "PC 的作用是取下一条指令吗？", "difficulty": "easy",
+             "knowledge_ids": [], "options": [{"key": "A", "text": "是"}, {"key": "B", "text": "否"}],
+             "answer": "A"}
+    value.update(updates)
+    return value
+
+
+class ResourceImportTest(ResourcesTest):
+    """SPEC-003 R01：题库导入原子成功/失败，含幂等与权限。"""
+
+    def setUp(self):
+        super().setUp()
+        chapter = self._call(self.teacher, "POST", f"/api/v1/courses/{self.course_id}/chapters",
+                             {"title": "第1章"}).json["data"]["id"]
+        self.knowledge_id = self._call(self.teacher, "POST",
+                                       f"/api/v1/chapters/{chapter}/knowledge-points",
+                                       {"title": "知识点", "content": "正文", "published": True}
+                                       ).json["data"]["id"]
+
+    def _bank(self, questions):
+        return bank_file([dict(item, knowledge_ids=[self.knowledge_id]) for item in questions])
+
+    def _import(self, client, resource_id, version_id, key="11111111-1111-4111-8111-111111111111"):
+        return client.open(f"/api/v1/resources/{resource_id}/question-imports", method="POST",
+                           json={"resource_version_id": version_id},
+                           headers={"Origin": ORIGIN, "X-CSRF-Token": client.csrf,
+                                    "Idempotency-Key": key})
+
+    def test_r01_import_atomic_success(self):
+        """覆盖 R01：合法题库整批导入，生成题目与导入批次记录。"""
+        r = self._upload(self.teacher, self.course_id,
+                         self._bank([bank_question(), bank_question(stem="第二题题干？")]),
+                         "期中题库", "question_bank")
+        self.assertEqual(r.status_code, 201, r.json)
+        rid, vid = r.json["data"]["resource_id"], r.json["data"]["id"]
+        resp = self._import(self.teacher, rid, vid)
+        self.assertEqual(resp.status_code, 201, resp.json)
+        data = resp.json["data"]
+        self.assertEqual(data["count"], 2)
+        self.assertEqual(len(data["question_version_ids"]), 2)
+        db = connect(self.path)
+        questions = db.execute("SELECT COUNT(*) FROM question WHERE course_id=?",
+                               (self.course_id,)).fetchone()[0]
+        imports = db.execute("SELECT count,actor_id FROM question_import "
+                             "WHERE resource_version_id=?", (vid,)).fetchone()
+        db.close()
+        self.assertEqual(questions, 2)
+        self.assertEqual(imports["count"], 2)
+
+    def test_r01_invalid_item_rejects_whole_batch(self):
+        """覆盖 R01：任何一题无效即 400 并返回下标，禁止部分导入。"""
+        r = self._upload(self.teacher, self.course_id,
+                         self._bank([bank_question(), bank_question(answer="Z")]),
+                         "坏题库", "question_bank")
+        rid, vid = r.json["data"]["resource_id"], r.json["data"]["id"]
+        resp = self._import(self.teacher, rid, vid)
+        self.assertEqual(resp.status_code, 400, resp.json)
+        self.assertIn("题目[1]", resp.json["error"]["message"])
+        db = connect(self.path)
+        questions = db.execute("SELECT COUNT(*) FROM question WHERE course_id=?",
+                               (self.course_id,)).fetchone()[0]
+        imports = db.execute("SELECT COUNT(*) FROM question_import").fetchone()[0]
+        db.close()
+        self.assertEqual(questions, 0)
+        self.assertEqual(imports, 0)
+
+    def test_r01_idempotent_replay_same_key(self):
+        """覆盖 R18：同 Idempotency-Key 重放原响应，不重复创建题目。"""
+        r = self._upload(self.teacher, self.course_id, self._bank([bank_question()]),
+                         "幂等题库", "question_bank")
+        rid, vid = r.json["data"]["resource_id"], r.json["data"]["id"]
+        first = self._import(self.teacher, rid, vid, key="22222222-2222-4222-8222-222222222222")
+        self.assertEqual(first.status_code, 201, first.json)
+        replay = self._import(self.teacher, rid, vid, key="22222222-2222-4222-8222-222222222222")
+        self.assertEqual(replay.status_code, 201, replay.json)
+        self.assertEqual(replay.json["data"]["import_id"], first.json["data"]["import_id"])
+        db = connect(self.path)
+        questions = db.execute("SELECT COUNT(*) FROM question WHERE course_id=?",
+                               (self.course_id,)).fetchone()[0]
+        db.close()
+        self.assertEqual(questions, 1)
+
+    def test_r01_only_question_bank_and_teacher(self):
+        """覆盖 R01：非题库资源 422；学生导入 403。"""
+        slides = self._upload(self.teacher, self.course_id, make_pdf("s.pdf"), "课件", "slides")
+        sid, svid = slides.json["data"]["resource_id"], slides.json["data"]["id"]
+        resp = self._import(self.teacher, sid, svid)
+        self.assertEqual(resp.status_code, 422, resp.json)
+        bank = self._upload(self.teacher, self.course_id, self._bank([bank_question()]),
+                            "学生题库", "question_bank")
+        rid, vid = bank.json["data"]["resource_id"], bank.json["data"]["id"]
+        denied = self._import(self.student, rid, vid)
+        self.assertEqual(denied.status_code, 403, denied.json)
+
+
+class ResourcesAnalyticsTest(ResourcesTest):
+    """SPEC-003 R15：真实访问事件可汇总为 resources 维度统计与 CSV。"""
+
+    def test_r15_resources_dimension_summary_snapshot_csv(self):
+        """覆盖 R15/AC04：view/download/unique_users 汇总、快照读取与同口径 CSV。"""
+        r = self._upload(self.teacher, self.course_id, make_pdf("a.pdf"), "统计课件", "slides")
+        vid = r.json["data"]["id"]
+        rid = r.json["data"]["resource_id"]
+        # 学生两次预览（不同 event_id 各计一次）+ 一次下载
+        self._content(self.student, vid, "view", "s-v1")
+        self._content(self.student, vid, "view", "s-v2")
+        self._content(self.student, vid, "download", "s-d1")
+        resp = self._call(self.teacher, "GET",
+                          f"/api/v1/courses/{self.course_id}/analytics?dimension=resources")
+        self.assertEqual(resp.status_code, 200, resp.json)
+        data = resp.json["data"]
+        self.assertEqual(data["dimension"], "resources")
+        metrics = data["metrics"]
+        self.assertEqual(metrics["view_count"], 2)
+        self.assertEqual(metrics["download_count"], 1)
+        self.assertEqual(metrics["unique_users"], 1)
+        self.assertEqual(len(metrics["items"]), 1)
+        item = metrics["items"][0]
+        self.assertEqual(item["resource_id"], rid)
+        self.assertEqual(item["version_id"], vid)
+        self.assertEqual(item["view_count"], 2)
+        self.assertEqual(item["download_count"], 1)
+        self.assertEqual(data["sample_size"], 3)
+        self.assertEqual(data["population_basis"], "resource_access_events")
+        run_id = data["analysis_run_id"]
+        # 快照读取
+        snapshot = self._call(self.teacher, "GET",
+                              f"/api/v1/courses/{self.course_id}/analytics?analysis_run_id={run_id}")
+        self.assertEqual(snapshot.status_code, 200, snapshot.json)
+        self.assertEqual(snapshot.json["data"]["dimension"], "resources")
+        self.assertEqual(snapshot.json["data"]["metrics"]["view_count"], 2)
+        # 同口径 CSV 导出
+        csv = self._call(self.teacher, "GET",
+                         f"/api/v1/courses/{self.course_id}/analytics/export"
+                         f"?analysis_run_id={run_id}&format=csv")
+        self.assertEqual(csv.status_code, 200, csv.data[:200])
+        text = csv.get_data(as_text=True)
+        self.assertIn("resource_id", text)
+        self.assertIn("view_count", text)
+        self.assertIn(str(rid), text)
+
+    def test_r15_student_scope_only_self_events(self):
+        """覆盖 R15：学生统计只汇总本人事件，且无法看到他人数据。"""
+        r = self._upload(self.teacher, self.course_id, make_pdf("b.pdf"), "范围课件", "slides")
+        vid = r.json["data"]["id"]
+        self._content(self.teacher, vid, "view", "t-v1")
+        self._content(self.student, vid, "view", "s-v1")
+        resp = self._call(self.student, "GET",
+                          f"/api/v1/courses/{self.course_id}/analytics?dimension=resources")
+        self.assertEqual(resp.status_code, 200, resp.json)
+        data = resp.json["data"]
+        self.assertEqual(data["metrics"]["view_count"], 1)
+        self.assertEqual(data["metrics"]["unique_users"], 1)
+        run_id = data["analysis_run_id"]
+        db = connect(self.path)
+        scope = db.execute("SELECT scope,subject_student_id FROM analysis_run WHERE id=?",
+                           (run_id,)).fetchone()
+        db.close()
+        self.assertEqual(scope["scope"], "self")
+        self.assertEqual(scope["subject_student_id"], self._uid("STUD0001"))

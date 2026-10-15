@@ -1,11 +1,19 @@
-"""SPEC-003 teaching resources: upload, version, list, content, update."""
+"""SPEC-003 teaching resources: upload, version, list, content, update, question import."""
 
 import hashlib
+import json
 from pathlib import Path
 from uuid import uuid4
 
 from flask import Blueprint, current_app, request, send_file
 
+from backend.models import attempt as attempt_model
+from backend.models.question import (
+    check_knowledge,
+    require_tables,
+    save_version,
+    validate_question,
+)
 from backend.shared.api import (
     ApiError,
     audit,
@@ -272,6 +280,15 @@ def get_content(version_id):
     file_path = upload_root() / file_row["storage_key"]
     if not file_path.is_file():
         raise ApiError(404, "NOT_FOUND", "File not found")
+    as_attachment = intent == "download"
+    download_name = file_row["original_name"]
+    response = send_file(file_path, mimetype=file_row["media_type"],
+                          as_attachment=as_attachment,
+                          download_name=download_name if as_attachment else None,
+                          conditional=True)
+    # R39：仅成功提供内容的 200/206 计数；HEAD、304、416 及错误响应不记录事件
+    if request.method == "HEAD" or response.status_code not in (200, 206):
+        return response
     # 记录访问事件：先查后插，避免依赖 IntegrityError 回滚整个事务
     existing = db.execute(
         "SELECT event_type,resource_version_id FROM resource_event "
@@ -290,12 +307,6 @@ def get_content(version_id):
                 (user["id"], version_id, intent, event_id, rid, ts))
             audit("resource.access", "resource_version", version_id,
                   after={"event_type": intent, "event_id": event_id})
-    as_attachment = intent == "download"
-    download_name = file_row["original_name"]
-    response = send_file(file_path, mimetype=file_row["media_type"],
-                          as_attachment=as_attachment,
-                          download_name=download_name if as_attachment else None,
-                          conditional=True)
     return response
 
 
@@ -303,8 +314,11 @@ def get_content(version_id):
 @bp.patch("/resources/<int:resource_id>")
 def update_resource(resource_id):
     require_user()
-    title_raw = request.form.get("title") if request.form else None
-    visibility = request.form.get("visibility")
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict) or set(payload) - {"title", "visibility"}:
+        raise ApiError(400, "VALIDATION_ERROR", "Expected title and/or visibility")
+    title_raw = payload.get("title")
+    visibility = payload.get("visibility")
     with write() as db:
         resource, _ = load_resource(db, resource_id, teacher=True)
         updates, ts = {}, stamp()
@@ -335,3 +349,75 @@ def update_resource(resource_id):
         audit("resource.update", "resource", resource_id, after=updates)
         row = db.execute("SELECT * FROM resource WHERE id=?", (resource_id,)).fetchone()
     return result(resource_json(row))
+
+
+# ---------- POST /resources/<id>/question-imports ----------
+IMPORT_OPERATION = "resource_question_import"
+MAX_IMPORT = 500
+
+
+@bp.post("/resources/<int:resource_id>/question-imports")
+def import_questions(resource_id):
+    """题库导入：全量校验后同事务创建，禁止部分导入；同键重放原响应。"""
+    user = require_user()
+    payload = request.get_json(silent=True)
+    if not isinstance(payload, dict) or set(payload) != {"resource_version_id"}:
+        raise ApiError(400, "VALIDATION_ERROR", "Expected resource_version_id")
+    version_id = positive_int(payload["resource_version_id"], "resource_version_id")
+    key = attempt_model.idempotency_key(request.headers.get("Idempotency-Key"))
+    request_hash = hashlib.sha256(json.dumps(
+        {"resource_version_id": version_id}, sort_keys=True).encode()).hexdigest()
+    with write() as db:
+        require_tables(db, {"question", "question_version", "question_knowledge",
+                            "idempotency_record"}, "题库模块未接入，暂不能导入")
+        resource, _ = load_resource(db, resource_id, teacher=True)
+        if resource["kind"] != "question_bank":
+            raise ApiError(422, "VALIDATION_ERROR", "Only question_bank resources can be imported")
+        rv = db.execute("SELECT rv.*,f.storage_key FROM resource_version rv "
+                        "JOIN file_object f ON f.id=rv.file_id "
+                        "WHERE rv.id=? AND rv.resource_id=?", (version_id, resource_id)).fetchone()
+        if not rv:
+            raise ApiError(404, "NOT_FOUND", "Resource version not found")
+        at = stamp()
+        previous = attempt_model.replay(db, user["id"], key, request_hash, at,
+                                        operation=IMPORT_OPERATION)
+        if previous:
+            return current_app.response_class(previous["response_json"],
+                                              mimetype="application/json"), previous["response_status"]
+        # 读取题库源文件并解析
+        file_path = upload_root() / rv["storage_key"]
+        if not file_path.is_file():
+            raise ApiError(404, "NOT_FOUND", "File not found")
+        try:
+            text = file_path.read_text(encoding="utf-8")
+            items = json.loads(text)
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise ApiError(400, "VALIDATION_ERROR", "File must be a UTF-8 JSON array") from exc
+        if not isinstance(items, list) or not 1 <= len(items) <= MAX_IMPORT:
+            raise ApiError(400, "VALIDATION_ERROR", f"Expected 1-{MAX_IMPORT} questions in JSON array")
+        # 全量校验：任何一题失败即返回 400 及下标，不创建任何题目
+        validated = []
+        for index, item in enumerate(items):
+            try:
+                values = validate_question(item)
+                check_knowledge(db, resource["course_id"], values["knowledge_ids"])
+            except ApiError as exc:
+                raise ApiError(exc.status, exc.code,
+                               f"题目[{index}]：{exc.message}") from exc
+            validated.append(values)
+        # 同事务创建题目与版本
+        question_version_ids = [save_version(db, resource["course_id"], values)["version_id"]
+                                for values in validated]
+        cursor = db.execute(
+            "INSERT INTO question_import(resource_version_id,actor_id,count,created_at) "
+            "VALUES(?,?,?,?)", (version_id, user["id"], len(validated), at))
+        import_id = cursor.lastrowid
+        audit("resource.question_import", "question_import", import_id,
+              after={"resource_version_id": version_id, "count": len(validated)})
+        response, status = result({"import_id": import_id,
+                                   "question_version_ids": question_version_ids,
+                                   "count": len(validated)}, 201)
+        attempt_model.save_response(db, user["id"], key, request_hash, import_id, response,
+                                    status, operation=IMPORT_OPERATION,
+                                    resource_type="question_import")
+    return response, status
