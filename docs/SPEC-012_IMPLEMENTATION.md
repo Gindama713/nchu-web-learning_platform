@@ -1,0 +1,21 @@
+# SPEC-012 个性化推荐实施记录
+
+负责人：黄俊诚（24201716），范围为C11。依据[PRD§4.3](PRD.md#qa-recommendation-acceptance)、[012有效验收](PRD.md#accept-spec-012)、[APIC§5.1/5.2](APIC.md)及[DBD§3/4](DBD.md)。
+
+## 接入基线与边界
+
+2026-10-15 fetch后从origin/develop `f9c49b19c59053be2b171e0b7f2a35d1e050e57e`独立建立feature/spec-012-recommendation。实时读取011 PR #14仍open/非draft，head `bbd9ecdb151cab0ff7a34e94261b5378ceabfb74`、base develop/f9c49b1；reviews、review_threads、会话评论均为空。同head两次Actions38681339662/38681315802均completed/success。保留其评审状态，没有复制未合入011，也没有自行合并。
+
+仅消费已合入001/005/006/008/010B事实。不依赖看板HTTP、不接大模型/向量库/调度平台，不建推荐缓存或新事实表，不开展014/016、C12整包或队友模块。
+
+## C11a 事实、算法与API
+
+`GET /courses/{id}/recommendations`仅会话学生本人；严格接受单个limit，默认5、范围1—20，未知/重复参数400。成功及失败均no-store。复用010B `knowledge_analysis.extract/metrics`，以同一读事务提取当前发布集合、本人进度和真实客观作答；窗口沿用APIC左闭右开 `[source_until−28天,source_until)`，时间统一UTC毫秒。漏答、简答排除，practice/answer不同source去重，固定版本多标签分别计点；没有把标签样本数之和当总体答题数。
+
+recommend-v1用精确有理数计算未舍入排序分数和0.8边界；全候选n之和为0才冷启动。基础且未完成项score=1、mastery=null、ID升序；非冷启动剔除已完成且n≥5且m≥0.8，其他按固定公式/原始分数降序及ID升序截limit。reason与空结果优先级严格沿用PRD；序列化score至6位精度，页面固定显示6位，不称预测概率。
+
+每个question先取当前最新版本，再过滤同课、未归档、客观、显式开放、本知识点标签及006身份级保密保护；从合格版本取最小ID，无则null。旧公开版本不替代最新私有/简答/已换标签版本。推荐只返回契约字段，不带题干、标准答案或解析；实际入口仍重新调用现行006鉴权/练习服务。
+
+计算在读事务外，返回前重新授权并按同一截止重提取事实比对；知识/基础标记/进度/练习资格变化后重算，最多3轮，持续变动503 RECOMMENDATION_UNAVAILABLE。数据库读取或计算失败503，不保存半份结果，不阻断原有作答链。只增加推荐blueprint及app必要注册，没有修改001鉴权/006判分/010B口径或迁移。
+
+首次分段验证：13项通过（3项算法组件夹具、10项真实handler/SQLite，14.744秒）。含真实005基础标记/进度/下架、006固定版本练习及幂等、多标签、n=5/m=.8、28天边界、008真实发布/partial提交/漏答/简答/批阅、权限和重核验、失败期间实际练习/整卷201、受控备份恢复。异常保密旧数据与计算故障明确为夹具，不称自然生产故障。页面及真实socket HTTP/双浏览器验证待C11b补齐。
