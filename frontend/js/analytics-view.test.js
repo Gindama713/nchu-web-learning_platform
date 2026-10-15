@@ -27,17 +27,20 @@ const knowledge = (id = 17) => ({ analysis_run_id: id, dimension: 'knowledge', s
   algorithm_version: 'knowledge-objective-v1', sample_size: 4, population_basis: 'objective', warnings: ['多标签去重'],
   metrics: { mastery: 0.75, progress: null, answered_count: 4, items: [{ knowledge_id: 1, title: '<script>教学标题</script>', answered_count: 4, correct_count: 3, wrong_count: 1, mastery: 0.75 }] }, series: [] })
 
-async function mount(t, previous = null) {
+async function mount(t, previous = null, courseWait = null) {
   const user = reactive({ id: 1, role: 'teacher' }), paths = [], memory = new Map()
   if (previous) memory.set('010b-snapshot:1:teacher', JSON.stringify(previous))
-  const fixture = { data: knowledge(), wait: null, fail: false, userId: 1 }
+  const fixture = { data: knowledge(), wait: null, fail: false, userId: 1, courseWait }
   const oldFetch = globalThis.fetch, oldStorage = globalThis.localStorage
   globalThis.localStorage = { getItem: key => memory.get(key), setItem: (key, val) => memory.set(key, val) }
   globalThis.fetch = async path => {
     paths.push(path)
     const ok = data => ({ ok: true, json: async () => ({ data, total: 2 }) })
     if (path.endsWith('/session')) return ok({ user: { id: fixture.userId, role: user.role }, csrf_token: 'current' })
-    if (path.startsWith('/api/v1/courses?')) return ok([{ id: 3, title: 'CPU' }, { id: 4, title: '其他课程' }])
+    if (path.startsWith('/api/v1/courses?')) {
+      if (fixture.courseWait) await fixture.courseWait
+      return ok([{ id: 3, title: 'CPU' }, { id: 4, title: '其他课程' }])
+    }
     const data = globalThis.structuredClone(fixture.data)
     if (fixture.wait) await fixture.wait
     if (fixture.fail) return { ok: false, status: 404, json: async () => ({ error: { message: '快照已不可用' } }) }
@@ -49,6 +52,17 @@ async function mount(t, previous = null) {
   await flush()
   return { root, fixture, user, paths, memory }
 }
+
+test('filters stay disabled until the course list is ready', async t => {
+  let release
+  const waiting = new Promise(resolve => { release = resolve })
+  const { root } = await mount(t, null, waiting)
+  assert.equal(control(root, '原快照编号').props.disabled, true)
+  assert.equal(control(root, '统计维度').props.disabled, true)
+  release(); await flush()
+  assert.equal(control(root, '原快照编号').props.disabled, false)
+  assert.equal(control(root, '统计维度').props.disabled, false)
+})
 
 test('renders real zero vs unknown, text escapes, and stores only snapshot pointer', async t => {
   const { root, memory } = await mount(t)

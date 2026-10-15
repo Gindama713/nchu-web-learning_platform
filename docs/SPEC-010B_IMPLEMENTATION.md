@@ -1,5 +1,9 @@
 # SPEC-010B / C06—C07 知识与分类成绩分析实施与验证
 
+## 2026-10-15 PR #12 当前集成状态
+
+PR #10 已合入 develop，C08 的 PR #11 亦以 `bcda8c468e9054579639f3f66c709a54283494aa` 合入。本续包 [PR #12](https://github.com/Gindama713/nchu-web-learning_platform/pull/12) 追加专用测验与分析快照的 HTTP/UI 联测和浏览器证据。合并最新 develop 后，组长在本机复跑双浏览器时发现重新登录期间课程尚未加载，提前填写快照编号会中止初始化，恢复按钮因无课程一直禁用；统计控件现等课程列表就绪才启用，并补前端回归。受影响后端18项、前端63项、lint/build/文档检查及 Chrome/Edge 专用联测均通过；最终干净提交的浏览器报告与 GitHub CI 以 PR 最终 SHA 核验。下文关于“PR 尚未创建”“网络阻断”“#11 未合入”等是当时的交接记录，不代表当前状态。003/004、目标环境性能、完整生产恢复和课堂验收仍待完成。
+
 ## 2026-10-15 PR #9 合入后的联合复核（优先于下方历史记录）
 
 组长实际审查并批准 PR #9；必需 CI 重跑通过后，008 以 `b4a376b860e891a969c9507d69b4cefba5c7f290` 合入 develop。本010B分支吸收该基线，自动合并无文本冲突。新增 `test_dedicated_quiz_statistics_grading_review_and_saved_scores` 经真实教师/学生 API 验证专用发布、客观题与简答交卷、逐题待批统计、010B待批快照、人工批阅、截止后显式讲评、最新成绩，以及旧快照和 CSV 字节不变。首次测试在 `start_at` 精确边界查询，按左闭右开规则未选中该卷；改为截止时刻查询后通过，未改变业务窗口算法。最终合并提交与 CI 以 PR #10 最新 SHA 为准。
@@ -17,7 +21,7 @@
 | 001会话、当前课程成员、analysis_run、公共runner | 真实实现已接入；计算前同事务授权、保存前再鉴权，原迁移重放及备份读取有测试 | 姜苏豪提供，黄俊诚消费；不接管010A |
 | 005当前发布集合、本人完成事实 | 经真实章节/知识/进度API产生，R38全部数值及日期不改集合可复算 | 本包补005/R38聚合证据，图文/003缺口不因此解除 |
 | 006固定题目版本、练习和卷内作答/批阅 | 真实HTTP提交、成功键重试与人工批分；漏答保留但不计掌握度 | 本包只读，不写评分或另建成绩来源 |
-| 008专用测验链 | develop尚无专用008实现；共同answer结构已可消费 | #9合入后按GitFlow同步develop，再补真实008→010B；不称已完成008 AC-04联合 |
+| 008专用测验链 | PR #9已由外部合入develop b4a376b，本010B分支已merge接入 | C07续包专用HTTP联测通过，最新浏览器/CI见文末；不以局部联合关闭008全部验收 |
 | 页面、scores/CSV | C07a后端分类成绩及knowledge/scores CSV已实施 | C07b页面/浏览器分段验证见文末；不以API通过代替完整验收 |
 | 003/004、Linux4核8GB/50会话/真实worker、课堂与正式评审 | 未执行/外部依赖 | 原负责人接缝与目标环境完成后补证，不用本机测试时间冒充性能 |
 
@@ -114,14 +118,14 @@ git diff --check
 
 | 完整有效编号 | 当前证据/状态 | 尚需恢复 |
 |---|---|---|
-| 父SPEC-010/AC-01 | 独立knowledge/scores输入重放、固定算法及全字段可复算 | 专用008事实链未合入，完整项保留阻断 |
+| 父SPEC-010/AC-01 | 独立knowledge/scores输入重放、固定算法及全字段可复算；C07续包专用008→010B已通过 | 全系统/教学验收仍待执行 |
 | 父AC-02 | 真实会话/跨课/创建者/范围/撤权/停用，API与页面失败清空 | 教学账号/全系统验收待执行 |
 | 父AC-03 | 空样本null、实际已批0分与缺交/partial区分，页面与CSV可见 | 目标环境待执行 |
 | 父AC-04 | 按原ID刷新/重登/显式恢复；后续批分旧JSON/CSV字节不变；知识及成绩备份副本原ID恢复 | 完整生产资源/电路备份集及目标环境待执行 |
-| 父AC-05 / R15 | homework/exam真实HTTP发布/交卷/批阅；字段、分母、均值、分箱和CSV一致 | quiz仅共享publish服务接缝用例，008专用联合阻断；resources归003 |
-| R12/R27 | 原006五题型/批阅/幂等测试及010B真实partial→graded、旧快照保留 | 008专用链随#9合入再测 |
+| 父AC-05 / R15 | homework/exam及专用quiz真实HTTP发布/交卷/批阅；字段、分母、均值、分箱和CSV一致 | C07续包补quiz链；resources归003，全系统验收待执行 |
+| R12/R27 | 原006五题型/批阅/幂等测试及010B真实partial→graded、旧快照保留；专用quiz亦通过 | 目标环境/教学验收待执行 |
 | R16 | 后加入不补历史任务、退出不减冻结应交；均分仅graded | 教学验收待执行 |
-| R33 | 阻断 | #9合入后的专用逐题统计/讲评→010B，不能用共享quiz服务测试替代 |
+| R33 | C07续包真实专用发布/提交/逐题统计/讲评→010B/旧ID/CSV通过 | 浏览器及当前head CI见文末；课堂/全系统验收仍待执行 |
 | R34/R38 | C06双源ID/多标签/零样本、同集合进度；C07表格/CSV及原ID恢复有证据 | 012推荐非本包；003图文等缺口保留 |
 | R22/R45 | 本记录、PR及个人交接明确范围/责任/阻塞/恢复点 | 全组工时风险及课堂材料待核验 |
 | R46 | 单一APIC/DBD，复用analysis_run，无新表/旧SQL/队友算法/CI修改 | 真实非作者契约复核待执行 |
@@ -132,7 +136,7 @@ git diff --check
 全量本地回归：`.venv/Scripts/python.exe -m unittest discover -s tests -v`后端131项通过，204.533秒；前端`npm test`54项、lint/build通过。全量回归启动后补了CSV每周知识明细断言，该受影响单项另行通过1.149秒；其余后端逻辑未变。正式运行SHA/CI和干净浏览器证据随后独立登记，不把本机时长当NF-PERF。
 
 
-## C07提交、CI与下一恢复（当前交接）
+## C07历史提交与CI（当前恢复见文末续包）
 
 后端提交`3d1def696c76da24b02278afa65f8ec6af7bd20f`及页面提交`29ade52f8ef27eeb7f287dd7f41ab35aaa83b88e`均已推送origin/feature/spec-010b-knowledge-analysis。[PR #10](https://github.com/Gindama713/nchu-web-learning_platform/pull/10)为open/draft，目标develop `253a736a79a6b6778e8bde0e58673d1f4c7641d7`，reviews=[]；未合并、部署或发布。代码及页面独立部分可恢复，不把CI或AI自查当真实非作者批准。
 
@@ -142,4 +146,30 @@ C07a [Actions38574944772](https://github.com/Gindama713/nchu-web-learning_platfo
 
 **下一恢复**：C07独立scores、页面、原ID恢复及同快照CSV已实施、验证并推送；不重做。先fetch并核验develop、008 PR #9和本PR最新head/CI。#9本轮结束核验仍open/draft、head=fafc69aecf723d06181e807bc1124aed2bd915de、未合入；不得复制其feature。待008合入develop后，在本010B共享分支merge origin/develop，按真实专用quiz发布→提交（含漏答/partial）→逐题统计/显式讲评→knowledge/scores→旧ID恢复/CSV补R33及联合证据，再更新完整矩阵。处理APIC/DBD/CHG-RB可能冲突时保留双方契约，不覆盖队友变更。
 
-008仍阻断时可按个人计划另开C08，从最新origin/develop创建/复用013 feature，不从本010B或008偷带代码。本次不开发013。003/004接缝、Linux4核8GB/50会话/真实worker、完整资源/电路生产恢复、教学账号及课堂/真实评审仍保留；父AC-01—05的独立链证据不等于010B全部验收。回退先备份事实和所有analysis_run，再恢复配套代码；旧代码无法处理新快照时明确不可用，不改写/删除历史或重算冒充原结果。
+上述为C07当时交接，已由下述续包解除008专用链阻塞。003/004接缝、Linux4核8GB/50会话/真实worker、完整资源/电路生产恢复、教学账号及课堂/真实评审仍保留；父AC-01—05的局部链证据不等于010B全部验收。回退先备份事实和所有analysis_run，再恢复配套代码；旧代码无法处理新快照时明确不可用，不改写/删除历史或重算冒充原结果。
+
+## 2026-10-15 C07续包：专用008→010B联测（当前交接）
+
+初次fetch时#9未合入，因此在独立013分支实施并推送C08候选/算法/快照`16c1928`、`30d2948`并创建draft [PR #11](https://github.com/Gindama713/nchu-web-learning_platform/pull/11)。收口fetch发现#9已由外部于2026-10-14 23:49:35（Asia/Shanghai）实际合入，merge=`b4a376b860e891a969c9507d69b4cefba5c7f290`。按用户优先级返回本010B分支merge origin/develop，产生`39ac02c9d6461c4b768221404afc85464a0601d5`，无冲突。未将013或其他未合入feature带入本分支；原C07业务无需重做，续包仅追加真实联测与证据。
+
+[专用联测](../tests/test_quiz_analytics_integration.py)通过真实001/005/006/008/010B HTTP完成：3人冻结、4题各10分，1人交客观正确/错误/漏答及待批简答，1人白卷、1人缺交。专用逐题客观正确率1/6（漏答计入提交分母）；knowledge实际作答n=2,c=1,mastery=0.5，多标签分项保留旧版本标签且不重复总体。scores应交3/提交2/缺交1/已批1/partial1，均百分比0；简答批8分后变已批2/partial0、均百分比22.5。显式review前仍无答案，之后原卷/错题开放；截止原key重放仍原201字节。旧knowledge/scores结果及CSV在批分、讲评、新版本后保持原值；带数据备份副本经迁移重放/完整性/外键后仍由真实HTTP按原ID恢复与导出。新增单项通过3.804秒，无业务缺陷或判分改动。
+
+测试初轮误从注册响应顶层取id，改为真实登录会话user.id；曾比较含动态request_id的HTTP信封字节，改为契约规定的不变data对象及CSV字节，幂等提交仍严格比较原完整201字节。没有放宽业务规则或忽略失败。
+
+双浏览器续包脚本为[scripts/verify_spec010b_quiz_integration.py](../scripts/verify_spec010b_quiz_integration.py)，只测本次专用quiz联测，不重跑C07独立链充作新增证据。正式干净源码SHA/结果、全量回归与PR最新CI在以下收口项登记。
+
+本地全量后端147项通过（256.870秒；原010B131+新合入00815+本续包1），前端62项、lint/build、全仓ruff（含新浏览器脚本）、六文档链接/diff通过。初轮Chrome155.0.8059.40/Edge155.0.4283.45各6组通过，page_errors=[]，含专用统计16.7%、知识50%、quiz3/2/1/partial与0分、讲评UI、旧ID刷新/重登与CSV、新22.5%、390px截图；初轮工作区有脚本/测试改动，不作最终干净源码证据。浏览器最初遗漏“刷新逐题统计”，及查询后未等待新scores结果导致读到旧knowledge ID，脚本按真实页面等待修复后双浏览器通过，业务未改。正式证据待干净提交复跑登记。
+
+本轮新增代码提交`5f60dda06454b187db04331d5a23ece8c08c540e`首次push因外部更新被拒；fetch确认远端`0d1ad349fe761cdbd99e53e05a89e34bfbf684ab`已追加专用scores联测并由外部以`7759d650e9b0a9b6c2a8070471f1040af603a22f`合入develop（PR #10已merged，2026-10-15 00:10:10 Asia/Shanghai）。随后merge远端原feature产生`6ddd6df`，保留双方测试/文档，README唯一冲突保留新专用联测入口及剩余验收；再merge实际develop产生`36e2f38c9ab9d70eacb6c9f1f71e7780dad33cea`，已成功推送同一feature，没有强推或自动合并。同步后两处专用联测重跑2项通过（6.130秒），运行时代码/页面/新脚本相对5f60dda没有差异。147项全量的256.870秒是同步前证据，不能把合并后额外测试计入该次数。
+
+最终干净合并树的浏览器证据：[report.json](evidence/spec-010b/quiz-browsers/report.json)，tested_head=`d1063a47a11721aa0c25b95de562cffe0a194866`，dirty_paths=[]。Chrome150.0.7871.47及Edge155.0.4283.45各6组全部通过，page_errors=[]；390px截图为[Chrome知识](evidence/spec-010b/quiz-browsers/chrome-quiz-knowledge.png)、[Chrome成绩](evidence/spec-010b/quiz-browsers/chrome-quiz-scores.png)、[Edge知识](evidence/spec-010b/quiz-browsers/msedge-quiz-knowledge.png)、[Edge成绩](evidence/spec-010b/quiz-browsers/msedge-quiz-scores.png)。截图已目视核对，页面无整页水平溢出、宽表在容器内滚动。只保存本轮合成受控结果，无口令/CSRF/会话/学生答卷/数据库。此前`36e2f38`的独立原分支报告已由本次合并树复跑替换，不再作为当前文件的tested_head。
+
+网络短暂transport/TLS失败后已恢复；正式证据提交`1d598b5895a87e98fcdccd31d889cc0a13b0332b`已推送，并核实无同head开放PR后新建draft [PR #12](https://github.com/Gindama713/nchu-web-learning_platform/pull/12)（旧PR #10已合入，不能更新成未合入续包）。本轮不再有网络阻塞。
+
+证据head 1d598b5的[Actions38596864000](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38596864000)实际jobs均已完成，policy/lint/test/build/required全success，grader按develop规则skipped。已读取ci-test日志：后端148项（123.412秒）、前端62项；tested merge=`d96af20847cb2c5996201617307be8fb32e11d0a`，base=7759d65、head=1d598b5。此merge是CI测试引用，不是实际合并，148包含保留的双方专用联测；reviews=[]，不把自动验证记成真实非作者批准。本文后续纯文档提交的当前head CI须另核验，以PR当前检查及个人交接为准。
+
+2026-10-15恢复收口时再次fetch：013 PR #11已由外部合入develop，实际merge=`bcda8c468e9054579639f3f66c709a54283494aa`，head=d7a0e78（外部另补真实专用quiz历史1/1回归及文档，保留本C08）。PR #12仍open/draft，本续包按共享分支流程merge最新develop，CHG-RB一处冲突保留013与010B两份记录，无运行时代码冲突。本次合并后的回归/最终head CI以PR #12当前结果及个人交接为准，不把上述148项直接升级成合并后次数。
+
+同步提交`f1b7192bb6dee4ba7002c728278b90974f5417a5`已推送，[Actions38675507503](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38675507503)的policy/lint/test/build/required全部success，grader按develop规则skipped。实际ci-test日志后端167项（131.268秒）/前端62项，tested merge=`96437ff0309b49f90be0ffa26f806a1312e0cf05`，base=bcda8c4/head=f1b7192；仅CI测试引用，不是PR #12实际合并。本地合并后完整`unittest discover -s tests -v`亦167项通过（244.462秒）。新增19项C08测试包含外部quiz历史用例，与双方010B专用联测均保留。前端相对已测基线无变更；ruff、六文档链接及diff检查通过。最终纯文档提交的head检查仍另核验，个人交接第10.1与计划第6节记录最终状态。
+
+下一恢复：专用008联测、原ID/CSV和干净双浏览器已补证，无需重复C07业务。先fetch核验PR #12当前head CI/实际评审，再按授权收口。完整010B仍有003/004、Linux4核8GB/50会话/真实worker、完整生产恢复/课堂缺口。C08已由外部合入，后续C09回013原feature，先同步最新develop，不能复制本010B未合入续包。C08/C07均不重做，不自动合并、部署或发布。
