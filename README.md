@@ -167,7 +167,7 @@ npm run build
 
 “查询统计”保存新快照。记录“原快照编号”后，可在同一账号、同一课程用“恢复原快照”读取原结果；刷新或重登会尝试恢复该账号上次快照，浏览器仅本地保存课程和快照编号。教师可点“导出当前快照 CSV”，下载与页面相同ID的数据；更正成绩不会改变旧快照。修改筛选、读取/导出失败会清空当前结果；快照已清理或当前无权访问时，须显式重新查询，不会自动用最新数据冒充原结果。表格支持横向滚动和键盘聚焦，空样本显示无数据。
 
-运行沿用第8节，无新增迁移。独立API测试为`python -m unittest tests.test_knowledge_analytics tests.test_score_analytics -v`；可选真实Chrome/Edge回归为`python -m scripts.verify_spec010b_analytics`（需已安装两浏览器、`backend/requirements-browser.txt`依赖及前端依赖，5000/5173端口空闲）。测试使用临时受控课程，不写教学库；报告和剩余验收见[SPEC-010B实施记录](docs/SPEC-010B_IMPLEMENTATION.md)。008专用测验链已合入develop，并补真实发布、交卷、统计、批阅、讲评到010B快照/CSV的接口回归；合并后的双浏览器、目标环境性能、完整生产恢复及课堂验收仍未关闭。
+运行沿用第8节，无新增迁移。独立API测试为`python -m unittest tests.test_knowledge_analytics tests.test_score_analytics -v`；008已合入后的专用联合为`python -m unittest tests.test_quiz_analytics_integration -v`。可选真实Chrome/Edge回归分别为`python -m scripts.verify_spec010b_analytics`及`python -m scripts.verify_spec010b_quiz_integration`（需已安装两浏览器、`backend/requirements-browser.txt`依赖及前端依赖，5000/5173端口空闲）。专用quiz逐题统计包含提交漏答、knowledge只计实际客观作答，分母不同属于规定口径；批分后新scores变化，原ID/CSV保持原值。测试使用临时受控课程，不写教学库；报告和剩余验收见[SPEC-010B实施记录](docs/SPEC-010B_IMPLEMENTATION.md)。目标环境性能、完整生产恢复及课堂验收仍未关闭。
 
 ### 8.6 SPEC-013组卷算法与快照（C08）
 
