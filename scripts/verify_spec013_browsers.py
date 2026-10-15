@@ -15,8 +15,23 @@ sys.path.insert(0, str(ROOT))
 
 from playwright.sync_api import expect, sync_playwright
 
-from scripts.verify_spec005_browsers import ORIGIN, Api, login, servers
+from scripts.verify_spec005_browsers import ORIGIN, Api, servers
 from tests.test_question_validation import question
+
+
+def login(page, number, password):
+    # Finish initial session restoration before submitting a new login. Assert
+    # only the paper module under test, with room for concurrent module requests.
+    with page.expect_response(lambda r: r.url.endswith('/auth/session')) as initial:
+        page.goto(ORIGIN)
+    initial.value.body()
+    page.get_by_label('学号', exact=True).fill(number)
+    page.get_by_label('密码', exact=True).fill(password)
+    with page.expect_response(lambda r: r.url.endswith('/auth/login')) as pending:
+        page.get_by_role('button', name='登录', exact=True).click()
+    assert pending.value.status == 200
+    expect(page.locator('.paper-bank')).to_have_count(2, timeout=15000)
+    expect(page.locator('.paper-bank').first).to_have_attribute('aria-busy', 'false', timeout=15000)
 
 
 def generate(page, panel, title, *, replay=False, status=201):
@@ -50,6 +65,10 @@ def verify(playwright, channel, password, output):
         page.on('pageerror', lambda error: errors.append(type(error).__name__))
         login(page, 'T005TEACH', password)
         bank = page.locator('.paper-bank').filter(has=page.get_by_role('heading', name='课程试卷', exact=True))
+        # Exercise explicit recovery after simultaneous application module boot;
+        # never substitute fake list responses or change the shared auth module.
+        bank.get_by_role('button', name='重新加载试卷', exact=True).click()
+        expect(bank).to_have_attribute('aria-busy', 'false', timeout=15000)
         bank.get_by_label('试卷课程', exact=True).select_option(str(course_id))
         expect(bank).to_have_attribute('aria-busy', 'false')
         bank.get_by_role('button', name='智能组卷', exact=True).click()
