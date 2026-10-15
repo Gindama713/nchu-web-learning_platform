@@ -275,6 +275,8 @@ QA按当前已发布知识语料revision按需重建TF-IDF；重建失败返回5
 
 组卷只返回草稿，不直接发布。请求采用二选一模型：首次传第5节字段及history_until?；重放仅传replay_of及新title，禁止同时覆盖约束/seed；响应含generation_snapshot_id。冻结候选最新版本（同question一份）、历史正确率/样本数、排序、约束、seed、算法版本；重放严格读取快照，不查新题库。配分用total_points*100整分，按选中顺序均分、余数给前若干题，每题至少1个百分之一分。不满足数量/配额/覆盖的确定矛盾422；搜索预算耗尽503 SEARCH_LIMIT，不能伪报无解。具体算法见PRD第4.2节；confidential同候选快照一起冻结。
 
+C08已接入内部`paper-backtrack-v1`候选/求解/快照组件，尚未提供generated-papers HTTP入口。历史指标按固定question_version的真实paper answer与practice_attempt合并，只计history_until前已作答、已评分客观事实；partial中的客观分有效，漏答/简答排除，n=0的正确率为null。seed为signed 64位JSON整数，省略时生成并保存；首次用NumPy PCG64生成并固化16位十六进制排序键。重算只使用快照，不重新生成键。参数类型、难度配额和题量不匹配、超过500候选为400；合法约束确定无解为422 INFEASIBLE_CONSTRAINTS。节点进入时计数，含根/剪枝/终点；恰在第100000节点穷尽为422，只有仍需访问下一节点才为503 SEARCH_LIMIT。API鉴权、首次/重放二选一、新title与draft持久事务待C09，不能把内部组件通过称为HTTP验收。
+
 GET /courses/{id}/analytics的from/to默认最近28天；事件按事件时间筛选，成绩及完成率按发布任务start_at选择任务、取source_until前结果。attendance细则见第5.4节。多实验样本为(student_id,experiment_version_id)，不等于自然人数。
 
 预警model_status不足时仍可产生统计规则记录。警告批次生成读取一致数据快照，计算在写事务外完成，最后短事务保存全部快照/提示/幂等结果；同截止时间不是相同输入的保证，复现以保存快照为准。QA索引替换只在重建完成后原子更新revision，失败时不读旧索引。
