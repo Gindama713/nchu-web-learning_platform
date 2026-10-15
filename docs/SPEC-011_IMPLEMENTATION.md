@@ -23,3 +23,11 @@ Context7已查询当前scikit-learn TF-IDF/归一化、Vue watcher异步失效�
 C10a：`python -m unittest tests.test_qa -v`，15项通过（11.746秒）；5项算法组件测试、10项真实001/005 Flask HTTP-handler/SQLite集成测试，账户仅bootstrap，课程/学生注册/成员/章节/知识更新及下架均走真实业务接口。包括并发查询、第二线程实际005更新/撤权、构建失败夹具、qa_index/qa_query触发器故障回滚及受控SQLite备份恢复；不等同真实网络socket、浏览器或生产恢复。首轮夹具同线程嵌套请求失败已改成独立线程，旧失败不记通过。页面/组件、真实双浏览器、全量回归及PR/当前head CI将在后续节登记，尚不能据此关闭完整SPEC。
 
 回退：保留知识/用户/会话/查询及配套schema的一致性备份和增量；用匹配代码与数据库恢复，索引缓存可丢弃重建。不得删除历史查询来掩盖失败、不改旧SQL或共享分支。两名实际非作者复核、目标Linux4核8GB/50会话性能、生产恢复及课堂证据须单独登记，不由本地自动测试代替。
+
+## C10b 页面与第一次集成验证
+
+问答页接入现有Vue课程页面，沿用005色彩、排版与出处阅读方式；查询仅发question/top_k，写前刷新真实会话/CSRF。显示真实知识ID、去标签片段、6位相似度、语料revision和算法版本；通过005详情读取最新正文。loading/no_match/empty_corpus/失败/显式重试及无权限后重新加载分别处理。修改问题/课程、切换身份或销毁组件会废弃未完成响应，失败清除此前片段。片段始终作为文本渲染，详情仅渲染005已清洗的无属性HTML。
+
+7项新组件测试通过，第一次整套前端70项通过，lint/build通过。`scripts/verify_spec011_qa.py`在Chrome155.0.8059.41/Edge155.0.4283.45各9组通过，page_errors=[]，包含真实socket HTTP、005发布/改文/下架、PC/ACC别名、零向量、查询记录、成员撤权及390px；两种构建失败为明确注入的故障夹具，网络、页面与其他进度操作仍是真实请求。该轮tested_head=66b7ad2加尚未提交的页面/脚本，不能称干净head；提交同步后的干净复验结果另记。
+
+开发期间用户告知组长已合入013。重新fetch/查询确认[PR #13](https://github.com/Gindama713/nchu-web-learning_platform/pull/13)已merged，实际merge=`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`，最终head=`4710a56399d3c3eaf5a97ceaba142fa403263e07`。真实批准为Gindama713（2026-10-15T04:06:52Z），review_threads=[]；当前head的Actions38679487882 policy/lint/test/build/required成功、grader skipped。4710a56相对a687032只有013记录/浏览器证据更新，未发现业务代码增量。将通过merge消费已合入develop并验证接入，不重复实现013，不把一名批准补写成两名。
