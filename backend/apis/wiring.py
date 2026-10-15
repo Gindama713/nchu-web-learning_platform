@@ -28,6 +28,7 @@ bp = Blueprint("wiring", __name__)
 MAX_ACTIONS_PER_SAVE = 500
 MAX_ACTIONS_TOTAL = 10000
 EXPERIMENT_CODES = ("EXP-01", "EXP-02", "EXP-03", "EXP-04")
+VALIDATOR_VERSION = "wiring-struct-v1"
 
 
 def _row(db, table, rid):
@@ -250,21 +251,26 @@ def validate_attempt(aid):
     user = require_user()
     data = body(("revision",))
     revision = data["revision"]
-    db = get_db()
-    row = _attempt_row(db, aid)
-    if not row:
-        raise ApiError(404, "NOT_FOUND", "Wiring attempt not found")
-    if row["student_id"] != user["id"]:
-        raise ApiError(403, "FORBIDDEN", "Not your attempt")
-    if row["status"] != "draft":
-        raise ApiError(409, "STATE_CONFLICT", "Submitted attempt cannot be validated")
-    if row["revision"] != revision:
-        raise ApiError(409, "REVISION_CONFLICT", "stale revision")
-    ver = _row(db, "experiment_version", row["experiment_version_id"])
-    panel = _parse_json(ver["panel_json"], "panel")
-    state = _parse_json(row["state_json"], "state")
-    valid, errors = wiring.validate_structure(panel, state)
-    return result({"valid": valid, "errors": errors, "revision": revision})
+    with write() as db:
+        row = _attempt_row(db, aid)
+        if not row:
+            raise ApiError(404, "NOT_FOUND", "Wiring attempt not found")
+        if row["student_id"] != user["id"]:
+            raise ApiError(403, "FORBIDDEN", "Not your attempt")
+        if row["status"] != "draft":
+            raise ApiError(409, "STATE_CONFLICT", "Submitted attempt cannot be validated")
+        if row["revision"] != revision:
+            raise ApiError(409, "REVISION_CONFLICT", "stale revision")
+        ver = _row(db, "experiment_version", row["experiment_version_id"])
+        panel = _parse_json(ver["panel_json"], "panel")
+        state = _parse_json(row["state_json"], "state")
+        valid, errors = wiring.validate_structure(panel, state)
+        db.execute(
+            "INSERT INTO wiring_validation(attempt_id,revision,valid,errors_json,validator_version,created_at) "
+            "VALUES(?,?,?,?,?,?)",
+            (aid, revision, 1 if valid else 0, json.dumps(errors, ensure_ascii=False),
+             VALIDATOR_VERSION, stamp()))
+        return result({"valid": valid, "errors": errors, "revision": revision})
 
 
 @bp.post("/wiring-attempts/<int:aid>/submit")
