@@ -30,7 +30,8 @@ COMPONENT_PORTS = {
 
 ALU_OPS = {
     0: ("ADD", lambda a, b: (a + b) & 0xFF, lambda a, b: 1 if a + b > 0xFF else 0),
-    1: ("SUB", lambda a, b: (a - b) & 0xFF, lambda a, b: 1 if a - b < 0 else 0),
+    # PRD：减法 C=1 表示无借位（a>=b），有借位时 C=0
+    1: ("SUB", lambda a, b: (a - b) & 0xFF, lambda a, b: 0 if a - b < 0 else 1),
     2: ("AND", lambda a, b: a & b, lambda a, b: 0),
     3: ("OR", lambda a, b: a | b, lambda a, b: 0),
     4: ("XOR", lambda a, b: a ^ b, lambda a, b: 0),
@@ -171,16 +172,16 @@ def validate_structure(panel, state):
         seen.add(key)
 
     # 输出冲突：同一输入端子不能接多个输出
-    in_sources = {}
+    in_targets = {}
     for w in wires:
-        dst = w["to_terminal"]
-        in_sources.setdefault(dst, []).append(w["from_terminal"])
-    for dst, srcs in in_sources.items():
-        if len(srcs) > 1:
-            src_terms = [terminals[s] for s in srcs]
+        in_targets.setdefault(w["to_terminal"], []).append(w)
+    for dst, dst_wires in in_targets.items():
+        if len(dst_wires) > 1:
+            src_terms = [terminals[w["from_terminal"]] for w in dst_wires]
             if all(t["direction"] == "out" for t in src_terms):
-                errors.append({"code": "OUTPUT_CONFLICT", "wire_ids": [],
-                               "terminal_ids": [dst] + srcs,
+                errors.append({"code": "OUTPUT_CONFLICT",
+                               "wire_ids": [w["id"] for w in dst_wires],
+                               "terminal_ids": [dst] + [w["from_terminal"] for w in dst_wires],
                                "message": f"端子 {dst} 接了多个主动输出"})
 
     # 必需输入悬空
@@ -262,10 +263,8 @@ def _component_outputs(comp, inputs, state):
             out["Y"] = "X"
             out["Z"] = "X"
             out["C"] = "X"
-    elif ctype == "REG8":
-        out["Q"] = state.get("reg_q", 0)
-    elif ctype == "PC4":
-        out["Q"] = state.get("pc_q", 0)
+    elif ctype in ("REG8", "PC4"):
+        out["Q"] = state.get(f"{comp['id']}_q", 0)
     elif ctype == "ROM16X8":
         addr = inputs.get("ADDR")
         if _is_known(addr):
@@ -611,24 +610,22 @@ def run_functional_tests(panel, state):
                             "actual": {"Y": y, "Z": z, "C": c}})
 
     elif code == "EXP-02":
+        # 三个用例按时间顺序连续执行：case2 验证 case1 载入的值在 en=0 时保持
         cases = [
-            ({"sw_en_out": 0}, 1, "reset+en=0 -> Q=0"),
-            ({"sw_en_out": 1, "sw_d_out": 0xA5}, 1, "en=1 D=A5 -> Q=A5"),
-            ({"sw_en_out": 0, "sw_d_out": 0x3C}, 1, "en=0 -> hold"),
+            ({"sw_en_out": 0}, 0, "reset+en=0 -> Q=0"),
+            ({"sw_en_out": 1, "sw_d_out": 0xA5}, 0xA5, "en=1 D=A5 -> Q=A5"),
+            ({"sw_en_out": 0, "sw_d_out": 0x3C}, 0xA5, "en=0 -> hold"),
         ]
-        for i, (inputs, _, desc) in enumerate(cases):
-            s = reset(panel, dict(state))
-            s["inputs"] = {tid: v for tid, v in state["inputs"].items()}
+        s = reset(panel, dict(state))
+        s["inputs"] = {tid: v for tid, v in state["inputs"].items()}
+        for inputs, expected_q, desc in cases:
             s["inputs"].update(inputs)
             s = step(panel, s)
             q = s.get("reg_q")
-            expected_q = [0, 0xA5, 0][i]
-            # case 2: hold previous A5
-            ok = q == expected_q if i < 2 else q == 0xA5
+            ok = q == expected_q
             if not ok:
                 passed = False
-            results.append({"case": desc, "passed": ok, "expected": expected_q if i < 2 else 0xA5,
-                            "actual": q})
+            results.append({"case": desc, "passed": ok, "expected": expected_q, "actual": q})
 
     elif code == "EXP-03":
         s = reset(panel, dict(state))

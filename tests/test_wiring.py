@@ -115,6 +115,18 @@ class WiringLifecycleTest(WiringApiBase):
         self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
                   {"revision": 0, "state": state, "actions": actions}, 422)
 
+    def test_save_with_undo_action_in_batch(self):
+        # 同一批动作含 undo：服务端必须整批一次性重放，逐条重放会丢失 undo 语义
+        _, ver = self.setup_experiment("EXP-01")
+        attempt = self.create_attempt(ver["id"])
+        state = attempt["state"]
+        wire = {"id": "w1", "from_terminal": "sw_a_out", "to_terminal": "alu_a"}
+        actions = [{"type": "connect", "payload": wire}, {"type": "undo", "payload": {}}]
+        saved = self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
+                          {"revision": 0, "state": state, "actions": actions}, 200).json["data"]
+        self.assertEqual(saved["revision"], 1)
+        self.assertEqual(saved["latest_seq"], 2)
+
 
 class WiringValidationTest(WiringApiBase):
     def test_terminal_not_found(self):
@@ -173,9 +185,37 @@ class WiringSubmitTest(WiringApiBase):
         submit = self.call(self.student, "POST", f"/wiring-attempts/{attempt['id']}/submit",
                            {"revision": 1}).json["data"]
         self.assertEqual(submit["status"], "submitted")
+        # PRD：八种运算基线全部通过才记 completed
+        self.assertTrue(submit["completed"])
+        self.assertTrue(all(r["passed"] for r in submit["functional_results"]))
         # ADD 255+1 应通过 Y=0 C=1 Z=1
         add_result = next(r for r in submit["functional_results"] if r["op"] == "ADD")
         self.assertTrue(add_result["passed"])
+        # SUB 0-1 有借位：Y=255 C=0；PRD 规定 C=1 表示无借位
+        sub_result = next(r for r in submit["functional_results"] if r["op"] == "SUB")
+        self.assertEqual(sub_result["actual"], {"Y": 255, "Z": 0, "C": 0})
+
+    def test_sub_borrow_flag_semantics(self):
+        from backend.engines import wiring as engine
+
+        panel = engine._make_panel("EXP-01")
+        state = engine.initial_state(panel)
+        state["wires"] = [
+            {"id": "w_a", "from_terminal": "sw_a_out", "to_terminal": "alu_a"},
+            {"id": "w_b", "from_terminal": "sw_b_out", "to_terminal": "alu_b"},
+            {"id": "w_op", "from_terminal": "sw_op_out", "to_terminal": "alu_op"},
+            {"id": "w_y", "from_terminal": "alu_y", "to_terminal": "led_y_in"},
+            {"id": "w_z", "from_terminal": "alu_z", "to_terminal": "led_z_in"},
+            {"id": "w_c", "from_terminal": "alu_c", "to_terminal": "led_c_in"},
+        ]
+        # 255-1 无借位：Y=254 C=1
+        state["inputs"] = {"sw_a_out": 255, "sw_b_out": 1, "sw_op_out": 1}
+        values = engine._propagate(panel, state)
+        self.assertEqual((values["alu_y"], values["alu_c"]), (254, 1))
+        # 1-255 有借位：Y=2 C=0
+        state["inputs"] = {"sw_a_out": 1, "sw_b_out": 255, "sw_op_out": 1}
+        values = engine._propagate(panel, state)
+        self.assertEqual((values["alu_y"], values["alu_c"]), (2, 0))
 
     def test_submitted_immutable(self):
         _, ver = self.setup_experiment("EXP-01")
@@ -196,6 +236,61 @@ class WiringSubmitTest(WiringApiBase):
         self.call(self.student, "POST", f"/wiring-attempts/{attempt['id']}/submit", {"revision": 1})
         self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
                   {"revision": 1, "state": state, "actions": []}, 409)
+        # 提交后也不允许再 validate 刷记录
+        self.call(self.student, "POST", f"/wiring-attempts/{attempt['id']}/validate",
+                  {"revision": 1}, 409)
+
+    def test_submit_exp02_register_functional(self):
+        _, ver = self.setup_experiment("EXP-02")
+        attempt = self.create_attempt(ver["id"])
+        state = attempt["state"]
+        wires = [
+            {"id": "w_d", "from_terminal": "sw_d_out", "to_terminal": "reg_d"},
+            {"id": "w_en", "from_terminal": "sw_en_out", "to_terminal": "reg_en"},
+            {"id": "w_clk", "from_terminal": "clk_out", "to_terminal": "reg_clk"},
+            {"id": "w_rst", "from_terminal": "rst_out", "to_terminal": "reg_rst"},
+            {"id": "w_q", "from_terminal": "reg_q", "to_terminal": "led_q_in"},
+        ]
+        state["wires"] = wires
+        actions = [{"type": "connect", "payload": w} for w in wires]
+        self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
+                  {"revision": 0, "state": state, "actions": actions})
+        submit = self.call(self.student, "POST", f"/wiring-attempts/{attempt['id']}/submit",
+                           {"revision": 1}).json["data"]
+        self.assertEqual(submit["status"], "submitted")
+        # 三用例连续执行：载入 A5 后 en=0 必须保持
+        self.assertTrue(submit["completed"])
+        self.assertTrue(all(r["passed"] for r in submit["functional_results"]))
+
+    def test_exp03_datapath_executes_program(self):
+        from backend.engines import wiring as engine
+
+        panel = engine._make_panel("EXP-03")
+        state = engine.initial_state(panel)
+        links = [
+            ("pc_q", "rom_addr"), ("rom_data", "ir_d"), ("ir_q", "split_in"),
+            ("ir_q", "ctrl_ir"), ("split_lo", "ext_in"), ("split_lo", "pc_d"),
+            ("ext_out", "mux_a"), ("ext_out", "alu_b"), ("alu_y", "mux_b"),
+            ("mux_y", "acc_d"), ("acc_q", "alu_a"), ("acc_q", "led_acc_in"),
+            ("pc_q", "led_pc_in"), ("ctrl_alu_op", "alu_op"), ("ctrl_acc_sel", "mux_sel"),
+            ("ctrl_acc_en", "acc_en"), ("ctrl_ir_en", "ir_en"), ("ctrl_pc_inc", "pc_inc"),
+            ("ctrl_pc_load", "pc_load"), ("alu_z", "ctrl_alu_z"), ("alu_c", "ctrl_alu_c"),
+            ("clk_out", "pc_clk"), ("clk_out", "ir_clk"), ("clk_out", "acc_clk"),
+            ("clk_out", "ctrl_clk"), ("rst_out", "pc_rst"), ("rst_out", "ir_rst"),
+            ("rst_out", "acc_rst"), ("rst_out", "ctrl_rst"), ("en_out", "pc_en"),
+            ("en_out", "ctrl_en"),
+        ]
+        state["wires"] = [{"id": f"w{i}", "from_terminal": f, "to_terminal": t}
+                          for i, (f, t) in enumerate(links, 1)]
+        valid, errors = engine.validate_structure(panel, state)
+        self.assertTrue(valid, errors)
+        # ROM 内置程序 [LDI 3, ADDI 2, HALT]：完整数据通路跑 12 拍后 ACC=5 且停机
+        s = engine.reset(panel, state)
+        for _ in range(12):
+            s = engine.step(panel, s)
+        self.assertEqual(s["acc_q"], 5)
+        self.assertEqual(s["ir_q"], 0xF0)
+        self.assertEqual(s["halted"], 1)
 
 
 class WiringActionsTest(WiringApiBase):
@@ -213,6 +308,35 @@ class WiringActionsTest(WiringApiBase):
         resp = self.call(self.student, "GET", f"/wiring-attempts/{attempt['id']}/actions").json["data"]
         self.assertEqual(resp["latest_seq"], 1)
         self.assertEqual(len(resp["items"]), 1)
+
+    def test_output_conflict_reports_wire_ids(self):
+        _, ver = self.setup_experiment("EXP-01")
+        attempt = self.create_attempt(ver["id"])
+        state = attempt["state"]
+        state["wires"] = [
+            {"id": "w_a", "from_terminal": "sw_a_out", "to_terminal": "alu_a"},
+            {"id": "w_b", "from_terminal": "sw_b_out", "to_terminal": "alu_a"},
+        ]
+        actions = [{"type": "connect", "payload": w} for w in state["wires"]]
+        self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
+                  {"revision": 0, "state": state, "actions": actions})
+        result = self.call(self.student, "POST", f"/wiring-attempts/{attempt['id']}/validate",
+                           {"revision": 1}).json["data"]
+        conflict = next(e for e in result["errors"] if e["code"] == "OUTPUT_CONFLICT")
+        # 冲突导线可定位，供前端高亮
+        self.assertEqual(sorted(conflict["wire_ids"]), ["w_a", "w_b"])
+
+    def test_list_actions_rejects_non_numeric_after_seq(self):
+        _, ver = self.setup_experiment("EXP-01")
+        attempt = self.create_attempt(ver["id"])
+        self.call(self.student, "GET",
+                  f"/wiring-attempts/{attempt['id']}/actions?after_seq=abc", status=400)
+
+    def test_list_attempts_rejects_non_numeric_student_id(self):
+        _, ver = self.setup_experiment("EXP-01")
+        self.create_attempt(ver["id"])
+        self.call(self.teacher, "GET",
+                  f"/courses/{self.course_id}/wiring-attempts?student_id=abc", status=400)
 
     def test_list_attempts_for_course(self):
         _, ver = self.setup_experiment("EXP-01")

@@ -16,6 +16,7 @@ from backend.shared.api import (
     body,
     page_args,
     paged,
+    positive_int,
     result,
     stamp,
 )
@@ -215,9 +216,8 @@ def save_attempt(aid):
             "SELECT seq,type,payload_json FROM wiring_action WHERE attempt_id=? ORDER BY seq", (aid,)).fetchall()
         replayed = wiring.replay(panel, [{"type": r["type"], "payload": _parse_json(r["payload_json"], "payload")}
                                          for r in all_actions])
-        # 追加本次动作后重放
-        for act in actions:
-            replayed = wiring.replay(panel, [act], base_state=replayed)
+        # 追加本次动作一次性重放：undo/redo 依赖同一批内的操作栈，逐条重放会丢失语义
+        replayed = wiring.replay(panel, actions, base_state=replayed)
         # 比较关键字段
         if replayed.get("wires", []) != state.get("wires", []):
             raise ApiError(422, "STATE_MISMATCH", "server replay wires differ from client state")
@@ -256,6 +256,8 @@ def validate_attempt(aid):
         raise ApiError(404, "NOT_FOUND", "Wiring attempt not found")
     if row["student_id"] != user["id"]:
         raise ApiError(403, "FORBIDDEN", "Not your attempt")
+    if row["status"] != "draft":
+        raise ApiError(409, "STATE_CONFLICT", "Submitted attempt cannot be validated")
     if row["revision"] != revision:
         raise ApiError(409, "REVISION_CONFLICT", "stale revision")
     ver = _row(db, "experiment_version", row["experiment_version_id"])
@@ -329,7 +331,7 @@ def list_actions(aid):
     params = [aid]
     if after_seq is not None:
         where.append("seq>?")
-        params.append(int(after_seq))
+        params.append(positive_int(after_seq, "after_seq"))
     where_sql = " WHERE " + " AND ".join(where)
     total = db.execute("SELECT COUNT(*) FROM wiring_action" + where_sql, params).fetchone()[0]
     rows = db.execute(
@@ -357,7 +359,7 @@ def list_attempts(course_id):
     exp_ver = request.args.get("experiment_version_id")
     if exp_ver is not None:
         where += " AND wa.experiment_version_id=?"
-        params.append(int(exp_ver))
+        params.append(positive_int(exp_ver, "experiment_version_id"))
     if role == "student":
         where += " AND wa.student_id=?"
         params.append(user["id"])
@@ -365,7 +367,7 @@ def list_attempts(course_id):
         sid = request.args.get("student_id")
         if sid is not None:
             where += " AND wa.student_id=?"
-            params.append(int(sid))
+            params.append(positive_int(sid, "student_id"))
     status = request.args.get("status")
     if status in ("draft", "submitted"):
         where += " AND wa.status=?"
