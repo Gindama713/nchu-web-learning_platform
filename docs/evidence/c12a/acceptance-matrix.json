@@ -866,14 +866,17 @@
     "队友环境或剩余缺口": "#17待真实复核/合入，008只经最新develop消费，不在008重复修复；目标性能/生产恢复/Gitea/课堂等原缺口保留",
     "集成结果": "阻断",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
-    "核对日期": "2026-10-15 Asia/Shanghai",
+    "核对日期": "2026-10-16 Asia/Shanghai",
     "PR": "#17（006主修，Refs SPEC-008）",
     "head_SHA": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
     "本轮tested_SHA": "4eadbcbcaf1df2cb8f1245c9fdfcbcfca4523072",
     "证据附件": "https://github.com/Gindama713/nchu-web-learning_platform/blob/e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85/docs/evidence/spec-006/c12b-time/report.json；同目录组件/handler/lint/build日志及截图；C12A_ACCEPTANCE_AUDIT.md C12b增量",
     "非作者不适用批准": "未产生；本清单无不适用项",
     "base_SHA": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
-    "actual_merge_SHA": null
+    "actual_merge_SHA": null,
+    "集成核验": "2026-10-16 00:31 Asia/Shanghai；fetch后origin/develop=f9c49b19c59053be2b171e0b7f2a35d1e050e57e；#14/#15/#16/#17均open/非draft、merged=false/merged_at=null，当前head的policy/lint/test/build/required成功、grader跳过；reviews/threads/comments均空，无真实批准或实际merge。",
+    "集成后补验": "未执行：修复尚未合入develop；复用原固定SHA的本地组件/handler/HTTP/UI证据，不重复整套测试。负责人真实复核并合入后，先核对actual merge属于origin/develop祖先，再同步develop补受影响集成验证；课堂未验收。",
+    "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck"
   },
   {
     "spec": "SPEC-006",
@@ -1420,14 +1423,17 @@
     "队友环境或剩余缺口": "#17待真实复核/合入，008只经最新develop消费，不在008重复修复；目标性能/生产恢复/Gitea/课堂等原缺口保留",
     "集成结果": "阻断",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
-    "核对日期": "2026-10-15 Asia/Shanghai",
+    "核对日期": "2026-10-16 Asia/Shanghai",
     "PR": "#17（006主修，Refs SPEC-008）",
     "head_SHA": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
     "本轮tested_SHA": "4eadbcbcaf1df2cb8f1245c9fdfcbcfca4523072",
     "证据附件": "https://github.com/Gindama713/nchu-web-learning_platform/blob/e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85/docs/evidence/spec-006/c12b-time/report.json；同目录组件/handler/lint/build日志及截图；C12A_ACCEPTANCE_AUDIT.md C12b增量",
     "非作者不适用批准": "未产生；本清单无不适用项",
     "base_SHA": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
-    "actual_merge_SHA": null
+    "actual_merge_SHA": null,
+    "集成核验": "2026-10-16 00:31 Asia/Shanghai；fetch后origin/develop=f9c49b19c59053be2b171e0b7f2a35d1e050e57e；#14/#15/#16/#17均open/非draft、merged=false/merged_at=null，当前head的policy/lint/test/build/required成功、grader跳过；reviews/threads/comments均空，无真实批准或实际merge。",
+    "集成后补验": "未执行：修复尚未合入develop；复用原固定SHA的本地组件/handler/HTTP/UI证据，不重复整套测试。负责人真实复核并合入后，先核对actual merge属于origin/develop祖先，再同步develop补受影响集成验证；课堂未验收。",
+    "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck"
   },
   {
     "spec": "SPEC-008",
@@ -2618,14 +2624,17 @@
     "队友环境或剩余缺口": "#15仍open，待真实复核/合入develop；完整跨链仍阻断；目标性能/生产恢复/Gitea/课堂等原缺口保留",
     "集成结果": "阻断",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
-    "核对日期": "2026-10-15 Asia/Shanghai",
+    "核对日期": "2026-10-16 Asia/Shanghai",
     "PR": "#15",
     "head_SHA": "9fefd17d99242efdd53847029d7d7cafbcadf59d",
     "本轮tested_SHA": "03a03c7611bd2d00e07a33d8f8bd5842bc36f9c9",
     "证据附件": "https://github.com/Gindama713/nchu-web-learning_platform/blob/9fefd17d99242efdd53847029d7d7cafbcadf59d/docs/evidence/spec-012/c12b-time/report.json；同目录组件/handler/lint/build日志及截图；C12A_ACCEPTANCE_AUDIT.md C12b增量",
     "非作者不适用批准": "未产生；本清单无不适用项",
     "base_SHA": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
-    "actual_merge_SHA": null
+    "actual_merge_SHA": null,
+    "集成核验": "2026-10-16 00:31 Asia/Shanghai；fetch后origin/develop=f9c49b19c59053be2b171e0b7f2a35d1e050e57e；#14/#15/#16/#17均open/非draft、merged=false/merged_at=null，当前head的policy/lint/test/build/required成功、grader跳过；reviews/threads/comments均空，无真实批准或实际merge。",
+    "集成后补验": "未执行：修复尚未合入develop；复用原固定SHA的本地组件/handler/HTTP/UI证据，不重复整套测试。负责人真实复核并合入后，先核对actual merge属于origin/develop祖先，再同步develop补受影响集成验证；课堂未验收。",
+    "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck"
   },
   {
     "spec": "SPEC-012",

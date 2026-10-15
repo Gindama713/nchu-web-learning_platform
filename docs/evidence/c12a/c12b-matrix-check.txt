@@ -1,3 +1,6 @@
 131 unique IDs; exact AC/R/NF set retained. 80 local pass / 0 fail / 51 blocked.
 Only SPEC-006/NF-UI, SPEC-008/NF-UI, SPEC-012/NF-UI changed; their integration remains blocked.
 Other 128 row dictionaries unchanged, including all historical evidence and requirements.
+2026-10-16 C12b integration recheck against dcf38ec: only the same three rows gained remote-gate registration/date fields.
+All 131 result/integration-result values and all fixed local tested/head/evidence fields unchanged.
+No merged implementation to consume, no new local business/browser test, no classroom acceptance or real approval.

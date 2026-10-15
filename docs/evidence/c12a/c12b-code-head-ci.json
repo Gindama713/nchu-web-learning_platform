@@ -440,5 +440,313 @@
         "5:23.5226288Z 1..79\\n2026-10-15T13:15:23.5227023Z # tests 79\\n2026-10-15T13:15:23.5227459Z # suites 0\\n2026-10-15T13:15:23.5227851Z # pass 79\\n2026-10-15T13:15:23.5228689Z # fail 0\\n2026-10-15T13:15:23.5229072Z"
       ]
     }
-  ]
+  ],
+  "integration_recheck": {
+    "checked_at_utc": "2026-10-15 16:31:04 UTC",
+    "checked_at_local": "2026-10-16 00:31:04 Asia/Shanghai",
+    "develop": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+    "scope": "C12b integration gate recheck; no new local business/browser test; fixed local evidence reused; no classroom or non-author approval inferred.",
+    "pr16_snapshot_stage": "Pre-document-update head; the pushed document head must have its own CI checked and recorded in PR16 and local excluded handoffs.",
+    "pull_requests": [
+      {
+        "pr": 14,
+        "info": {
+          "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/14",
+          "state": "open",
+          "draft": false,
+          "base_ref": "develop",
+          "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+          "head_ref": "feature/spec-011-qa",
+          "head_sha": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
+          "merged": false,
+          "merged_at": null,
+          "actual_merge_sha": null,
+          "ci_test_ref": "805b1afa2ca40b6955fcae9becaa62acf9c7ac95"
+        },
+        "reviews": [],
+        "review_threads": [],
+        "comments": [],
+        "run": {
+          "id": 38681339662,
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 63,
+          "jobs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/38681339662/jobs",
+          "logs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/38681339662/logs",
+          "workflow_id": 382199978
+        },
+        "jobs": [
+          {
+            "id": 116246362814,
+            "name": "ci-lint",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116246363007,
+            "name": "ci-policy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116246363127,
+            "name": "ci-build",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116246363194,
+            "name": "ci-test",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116246363996,
+            "name": "ci-grader",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "id": 116247200897,
+            "name": "ci-required",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ],
+        "ci_test_log_excerpt": [
+          "45Z \\n2026-10-15T04:25:06.8194705Z HEAD is now at 805b1af Merge bbd9ecdb151cab0ff7a34e94261b5378ceabfb74 into f9c49b19c59053be2b171e0b7f2a35d1e050e57e\\n2026-10-15T04:25:06.8223594Z ##[endgroup]\\n2026-10-15T04:",
+          "----\\n2026-10-15T04:28:03.5812090Z Ran 194 tests in 152.886s\\n2026-10-15T04:28:03.5812332Z \\n2026-10-15T04:28:03.5812552Z OK\\n2026-10-15T04:28:03.7766237Z ##[group]Run npm ci\\n2026-10-15T04:28:03.7766526Z \\u0",
+          "..76\\n2026-10-15T04:28:06.1424950Z # tests 76\\n2026-10-15T04:28:06.1425361Z # suites 0\\n2026-10-15T04:28:06.1425866Z # pass 76\\n2026-10-15T04:28:06.1426325Z # fail 0\\n2026-10-15T04:28:06.1426846Z # cancell"
+        ],
+        "ancestry_check": "Not applicable to actual merge: merged=false / merged_at=null; ci_test_ref is not an actual merge."
+      },
+      {
+        "pr": 15,
+        "info": {
+          "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/15",
+          "state": "open",
+          "draft": false,
+          "base_ref": "develop",
+          "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+          "head_ref": "feature/spec-012-recommendation",
+          "head_sha": "9fefd17d99242efdd53847029d7d7cafbcadf59d",
+          "merged": false,
+          "merged_at": null,
+          "actual_merge_sha": null,
+          "ci_test_ref": "f71b4865bfde8daca143cf209b9fce1f24b225e5"
+        },
+        "reviews": [],
+        "review_threads": [],
+        "comments": [],
+        "run": {
+          "id": 38740733563,
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 72,
+          "jobs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/38740733563/jobs",
+          "logs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/38740733563/logs",
+          "workflow_id": 382199978
+        },
+        "jobs": [
+          {
+            "id": 116441444027,
+            "name": "ci-build",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116441444089,
+            "name": "ci-lint",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116441444278,
+            "name": "ci-test",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116441444298,
+            "name": "ci-policy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116441446395,
+            "name": "ci-grader",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "id": 116442890208,
+            "name": "ci-required",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ],
+        "ci_test_log_excerpt": [
+          "28Z \\n2026-10-15T13:12:31.0273765Z HEAD is now at f71b486 Merge 9fefd17d99242efdd53847029d7d7cafbcadf59d into f9c49b19c59053be2b171e0b7f2a35d1e050e57e\\n2026-10-15T13:12:31.0278148Z ##[endgroup]\\n2026-10-15T13:",
+          "----\\n2026-10-15T13:15:20.9875711Z Ran 190 tests in 146.828s\\n2026-10-15T13:15:20.9876192Z \\n2026-10-15T13:15:20.9876331Z OK\\n2026-10-15T13:15:21.1697871Z ##[group]Run npm ci\\n2026-10-15T13:15:21.1698140Z \\u0",
+          "..79\\n2026-10-15T13:15:23.5227023Z # tests 79\\n2026-10-15T13:15:23.5227459Z # suites 0\\n2026-10-15T13:15:23.5227851Z # pass 79\\n2026-10-15T13:15:23.5228689Z # fail 0\\n2026-10-15T13:15:23.5229072Z # cancell"
+        ],
+        "ancestry_check": "Not applicable to actual merge: merged=false / merged_at=null; ci_test_ref is not an actual merge."
+      },
+      {
+        "pr": 16,
+        "info": {
+          "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/16",
+          "state": "open",
+          "draft": false,
+          "base_ref": "develop",
+          "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+          "head_ref": "feature/spec-010b-knowledge-analysis",
+          "head_sha": "dcf38ec73393a1c875d3479dae371fe12b4fe690",
+          "merged": false,
+          "merged_at": null,
+          "actual_merge_sha": null,
+          "ci_test_ref": "0b395e30c01fef404b190c07fd745b0c08e656ba"
+        },
+        "reviews": [],
+        "review_threads": [],
+        "comments": [],
+        "run": {
+          "id": 38741444389,
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 73,
+          "jobs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/38741444389/jobs",
+          "logs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/38741444389/logs",
+          "workflow_id": 382199978
+        },
+        "jobs": [
+          {
+            "id": 116443880916,
+            "name": "ci-lint",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116443881052,
+            "name": "ci-test",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116443881059,
+            "name": "ci-build",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116443881222,
+            "name": "ci-policy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116443883566,
+            "name": "ci-grader",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "id": 116445274522,
+            "name": "ci-required",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ],
+        "ci_test_log_excerpt": [
+          "22Z \\n2026-10-15T13:17:33.6772184Z HEAD is now at 0b395e3 Merge dcf38ec73393a1c875d3479dae371fe12b4fe690 into f9c49b19c59053be2b171e0b7f2a35d1e050e57e\\n2026-10-15T13:17:33.6776698Z ##[endgroup]\\n2026-10-15T13:",
+          "----\\n2026-10-15T13:20:18.7374741Z Ran 177 tests in 140.677s\\n2026-10-15T13:20:18.7374987Z \\n2026-10-15T13:20:18.7375117Z OK\\n2026-10-15T13:20:18.9146903Z ##[group]Run npm ci\\n2026-10-15T13:20:18.9147183Z \\u0",
+          "..70\\n2026-10-15T13:20:21.3458598Z # tests 70\\n2026-10-15T13:20:21.3458919Z # suites 0\\n2026-10-15T13:20:21.3459225Z # pass 70\\n2026-10-15T13:20:21.3459535Z # fail 0\\n2026-10-15T13:20:21.3459848Z # cancell"
+        ],
+        "ancestry_check": "Not applicable to actual merge: merged=false / merged_at=null; ci_test_ref is not an actual merge."
+      },
+      {
+        "pr": 17,
+        "info": {
+          "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/17",
+          "state": "open",
+          "draft": false,
+          "base_ref": "develop",
+          "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+          "head_ref": "feature/spec-006-exercises",
+          "head_sha": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
+          "merged": false,
+          "merged_at": null,
+          "actual_merge_sha": null,
+          "ci_test_ref": "273081714a48eb9b85df134230d802ed6d4c4ed4"
+        },
+        "reviews": [],
+        "review_threads": [],
+        "comments": [],
+        "run": {
+          "id": 38739998112,
+          "name": "CI",
+          "status": "completed",
+          "conclusion": "success",
+          "run_number": 68,
+          "jobs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/38739998112/jobs",
+          "logs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/38739998112/logs",
+          "workflow_id": 382199978
+        },
+        "jobs": [
+          {
+            "id": 116438884736,
+            "name": "ci-lint",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116438885183,
+            "name": "ci-build",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116438885208,
+            "name": "ci-policy",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116438885319,
+            "name": "ci-test",
+            "status": "completed",
+            "conclusion": "success"
+          },
+          {
+            "id": 116438886989,
+            "name": "ci-grader",
+            "status": "completed",
+            "conclusion": "skipped"
+          },
+          {
+            "id": 116440406305,
+            "name": "ci-required",
+            "status": "completed",
+            "conclusion": "success"
+          }
+        ],
+        "ci_test_log_excerpt": [
+          "63Z \\n2026-10-15T13:07:21.9392035Z HEAD is now at 2730817 Merge e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85 into f9c49b19c59053be2b171e0b7f2a35d1e050e57e\\n2026-10-15T13:07:21.9396694Z ##[endgroup]\\n2026-10-15T13:",
+          "----\\n2026-10-15T13:10:09.0843894Z Ran 177 tests in 140.523s\\n2026-10-15T13:10:09.0844140Z \\n2026-10-15T13:10:09.0844371Z OK\\n2026-10-15T13:10:09.2777947Z ##[group]Run npm ci\\n2026-10-15T13:10:09.2778226Z \\u0",
+          "..77\\n2026-10-15T13:10:11.5780587Z # tests 77\\n2026-10-15T13:10:11.5781090Z # suites 0\\n2026-10-15T13:10:11.5781530Z # pass 77\\n2026-10-15T13:10:11.5781949Z # fail 0\\n2026-10-15T13:10:11.5782357Z # cancell"
+        ],
+        "ancestry_check": "Not applicable to actual merge: merged=false / merged_at=null; ci_test_ref is not an actual merge."
+      }
+    ],
+    "git_head_ancestor_of_origin_develop": {
+      "14": false,
+      "15": false,
+      "16": false,
+      "17": false
+    },
+    "git_current_feature_contains_origin_develop": true
+  }
 }

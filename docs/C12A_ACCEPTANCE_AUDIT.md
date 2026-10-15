@@ -25,6 +25,25 @@
 
 ## C12b修复、验证与集成边界（最新）
 
+### 2026-10-16 C12b集成续核（00:31 Asia/Shanghai）
+
+本轮先fetch，origin/develop仍为`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`；当前010B feature已经包含该基线。独立读取四PR最新元数据、当前head对应Actions、全部6个jobs和ci-test原始日志，以及真实reviews、review_threads、issue comments；完整快照追加于[固定证据](evidence/c12a/c12b-code-head-ci.json)的`integration_recheck`，保留原历史快照。
+
+| PR | 当前head | 当前head的CI run / 实际日志 | 真实评审与合入 |
+|---|---|---|---|
+| [#14](https://github.com/Gindama713/nchu-web-learning_platform/pull/14) | bbd9ecdb151cab0ff7a34e94261b5378ceabfb74 | [38681339662](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38681339662)，后端194项152.886秒 / 前端76项 | open/非draft；reviews/threads/comments=[]；未合入 |
+| [#15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15) | 9fefd17d99242efdd53847029d7d7cafbcadf59d | [38740733563](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38740733563)，后端190项146.828秒 / 前端79项 | open/非draft；reviews/threads/comments=[]；未合入 |
+| [#16](https://github.com/Gindama713/nchu-web-learning_platform/pull/16)（本轮文档更新前） | dcf38ec73393a1c875d3479dae371fe12b4fe690 | [38741444389](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38741444389)，后端177项140.677秒 / 前端70项 | open/非draft；reviews/threads/comments=[]；未合入 |
+| [#17](https://github.com/Gindama713/nchu-web-learning_platform/pull/17) | e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85 | [38739998112](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38739998112)，后端177项140.523秒 / 前端77项 | open/非draft；reviews/threads/comments=[]；未合入 |
+
+四PR base均为上述develop；policy/lint/test/build/required均success，grader按develop规则skipped。四PR均`merged=false`、`merged_at=null`，actual merge SHA为空；Git核验四个head均不在origin/develop祖先链。API的`merge_commit_sha`只是CI合并测试引用，不记为真实merge。没有实际merge可做祖先确认，未执行合入后develop同步或集成测试；本轮没有真实评审问题可回feature修复，也没有真实批准。
+
+006/008共用时间显示及012推荐依据截止的三个NF-UI行已补本次集成门禁核验、日期和后续补验条件；本人本地结果继续通过，集成结果继续阻断。131行仍80通过/0失败/51阻断，其余128行字典完全不变。原固定SHA的组件、真实handler及HTTP/双浏览器证据按下文复用，未重跑整套测试；本轮本地验证仅限文档/JSON/矩阵一致性和diff。远程CI重新查询与既有本地测试分开，真实非作者及课堂验收均未完成。
+
+下一步由负责人完成真实复核/合入；再fetch核对actual merge属于origin/develop祖先，按项目流程同步develop，仅补006/008/012受影响集成验证。文档提交后的新#16 head需独立核验其CI/真实讨论，结果记PR及两份本地排除个人交接，避免将提交自身SHA写回自身。未复制未合入feature代码、未自行合并、未部署/发布，不展开C12c。
+
+### 前轮修复与固定本地证据（保留原SHA）
+
 最新fetch后origin/develop仍`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`。#14/#15/#16/#17均open/非draft，实际reviews/threads/comments=[]；没有真实评审阻断、批准或实际merge，不自造讨论关闭。接入#14 bbd9ecd、#15旧36a9cff、#16旧cd38efb的当前head Actions/jobs/ci-test重新独立读取，必需成功、grader按develop跳过，原实际后端194/190/177及前端76/77/70吻合历史；不是仅复述旧快照。#14未改动。006原#7已合入，只在原SPEC feature快进最新develop后开后续#17。012原#15仍open，继续原feature。
 
 | 范围/主修 | 实际base / 最终实现及证据head | 本轮干净浏览器tested | actual merge / 消费条件 |
