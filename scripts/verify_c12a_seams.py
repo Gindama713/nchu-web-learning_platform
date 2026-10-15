@@ -6,6 +6,7 @@ TEST_NOW come from the existing isolated runner; all learning writes use APIs.
 
 import argparse
 import json
+import sqlite3
 import subprocess
 import traceback
 from contextlib import closing
@@ -13,6 +14,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
+from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import expect, sync_playwright
 
 from backend.shared.db import connect, migrate
@@ -144,6 +146,8 @@ def verify(playwright, channel, output):
             analytics = sp.locator('.analytics-bank')
             analytics.get_by_role('button', name='查询统计', exact=True).click()
             expect(analytics.locator('dd').filter(has_text='33.33%')).to_have_count(1)
+            expect(analytics.locator('.analytics-report')).to_contain_text('（Asia/Shanghai）')
+            expect(analytics.locator('.analytics-report')).not_to_contain_text('T00:00:00.000Z')
             entry['checks'].append('Q4_practice_facts_to_knowledge_three_samples_one_correct_half_progress_zero_sample_ui')
             write(teacher, 'PATCH', f'/knowledge-points/{points[0]}', {'published': False})
             now = get(student, query).json()['data']
@@ -231,7 +235,7 @@ def main():
             for channel in ('chrome', 'msedge'):
                 report['browsers'].append(verify(playwright, channel, args.output))
         report['status'] = 'passed'
-    except Exception as error:
+    except (AssertionError, OSError, RuntimeError, ValueError, sqlite3.Error, PlaywrightError) as error:
         report['status'] = 'failed'
         report['failure_type'] = type(error).__name__
         report['failure_location'] = [f'{frame.name}:{frame.lineno}' for frame in traceback.extract_tb(error.__traceback__)
