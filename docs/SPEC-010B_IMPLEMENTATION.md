@@ -164,4 +164,6 @@ C07a [Actions38574944772](https://github.com/Gindama713/nchu-web-learning_platfo
 
 证据head 1d598b5的[Actions38596864000](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38596864000)实际jobs均已完成，policy/lint/test/build/required全success，grader按develop规则skipped。已读取ci-test日志：后端148项（123.412秒）、前端62项；tested merge=`d96af20847cb2c5996201617307be8fb32e11d0a`，base=7759d65、head=1d598b5。此merge是CI测试引用，不是实际合并，148包含保留的双方专用联测；reviews=[]，不把自动验证记成真实非作者批准。本文后续纯文档提交的当前head CI须另核验，以PR当前检查及个人交接为准。
 
-下一恢复：专用008联测、原ID/CSV和干净双浏览器已补证，无需重复C07业务。先fetch核验PR #12当前head CI/实际评审，再按授权收口。完整010B仍有003/004、Linux4核8GB/50会话/真实worker、完整生产恢复/课堂缺口。013 C08独立PR #11已merge develop 7759d65并完成165项/62项回归，后续C09继续其原feature，不能从本010B未合入续包复制代码。本轮未自行合并、部署或发布。
+2026-10-15恢复收口时再次fetch：013 PR #11已由外部合入develop，实际merge=`bcda8c468e9054579639f3f66c709a54283494aa`，head=d7a0e78（外部另补真实专用quiz历史1/1回归及文档，保留本C08）。PR #12仍open/draft，本续包按共享分支流程merge最新develop，CHG-RB一处冲突保留013与010B两份记录，无运行时代码冲突。本次合并后的回归/最终head CI以PR #12当前结果及个人交接为准，不把上述148项直接升级成合并后次数。
+
+下一恢复：专用008联测、原ID/CSV和干净双浏览器已补证，无需重复C07业务。先fetch核验PR #12当前head CI/实际评审，再按授权收口。完整010B仍有003/004、Linux4核8GB/50会话/真实worker、完整生产恢复/课堂缺口。C08已由外部合入，后续C09回013原feature，先同步最新develop，不能复制本010B未合入续包。C08/C07均不重做，不自动合并、部署或发布。
