@@ -49,10 +49,12 @@ def full(app, password, context, page, course_id, output, entry):
         assert again == data
         entry['checks'].append({'utc_source_until': raw_until, 'displayed': expected+' (Asia/Shanghai)',
                                 'http_data_unchanged_after_render': True})
-    page.set_viewport_size({'width': 390, 'height': 844})
+    # Keep this complete card inside the viewport for Edge's headless capture.
+    page.set_viewport_size({'width': 390, 'height': 1200})
     panel.scroll_into_view_if_needed()
+    expect(panel.locator('.recommendation-meta')).to_be_visible()
     assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
-    panel.screenshot(path=str(output/f"{entry['channel']}-recommendation-390.png"))
+    panel.screenshot(path=str(output/f"{entry['channel']}-recommendation-390.png"), animations='disabled')
     page.set_viewport_size({'width': 1440, 'height': 1000})
     # The existing recommendation entry still uses the original practice component.
     panel.get_by_role('button', name=f"去练习 · 版本 #{question['version_id']}", exact=True).click()
