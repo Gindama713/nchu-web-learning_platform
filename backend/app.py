@@ -21,6 +21,7 @@ from backend.apis import (
     questions,
     quizzes,
     recognition,
+    resources,
     warnings,
 )
 from backend.apis.knowledge import blueprint as knowledge_blueprint
@@ -43,12 +44,14 @@ def create_app(config=None):
         APP_ORIGIN=origin,
         COOKIE_SECURE=environment == "production",
         DATABASE_PATH=os.environ.get("DATABASE_PATH", "instance/app.db"),
+        UPLOAD_ROOT=os.environ.get("UPLOAD_ROOT", "instance/uploads"),
     )
     if config:
         app.config.update(config)
     app.teardown_appcontext(close_db)
     for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
-                      recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp, quizzes.bp):
+                      recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp, quizzes.bp,
+                      resources.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
     app.register_blueprint(knowledge_blueprint)
 
