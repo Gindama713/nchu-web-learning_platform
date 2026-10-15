@@ -1,6 +1,6 @@
 # SPEC-013 智能组卷实施记录
 
-## 2026-10-15 与已合入模块的集成评审（优先于下方历史记录）
+## C08历史：2026-10-15 与已合入模块的集成评审
 
 组长审查后，PR #9 的008与PR #10 的010B已分别合入develop（merge commits `b4a376b860e891a969c9507d69b4cefba5c7f290`、`7759d650e9b0a9b6c2a8070471f1040af603a22f`）。本013分支合并最新develop；README一处文本冲突按8.5统计、8.6组卷顺序保留两边内容，并修正DBD中“013快照表仍待接入”的过时描述。新增真实专用quiz发布、提交客观正确答案后，C08冻结候选历史得到该固定版本c/n=1/1的回归。原C08测试和浏览器/CI证据仅对应旧SHA，合并后的完整回归及CI以PR #11最新提交核验。
 
@@ -48,7 +48,7 @@ C08b专题验证：`python -m unittest tests.test_generation_solver tests.test_g
 
 回退：先保存题目版本、作答、审计与全部generation_snapshot的一致性备份/增量，恢复配套代码和数据库恢复点；不DROP快照/历史表，不修改已应用迁移。旧代码不认识新快照时明确不可用，不重算冒充原结果。
 
-## 当前交接与下一恢复
+## C08历史交接与恢复记录
 
 C08a `16c1928`、C08b `30d2948130e1fbc42dbc8e6ddc8327ede355a356`已推送本feature，并创建open/draft [PR #11](https://github.com/Gindama713/nchu-web-learning_platform/pull/11)。初次基线253a736时#9未合入；随后#9由外部以b4a376b合入，#10亦由外部以`7759d650e9b0a9b6c2a8070471f1040af603a22f`合入develop。本轮按用户优先级返回010B原feature补专用HTTP及干净Chrome/Edge各6组联测，新测试/证据在独立draft [PR #12](https://github.com/Gindama713/nchu-web-learning_platform/pull/12)，解除专用008链阻塞，不带入本013。
 
@@ -57,3 +57,30 @@ C08a `16c1928`、C08b `30d2948130e1fbc42dbc8e6ddc8327ede355a356`已推送本feat
 同步develop后全量本地回归165项通过（245.257秒），前端62项、ruff/lint/build/六文档链接/diff通过。`6a0094e22d7eac9a54be2d4f04de2c78a8ff273e`的[Actions38596794698](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38596794698)实际jobs均已完成：policy/lint/test/build/required全success，grader按develop规则skipped。已读取ci-test日志：后端165项（84.502秒）、前端62项，tested merge=`351e40a1d80205a40eda072827232834020746f0`，base=7759d65、head=6a0094e；此merge只是CI测试引用，不是实际合并。本文后续纯文档提交的当前head检查仍需单独核验，以PR当前检查及个人交接为准，不将本run偷换成之后head。
 
 SPEC-013完整验收未关闭，无generated-papers API、教师页面或C09真实HTTP重放链。下一恢复先fetch核验develop与PR #11/#12及当前head CI，再继续C09本013分支；若目标更新则merge最新develop。追加paper.seed/algorithm_version/generation_snapshot_id FK及发布冻结治理；首次/replay_of二选一，冻结→无写锁求解→重新授权/资格核验→短事务保存snapshot+draft paper/item+审计。重放只接新title，读取旧快照，不读新题库；发布仍用006/008现行保护，不自动发布，不接管队友模块。003/004、Linux4核8GB/50会话/真实worker、完整生产恢复/课堂/实际评审仍待补。本轮未自行合并、部署或发布。
+
+## 当前交接与下一恢复（C09，2026-10-15）
+
+本轮按C09任务卡继续原`feature/spec-013-paper-generation`。fetch核验develop=`bcda8c468e9054579639f3f66c709a54283494aa`；#11已合并，原head=`d7a0e78`，#12仍open/draft、head=`b3f494e89f0428574c8bfa31d8366e1e47a2ff57`、reviews=[]。本地先同步远端013原分支，再merge origin/develop（fast-forward到bcda8c4），保留C08及外部专用quiz历史回归；没有复制#12增量或重复010B联测。#11不更新，创建新的013续包PR至develop；不自行合并、部署或发布。
+
+C09a提交`3925d50320ae6fc8c78e60b0a29d40e7bbe8d228`已推送：generated-papers教师POST入口严格区分首次参数与仅title/replay_of；复用C08冻结及求解，求解不持写事务。取得短写锁后再次检查会话、有效课程教师成员、全部候选版本同课及所选题当前归档/公开/保密占用资格，保存generation_snapshot、draft paper、paper_item和paper.generate审计，任何一步失败全部回滚。seed/algorithm_version早已存在于006b，新增013b只追加generation_snapshot_id FK/索引与来源冻结触发器，不改已应用迁移。重放从原快照复算并核对原selected_ids，每次新建同输入哈希快照及独立草稿，原卷不变；当前资格检查仅查询所选身份和引用，不提取新候选/作答，不替换选题。
+
+C09b提交`e3d92e8`已推送：教师“课程试卷/随堂测→智能组卷”参数、固定版本/配分结果、失败修正提示和原快照重放入口。重放隐藏全部约束，只接受新标题；浏览器以已校验十进制无损发送64位JSON seed，响应seed_text供精确展示。结果仅为draft，查看后仍由教师进入006普通发布或008专用发布；未自动发布。失败移除旧结果、保留参数；身份变化/卸载丢弃迟到响应，权限失败阻断旧表单。网络丢响应不宣称服务端未保存，提示先刷新列表核对。
+
+### C09验收映射与验证性质
+
+| 编号 | 本轮证据 | 状态与限制 |
+|---|---|---|
+| AC-01/AC-02 | tests/test_generated_papers.py真实001/005/006/013 HTTP：固定版本、334/334/333精确总分、仅draft无名单；C08去重及穷举保留 | 本地通过；不扩大为课堂验收 |
+| AC-03/R14 | 真实空题库422、33候选/11标签100000节点HTTP 503 SEARCH_LIMIT，无快照/卷/条目/审计残留；规模题目为明确SQL夹具，知识通过真实API | 本地通过；不是目标环境性能证据 |
+| AC-04/AC-05/R14 | 首次后新增题、版本及真实practice作答；禁止freeze/RNG仍HTTP重放相同有序版本/精确配分；备份副本完整性/FK及真实HTTP重放 | 本地通过；原输入哈希相同，原卷不变 |
+| R25 | 冻结后公开竞态拒绝；保密重放遇公开历史409；普通发布再次拒绝公开题、quiz专用发布/名单/null讲评/全身份占用继续保护 | 本地通过；沿用006/008，不接管003/004 |
+| 权限/事务 | 学生/无关人/管理员/跨课/无快照/非法组合/CSRF拒绝；计算期间真实第二连接撤成员/会话，保存前拒绝；paper/item/audit三个位置触发器故障均整体回滚 | 本地通过；撤教师成员为明确SQL状态夹具，负责教师DELETE本身正确返回409 |
+| R22/R45/R46/R47及NF | 分工/依赖与两段提交可追溯；C08十九项与专用quiz历史保留 | 真实C09非作者评审、课堂、Linux4核8GB/50会话/worker、完整生产恢复仍待执行，不关闭完整SPEC |
+
+专题命令：`.venv/Scripts/python.exe -m unittest tests.test_generated_papers tests.test_generation_input tests.test_generation_snapshot tests.test_generation_solver -v`，29项通过46.366秒（C09新增10项、C08原19项）；全仓ruff通过。首轮测试的负责人DELETE预期及知识SQL缺必填字段已纠正：成员撤权标明SQL夹具、知识通过真实API创建，重跑通过，没有放宽业务保护。前端`npm test`68项通过，lint/build通过，六文档链接/diff通过。全量后端正在独立执行，最终结果随后追加，不能将专题次数代替全量。
+
+真实浏览器预跑：Chrome155.0.8059.41与Edge155.0.4283.45各5组通过、page_errors=[]；覆盖首次精确seed/配分、新题/版本/作答后重放、390px无横向溢出、真实422保留参数/清旧结果、组卷quiz接原专用显式发布。运行时存在未提交UI/脚本，因此该轮只作为预跑，不当作干净SHA正式证据。首轮Chrome完成后出现Windows临时目录清理PermissionError；补充保留原始异常诊断及UTC时区后重跑两浏览器通过。正式证据将对提交后干净树重跑并记录tested_head/dirty_paths，不复用010B截图。浏览器仅初始管理员/教师账号SQL引导，其余课程/知识/题目/作答/生成/发布全部真实HTTP，无伪造API响应；是合成本地数据，不是课堂或生产数据。
+
+下一恢复：先读本节与个人会话计划第6节，fetch核验develop、010B #12和新的013续包PR当前head/CI/真实评审。C09实现已落地，不重做C08/C07/010B联测；先完成本轮干净浏览器证据、全量回归和续包PR当前head CI核验。若develop变化仅按同分支merge同步并复验受影响点，不复制未合入feature。队友003资源/004备课、图文/授权图片、目标性能、worker、完整生产恢复及实际两名非作者复核/课堂证据仍独立记录，不代写。
+
+回退：先备份当前题目版本、作答、paper/item、generation_snapshot及审计一致状态/增量，再使用匹配代码和数据库恢复点。013b是追加迁移，不能改旧checksum、DROP历史或清空快照外键来“回滚”；本轮临时库迁移/备份验证不能替代生产恢复演练。

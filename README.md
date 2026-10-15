@@ -169,9 +169,11 @@ npm run build
 
 运行沿用第8节，无新增迁移。独立API测试为`python -m unittest tests.test_knowledge_analytics tests.test_score_analytics -v`；可选真实Chrome/Edge回归为`python -m scripts.verify_spec010b_analytics`（需已安装两浏览器、`backend/requirements-browser.txt`依赖及前端依赖，5000/5173端口空闲）。测试使用临时受控课程，不写教学库；报告和剩余验收见[SPEC-010B实施记录](docs/SPEC-010B_IMPLEMENTATION.md)。008专用测验链已合入develop，并补真实发布、交卷、统计、批阅、讲评到010B快照/CSV的接口回归；合并后的双浏览器、目标环境性能、完整生产恢复及课堂验收仍未关闭。
 
-### 8.6 SPEC-013组卷算法与快照（C08）
+### 8.6 SPEC-013草稿组卷与快照重放（C08/C09）
 
-C08提供内部候选冻结、确定性回溯和不可变generation_snapshot，尚无组卷HTTP入口或教师操作页。沿用第8节公共`db-upgrade`，新增013_generation_snapshot迁移；不修改已应用SQL。专题验证：`python -m unittest tests.test_generation_input tests.test_generation_solver tests.test_generation_snapshot -v`。快照保存全部候选、真实历史c/n、排序键、参数及seed；新增题/作答后按原快照仍复算相同选题和整数百分之一分。确定无解与搜索预算耗尽分开返回内部ApiError，不生成不合规卷。C09接入draft paper/item事务、replay_of权限和教师页面，再沿用现有发布检查；实施、验收映射及下一恢复见[SPEC-013实施记录](docs/SPEC-013_IMPLEMENTATION.md)。
+C08提供内部候选冻结、确定性回溯和不可变generation_snapshot；C09接入`POST /courses/{id}/generated-papers`及教师“课程试卷/随堂测→智能组卷”。首次填写新标题、题量、总分、难度配额和必选知识点，可选随机种子/历史截止/保密；成功仅保存草稿，显示固定版本和精确配分。“查看草稿与发布设置”继续006/008原流程，发布前仍检查题目资格和冻结名单。通过“从此快照重放”或原快照编号仅填写新标题，使用原约束/seed/全部候选历史，不读取新题库重新选题；原卷不变。
+
+沿用第8节公共`db-upgrade`，追加013_generation_snapshot和013b_generated_papers迁移，不修改已应用SQL。求解不持写锁，权限/当前资格复核及snapshot+draft/item+审计保存同一短事务。400修正参数、422调整题量/配额/覆盖、503 SEARCH_LIMIT缩小约束；失败不返回成功ID，保存错误全回滚。网络丢响应时先刷新列表检查是否已保存再重试。专题验证：`python -m unittest tests.test_generated_papers tests.test_generation_input tests.test_generation_solver tests.test_generation_snapshot -v`；真实浏览器：`python scripts/verify_spec013_browsers.py --output logs/spec-013-browsers`（已安装Chrome/Edge、browser依赖及前端依赖，5000/5173空闲）。实施、真实证据及未完成验收见[SPEC-013实施记录](docs/SPEC-013_IMPLEMENTATION.md)。
 
 <a id="submission-check"></a>
 ## 9 本次提交状态与自查
