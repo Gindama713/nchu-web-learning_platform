@@ -6,15 +6,17 @@ import { AttemptView } from './attempt-view.js'
 import { PracticeView } from './practice-view.js'
 import { KnowledgeView } from './knowledge-view.js'
 import { AnalyticsView } from './analytics-view.js'
+import { ExperimentView } from './experiment-view.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
 import '../styles/papers.css'
 import '../styles/attempts.css'
 import '../styles/analytics.css'
+import '../styles/experiments.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ExperimentView },
   setup() {
     const user = ref(null)
     const csrf = ref('')
@@ -336,6 +338,7 @@ createApp({
         <PaperView v-if="user.role !== 'admin'" :key="'quizzes:' + user.id + ':' + user.role" :user="user" quiz-only />
         <AttemptView v-if="user.role !== 'admin'" :key="'attempts:' + user.id + ':' + user.role" :user="user" />
         <PracticeView v-if="user.role === 'student'" :key="'practice:' + user.id + ':' + user.role" :user="user" />
+        <ExperimentView v-if="user.role !== 'admin'" :key="'experiments:' + user.id + ':' + user.role" :user="user" />
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />
       </template>
     </main>`,
