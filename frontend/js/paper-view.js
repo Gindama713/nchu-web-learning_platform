@@ -2,6 +2,7 @@ import { cloneVNode, h, onMounted, onUnmounted, reactive, ref, watch } from 'vue
 import { PaperClient, paperKinds, paperPayload, publicationPayload, windowStates } from './paper-client.js'
 import { AttemptView } from './attempt-view.js'
 import { QuizClient } from './quiz-client.js'
+import { GenerationView } from './generation-view.js'
 
 export const PaperView = {
   props: { user: { type: Object, required: true }, quizOnly: { type: Boolean, default: false } },
@@ -16,8 +17,10 @@ export const PaperView = {
     const form = reactive({ title: '', kind: props.quizOnly ? 'quiz' : 'homework', confidential: false })
     const times = reactive({ start_at: '', end_at: '', review_at: '', confidentiality_note: '' })
     const statistics = ref(null)
+    const generating = ref(false), replayId = ref(null)
 
     function clear() {
+      generating.value = false; replayId.value = null
       statistics.value = null
       rows.value = []; total.value = 0; selected.value = null; candidates.value = []; items.value = []
       editing.value = false; questionId.value = ''; candidatePage.value = 1
@@ -64,6 +67,9 @@ export const PaperView = {
       if (ticket !== epoch) return
       candidates.value = result; editing.value = true
     }
+    function startGeneration(snapshotId = null) {
+      clear(); replayId.value = snapshotId; generating.value = true
+    }
     function add() {
       const row = candidates.value.find(item => String(item.id) === questionId.value)
       if (!row || items.value.some(item => item.question_id === row.id)) return
@@ -79,6 +85,7 @@ export const PaperView = {
       if (ticket === epoch) selected.value = item
     }
     async function open(id, ticket) {
+      generating.value = false
       statistics.value = null
       selected.value = null; editing.value = false; items.value = []; candidates.value = []
       const item = await api.detail(id)
@@ -189,6 +196,10 @@ export const PaperView = {
         h('h3', item.title), h('p', `${paperKinds[item.kind]} · ${item.status === 'draft' ? '草稿' : windowStates[item.window_state]} · 总分 ${item.total_points}`),
         item.status === 'published' && h('p', `开始：${item.start_at} · 截止：${item.end_at} · 讲评：${item.review_at ?? '待教师讲评'}`),
         teacher() && h('p', `发布冻结人数：${item.participant_count}`),
+        teacher() && item.generation_snapshot_id && h('div', { class: 'actions' }, [
+          h('p', `组卷快照 #${item.generation_snapshot_id} · ${item.algorithm_version}`),
+          button('从此快照重放', () => startGeneration(item.generation_snapshot_id)),
+        ]),
         !teacher() && !item.items && h('p', '试卷尚未开始，开始后可查看题目。'),
         (teacher() || item.window_state === 'closed') && h('ol', { class: 'paper-items' }, (item.items ?? []).map(q => h('li', { key: q.question_version_id }, [
           h('p', `第 ${q.position} 题 · ${q.points} 分 · v${q.version}`), h('p', { class: 'paper-text' }, q.stem),
@@ -228,6 +239,7 @@ export const PaperView = {
           !props.quizOnly && field('筛选试卷类型', select(filters.kind, value => { filters.kind = value }, paperKinds, '全部类型')),
           field('筛选试卷状态', select(filters.status, value => { filters.status = value }, { draft: '草稿', published: '已发布' }, '全部状态')),
           submit('筛选试卷'), teacher() && button('编排新试卷', () => run(edit)),
+          teacher() && button('智能组卷', () => startGeneration()),
         ]),
         h('p', `共 ${total.value} 份试卷`),
         h('ul', { class: 'rows' }, rows.value.map(item => h('li', { key: item.id }, [
@@ -239,6 +251,10 @@ export const PaperView = {
           h('span', `第 ${page.value} 页`),
           button('试卷下一页', () => { page.value++; run(load) }, { disabled: busy.value || page.value * 20 >= total.value }),
         ]),
+        teacher() && generating.value && h(GenerationView, { key: `${epoch}:${courseId.value}:${replayId.value}`,
+          user: props.user, courseId: courseId.value, quizOnly: props.quizOnly, replayId: replayId.value,
+          onOpen: id => run(async ticket => { await load(ticket); if (ticket === epoch) await open(id, ticket) }),
+        }),
         editing.value ? editor() : selected.value && detail(selected.value),
       ]),
     ])
