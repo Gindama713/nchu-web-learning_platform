@@ -15,6 +15,7 @@ from backend.apis import (
     attempts,
     attendance,
     courses,
+    demo,
     identity,
     papers,
     practices,
@@ -50,7 +51,7 @@ def create_app(config=None):
     app.teardown_appcontext(close_db)
     for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
                       recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp,
-                      preparations.bp, quizzes.bp):
+                      preparations.bp, demo.bp, quizzes.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
     app.register_blueprint(knowledge_blueprint)
 
