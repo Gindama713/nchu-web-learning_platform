@@ -26,13 +26,38 @@ const flush = async () => { await setImmediate(); await nextTick() }
 const submit = (root, css) => form(root, css).props.onSubmit({ preventDefault() {} })
 const change = (root, label, value, checked = false) => control(root, label).props[checked ? 'onChange' : 'onInput']({ target: { value, checked: value } })
 
-async function mount(t, role = 'student', history = false, quiz = false) {
+test('attempt result displays Shanghai Monday while original submitted UTC snapshot stays unchanged', async t => {
+  const { root, fixture, attempt } = await mount(t)
+  fixture.latest = { ...attempt, submitted_at: '2026-10-18T16:00:00.000Z' }
+  fixture.rows = [fixture.latest]
+  const before = JSON.stringify(fixture.latest)
+  await button(root, '重新加载答卷').props.onClick(); await flush()
+  assert.match(content(root), /提交时间：2026-10-19 00:00:00 \(Asia\/Shanghai\)/)
+  assert.equal(JSON.stringify(fixture.latest), before)
+  for (const [value, expected] of [[null, '—'], ['bad', '时间异常']]) {
+    fixture.latest = { ...attempt, submitted_at: value }; fixture.rows = [fixture.latest]
+    await button(root, '重新加载答卷').props.onClick(); await flush()
+    assert.ok(content(root).includes(`提交时间：${expected}`))
+  }
+})
+
+for (const [value, expected] of [['2026-10-18T16:00:00Z', '2026-10-19 00:00:00 (Asia/Shanghai)'], [null, '—'], ['bad', '时间异常']]) {
+  test(`quiz deadline handles ${value} without changing server submission or timer authority`, async t => {
+    const { root } = await mount(t, 'student', false, true, { end_at: value })
+    assert.ok(content(root).includes(`截止：${expected}`))
+    assert.match(content(root), /收卷以服务器时间为准/)
+    assert.doesNotMatch(content(root), /NaN|Invalid Date|1970-/)
+  })
+}
+
+async function mount(t, role = 'student', history = false, quiz = false, times = {}) {
   const user = reactive({ id: 7, role })
   const paper = { id: 3, title: 'CPU卷', window_state: 'open', items: [
     { question_version_id: 1, position: 1, type: 'boolean', stem: 'PC？', options: [], points: 1 },
     { question_version_id: 2, position: 2, type: 'short', stem: '解释PC', options: [], points: 2 },
   ] }
   if (quiz) Object.assign(paper, { kind: 'quiz', end_at: '2026-10-13T14:00:00.000Z', review_at: null })
+  Object.assign(paper, times)
   const fixture = { userId: 7, rows: [], writes: [], reads: [], unavailable: false, failSubmit: false, conflict: false, waitDetail: null, latest: null, total: null }
   const attempt = { id: 9, paper_id: 3, student_id: 7, revision: 0, status: 'partial', score: null, partial_score: 1,
     total_points: 3, submitted_at: '2026-10-14T04:00:00Z', answers: [
@@ -77,6 +102,7 @@ test('quiz displays deadline and retries original key after local countdown expi
   const { root, fixture } = await mount(t, 'student', false, true)
   assert.match(content(root), /本机估计剩余 0 分 0 秒/)
   assert.match(content(root), /收卷以服务器时间为准/)
+  assert.match(content(root), /截止：2026-10-13 22:00:00 \(Asia\/Shanghai\)/)
   fixture.failSubmit = true
   change(root, '确认交卷，接受漏答0分且提交后不可修改', true, true)
   submit(root, 'attempt-answer-form'); await flush()

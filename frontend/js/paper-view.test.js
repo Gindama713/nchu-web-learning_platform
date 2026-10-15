@@ -30,6 +30,22 @@ const flush = async () => { await setImmediate(); await nextTick() }
 const submit = (root, css) => all(root).find(item => item.type === 'form' && item.props.class === css)
   .props.onSubmit({ preventDefault() {} })
 
+for (const quizOnly of [false, true]) test(`paper window Shanghai display, week boundary and empty/invalid guards (quiz=${quizOnly})`, async t => {
+  const { root, fixture } = await mount(t, 'teacher', quizOnly)
+  fixture.detail = { id: 3, title: '时区回归', kind: 'homework', status: 'published', window_state: 'upcoming',
+    start_at: '2026-10-18T15:59:59.000Z', end_at: '2026-10-18T16:00:00.000Z', review_at: null, items: [] }
+  fixture.rows = [fixture.detail]
+  const before = JSON.stringify(fixture.detail)
+  await find(root, 'button', '重新加载试卷').props.onClick(); await flush()
+  await find(root, 'button', '#3 · 时区回归 · 未开始').props.onClick(); await flush()
+  assert.match(content(root), /开始：2026-10-18 23:59:59 \(Asia\/Shanghai\).*截止：2026-10-19 00:00:00 \(Asia\/Shanghai\).*讲评：待教师讲评/)
+  assert.equal(JSON.stringify(fixture.detail), before)
+  fixture.detail = { ...fixture.detail, start_at: null, end_at: 'bad', review_at: '2026-10-18T16:02:00Z' }
+  await find(root, 'button', '#3 · 时区回归 · 未开始').props.onClick(); await flush()
+  assert.match(content(root), /开始：— · 截止：时间异常 · 讲评：2026-10-19 00:02:00 \(Asia\/Shanghai\)/)
+  assert.doesNotMatch(content(root), /Invalid Date|1970-/)
+})
+
 async function mount(t, role = 'teacher', quizOnly = false) {
   const fixture = { userId: 7, writes: [], rows: [], detail: null, unavailable: false, waitQuestions: null,
     waitStatistics: null, statistics: null, generationError: null, waitGeneration: null }

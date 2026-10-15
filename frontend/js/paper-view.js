@@ -3,6 +3,7 @@ import { PaperClient, paperKinds, paperPayload, publicationPayload, windowStates
 import { AttemptView } from './attempt-view.js'
 import { QuizClient } from './quiz-client.js'
 import { GenerationView } from './generation-view.js'
+import { paperTime } from './paper-time.js'
 
 export const PaperView = {
   props: { user: { type: Object, required: true }, quizOnly: { type: Boolean, default: false } },
@@ -194,7 +195,7 @@ export const PaperView = {
     function detail(item) {
       return h('article', { class: 'paper-detail' }, [
         h('h3', item.title), h('p', `${paperKinds[item.kind]} · ${item.status === 'draft' ? '草稿' : windowStates[item.window_state]} · 总分 ${item.total_points}`),
-        item.status === 'published' && h('p', `开始：${item.start_at} · 截止：${item.end_at} · 讲评：${item.review_at ?? '待教师讲评'}`),
+        item.status === 'published' && h('p', `开始：${paperTime(item.start_at)} · 截止：${paperTime(item.end_at)} · 讲评：${paperTime(item.review_at, '待教师讲评')}`),
         teacher() && h('p', `发布冻结人数：${item.participant_count}`),
         teacher() && item.generation_snapshot_id && h('div', { class: 'actions' }, [
           h('p', `组卷快照 #${item.generation_snapshot_id} · ${item.algorithm_version}`),
