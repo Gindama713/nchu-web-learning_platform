@@ -1,13 +1,13 @@
 {
-  "date": "2026-10-14T16:12:21.739748+00:00",
+  "date": "2026-10-15T03:32:02.246046+00:00",
   "executor": "Codex, user-authorized automatic verification",
-  "tested_head": "36e2f38c9ab9d70eacb6c9f1f71e7780dad33cea",
+  "tested_head": "d1063a47a11721aa0c25b95de562cffe0a194866",
   "dirty_paths": [],
   "scope": "real merged 001/005/006/008 -> 010B controlled HTTP/UI; no target production/performance",
   "browsers": [
     {
       "channel": "chrome",
-      "version": "155.0.8059.40",
+      "version": "150.0.7871.47",
       "checks": [
         "dedicated_publish_submit_partial_blank_missing_and_real_statistics_ui_omission_denominator",
         "teacher_student_knowledge50_actual_answer_denominator_differs_from_quiz16_7_and_statistics403",
