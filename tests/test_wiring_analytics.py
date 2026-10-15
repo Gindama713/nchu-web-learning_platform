@@ -80,6 +80,31 @@ class WiringMetricsTest(TestCase):
         self.assertEqual(value["assigned_count"], 0)
         self.assertIsNone(value["completion_rate"])
 
+    def test_errors_attributed_to_version_interval(self):
+        # v1 截止 10-15（在 10 月区间），v2 截止 11-15（在 11 月区间）；
+        # 错误必须随版本 end_at 落入对应区间，不能每周重复计数
+        snap = snapshot(assigned=0, completed=0, attempts=0, error_codes=[])
+        snap["versions"] = [
+            {"id": 1, "submission_modes_json": '["wiring"]', "end_at": "2026-10-15T00:00:00.000Z"},
+            {"id": 2, "submission_modes_json": '["wiring"]', "end_at": "2026-11-15T00:00:00.000Z"},
+        ]
+        snap["participants"] = [
+            {"experiment_version_id": 1, "student_id": 1},
+            {"experiment_version_id": 2, "student_id": 1},
+        ]
+        snap["attempts"] = [
+            {"id": 1, "experiment_version_id": 1, "student_id": 1, "status": "draft", "completed": 0},
+            {"id": 2, "experiment_version_id": 2, "student_id": 1, "status": "draft", "completed": 0},
+        ]
+        snap["validations"] = [
+            {"attempt_id": 1, "revision": 1, "errors_json": '[{"code":"REQUIRED_OPEN"}]'},
+            {"attempt_id": 2, "revision": 1, "errors_json": '[{"code":"WIDTH_MISMATCH"}]'},
+        ]
+        october = wiring_interval_metrics(snap, START, END)
+        self.assertEqual(october["error_counts"], {"REQUIRED_OPEN": 1})
+        november = wiring_interval_metrics(snap, "2026-11-01T00:00:00.000Z", "2026-12-01T00:00:00.000Z")
+        self.assertEqual(november["error_counts"], {"WIDTH_MISMATCH": 1})
+
     def test_retry_does_not_increase_completed_students(self):
         # 同一学生多次提交，completed_student_count 去重
         snap = snapshot(assigned=10, completed=0, attempts=0)
