@@ -124,6 +124,10 @@ C08新增迁移`backend/migrations/013_generation_snapshot.sql`，公共runner�
 
 统计查询返回前必须保存analysis_run，不能将快照保留作为可选行为。parameters_json包含已解析的from/to、筛选项及实际对象集合；input_snapshot_json保留同一读快照提取的必要输入，result_json保存完整metrics/series、口径、单位和提示，generated_at为该结果生成时间。学生scope=self且subject_student_id=creator_id；教师指定学生时scope=student，否则class；warning批次为教师创建的class范围。计算在读事务结束后进行，输入和结果在一次短写事务保存，当前权限失效或计算/保存失败不得交付快照ID。
 
+C06 knowledge复用001的analysis_run，不新增表或修改旧SQL。parameters_json冻结已解析from/to、subject student及实际knowledge_ids；input_snapshot_json保存当前已发布知识点的ID/title/content_revision、该学生同集合进度，以及限定课程/个人范围的实际客观作答source/sample_id/student_id/question_version_id/event_at/correct和固定标签，不保存答案原文或其他学生的个人输入。原始事实以(practice,id)/(answer,id)区分，同一读取事务获取K、进度与作答；计算在事务外执行，短写事务复核权限，插入与补入结果ID的UPDATE共同提交。发布结果后应用只读旧快照，新作答/上下架/批分不更新旧记录；快照不参与成绩写入。class没有个人进度输入，其完成数/进度为null；详情、周序列、口径和警告均随result_json冻结。真实API/备份恢复及并发证据见[SPEC-010B实施记录](SPEC-010B_IMPLEMENTATION.md)。
+
+C07 scores继续复用此表，无新迁移。parameters_json保存from/to、kind、paper_id、subject及实际selected_paper_ids；input_snapshot_json保存所选发布卷id/title/kind/start_at/total_hundredths及按paper_id/student_id排序的冻结名单左连接attempt（attempt_id/status/score_hundredths/submitted_at）。个人范围在SQL中限制student_id，不保存其他学生输入；全班保留退出成员的冻结记录。读取同一事务后用Pandas/NumPy计算，短写事务复核当前会话/课程/目标学生后整体保存；缺表/计算/INSERT/UPDATE失败无可用ID。result_json冻结filters、全部metrics、周序列、分箱及单位/警告；CSV仅序列化该结果，读取/导出重新鉴权。C06旧快照未记录filters时不回填或改写。备份副本原ID JSON/CSV恢复、WAL读取期间真实批阅和保存前撤权/停用用例见同一实施记录；不代表完整生产备份恢复已执行。
+
 考勤关联分析不建新的可写成绩表。事实来源为attendance_task/participant/record与paper/participant/attempt，按PRD第4.4节及APIC第5.4节配对。analysis_run.parameters_json另保存实际selected_paper_ids，input_snapshot_json保存有序student_id、考勤分子/分母、有效attempt_id及score/total_points；结果与algorithm_version=attendance-performance-v1同事务保存。后续人工评分、考勤更正、知识上下架或新提交不修改旧分析快照。页面按analysis_run_id读取已保存结果，CSV也只序列化该结果，不从当前事实表重算；读取和导出均重新校验当前课程授权、creator_id、scope及kind。六种统计快照保留至课程验收后90天，清理后按不可用处理，不能回退为最新结果。快照仅是历史查询证据，不参与评分写入。
 
 recognition.items_json保存symbol/bbox/confidence/confidence_band/label/label_status；算法版本及模板SHA在受理时固定。确认只允许recognized/unrecognized→confirmed，同事务保存confirmed_items_json，不允许写成绩或网表实体；低置信度不另存状态。图片继续由file_object管理并先按recognition归属鉴权。
@@ -191,7 +195,7 @@ SPEC-006/C02a迁移单一定义为`backend/migrations/006_question_versions.sql`
 
 ## 9 跨模块事务不变量
 
-SPEC-006/C02b迁移为`backend/migrations/006b_papers.sql`，排序在006_question_versions之后且不修改已应用的C02a文件。新增真实paper/paper_item/paper_participant、查询索引、同课条目检查、复合版本外键和发布冻结触发器；分值存正整数百分之一分。名单只在draft发布事务插入有效同课学生，发布后不能增删改；成员退出仅收紧当前访问，不变更原名单。published的内容/时间不可修改，quiz仅预留review_at从null到不早于截止的一次讲评更新，实际C05入口仍待实现；试卷不能删除。generation_snapshot_id外键及表留待013迁移接入，当前没有算法快照或替身表。普通发布、身份公开历史检查、名单和审计同一短写事务，失败回滚全部；带数据备份测试仅知识使用明确夹具，生产演练未执行。
+SPEC-006/C02b迁移为`backend/migrations/006b_papers.sql`，排序在006_question_versions之后且不修改已应用的C02a文件。新增真实paper/paper_item/paper_participant、查询索引、同课条目检查、复合版本外键和发布冻结触发器；分值存正整数百分之一分。名单只在draft发布事务插入有效同课学生，发布后不能增删改；成员退出仅收紧当前访问，不变更原名单。published的内容/时间不可修改，quiz仅预留review_at从null到不早于截止的一次讲评更新，C05a专用发布已接入，C05b显式讲评入口已接入，复核截止后一次写入并同事务审计；试卷不能删除。013已新增独立generation_snapshot证据表，paper的generation_snapshot_id外键仍待C09迁移接入，当前不能生成持久组卷草稿。普通发布、身份公开历史检查、名单和审计同一短写事务，失败回滚全部；带数据备份测试仅知识使用明确夹具，生产演练未执行。
 
 SPEC-006/C03a新增`backend/migrations/006c_attempts.sql`，不修改既有迁移。接入attempt/answer和第7节公共idempotency_record；attempt复合外键指向原paper_participant，每人每卷唯一，revision默认0；answer有稳定id供事实去重。所有分值为整数百分之一分；partial总分NULL、graded总分等于partial_score，漏答value_json='null'/answered=0/score=0。触发器限定版本属本卷、分数≤原配分、客观分数仅0/满分、待批NULL仅已作答简答，并禁止更改提交身份/原作答或删除历史。C03b复用已作答简答评分字段，不新增或修改迁移：整批先校验，在同一写事务更新score_hundredths/comment/graded_by，重算全卷partial/graded汇总，按原revision条件递增并追加attempt.manual_scores审计（前后每题整数分、评语、评分人及revision）；失败回滚全部评分/汇总/审计。用户+operation+UUID唯一的成功快照保留24小时；paper/quiz共用paper_attempt，原响应JSON和状态码原子保存，批阅/更正不改原快照。C04消费本次完整answer评分事实接入练习及wrong_question，详见下一段；漏答和简答仍不得当作实际客观错答。实际带数据备份副本的迁移重放、完整性/外键和HTTP最新人工分数/原提交重放用例通过，仅知识为明确夹具；生产恢复未执行。
 
@@ -205,3 +209,7 @@ SPEC-006/C03a新增`backend/migrations/006c_attempts.sql`，不修改既有迁�
 SPEC-006/C04新增`backend/migrations/006d_practice_wrong.sql`，不修改已应用迁移。practice_attempt保存固定公开客观版本、原answer_json、answered/correct、整数百分之一分（0/10000）及created_at，与既有预警事实适配器时间字段兼容；不可UPDATE/DELETE。wrong_question只保存UQ(student_id,question_id)状态和最近错误来源（paper=attempt.id，practice=practice_attempt.id），触发器确保来源是同学生/同question的实际客观错误，身份不变、不能删除。wrong_count和来源版本/标签从原answer及practice事实派生，不存易漂移的重复计数。迁移按submitted_at/id倒序回填已有客观错答，漏答/简答排除；迁移重放不重复导入。业务后续交卷/练习与状态投影、审计及公共幂等快照同事务，正确练习只设resolved=1，新错误再置0。
 
 C04独立迁移和带数据备份副本的完整性/外键、HTTP错题/原键重放恢复验证见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。当前SPEC-014适配器按practice_attempt.correct计样本但尚未筛answered=1：本包保留未作答事实并在错题/以后010B口径排除，014的漏答样本筛选需姜苏豪在其分支对接，未改队友统计业务。该依赖不能被既有全部为已作答的适配器测试通过替代。生产恢复、003/004和005真实联测仍须按原边界完成。
+
+SPEC-008/C05a不新增quiz、答卷、成绩或通知表，不修改已应用迁移。专用发布复用006b的quiz空review_at约束；原paper、冻结名单、保密检查、paper.publish审计及冻结学生的quiz提醒共用BEGIN IMMEDIATE事务。通知复用notification的UQ(user_id,event_key)，target_type固定quiz，target_id为原paper.id，event_key为quiz.published:{paper_id}；普通paper发布quiz也用同一事件身份。失败全部回滚，转入/退出不改历史名单或通知身份。paper/quiz仍共用006c的paper_attempt成功快照和同一attempt/answer事实。实施及验证边界见[SPEC-008实施记录](SPEC-008_IMPLEMENTATION.md)。
+
+SPEC-008/C05b复用既有表和冻结触发器，不增加迁移。逐题统计对paper_participant、唯一attempt、固定paper_item及answer在一个BEGIN读事务内聚合，不随当前成员变化漂移分母，不写入成绩或analysis_run。均分用已定分AVG，避免多个合法大分值的整数SUM溢出；漏答0分参与，pending NULL排除。选项分布仅投影原选择题value_json，按原选项顺序返回。显式review在BEGIN IMMEDIATE中复核会话/教师、published quiz及now≥end_at，原review_at从null更新为now且追加quiz.review审计；并发重试保留原时刻，只记一次，审计失败回滚review_at。普通定时quiz已有非null review_at不改动；其余内容/时间仍冻结。答案及解析释放仍经006全版本身份保护，不以截止替代讲评；原提交成功快照不被批分或review改写。

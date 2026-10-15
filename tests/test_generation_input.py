@@ -121,6 +121,20 @@ class GenerationFactsTest(QuestionApiBase):
         self.assertEqual(next(r for r in self.freeze().candidates if r.version_id == new['version_id']).sample_size, 0)
         self.assertEqual(Snapshot.loads(snapshot.dumps(), snapshot.input_sha256), snapshot)
 
+    def test_dedicated_quiz_answer_enters_frozen_history(self):
+        objective = self.create()
+        draft = self.call(self.teacher, 'POST', f'/courses/{self.course_id}/papers',
+                          {'title': '专用随堂测历史', 'kind': 'quiz',
+                           'items': [{'question_version_id': objective['version_id'], 'points': 10}]},
+                          201).json['data']
+        self.call(self.teacher, 'POST', f'/courses/{self.course_id}/quizzes',
+                  {'paper_id': draft['id'], 'start_at': '2026-10-13T10:00:00.000Z',
+                   'end_at': '2026-10-13T13:00:00.000Z'}, 201)
+        self.submit_fact(f"/quizzes/{draft['id']}/attempts", {'answers': [
+            {'question_version_id': objective['version_id'], 'value': 'A'}]})
+        candidate = next(row for row in self.freeze().candidates if row.version_id == objective['version_id'])
+        self.assertEqual((candidate.correct_count, candidate.sample_size), (1, 1))
+
     def test_500_bound_rejects_instead_of_truncating(self):
         with closing(connect(self.path)) as db:
             for value in range(1, 502):

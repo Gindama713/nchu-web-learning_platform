@@ -62,16 +62,19 @@ def get_paper(paper_id):
 
 
 @bp.get('/courses/<int:course_id>/papers')
-def list_papers(course_id):
+def list_papers(course_id, *, quiz=False):
     identifier(course_id)
     user = require_user()
-    if set(request.args) - {'page', 'page_size', 'kind', 'status'} or any(
+    allowed = {'page', 'page_size', 'status'} | (set() if quiz else {'kind'})
+    if set(request.args) - allowed or any(
             len(request.args.getlist(key)) != 1 for key in request.args):
         invalid('查询参数不合法或重复')
     page, size = query_integer('page', 1), query_integer('page_size', 20)
     if size > 100 or (page - 1) * size > MAX_ID:
         invalid('分页超出允许范围')
     where, args = ['p.course_id=?'], [course_id]
+    if quiz:
+        where.append("p.kind='quiz'")
     for name, allowed in (('kind', paper.KINDS), ('status', {'draft', 'published'})):
         value = request.args.get(name)
         if value is not None:
