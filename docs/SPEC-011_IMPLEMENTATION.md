@@ -31,3 +31,7 @@ C10a：`python -m unittest tests.test_qa -v`，15项通过（11.746秒）；5项
 7项新组件测试通过，第一次整套前端70项通过，lint/build通过。`scripts/verify_spec011_qa.py`在Chrome155.0.8059.41/Edge155.0.4283.45各9组通过，page_errors=[]，包含真实socket HTTP、005发布/改文/下架、PC/ACC别名、零向量、查询记录、成员撤权及390px；两种构建失败为明确注入的故障夹具，网络、页面与其他进度操作仍是真实请求。该轮tested_head=66b7ad2加尚未提交的页面/脚本，不能称干净head；提交同步后的干净复验结果另记。
 
 开发期间用户告知组长已合入013。重新fetch/查询确认[PR #13](https://github.com/Gindama713/nchu-web-learning_platform/pull/13)已merged，实际merge=`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`，最终head=`4710a56399d3c3eaf5a97ceaba142fa403263e07`。真实批准为Gindama713（2026-10-15T04:06:52Z），review_threads=[]；当前head的Actions38679487882 policy/lint/test/build/required成功、grader skipped。4710a56相对a687032只有013记录/浏览器证据更新，未发现业务代码增量。将通过merge消费已合入develop并验证接入，不重复实现013，不把一名批准补写成两名。
+
+## 同步后验证（进行中）
+
+同步前011树全量后端182项通过282.075秒、前端70项，保留为旧基线结果。011页面提交`0aada21`后，以merge `c3a4b52c7f6ca4421cf9549ebf8a876ac24869a0`消费已合入的origin/develop f9c49b1，无冲突；只消费013成果，没有改写其代码。同步后17项011专题通过22.344秒，新增真实索引失败期间006公开练习提交201及连续真实005更新三次后503/恢复；阈值边界仍明确属于算法组件夹具。前端全量76项通过，lint/build/ruff/六文档链接通过。同步后的完整后端及干净双浏览器待本节后续记录，当前不能沿用182或第一次双浏览器结果冒充同步后结论。

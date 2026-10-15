@@ -14,6 +14,7 @@ from contextlib import closing
 from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import patch
+from uuid import uuid4
 
 from playwright.sync_api import expect, sync_playwright
 
@@ -63,6 +64,9 @@ def verify(playwright, channel, output):
                 'example': '取指后更新地址。', 'published': True}, 201)['data']['id']
             draft = write(context, 'POST', f'/chapters/{chapter}/knowledge-points', {
                 'title': 'PC草稿', 'content': '草稿内容不可检索', 'published': False}, 201)['data']['id']
+            practice = write(context, 'POST', f'/courses/{course_id}/questions', {
+                'type': 'boolean', 'stem': 'PC保存下一条指令地址？', 'answer': True, 'options': [],
+                'difficulty': 'easy', 'knowledge_ids': [point], 'practice_available': True}, 201)['data']
             student = browser.new_context(viewport={'width': 1440, 'height': 1000})
             student_page = student.new_page()
             student_page.on('pageerror', lambda error: errors.append(type(error).__name__))
@@ -99,10 +103,15 @@ def verify(playwright, channel, output):
                 expect(bank.locator('.qa-matches')).to_have_count(0)
                 # A real independent learning operation remains usable while QA fails.
                 write(student, 'PUT', f'/knowledge-points/{point}/progress', {'completed': True})
+                session = student.request.get(ORIGIN + '/api/v1/auth/session').json()['data']
+                submitted = student.request.post(ORIGIN + f"/api/v1/questions/{practice['id']}/practice-attempts", data={
+                    'question_version_id': practice['version_id'], 'answer': True}, headers={
+                    'Origin': ORIGIN, 'X-CSRF-Token': session['csrf_token'], 'Idempotency-Key': str(uuid4())})
+                assert submitted.status == 201 and submitted.json()['data']['correct']
                 bank.screenshot(path=str(output / f'{channel}-failure.png'))
             recovered = search(student_page, bank, retry=True)['data']
             assert recovered['found'] and '失败恢复' in recovered['matches'][0]['excerpt']
-            checks.append('injected_build_failure_real_HTTP503_clears_UI_other_progress_works_explicit_retry_recovers')
+            checks.append('injected_build_failure_real_HTTP503_clears_UI_real_progress_and_practice_submit201_work_retry_recovers')
 
             write(context, 'PATCH', f'/knowledge-points/{point}', {'published': False})
             with patch.object(qa, 'build_index', side_effect=RuntimeError('controlled unpublish rebuild fault')):

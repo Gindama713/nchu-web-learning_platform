@@ -6,6 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 from contextlib import closing
 from unittest import TestCase
 from unittest.mock import patch
+from uuid import uuid4
 
 import numpy as np
 
@@ -25,6 +26,7 @@ class QAAlgorithmTest(TestCase):
         self.assertEqual(qa.preprocess('PC/ALU/ACC/IR'), '程序计数器/算术逻辑单元/累加器/指令寄存器')
         self.assertEqual(qa.preprocess('PC有什么作用'), '程序计数器有什么作用')
         self.assertEqual(qa.preprocess('space alu2 xACC ir_ _pc'), 'space alu2 xacc ir_ _pc')
+        self.assertEqual(qa.preprocess('xPC pcx xALU ACCx IRa'), 'xpc pcx xalu accx ira')
         self.assertEqual(qa.preprocess('(IR) ＡＬＵ'), '(指令寄存器) 算术逻辑单元')
 
     def test_real_character_grams_smoothed_idf_counts_and_l2(self):
@@ -177,6 +179,39 @@ class QAIntegrationTest(TestCase):
         with patch.object(qa, 'build_index', side_effect=RuntimeError('controlled fault')):
             self.ask(status=503)
         self.assertEqual(self.ask().json['data']['reason'], 'empty_corpus')
+
+    def test_failed_qa_does_not_block_real_objective_practice_submission(self):
+        question = self.call(self.teacher, 'POST', self.course + '/questions', {
+            'type': 'boolean', 'stem': 'PC保存下一条指令地址？', 'answer': True, 'options': [],
+            'difficulty': 'easy', 'knowledge_ids': [self.point], 'practice_available': True}, 201).json['data']
+        with patch.object(qa, 'build_index', side_effect=RuntimeError('controlled index fault')):
+            self.ask(status=503)
+            response = self.student.post(f"/api/v1/questions/{question['id']}/practice-attempts", json={
+                'question_version_id': question['version_id'], 'answer': True}, headers={
+                'Origin': ORIGIN, 'X-CSRF-Token': self.student.csrf, 'Idempotency-Key': str(uuid4())})
+        self.assertEqual(response.status_code, 201, response.json)
+        self.assertTrue(response.json['data']['correct'])
+        with closing(connect(self.path)) as db:
+            self.assertEqual(db.execute('SELECT count(*) FROM practice_attempt').fetchone()[0], 1)
+        self.assertEqual(self.rows('qa_query'), [])
+
+    def test_continuous_real_updates_exhaust_bounded_retry_without_old_result(self):
+        original = qa.build_index
+        revisions = []
+
+        def changing(revision, rows):
+            revisions.append(revision)
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                executor.submit(self.update, content=f'语料变更{len(revisions)}').result()
+            return original(revision, rows)
+
+        with patch.object(qa, 'build_index', side_effect=changing):
+            response = self.ask(status=503)
+        self.assertEqual(response.json['error']['code'], 'INDEX_UNAVAILABLE')
+        self.assertEqual(len(set(revisions)), 3)
+        self.assertEqual(self.rows('qa_query'), [])
+        self.assertNotIn(self.course_id, self.app.extensions['qa_cache'].items)
+        self.assertEqual(self.ask('语料变更3').json['data']['matches'][0]['excerpt'], '语料变更3')
 
     def test_real_update_during_fit_retries_and_atomically_publishes_new_revision(self):
         self.ask()
