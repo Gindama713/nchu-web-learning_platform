@@ -102,7 +102,7 @@ attempt.status只取partial/graded，score_hundredths在partial时NULL，partial
 
 generation_snapshot中的版本ID由事务校验并禁止删除引用版本，JSON仅为不可变算法证据，不替代paper_item外键。跨试卷题目配分按整数百分之一分校验。
 
-C08新增迁移`backend/migrations/013_generation_snapshot.sql`，公共runner按stem/checksum接入，不修改旧SQL。表保存全部有序候选（含版本身份/类型/难度/标签/排序键）、并行历史c/n/rate、标准化参数、原seed、算法版本、source_until、输入SHA-256和有序selected_ids；UPDATE/DELETE触发器禁止覆盖历史，插入触发器与模型在调用方事务校验全部版本同课程且选中版本属于候选。现有question_version全局保留规则保护引用。配分从total_hundredths和选中顺序精确重算，不另存浮点分数或新成绩表。C08只落算法证据，paper的seed/algorithm_version/generation_snapshot_id列及外键留待C09追加迁移，并与paper/item/审计同一事务保存。模型save不自提交，任何后续失败由调用方整体回滚；生产迁移和恢复仍未验收。
+C08新增迁移`backend/migrations/013_generation_snapshot.sql`，公共runner按stem/checksum接入，不修改旧SQL。表保存全部有序候选（含版本身份/类型/难度/标签/排序键）、并行历史c/n/rate、标准化参数、原seed、算法版本、source_until、输入SHA-256和有序selected_ids；UPDATE/DELETE触发器禁止覆盖历史，插入触发器与模型在调用方事务校验全部版本同课程且选中版本属于候选。现有question_version全局保留规则保护引用。配分从total_hundredths和选中顺序精确重算，不另存浮点分数或新成绩表。C09追加`013b_generated_papers.sql`，复用006b已有seed/algorithm_version，仅新增generation_snapshot_id外键、索引及来源冻结触发器。插入核对快照同课、seed、算法、kind和保密标志；来源ID不可更换，已绑定草稿的来源字段不可改，quiz讲评例外也不能改快照引用。无写锁求解后，在同一短事务重新授权/核验当前选题资格，再保存snapshot+draft paper+paper_item+审计；模型不自提交，任何后续失败整体回滚。重放新增独立快照及草稿，保持原输入哈希和选题/配分；生产迁移和恢复仍未验收。
 
 演示状态追加last_tick_at TEXT可空及running INTEGER；单Web进程按服务端时钟推进，pause/close/重启后不补发停机期间时钟，重启一律暂停。revision与state/last_tick_at条件更新原子完成，防止轮询请求造成重复推进。输入动作和元件语义与PRD一致。
 
@@ -195,7 +195,7 @@ SPEC-006/C02a迁移单一定义为`backend/migrations/006_question_versions.sql`
 
 ## 9 跨模块事务不变量
 
-SPEC-006/C02b迁移为`backend/migrations/006b_papers.sql`，排序在006_question_versions之后且不修改已应用的C02a文件。新增真实paper/paper_item/paper_participant、查询索引、同课条目检查、复合版本外键和发布冻结触发器；分值存正整数百分之一分。名单只在draft发布事务插入有效同课学生，发布后不能增删改；成员退出仅收紧当前访问，不变更原名单。published的内容/时间不可修改，quiz仅预留review_at从null到不早于截止的一次讲评更新，C05a专用发布已接入，C05b显式讲评入口已接入，复核截止后一次写入并同事务审计；试卷不能删除。013已新增独立generation_snapshot证据表，paper的generation_snapshot_id外键仍待C09迁移接入，当前不能生成持久组卷草稿。普通发布、身份公开历史检查、名单和审计同一短写事务，失败回滚全部；带数据备份测试仅知识使用明确夹具，生产演练未执行。
+SPEC-006/C02b迁移为`backend/migrations/006b_papers.sql`，排序在006_question_versions之后且不修改已应用的C02a文件。新增真实paper/paper_item/paper_participant、查询索引、同课条目检查、复合版本外键和发布冻结触发器；分值存正整数百分之一分。名单只在draft发布事务插入有效同课学生，发布后不能增删改；成员退出仅收紧当前访问，不变更原名单。published的内容/时间不可修改，quiz仅预留review_at从null到不早于截止的一次讲评更新，C05a专用发布已接入，C05b显式讲评入口已接入，复核截止后一次写入并同事务审计；试卷不能删除。013b已追加paper的generation_snapshot_id外键并接入持久组卷草稿。普通发布、身份公开历史检查、名单和审计同一短写事务，失败回滚全部；早期C02b备份仅知识为明确夹具，C09真实知识/草稿/快照备份结果见013实施记录，生产演练未执行。
 
 SPEC-006/C03a新增`backend/migrations/006c_attempts.sql`，不修改既有迁移。接入attempt/answer和第7节公共idempotency_record；attempt复合外键指向原paper_participant，每人每卷唯一，revision默认0；answer有稳定id供事实去重。所有分值为整数百分之一分；partial总分NULL、graded总分等于partial_score，漏答value_json='null'/answered=0/score=0。触发器限定版本属本卷、分数≤原配分、客观分数仅0/满分、待批NULL仅已作答简答，并禁止更改提交身份/原作答或删除历史。C03b复用已作答简答评分字段，不新增或修改迁移：整批先校验，在同一写事务更新score_hundredths/comment/graded_by，重算全卷partial/graded汇总，按原revision条件递增并追加attempt.manual_scores审计（前后每题整数分、评语、评分人及revision）；失败回滚全部评分/汇总/审计。用户+operation+UUID唯一的成功快照保留24小时；paper/quiz共用paper_attempt，原响应JSON和状态码原子保存，批阅/更正不改原快照。C04消费本次完整answer评分事实接入练习及wrong_question，详见下一段；漏答和简答仍不得当作实际客观错答。实际带数据备份副本的迁移重放、完整性/外键和HTTP最新人工分数/原提交重放用例通过，仅知识为明确夹具；生产恢复未执行。
 

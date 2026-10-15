@@ -156,6 +156,9 @@ def metadata(db, row, *, teacher=False, at=None):
             'confidential': bool(row['confidential']), 'total_points': total / 100,
             'window_state': state, 'start_at': row['start_at'], 'end_at': row['end_at'], 'review_at': row['review_at']}
     if teacher:
+        if 'generation_snapshot_id' in dict(row):
+            item.update(generation_snapshot_id=row['generation_snapshot_id'], seed=row['seed'],
+                        algorithm_version=row['algorithm_version'])
         item['confidentiality_note'] = row['confidentiality_note']
         item['participant_count'] = db.execute('SELECT count(*) FROM paper_participant WHERE paper_id=?',
                                                (row['id'],)).fetchone()[0]
