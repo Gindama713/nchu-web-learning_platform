@@ -32,6 +32,34 @@ C10a：`python -m unittest tests.test_qa -v`，15项通过（11.746秒）；5项
 
 开发期间用户告知组长已合入013。重新fetch/查询确认[PR #13](https://github.com/Gindama713/nchu-web-learning_platform/pull/13)已merged，实际merge=`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`，最终head=`4710a56399d3c3eaf5a97ceaba142fa403263e07`。真实批准为Gindama713（2026-10-15T04:06:52Z），review_threads=[]；当前head的Actions38679487882 policy/lint/test/build/required成功、grader skipped。4710a56相对a687032只有013记录/浏览器证据更新，未发现业务代码增量。将通过merge消费已合入develop并验证接入，不重复实现013，不把一名批准补写成两名。
 
-## 同步后验证（进行中）
+## 同步后验证与当前恢复点
 
-同步前011树全量后端182项通过282.075秒、前端70项，保留为旧基线结果。011页面提交`0aada21`后，以merge `c3a4b52c7f6ca4421cf9549ebf8a876ac24869a0`消费已合入的origin/develop f9c49b1，无冲突；只消费013成果，没有改写其代码。同步后17项011专题通过22.344秒，新增真实索引失败期间006公开练习提交201及连续真实005更新三次后503/恢复；阈值边界仍明确属于算法组件夹具。前端全量76项通过，lint/build/ruff/六文档链接通过。同步后的完整后端及干净双浏览器待本节后续记录，当前不能沿用182或第一次双浏览器结果冒充同步后结论。
+同步前011树全量后端182项通过282.075秒、前端70项，保留为旧基线结果。011页面提交`0aada21`后，以merge `c3a4b52c7f6ca4421cf9549ebf8a876ac24869a0`消费已合入的origin/develop f9c49b1，无冲突；只消费013成果，没有改写其代码。同步后17项011专题通过22.344秒，新增真实索引失败期间006公开练习提交201及连续真实005更新三次后503/恢复；阈值边界仍明确属于算法组件夹具。
+
+最终实现提交`36854081b1ba991a89bacbf7d797ab0620619ae3`已推送；本地完整后端194项通过344.743秒、前端76项通过，ruff（含本轮浏览器脚本）/lint/build/六文档链接/diff通过。[完整后端原始日志](evidence/spec-011/c10-backend-tests.txt)、[前端原始日志](evidence/spec-011/c10-frontend-tests.txt)已版本化。全量自动回归包含develop既有013/010B等用例，没有重复开发或另起其专用联测。
+
+干净3685408（dirty_paths=[]）的Chrome155.0.8059.41、Edge155.0.4283.45各9组通过，page_errors=[]；[报告、JSON及6图](evidence/spec-011/browsers/REPORT.md)包含真实发布/改文/下架、旧revision禁用、故障503/恢复、实际作答201、延迟响应清除、撤权及390px。已目视核对截图；第一次未提交页面的浏览器结果只作为历史，不替代本次干净证据。
+
+实现head的[Actions38680739233](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38680739233)已单独核验policy/lint/test/build/required全部success，grader按develop规则skipped；真实ci-test日志194项146.416秒、前端76。head=3685408、base=f9c49b1、tested merge=`46426f684cf97dbb0f6d535039a5d6be37db9338`，它是CI测试引用，不是实际合并。[CI固定快照](evidence/spec-011/c10-code-ci.json)和[日志摘录](evidence/spec-011/c10-code-ci-test-summary.txt)保留对应SHA。
+
+[PR #14](https://github.com/Gindama713/nchu-web-learning_platform/pull/14)目标develop；最初草稿用于等待当前树完整验证，本地已就绪后转待评审。收口证据/本记录提交后，最终文档head的CI须重新核验，不能套用3685408的run；当前head检查与真实review以该PR为准，最终核验结果写回PR说明和本地计划第6节/个人交接第10.1节。最后读取时reviews=[]、review_threads=[]，尚无011实际非作者复核。个人计划的两名复核目标与GitHub required approvals=0分别记录，不把课程复核目标虚称平台合并门禁。
+
+本轮C10实现及适用本地业务验证已完成，正式SPEC未关闭：R47真实复核、目标Linux4核8GB/50会话性能、生产恢复和课堂证据仍缺。下一恢复先fetch并核验#14当前base/head/CI/review；按实际缺陷修复，不重复C10/C09/C07/010B专用联测。C11推荐未开始，须另按任务卡推进。未自行合并、部署或发布，也未接管队友业务。
+
+## 适用验收与证据性质
+
+| 范围 | 本轮实现及验证 | 证据/限制 |
+|---|---|---|
+| AC-01 | “PC 有什么作用”命中真实已发布程序计数器，显示片段/出处 | 001/005实际业务数据；真实socket HTTP与双浏览器，见[报告](evidence/spec-011/browsers/REPORT.md) |
+| AC-02 | 未知字符/零向量返回no_match；无已发布知识返回empty_corpus；空词表无成功命中 | 真实HTTP/UI空结果；空词表另由算法组件测试证明 |
+| AC-03 | 真实正文更新、下架、再发布改变revision，未发布草稿不进入语料；构建中更新则重新取快照 | 真实005 HTTP及第二线程handler/独立SQLite连接；不是直接灌语料表 |
+| AC-04 | 算法版本、当前revision及对应未舍入分数持久化；页面按6位显示，标为知识片段 | 数据库实际记录断言、真实出处正文和浏览器截图；未接生成模型 |
+| R20（011部分） | 失败503 INDEX_UNAVAILABLE、清除旧缓存；重建及query记录原子提交/替换 | 构建失败为明确mock夹具；qa_index/qa_query触发器故障验证真实事务回滚；真实网络/UI观察；不代做014预警/012推荐 |
+| R35（011部分） | NFKC/HTML实体/小写/空白，四别名及英文边界，1—3gram/平滑IDF/L2，原始0.10边界、未舍入排序、同分ID、top_k/200字符 | [17项专题原始日志](evidence/spec-011/c10-focused-tests.txt)；double阈值边界为算法组件夹具，另有真实HTTP相同语料排序 |
+| R35异常隔离 | 三次真实并发改文后有限503/恢复；失败不阻断真实006练习提交201及005进度 | handler与真实socket HTTP各有验证，不只声称其他模块应当可用 |
+| NF-SEC/UI/DATA适用部分 | 当前会话/CSRF/Origin/撤权/跨课/输入及纯文本片段；过期响应丢弃；双浏览器390px；迁移重放/校验及受控备份重建 | 本地自动验证；不扩展为生产恢复、50会话性能或课堂结论 |
+| R22/R45 | 本人分工/依赖、固定算法输入/预期/实际和证据登记齐全；未扩大到其他人的模块 | 共通项目检查点仍由019组织，不能以C10代码代替全组门禁 |
+| R46 | QA接口仍以APIC第5节、算法以PRD§4.3为单一业务定义；DBD补齐qa_query.algorithm_version/原始分数含义 | 新迁移和共享入口影响在PR说明，权限/API/数据库须实际复核 |
+| R47 | [011 PR #14](https://github.com/Gindama713/nchu-web-learning_platform/pull/14)待实际非作者评审 | 不用作者自测或013的一份批准代替011的两名非作者复核；尚未通过 |
+
+正式原始证据只包含受控合成账号和必要结果，不包含密码、Cookie、CSRF、数据库文件或真实学生答卷。查询原文只在受控数据库保留，不导出到浏览器报告。
