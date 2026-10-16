@@ -6,17 +6,29 @@ import { AttemptView } from './attempt-view.js'
 import { PracticeView } from './practice-view.js'
 import { KnowledgeView } from './knowledge-view.js'
 import { AnalyticsView } from './analytics-view.js'
+import { ResourceView } from './resource-view.js'
+import { ExperimentView } from './experiment-view.js'
+import { QAView } from './qa-view.js'
+import { RecommendationView } from './recommendation-view.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
 import '../styles/papers.css'
 import '../styles/attempts.css'
 import '../styles/analytics.css'
+import '../styles/resources.css'
+import '../styles/experiments.css'
+import '../styles/qa.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, QAView, RecommendationView },
   setup() {
     const user = ref(null)
+    const practiceEntry = ref(null)
+    function openRecommendedPractice(entry) {
+      practiceEntry.value = entry
+      document.querySelector('.practice-bank')?.scrollIntoView({ behavior: 'smooth' })
+    }
     const csrf = ref('')
     const message = ref('请登录或注册。')
     const courses = ref([])
@@ -89,6 +101,7 @@ createApp({
       await act(async () => {
         await write('/api/v1/auth/logout', 'POST')
         user.value = null
+        practiceEntry.value = null
         csrf.value = ''
         courseId.value = null
         courses.value = []
@@ -255,7 +268,7 @@ createApp({
       }, '结构草稿已确认，不会自动运行或计分。')
     }
     onMounted(session)
-    return { user, message, courses, people, courseId, tasks, leaves, records, warnings, notifications, analysis,
+    return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, login, register,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, createTask, rotate, close, checkIn,
       leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm }
@@ -290,6 +303,7 @@ createApp({
             <button v-if="person.role === 'student'" type="button" class="secondary" @click="promote(person)">设为教师</button>
             <button v-if="person.role !== 'admin' && person.active" type="button" class="secondary" @click="deactivate(person)">停用</button></li></ul></section>
         <knowledge-view />
+        <QAView :key="'qa:' + user.id + ':' + user.role" :user="user" />
         <section class="card"><h2>通知</h2><ul class="rows"><li v-for="item in notifications" :key="item.id">{{ item.title }} · {{ item.read_at ? '已读' : '未读' }}
           <button v-if="!item.read_at" type="button" class="secondary" @click="markRead(item.id)">标记已读</button></li></ul></section>
         <template v-if="courseId && user.role !== 'admin'">
@@ -335,7 +349,10 @@ createApp({
         <PaperView v-if="user.role !== 'admin'" :key="'papers:' + user.id + ':' + user.role" :user="user" />
         <PaperView v-if="user.role !== 'admin'" :key="'quizzes:' + user.id + ':' + user.role" :user="user" quiz-only />
         <AttemptView v-if="user.role !== 'admin'" :key="'attempts:' + user.id + ':' + user.role" :user="user" />
-        <PracticeView v-if="user.role === 'student'" :key="'practice:' + user.id + ':' + user.role" :user="user" />
+        <RecommendationView v-if="user.role === 'student'" :key="'recommendation:' + user.id + ':' + user.role" :user="user" @practice="openRecommendedPractice" />
+        <PracticeView v-if="user.role === 'student'" :key="'practice:' + user.id + ':' + user.role" :user="user" :entry="practiceEntry" />
+        <ResourceView v-if="user.role !== 'admin'" :key="'resources:' + user.id + ':' + user.role" />
+        <ExperimentView v-if="user.role !== 'admin'" :key="'experiments:' + user.id + ':' + user.role" :user="user" />
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />
       </template>
     </main>`,

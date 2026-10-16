@@ -1,5 +1,9 @@
 # SPEC-008 / C05a—C05b 随堂测、逐题统计与显式讲评
 
+## 2026-10-15 C12b共用显示增量（最新）
+
+C12a-UI-02共用PaperView/AttemptView由SPEC-006主修，详见[006 C12b记录](SPEC-006_IMPLEMENTATION.md)及[真实HTTP/双浏览器报告](evidence/spec-006/c12b-time/report.json)。006 feature干净tested=4eadbcbcaf1df2cb8f1245c9fdfcbcfca4523072；008不建立重复代码修复、不从未合入feature复制，后续只消费最新develop。仅窗口/讲评/截止/提交显示Asia/Shanghai，UTC数据及服务器截止、答案保护、原成功幂等快照不改。组件替身与5项真实handler、Chrome/Edge真实HTTP/UI分层；原C05/EQB等证据按原SHA复用，没有重跑008→010B专用链。新PR/真实评审/CI/合入独立核验；完整008、003/004/007接缝、目标性能/生产恢复/Gitea/课堂仍未关闭。下方“当前恢复”保留C05历史，以上增量优先。
+
 责任人：黄俊诚（24201716）。记录日期：2026-10-14，Asia/Shanghai。依据：[PRD完整验收](PRD.md#accept-spec-008)、[APIC§4/9/11](APIC.md)、[DBD§4/7/9](DBD.md)。C05a/C05b本人功能已实施；完整008/006验收、跨模块依赖及非作者评审未关闭。最新C05b记录优先于下方C05a历史证据。
 
 ## 当前恢复点

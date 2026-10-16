@@ -26,7 +26,7 @@ const flush = async () => { await setImmediate(); await nextTick() }
 const submit = (root, css) => form(root, css).props.onSubmit({ preventDefault() {} })
 const change = (root, label, value, checked = false) => control(root, label).props[checked ? 'onChange' : 'onInput']({ target: { value, checked: value } })
 
-async function mount(t) {
+async function mount(t, entry = null) {
   const user = reactive({ id: 1, role: 'student' })
   const q = { id: 5, version_id: 8, version: 1, stem: '<script>旧题干</script>', type: 'boolean', options: [], knowledge_ids: [2], practice_available: true }
   const fixture = { q, public: [q], wrong: [], writes: [], reads: [], userId: 1, fail: false, status: 0, wait: null, unavailable: false, total: null }
@@ -48,7 +48,7 @@ async function mount(t) {
     if (path.includes('/wrong-questions?')) return result(fixture.wrong, fixture.total ?? fixture.wrong.length)
     throw new Error(path)
   }
-  const root = element('root'), app = renderer.createApp(PracticeView, { user })
+  const root = element('root'), app = renderer.createApp(PracticeView, { user, entry })
   app.mount(root)
   t.after(() => { app.unmount(); globalThis.fetch = previous })
   await flush()
@@ -56,6 +56,20 @@ async function mount(t) {
 }
 
 const open = async root => { button(root, '#5 · v1 · <script>旧题干</script>').props.onClick(); await flush() }
+
+test('recommendation opens exact current version via existing public API and normal submission', async t => {
+  const { root, fixture } = await mount(t, { courseId: 3, knowledgeId: 2, versionId: 8 })
+  assert.ok(form(root, 'practice-form'))
+  assert.match(fixture.reads.find(path => path.includes('/questions?')), /knowledge_id=2/)
+  submit(root, 'practice-form'); await flush()
+  assert.equal(JSON.parse(fixture.writes[0].options.body).question_version_id, 8)
+})
+
+test('recommendation cannot substitute another version when selected entry disappeared', async t => {
+  const { root } = await mount(t, { courseId: 3, knowledgeId: 2, versionId: 9 })
+  assert.match(content(root), /已变化或不可用/)
+  assert.equal(form(root, 'practice-form'), undefined)
+})
 
 test('public exercise has no reference before submit and binds fixed version even on latest update', async t => {
   const { root, fixture } = await mount(t)

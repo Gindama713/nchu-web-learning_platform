@@ -7,6 +7,8 @@ from html import escape
 from html.parser import HTMLParser
 from pathlib import Path
 
+import numpy as np
+
 from backend.models.knowledge_migration import CHECKSUM, VERSION
 
 
@@ -302,3 +304,115 @@ class KnowledgeStore:
                 "LEFT JOIN learning_progress p ON p.knowledge_id=k.id AND p.user_id=? "
                 "WHERE c.course_id=? AND k.published=1 ORDER BY k.id", (user_id, course_id)).fetchall()
             return [dict(row) for row in rows]
+
+    # ---------- SPEC-015 知识图谱 ----------
+
+    def _course_knowledge_ids(self, db, course_id, role):
+        """返回课程内可见的知识点 ID 列表（学生仅可见已发布）。"""
+        where = ["c.course_id=?"]
+        args = [course_id]
+        if role == "student":
+            where.append("k.published=1")
+        clause = " AND ".join(where)
+        rows = db.execute(
+            f"SELECT k.id FROM knowledge_point k JOIN chapter c ON c.id=k.chapter_id WHERE {clause} ORDER BY k.id",
+            args).fetchall()
+        return [row[0] for row in rows]
+
+    def _prerequisite_matrix(self, db, node_ids):
+        """根据先修边构建邻接矩阵，返回 (matrix, id_to_idx)。"""
+        id_to_idx = {kid: idx for idx, kid in enumerate(node_ids)}
+        n = len(node_ids)
+        matrix = np.zeros((n, n), dtype=np.int8)
+        if n == 0:
+            return matrix, id_to_idx
+        marks = ",".join("?" for _ in node_ids)
+        edges = db.execute(
+            f"SELECT source_id,target_id FROM knowledge_edge WHERE type='prerequisite' "
+            f"AND source_id IN ({marks}) AND target_id IN ({marks})",
+            (*node_ids, *node_ids)).fetchall()
+        for edge in edges:
+            s, t = id_to_idx.get(edge[0]), id_to_idx.get(edge[1])
+            if s is not None and t is not None:
+                matrix[s, t] = 1
+        return matrix, id_to_idx
+
+    @staticmethod
+    def _reachable(matrix):
+        """计算传递闭包：Warshall 算法，返回 reachable[i][j] 表示 i 可达 j。"""
+        n = matrix.shape[0]
+        reach = matrix.copy()
+        for k in range(n):
+            reach = reach | (reach[:, [k]] & reach[[k], :])
+        return reach
+
+    def add_edge(self, user_id, course_id, body):
+        values = payload(body, {"source_id", "target_id", "type"}, {"source_id", "target_id", "type"})
+        source_id = positive_id(values["source_id"])
+        target_id = positive_id(values["target_id"])
+        edge_type = values["type"]
+        if edge_type not in ("prerequisite", "contains"):
+            invalid("type 必须为 prerequisite 或 contains")
+        if source_id == target_id:
+            invalid("边两端不能指向同一知识点")
+        with self.transaction(user_id, True) as (db, user):
+            self.access(db, user, course_id, "teacher")
+            src = self.knowledge(db, user, source_id, "teacher")
+            tgt = self.knowledge(db, user, target_id, "teacher")
+            if src["course_id"] != course_id or tgt["course_id"] != course_id:
+                raise KnowledgeError(422, "CROSS_COURSE_EDGE", "边两端必须属于同一课程")
+            if edge_type == "prerequisite":
+                node_ids = self._course_knowledge_ids(db, course_id, "teacher")
+                matrix, id_to_idx = self._prerequisite_matrix(db, node_ids)
+                if source_id in id_to_idx and target_id in id_to_idx:
+                    reach = self._reachable(matrix)
+                    if reach[id_to_idx[target_id], id_to_idx[source_id]]:
+                        raise KnowledgeError(422, "PREREQUISITE_CYCLE", "先修关系存在环")
+            now = datetime.now(UTC).isoformat(timespec="microseconds").replace("+00:00", "Z")
+            db.execute(
+                "INSERT INTO knowledge_edge(source_id,target_id,type,created_at) VALUES(?,?,?,?) "
+                "ON CONFLICT(source_id,target_id,type) DO NOTHING",
+                (source_id, target_id, edge_type, now))
+            return {"source_id": source_id, "target_id": target_id, "type": edge_type}
+
+    def knowledge_graph(self, user_id, course_id, root_id=None):
+        with self.transaction(user_id) as (db, user):
+            _, role = self.access(db, user, course_id)
+            node_ids = self._course_knowledge_ids(db, course_id, role)
+            if not node_ids:
+                return {"nodes": [], "edges": [], "prerequisite_paths": []}
+            marks = ",".join("?" for _ in node_ids)
+            mastery_rows = db.execute(
+                f"SELECT k.id,k.title,k.is_foundational,COALESCE(p.completed,0) completed "
+                f"FROM knowledge_point k JOIN chapter c ON c.id=k.chapter_id "
+                f"LEFT JOIN learning_progress p ON p.knowledge_id=k.id AND p.user_id=? "
+                f"WHERE k.id IN ({marks})", (user_id, *node_ids)).fetchall()
+            nodes = [{"id": r[0], "title": r[1], "is_foundational": bool(r[2]),
+                      "mastery": 1.0 if r[3] else 0.0} for r in mastery_rows]
+            edge_rows = db.execute(
+                f"SELECT source_id,target_id,type FROM knowledge_edge "
+                f"WHERE source_id IN ({marks}) AND target_id IN ({marks})",
+                (*node_ids, *node_ids)).fetchall()
+            edges = [{"source": r[0], "target": r[1], "type": r[2]} for r in edge_rows]
+            matrix, id_to_idx = self._prerequisite_matrix(db, node_ids)
+            idx_to_id = {v: k for k, v in id_to_idx.items()}
+            reach = self._reachable(matrix)
+            prerequisite_paths = []
+            for i in range(len(node_ids)):
+                for j in range(len(node_ids)):
+                    if i != j and reach[i, j]:
+                        prerequisite_paths.append({"from": idx_to_id[i], "to": idx_to_id[j]})
+            result = {"nodes": nodes, "edges": edges, "prerequisite_paths": prerequisite_paths}
+            if root_id is not None:
+                root_id = positive_id(root_id)
+                if root_id not in id_to_idx:
+                    raise KnowledgeError(404, "NOT_FOUND", "根知识点不存在或不可见")
+                root_idx = id_to_idx[root_id]
+                related = {root_id}
+                for j in range(len(node_ids)):
+                    if reach[root_idx, j] or reach[j, root_idx]:
+                        related.add(idx_to_id[j])
+                result["nodes"] = [n for n in nodes if n["id"] in related]
+                result["edges"] = [e for e in edges if e["source"] in related and e["target"] in related]
+                result["root_id"] = root_id
+            return result

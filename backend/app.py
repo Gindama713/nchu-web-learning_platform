@@ -15,15 +15,23 @@ from backend.apis import (
     attempts,
     attendance,
     courses,
+    demo,
+    experiments,
     identity,
     papers,
     practices,
+    preparations,
     questions,
     quizzes,
     recognition,
+    recommendations,
+    resources,
     warnings,
+    wiring,
 )
 from backend.apis.knowledge import blueprint as knowledge_blueprint
+from backend.apis.qa import blueprint as qa_blueprint
+from backend.models.qa import IndexCache
 from backend.shared.api import ApiError, request_id, result, stamp
 from backend.shared.auth import COOKIE, check_csrf
 from backend.shared.catalog import MODULES
@@ -43,14 +51,19 @@ def create_app(config=None):
         APP_ORIGIN=origin,
         COOKIE_SECURE=environment == "production",
         DATABASE_PATH=os.environ.get("DATABASE_PATH", "instance/app.db"),
+        UPLOAD_ROOT=os.environ.get("UPLOAD_ROOT", "instance/uploads"),
     )
     if config:
         app.config.update(config)
     app.teardown_appcontext(close_db)
     for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
-                      recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp, quizzes.bp):
+                      recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp, quizzes.bp,
+                      resources.bp, experiments.bp, preparations.bp, demo.bp, wiring.bp,
+                      recommendations.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
     app.register_blueprint(knowledge_blueprint)
+    app.extensions["qa_cache"] = IndexCache()
+    app.register_blueprint(qa_blueprint)
 
     @app.before_request
     def protect_writes():

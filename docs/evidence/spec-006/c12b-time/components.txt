@@ -1,0 +1,34 @@
+✔ attempt result displays Shanghai Monday while original submitted UTC snapshot stays unchanged (12.6686ms)
+✔ quiz deadline handles 2026-10-18T16:00:00Z without changing server submission or timer authority (1.4073ms)
+✔ quiz deadline handles null without changing server submission or timer authority (1.013ms)
+✔ quiz deadline handles bad without changing server submission or timer authority (0.9302ms)
+✔ quiz displays deadline and retries original key after local countdown expires (4.8007ms)
+✔ student false answer and short text submit once and then display latest pending result (2.1265ms)
+✔ lost submission response exposes retry with same payload and key (2.7306ms)
+✔ teacher grades by selected original revision and conflict locks until reload (3.5799ms)
+✔ history pagination and filters request current course and score state (2.5343ms)
+✔ identity change drops late results and prevents old teacher writes (1.6001ms)
+✔ failed refresh removes old result and retry loads current state (1.9814ms)
+✔ paper UTC Sunday crosses Shanghai day/week and midnight is 00, with no source mutation (0.1419ms)
+✔ paper empty and malformed timestamps do not become epoch or browser-local dates (0.0797ms)
+✔ paper window Shanghai display, week boundary and empty/invalid guards (quiz=false) (5.3098ms)
+✔ paper window Shanghai display, week boundary and empty/invalid guards (quiz=true) (2.5456ms)
+✔ dedicated quiz screen creates quiz drafts and publishes without automatic review (5.3068ms)
+✔ teacher selects fixed versions, changes order and publishes with confirmation (4.2319ms)
+✔ teacher generation shows exact result and opens existing publication screen; replay hides constraints (5.7965ms)
+✔ generation errors keep parameters and clear stale result; session change removes form (3.577ms)
+✔ late generation response is discarded after identity change and students have no entry (2.9176ms)
+✔ student can open prestart metadata without teacher controls or premature answers (3.1874ms)
+✔ session changes block writes and discard the old editor (2.3508ms)
+✔ changing identity discards a late candidate response and teacher form (1.5646ms)
+✔ teacher statistics shows nulls and pending; explicit review refreshes original paper (3.2185ms)
+✔ review controls follow server window and session verification prevents writes (3.8584ms)
+✔ student has no statistics/review controls and late teacher statistics is discarded on identity change (5.0257ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 181.0372

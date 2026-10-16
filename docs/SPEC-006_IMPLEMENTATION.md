@@ -1,5 +1,19 @@
 # SPEC-006 / C02a—C04 实施与验证记录
 
+## 2026-10-15 C12b：共用时间显示修复（最新）
+
+黄俊诚（24201716）授权下Codex执行。C12a-UI-02由SPEC-006主修，影响SPEC-008共用PaperView/AttemptView；008分支不重复修复，只经负责人合入develop后消费。既有006 feature快进至最新已合入develop `f9c49b19c59053be2b171e0b7f2a35d1e050e57e`，未复制open #14/15/16实现。接入时三个PR均open/非draft，实际reviews/threads/comments为空；各当前head必需CI重新读取成功，grader按develop跳过，详见[远端快照](evidence/spec-006/c12b-time/start-remote.json)。#7已合入，不重开，使用006后续PR。
+
+代码提交`4eadbcbcaf1df2cb8f1245c9fdfcbcfca4523072`已推送原006 feature。窗口开始/截止/讲评、quiz截止及答卷提交使用局部paperTime显示函数，明确Asia/Shanghai/h23。空值为“—”，null讲评保留“待教师讲评”，无时区/非法日期显示“时间异常”，无效倒计时为“—”。只改显示，原publication输入转换、服务器窗口、判分/保密/幂等、数据库/接口/CSV/原快照UTC语义均不改；无迁移、公共框架重构或无关CI修改。Refs: SPEC-006、SPEC-008、PRD§8。
+
+验证分层：26项受影响前端组件/HTTP替身（新增8项，含UTC周日15:59:59→上海周日23:59:59、16:00→周一00:00、显式时区、空/异常/无时区、原对象不变）；[组件日志](evidence/spec-006/c12b-time/components.txt)。5项既有真实handler/SQLite回归通过14.788秒，覆盖paper窗口/原键重放、quiz截止拒绝、固定快照/讲评保护与释放；[handler日志](evidence/spec-006/c12b-time/handler-tests.txt)。lint/build、ruff本脚本、六文档链接/diff通过。没有重跑C10/C11/C09/C07或008→010B专用联测。
+
+[正式HTTP/浏览器报告](evidence/spec-006/c12b-time/report.json)固定干净tested=`4eadbcbcaf1df2cb8f1245c9fdfcbcfca4523072`，dirty_paths=[]；Chrome155.0.8059.41（浏览器UTC）/Edge155.0.4283.45（America/Los_Angeles）各4组，page_errors=[]。通过真实005 API建知识、006考试/008专用发布，真实UI交卷；TEST_NOW控制跨日/周界，账号仅bootstrap，成功响应无替身。开始前及截止新提交409；截止前成功键在截止/讲评后201字节完全一致。数据库submitted_at始终`2026-10-18T16:00:00.000Z`，GET data渲染前后相等；讲评前paper/attempt无答案，定时/显式讲评后开放。原始快照哈希在报告，CSV/统计无源码变化，复用C12a原快照/CSV证据，不扩大为本轮重新联测。
+
+8张390px截图同目录（chrome/msedge、exam/quiz、window/submitted）；自动检查页面无横向溢出，已目视Chrome考试窗口/quiz提交、Edge quiz窗口，明确日期/时区可读。倒计时按真实客户端时钟估计，与受控服务器日期相差数天属夹具环境，服务器拒绝/受理结果独立验证，不以倒计时决定业务窗口。复现：`.venv/Scripts/python.exe -m scripts.verify_c12b_paper_time --output logs/c12b/paper-recheck`。
+
+调试失败留痕：最初先登录再跳TEST_NOW使会话过期，改为登录前设固定时钟；GET完整信封含动态元信息不可按字节比较，改为比较data（成功幂等响应仍逐字节）；第二轮late学生已有会话却再次等待登录表单超时，改为先检查会话。三者仅脚本修正；预运行dirty不作正式提交证据。课堂、真实非作者复核、Linux4核8GB/50会话/worker、资源/备课/演示依赖、生产恢复/90天保留及Gitea仍阻断，局部修复不关闭完整006/008。PR最终head/CI/真实评审另查，未自行合并、部署、发布或发送消息。
+
 ## 2026-10-14 C05a接入更新
 
 SPEC-008在独立feature/spec-008-quiz从已含005/006的develop继续，C05a专用quiz发布/列表、原限时作答及提醒已实施，本地114/50回归通过；逐题统计与显式review留待C05b。详情见[SPEC-008实施记录](SPEC-008_IMPLEMENTATION.md)。下方“C05未实施”均为此前快照；合并后的双浏览器、003/004、目标环境/完整恢复及第二名非作者评审仍待补，006完整验收未关闭。014漏答筛选已由原负责人通过PR #8合入develop，本轮快进同步253a736。
