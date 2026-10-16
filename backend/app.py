@@ -29,6 +29,8 @@ from backend.apis import (
     wiring,
 )
 from backend.apis.knowledge import blueprint as knowledge_blueprint
+from backend.apis.qa import blueprint as qa_blueprint
+from backend.models.qa import IndexCache
 from backend.shared.api import ApiError, request_id, result, stamp
 from backend.shared.auth import COOKIE, check_csrf
 from backend.shared.catalog import MODULES
@@ -58,6 +60,8 @@ def create_app(config=None):
                       resources.bp, experiments.bp, preparations.bp, demo.bp, wiring.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
     app.register_blueprint(knowledge_blueprint)
+    app.extensions["qa_cache"] = IndexCache()
+    app.register_blueprint(qa_blueprint)
 
     @app.before_request
     def protect_writes():

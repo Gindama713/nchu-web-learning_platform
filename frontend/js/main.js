@@ -8,6 +8,7 @@ import { KnowledgeView } from './knowledge-view.js'
 import { AnalyticsView } from './analytics-view.js'
 import { ResourceView } from './resource-view.js'
 import { ExperimentView } from './experiment-view.js'
+import { QAView } from './qa-view.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
@@ -16,9 +17,10 @@ import '../styles/attempts.css'
 import '../styles/analytics.css'
 import '../styles/resources.css'
 import '../styles/experiments.css'
+import '../styles/qa.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, QAView },
   setup() {
     const user = ref(null)
     const csrf = ref('')
@@ -294,6 +296,7 @@ createApp({
             <button v-if="person.role === 'student'" type="button" class="secondary" @click="promote(person)">设为教师</button>
             <button v-if="person.role !== 'admin' && person.active" type="button" class="secondary" @click="deactivate(person)">停用</button></li></ul></section>
         <knowledge-view />
+        <QAView :key="'qa:' + user.id + ':' + user.role" :user="user" />
         <section class="card"><h2>通知</h2><ul class="rows"><li v-for="item in notifications" :key="item.id">{{ item.title }} · {{ item.read_at ? '已读' : '未读' }}
           <button v-if="!item.read_at" type="button" class="secondary" @click="markRead(item.id)">标记已读</button></li></ul></section>
         <template v-if="courseId && user.role !== 'admin'">

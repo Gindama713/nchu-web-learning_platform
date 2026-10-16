@@ -1,0 +1,22 @@
+test_all_fixed_aliases_english_boundaries_and_chinese_adjacency (tests.test_qa.QAAlgorithmTest.test_all_fixed_aliases_english_boundaries_and_chinese_adjacency) ... ok
+test_nfkc_html_case_entities_and_whitespace (tests.test_qa.QAAlgorithmTest.test_nfkc_html_case_entities_and_whitespace) ... ok
+test_raw_threshold_sort_before_rounding_top_k_excerpt_200 (tests.test_qa.QAAlgorithmTest.test_raw_threshold_sort_before_rounding_top_k_excerpt_200) ... ok
+test_real_character_grams_smoothed_idf_counts_and_l2 (tests.test_qa.QAAlgorithmTest.test_real_character_grams_smoothed_idf_counts_and_l2) ... ok
+test_zero_vector_empty_corpus_and_empty_vocabulary (tests.test_qa.QAAlgorithmTest.test_zero_vector_empty_corpus_and_empty_vocabulary) ... ok
+test_build_failure_after_real_update_never_serves_old_and_recovers (tests.test_qa.QAIntegrationTest.test_build_failure_after_real_update_never_serves_old_and_recovers) ... ok
+test_continuous_real_updates_exhaust_bounded_retry_without_old_result (tests.test_qa.QAIntegrationTest.test_continuous_real_updates_exhaust_bounded_retry_without_old_result) ... ok
+test_failed_qa_does_not_block_real_objective_practice_submission (tests.test_qa.QAIntegrationTest.test_failed_qa_does_not_block_real_objective_practice_submission) ... ok
+test_http_top_k_same_score_order (tests.test_qa.QAIntegrationTest.test_http_top_k_same_score_order) ... ok
+test_input_csrf_cross_course_and_session_denials_leave_no_queries (tests.test_qa.QAIntegrationTest.test_input_csrf_cross_course_and_session_denials_leave_no_queries) ... ok
+test_parallel_queries_and_restart_backup_rebuild_from_facts (tests.test_qa.QAIntegrationTest.test_parallel_queries_and_restart_backup_rebuild_from_facts) ... ok
+test_persistence_failure_rolls_back_both_and_does_not_replace_cache (tests.test_qa.QAIntegrationTest.test_persistence_failure_rolls_back_both_and_does_not_replace_cache) ... ok
+test_real_published_corpus_response_records_raw_scores_and_reuse (tests.test_qa.QAIntegrationTest.test_real_published_corpus_response_records_raw_scores_and_reuse) ... ok
+test_real_update_during_fit_retries_and_atomically_publishes_new_revision (tests.test_qa.QAIntegrationTest.test_real_update_during_fit_retries_and_atomically_publishes_new_revision) ... ok
+test_real_update_unpublish_empty_revision_zero_and_draft_isolation (tests.test_qa.QAIntegrationTest.test_real_update_unpublish_empty_revision_zero_and_draft_isolation) ... ok
+test_revocation_during_fit_is_rechecked_before_query_record (tests.test_qa.QAIntegrationTest.test_revocation_during_fit_is_rechecked_before_query_record) ... ok
+test_unpublish_with_failed_rebuild_cannot_return_obsolete_excerpt (tests.test_qa.QAIntegrationTest.test_unpublish_with_failed_rebuild_cannot_return_obsolete_excerpt) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 22.344s
+
+OK
