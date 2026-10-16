@@ -1,6 +1,7 @@
 import { h, onMounted, onUnmounted, ref, watch } from 'vue'
 import { AttemptClient, answerPayload, scorePayload } from './attempt-client.js'
 import { questionTypes } from './question-client.js'
+import { paperTime } from './paper-time.js'
 
 const statusNames = { partial: '待人工评分', graded: '已评分' }
 const gradeNames = { unanswered: '未作答 · 0分', pending: '待人工评分', graded: '已评分' }
@@ -153,7 +154,7 @@ export const AttemptView = {
       return h('form', { class: 'attempt-answer-form', onSubmit: e => { e.preventDefault(); run(send, true) } }, [
         h('h4', '填写答卷'), h('p', '漏答得0分；已作答简答等待教师评分。提交后不能修改。'),
         props.paper.kind === 'quiz' && h('p', { class: 'quiz-time' },
-          `截止：${props.paper.end_at} · 本机估计剩余 ${Math.floor(remaining / 60)} 分 ${remaining % 60} 秒。收卷以服务器时间为准。`),
+          `截止：${paperTime(props.paper.end_at)} · 本机估计剩余 ${Number.isFinite(remaining) ? `${Math.floor(remaining / 60)} 分 ${remaining % 60} 秒` : '—'}。收卷以服务器时间为准。`),
         h('ol', { class: 'attempt-questions' }, props.paper.items.map(q => h('li', { key: q.question_version_id }, [
           h('p', `第 ${q.position} 题 · ${questionTypes[q.type]} · ${q.points} 分`),
           h('p', { class: 'attempt-text' }, q.stem), answerInput(q),
@@ -171,7 +172,7 @@ export const AttemptView = {
         h('div', { class: 'attempt-summary', role: 'status' }, [h('strong', statusNames[item.status]),
           h('span', `总分：${item.score === null ? '待全部批阅' : item.score} / ${item.total_points}`),
           h('span', `已定分：${item.partial_score}`)]),
-        h('p', `提交时间：${item.submitted_at}${teacher() ? ` · 学生 #${item.student_id}` : ''}`),
+        h('p', `提交时间：${paperTime(item.submitted_at)}${teacher() ? ` · 学生 #${item.student_id}` : ''}`),
         button('重新加载此答卷', () => run(ticket => open(item.id, ticket))),
         conflict.value && h('p', { role: 'alert' }, '评分已被其他会话修改。请重新加载此答卷，再填写批阅。'),
         h('ol', { class: 'attempt-questions' }, item.answers.map(a => {
