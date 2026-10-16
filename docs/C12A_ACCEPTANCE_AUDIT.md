@@ -6,6 +6,16 @@
 
 ## 当前结论与完整集合
 
+### 2026-10-16 R37定向增量（当前优先于下方历史描述）
+
+003/#19、004/#20、007/#21及009/017/010C/015已有实际合入记录，已核验为本包develop基线祖先；旧B12 Q9 preparations 404仅是历史，不能据此断言当前接口不存在。#27/#28 head/状态未变、无实际合入或反馈，复用固定CI，不重跑两个C12b脚本。本包另从develop dfb23271建立008后续feature，不混材料PR。
+
+[R37正式报告](SPEC-008_R37_INTEGRATION.md)及[原始handler/socket/UI证据](evidence/spec-008/r37/handlers.json)：干净tested `7204a14054611ab6b68f4ebfae3fd1c6115d575d`，真实handler 8项中6通过、2项004契约预期失败（17.525秒）；Chrome155.0.8059.41/Edge155.0.4283.45各5组、page_errors=[]、6图目视。真实接口创建知识/题目/quiz/备课，覆盖关联拒绝、复制不复制/发布quiz、发布冻结、名单过滤、窗口/答案保护、越权/撤权及通知失败回滚。账号/时钟与故障夹具单列，没有成功业务响应mock；数据库关联、状态和名单另有快照。没有需修复的本人008/006业务缺陷。
+
+完整R37仍阻断：004负责人罗浩铭的R37-004-01（未发布quiz应409 QUIZ_NOT_PUBLISHED，实为404 NOT_FOUND）、R37-004-02（学生关联元数据缺window_state）及未接入的备课UI；不代写或代修队友。`expectedFailure`只保留已复现失败，CI成功不能改判为通过。008实际页面已补受影响双浏览器，未冒充备课页面跳转或课堂验收。
+
+仅补原矩阵SPEC-008/R37一行，原整行存JSON的R37_历史记录，原编号/判定/head/tested/附件保持可追溯，其余130行完全不变。当前分支131行仍80通过/0失败/51阻断，集成59通过/72阻断；#27固定head的三个NF-UI集成通过事实继续分版本引用，不复制或重判。本包不关闭完整R01、R36、R44或I-03；下一包才是003→006/008 R01资源保护接缝。下方既有状态、失败和版本证据均保留为历史，不当作当前模块未开发的依据。
+
 2026-10-15 C12b增量优先：C12a-UI-02在006 feature由SPEC-006主修并引用008，已提交[后续PR #17](https://github.com/Gindama713/nchu-web-learning_platform/pull/17)；C12a-UI-03在原012 feature更新[PR #15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15)。三个NF-UI失败行经所属feature组件与真实HTTP/双浏览器复验改为本人适用范围“通过”，集成结果仍阻断，完整SPEC不关闭。代码没有互相复制到未合入分支；本010B分支只更新审计记录，不引入006/012实现。其余128行结果及原证据保持。
 
 完整逐行记录见[验收矩阵](evidence/c12a/acceptance-matrix.md)，可机器读取的[完整字段JSON](evidence/c12a/acceptance-matrix.json)保留每行来源、输入/预期、实现、测试/人工步骤、证据层、补验、实际、结果、执行人/日期、PR/head/tested和附件。

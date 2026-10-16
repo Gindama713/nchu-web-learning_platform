@@ -6,6 +6,8 @@ C12b增量：131行=80通过/0失败/51阻断。仅006/008/012的NF-UI本人范�
 C12b集成续核（2026-10-16 00:41 Asia/Shanghai）：本轮重新fetch/读取四PR精确head的CI与真实评审，均未合入且无新问题；#16接入76a0dee/run38769957787必需CI成功。006/008/012三行仅更新集成核验字段，继续通过 / 阻断；其余128行不变。复用固定本地证据，未新增本地业务/handler/浏览器或课堂验证；最新快照见 c12b-code-head-ci.json 的 integration_recheck_followups[0]，原 integration_recheck 保留。
 全部输入、预期、实际、执行人/日期、head/tested、附件字段见同目录 acceptance-matrix.json；证据代号、算法夹具/handler/HTTP/UI/课堂分层及手工恢复步骤见 ../../C12A_ACCEPTANCE_AUDIT.md。
 
+2026-10-16 R37定向增量：仅SPEC-008/R37行补真实004+008联测，完整R37仍阻断；两项004契约失败及备课UI缺口见 ../../SPEC-008_R37_INTEGRATION.md。JSON保留原整行历史、head/tested/附件，其余130行完全不变；#27的三个NF-UI分版本事实继续固定引用。本分支统计不变。
+
 ## SPEC-005
 
 | 完整编号 | 输入/预期 | 具体测试或人工步骤 | 已有证据 / 本轮补验 | 结果 / 集成结果 | 依赖及剩余缺口 |
@@ -72,7 +74,7 @@ C12b集成续核（2026-10-16 00:41 Asia/Shanghai）：本轮重新fetch/读取�
 | SPEC-008/R27 | T008-R27：五题型唯一值类型；非法key/重复条目/负分/超精度全批拒绝；漏答0、简答待批null；评分返回新revision且旧revision拒绝；UC-02 | tests/manual_scores.py#test_partial_full_correction_exact_sum_and_audit; tests/manual_scores.py#test_stale_revision_no_overwrite_or_audit | E008; EQB / B12所列接缝新增；其余复用固定证据，见复用清单 | 通过 / 通过 | 课堂完整验收见共通/NF行 |
 | SPEC-008/R33 | T008-R33：每题返回固定结构；漏答计入正确率分母，简答正确率null，多选比例可超过1，零提交比例null；UC-02 | tests/quizzes.py#test_statistics_five_types_omissions_options_pending_and_frozen_population; tests/quizzes.py#test_statistics_only_short_no_objective_denominator_and_empty_roster | E008; EQB / B12所列接缝新增；其余复用固定证据，见复用清单 | 通过 / 通过 | 课堂完整验收见共通/NF行 |
 | SPEC-008/R36 | T008-R36：end_at已过、review_at=null或尚未到时，同question任何版本不能开放练习；异常已开放数据不能通过练习/错题获取解析；quiz review实际提交后才释放；定时讲评按服务器时刻判断；UC-02 | tests/quizzes.py#test_closed_unreviewed_quiz_protects_all_versions_and_wrong_question_entry; tests/quizzes.py#test_review_exact_end_durable_repeat_and_all_answer_entries_release | E008; EQB / B12所列接缝新增；其余复用固定证据，见复用清单 | 通过 / 通过 | 课堂完整验收见共通/NF行 |
-| SPEC-008/R37 | T008-R37：draft可引用本课quiz；跨课/非quiz/重复ID拒绝；未发布测验阻止备课发布；复制关联不自动复制/发布测验；学生开始前只获元数据，非参与人不获入口，讲评保护不被绕过；UC-02 | E008 R37; B12 Q9 preparations实际404 | E008; EQB / B12所列接缝新增；其余复用固定证据，见复用清单 | 阻断 / 阻断 | 罗浩铭004 preparations实际404；缺真实同课关联/复制/发布与权限负例 |
+| SPEC-008/R37 | T008-R37：draft可引用本课quiz；跨课/非quiz/重复ID拒绝；未发布测验阻止备课发布；复制关联不自动复制/发布测验；学生开始前只获元数据，非参与人不获入口，讲评保护不被绕过；UC-02 | 历史：E008 R37; B12 Q9 preparations实际404；新增：test_preparation_quiz_integration.py及R37 handler/双浏览器脚本 | E008; EQB保留；新增SPEC-008_R37_INTEGRATION.md及evidence/spec-008/r37/；干净tested7204a14 | 阻断 / 阻断 | 历史接口404保留；当前真实关联/复制/发布及权限子集已测，罗浩铭004仍有R37-004-01错误码、R37-004-02缺window_state及备课UI缺口 |
 | SPEC-008/R44 | T008-R44：图中权限、截止、结构/功能、合规文件及系统故障分支可逐项对应契约；UC-02 | E008; EQB; UC-02与I-03队友入口待执行 | E008; EQB / B12所列接缝新增；其余复用固定证据，见复用清单 | 阻断 / 阻断 | 本人UC-02子链通过；004/007与I-03完整链阻断 |
 | SPEC-008/R22 | 逐SPEC分工/依赖/检查点与真实实验闭环登记 | tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot; 对应实施记录共通/NF行 | E008; EQB; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 本人分工与独立事实有证据；全组CP/M9/课堂检查点由019组织，未提供完整证据 |
 | SPEC-008/R45 | 按完整工作包与技术风险执行并留输入/预期/实测 | tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot; 对应实施记录共通/NF行 | E008; EQB; REMOTE / 复用本人适用证据；外部目标保持未完成 | 阻断 / 阻断 | 本人依赖/算法输入和结果可追溯；全组736小时/固定引擎/前后端重放/识别技术验证不代验 |
