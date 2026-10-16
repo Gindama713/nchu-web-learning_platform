@@ -1,0 +1,9 @@
+test_r01_all_source_versions_and_preparation_rejected (tests.test_resource_question_integration.ResourceQuestionSeamTest.test_r01_all_source_versions_and_preparation_rejected) ... ok
+test_r01_import_invalid_atomic_and_original_key_bytes (tests.test_resource_question_integration.ResourceQuestionSeamTest.test_r01_import_invalid_atomic_and_original_key_bytes) ... ok
+test_r01_import_write_fault_rolls_back_and_key_retries (tests.test_resource_question_integration.ResourceQuestionSeamTest.test_r01_import_write_fault_rolls_back_and_key_retries) ... ok
+test_r01_imported_quiz_old_question_version_and_unreviewed_answers (tests.test_resource_question_integration.ResourceQuestionSeamTest.test_r01_imported_quiz_old_question_version_and_unreviewed_answers) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 9.737s
+
+OK

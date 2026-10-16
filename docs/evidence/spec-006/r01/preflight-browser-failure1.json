@@ -1,0 +1,66 @@
+{
+  "tested_head": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "dirty_paths": [
+    "?? scripts/verify_r01_browsers.py",
+    "?? scripts/verify_r01_handlers.py",
+    "?? tests/test_resource_question_integration.py"
+  ],
+  "layer": "real socket HTTP + resource/quiz UI; helper bootstrap via handlers, TEST_NOW only",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.41",
+      "requests": [
+        {
+          "path": "/courses/1/chapters",
+          "status": 201,
+          "body": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "R01"
+            },
+            "request_id": "ce3d3dc6420648968e6ad6dd3fb31e62"
+          },
+          "bytes": 115,
+          "sha256": "ec144d3702e7ed71e9002bdb6f5fc0f424da6c40ebda9af0ab008327cd9752a4"
+        },
+        {
+          "path": "/chapters/1/knowledge-points",
+          "status": 201,
+          "body": {
+            "data": {
+              "chapter_id": 1,
+              "content": "真实知识",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "R01知识"
+            },
+            "request_id": "d669d025c3b24fdb82534712c80d2c11"
+          },
+          "bytes": 219,
+          "sha256": "a0ca40e42e5753d26e31979b23c5a310420ed7fd8357e24966b10a03adfaa5cf"
+        }
+      ],
+      "checkpoints": [],
+      "checks": []
+    }
+  ],
+  "page_errors": [],
+  "status": "failed",
+  "error_type": "TimeoutError",
+  "locations": [
+    "main:222",
+    "verify:87",
+    "select_option:20226",
+    "_sync:115",
+    "select_option:637",
+    "select_option:815",
+    "send:76",
+    "wrap_api_call:632"
+  ]
+}

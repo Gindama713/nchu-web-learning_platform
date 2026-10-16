@@ -1,0 +1,1957 @@
+{
+  "test": "test_r01_all_source_versions_and_preparation_rejected",
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/courses",
+      "status": 201,
+      "body": {
+        "data": {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        },
+        "request_id": "42c9af44b737445f8b699aab301302e1"
+      },
+      "bytes": 117,
+      "sha256": "19735dfda906eb64576915e2849a70577a041555f19d2638c4aaf253dc9e8e97"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/members",
+      "status": 201,
+      "body": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 3
+        },
+        "request_id": "ae3a9e4d092848c3a085a2171ec1414d"
+      },
+      "bytes": 109,
+      "sha256": "7ff6e5e23d192953d8ae022287f60f2c9b49a8ce54a9d8579086e308ed9209e5"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/chapters",
+      "status": 201,
+      "body": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        },
+        "request_id": "499d6dc3ac584571bf1baf12a59ce757"
+      },
+      "bytes": 115,
+      "sha256": "c7671caf0972e10ad77d7cb7e37227fd4e49534e6a02d570e11fc0bc981b0cac"
+    },
+    {
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "status": 201,
+      "body": {
+        "data": {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点1"
+        },
+        "request_id": "2c9e76bfe0fd44a4bbd37d8bf7453304"
+      },
+      "bytes": 223,
+      "sha256": "d3cc09693dc76a42a87f32e7edc71e96ce3bb04a4e804edee930899ac7103f33"
+    },
+    {
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "status": 201,
+      "body": {
+        "data": {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点2"
+        },
+        "request_id": "bbd229ab3804494091831e135dc7ab9c"
+      },
+      "bytes": 223,
+      "sha256": "7c8bb232b68509a0016bb20919ce78ca5216a4568b11dd946ea30a8d365e5df7"
+    },
+    {
+      "method": "POST multipart",
+      "path": "/courses/1/resources",
+      "status": 201,
+      "body": {
+        "data": {
+          "id": 1,
+          "kind": "question_bank",
+          "resource_id": 1,
+          "sha256": "908e3a534eedb7d9d963dc521d62580fad596b0b8b38f77c23729f7ecefbd381",
+          "size": 176,
+          "title": "R01源文件",
+          "version": 1
+        },
+        "request_id": "b3154f35ddcf4462baf553dbe1abb5f0"
+      },
+      "bytes": 236,
+      "sha256": "d18001ac3bd19dc1de744ec9680af60eb7dc662ee614d77f3ae1b95836cf15f1"
+    },
+    {
+      "method": "POST multipart",
+      "path": "/resources/1/versions",
+      "status": 201,
+      "body": {
+        "data": {
+          "change_note": null,
+          "created_at": "2026-10-13T12:00:00.000Z",
+          "id": 2,
+          "kind": "question_bank",
+          "resource_id": 1,
+          "sha256": "5107c217d06ff903a0c5e49e5d8df96471831c370f5a75560e4e8fa70e924ecc",
+          "size": 158,
+          "title": "R01源文件",
+          "version": 2
+        },
+        "request_id": "8166d13a0166461dabafe13c330b37b5"
+      },
+      "bytes": 295,
+      "sha256": "123704b1b21b7142875974ba1018712641c7769caf2280ae0e5dcdc572d147f5"
+    },
+    {
+      "method": "POST multipart",
+      "path": "/resources/1/versions",
+      "status": 201,
+      "body": {
+        "data": {
+          "change_note": null,
+          "created_at": "2026-10-13T12:00:00.000Z",
+          "id": 3,
+          "kind": "question_bank",
+          "resource_id": 1,
+          "sha256": "1a225d17026013418c99a8733d9e067de52fb05f50adf5b6b24aa4ffb6e6e153",
+          "size": 158,
+          "title": "R01源文件",
+          "version": 3
+        },
+        "request_id": "5d05600ee2b64541be31cb099d595a9e"
+      },
+      "bytes": 295,
+      "sha256": "7629a4d5615234c716db4a02500f9671cab87ec88bd7547a5840883d78e9e90c"
+    },
+    {
+      "method": "GET",
+      "path": "/resources/1/versions",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "change_note": null,
+            "created_at": "2026-10-13T12:00:00.000Z",
+            "id": 3,
+            "kind": "question_bank",
+            "resource_id": 1,
+            "sha256": "1a225d17026013418c99a8733d9e067de52fb05f50adf5b6b24aa4ffb6e6e153",
+            "size": 158,
+            "title": "R01源文件",
+            "version": 3
+          },
+          {
+            "change_note": null,
+            "created_at": "2026-10-13T12:00:00.000Z",
+            "id": 2,
+            "kind": "question_bank",
+            "resource_id": 1,
+            "sha256": "5107c217d06ff903a0c5e49e5d8df96471831c370f5a75560e4e8fa70e924ecc",
+            "size": 158,
+            "title": "R01源文件",
+            "version": 2
+          },
+          {
+            "change_note": null,
+            "created_at": "2026-10-13T12:00:00.000Z",
+            "id": 1,
+            "kind": "question_bank",
+            "resource_id": 1,
+            "sha256": "908e3a534eedb7d9d963dc521d62580fad596b0b8b38f77c23729f7ecefbd381",
+            "size": 176,
+            "title": "R01源文件",
+            "version": 1
+          }
+        ],
+        "page": 1,
+        "page_size": 20,
+        "request_id": "ac80bc0a99774e4a8a4c073bd12d5534",
+        "total": 3
+      },
+      "bytes": 807,
+      "sha256": "3493963ce45c9f907a4becb2e0716e8fdee44c6652c2f0e7ae8a3195401b22bb"
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=download&event_id=37edacd0-eedd-4a57-adeb-f2a4f6ed4d03",
+      "status": 200,
+      "body": [
+        {
+          "type": "boolean",
+          "stem": "R01 PC保存指令地址？",
+          "options": [],
+          "answer": true,
+          "explanation": "R01_SECRET_EXPLANATION",
+          "difficulty": "easy",
+          "knowledge_ids": [
+            1
+          ]
+        }
+      ],
+      "bytes": 176,
+      "sha256": "908e3a534eedb7d9d963dc521d62580fad596b0b8b38f77c23729f7ecefbd381"
+    },
+    {
+      "method": "GET",
+      "path": "/courses/1/resources",
+      "status": 200,
+      "body": {
+        "data": [],
+        "page": 1,
+        "page_size": 20,
+        "request_id": "e42328ff86e04f8a970e8ced3df7acb8",
+        "total": 0
+      },
+      "bytes": 94,
+      "sha256": "fa35d0a8f47e1446efcc5aed35d1729bfc4765f19a8fb43ce2bab3e71c73823a"
+    },
+    {
+      "method": "GET",
+      "path": "/courses/1/resources?kind=question_bank",
+      "status": 200,
+      "body": {
+        "data": [],
+        "page": 1,
+        "page_size": 20,
+        "request_id": "97e95829c6b644c9845f7b698733dbec",
+        "total": 0
+      },
+      "bytes": 94,
+      "sha256": "54f318f8a0c683fb1e1300c2a98f4abdea138d4563b95328d0b312b8b801579a"
+    },
+    {
+      "method": "GET",
+      "path": "/courses/1/resources?q=R01",
+      "status": 200,
+      "body": {
+        "data": [],
+        "page": 1,
+        "page_size": 20,
+        "request_id": "894526f8b0344413ad8a84f6195ef5f1",
+        "total": 0
+      },
+      "bytes": 94,
+      "sha256": "aea5f0c38155643471d0920682c8bc8bf10849af69d484d149dd95100721fdc1"
+    },
+    {
+      "method": "GET",
+      "path": "/resources/1/versions",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Resource not found"
+        },
+        "request_id": "cf6e684612534cfc88b122dcb511a497"
+      },
+      "bytes": 123,
+      "sha256": "e3267394b9d9f7425e5683089d1b4def952b13d50eb863b0a0ff6a467c39470d"
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=download&event_id=e1f93501-0205-43f2-bac7-29312c038ef7",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Resource version not found"
+        },
+        "request_id": "28341729039640be86c6569f48d7f8db"
+      },
+      "bytes": 131,
+      "sha256": "e10ef9f166c508b4347c9a993d836929277dde99880e3b55161325c4c8d28f88"
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=view&event_id=b6a4a0ac-2fee-4699-a5fc-a0af1e5b40f3",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Resource version not found"
+        },
+        "request_id": "31fa3aa11f79428e8cf7c9e390cefc5c"
+      },
+      "bytes": 131,
+      "sha256": "991540c7aae984bfbe27ed8b70243e182ba7d8e99293ce88a13c23e4830991e7"
+    },
+    {
+      "method": "HEAD",
+      "path": "/resource-versions/1/content?intent=download&event_id=7466b948-9740-467c-b24e-b5f9bce1ee0e",
+      "status": 404,
+      "body": null,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=download&event_id=56beb11e-51db-463a-9b3a-896ec5c4ed8b",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Resource version not found"
+        },
+        "request_id": "ee58b525bf3c4865af4053e73862b512"
+      },
+      "bytes": 131,
+      "sha256": "b674297c472e85615566a1ef12fa28a92e6b22338fd87df78c6293f3470f803b"
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/2/content?intent=download&event_id=8a3cb95c-1a4b-45f6-8050-b4d0c8889f5e",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Resource version not found"
+        },
+        "request_id": "1e4e7c04360a43f5b16a7eed1819c6fc"
+      },
+      "bytes": 131,
+      "sha256": "722becdf99223023f03237f4dd6655d3dd877e7e9cb5402477ecf98ff2b42329"
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/2/content?intent=view&event_id=c2a3b0d3-051d-41af-800b-8cc5fcfa926f",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Resource version not found"
+        },
+        "request_id": "e831b20a856b47ff85ac1e9cb47a18e3"
+      },
+      "bytes": 131,
+      "sha256": "61928210c985b93fe24ae442241bf8bbb6cac88dc8bdc8f34765b4116454207d"
+    },
+    {
+      "method": "HEAD",
+      "path": "/resource-versions/2/content?intent=download&event_id=3c7aa6d9-0ec2-4666-a105-5831af2a1b81",
+      "status": 404,
+      "body": null,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/2/content?intent=download&event_id=82f52b08-e4f9-489b-a9a5-144efaad30ce",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Resource version not found"
+        },
+        "request_id": "729dc583f65549038a2c22108e33c7bc"
+      },
+      "bytes": 131,
+      "sha256": "e1f328be73b303bfd4a4a65e09cba4e234e2c6d55a4570d9b5f31ad788534412"
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/3/content?intent=download&event_id=bb601660-99cc-434a-b536-e60208ae8a21",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Resource version not found"
+        },
+        "request_id": "f132d5fa2ad64412b0a7c7d1dede3786"
+      },
+      "bytes": 131,
+      "sha256": "2f87f02eaf580edc6ec9b3337f74d94b9c0eeff0abf571368936bc2d967b0f62"
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/3/content?intent=view&event_id=b4ee787d-621c-4617-8099-aedcf3456870",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Resource version not found"
+        },
+        "request_id": "5bf5d1d7a0164343a0dede7c4042db3c"
+      },
+      "bytes": 131,
+      "sha256": "73a12332cc7a7fd0379fbb3702cd0e7b036b3b5d19f9d381cbc1b37a4d78fd8f"
+    },
+    {
+      "method": "HEAD",
+      "path": "/resource-versions/3/content?intent=download&event_id=056460bb-5d72-48aa-81b1-3940c534fb55",
+      "status": 404,
+      "body": null,
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/3/content?intent=download&event_id=73e1d99f-7dcd-4ee1-b814-082597a0591a",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Resource version not found"
+        },
+        "request_id": "18886e340bec44ea838ac968449f3a05"
+      },
+      "bytes": 131,
+      "sha256": "20643ec0d86c354df8c3d51030718cae5af46fd5cecb85919e2ff455218cfcea"
+    },
+    {
+      "method": "PATCH",
+      "path": "/resources/1",
+      "status": 422,
+      "body": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": {},
+          "message": "question_bank cannot be visible to students"
+        },
+        "request_id": "e33293d9d7f44e659b5691fba56f361a"
+      },
+      "bytes": 155,
+      "sha256": "e0764c1f6379a61564c5c1948b1690d6edf9f699960e290e23cfe4a0a0fefb3a"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/preparations",
+      "status": 201,
+      "body": {
+        "data": {
+          "course_id": 1,
+          "id": 1,
+          "knowledge_ids": [
+            1
+          ],
+          "published_at": null,
+          "question_version_ids": [],
+          "quiz_ids": [],
+          "replaces_id": null,
+          "resource_version_ids": [
+            1
+          ],
+          "scheduled_at": null,
+          "source_id": null,
+          "status": "draft",
+          "title": "R01备课",
+          "withdraw_reason": null,
+          "withdrawn_at": null
+        },
+        "request_id": "5c67def1187a4d8c80ef1c84ee1e1927"
+      },
+      "bytes": 329,
+      "sha256": "f1562427d65c143de142274e22db50cbe1a10c85ae956c4936de7d631ae6df5c"
+    },
+    {
+      "method": "POST",
+      "path": "/preparations/1/publish",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {
+            "ids": [
+              1
+            ]
+          },
+          "message": "Related resource_version not found in this course"
+        },
+        "request_id": "6030700216284f4090c773efb68ad598"
+      },
+      "bytes": 163,
+      "sha256": "0aac316354ece6f62fc828a6bf2f0445dfaf594fb3df633fda3887e5e3b25b2b"
+    },
+    {
+      "method": "GET",
+      "path": "/preparations/1",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Preparation not found"
+        },
+        "request_id": "5a69b5aaf9c04717ad6416bdab3cb264"
+      },
+      "bytes": 126,
+      "sha256": "d656259090aaef70a2e2c20d3871a8bfdb0841ce1a49a40aae80f20bc25c40f7"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/preparations",
+      "status": 201,
+      "body": {
+        "data": {
+          "course_id": 1,
+          "id": 2,
+          "knowledge_ids": [
+            1
+          ],
+          "published_at": null,
+          "question_version_ids": [],
+          "quiz_ids": [],
+          "replaces_id": null,
+          "resource_version_ids": [
+            2
+          ],
+          "scheduled_at": null,
+          "source_id": null,
+          "status": "draft",
+          "title": "R01备课",
+          "withdraw_reason": null,
+          "withdrawn_at": null
+        },
+        "request_id": "8b340e6db00545e792ae801d227e6f5d"
+      },
+      "bytes": 329,
+      "sha256": "e88ce97bca6724a1edfbfb996a63c2e78ee22de3f83120a67a5898d4bbae6a53"
+    },
+    {
+      "method": "POST",
+      "path": "/preparations/2/publish",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {
+            "ids": [
+              2
+            ]
+          },
+          "message": "Related resource_version not found in this course"
+        },
+        "request_id": "6113486143f7478a8ca85932691df8e1"
+      },
+      "bytes": 163,
+      "sha256": "cc6cc5c043ba1701805578d88aba05557bbe9a270e653074e3acd4b3254db536"
+    },
+    {
+      "method": "GET",
+      "path": "/preparations/2",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Preparation not found"
+        },
+        "request_id": "728dd555294a45d9b7803d884c339594"
+      },
+      "bytes": 126,
+      "sha256": "00c881f3485ac2b80197234ad9c08e82a5971e98139511221c44e655a978d526"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/preparations",
+      "status": 201,
+      "body": {
+        "data": {
+          "course_id": 1,
+          "id": 3,
+          "knowledge_ids": [
+            1
+          ],
+          "published_at": null,
+          "question_version_ids": [],
+          "quiz_ids": [],
+          "replaces_id": null,
+          "resource_version_ids": [
+            3
+          ],
+          "scheduled_at": null,
+          "source_id": null,
+          "status": "draft",
+          "title": "R01备课",
+          "withdraw_reason": null,
+          "withdrawn_at": null
+        },
+        "request_id": "3509eb1a61a04906a6d17e835697a907"
+      },
+      "bytes": 329,
+      "sha256": "03e38480749b02f4af91f4f22c26c56224ea6ad26390b686e10e21426116d5c8"
+    },
+    {
+      "method": "POST",
+      "path": "/preparations/3/publish",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {
+            "ids": [
+              3
+            ]
+          },
+          "message": "Related resource_version not found in this course"
+        },
+        "request_id": "9facf4a46c15472a82cef20d0f9628fd"
+      },
+      "bytes": 163,
+      "sha256": "e867c96cf980c9f331f12591755d3d3b903d7247468ddf712971746a0439c488"
+    },
+    {
+      "method": "GET",
+      "path": "/preparations/3",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Preparation not found"
+        },
+        "request_id": "d548bf2b456f485ba4f865bfe14fc0ec"
+      },
+      "bytes": 126,
+      "sha256": "59b16ea4aaab981e8dc67e33aef829014851f8219a46a953a6f89abc6fded980"
+    },
+    {
+      "method": "GET",
+      "path": "/courses/1/preparations",
+      "status": 200,
+      "body": {
+        "data": [],
+        "page": 1,
+        "page_size": 20,
+        "request_id": "5c4f6d459be240478bafd1c51fca694d",
+        "total": 0
+      },
+      "bytes": 94,
+      "sha256": "12bfa3e5d3ae5c1c1d9753b24e560be5c3aa1132b183ca3dae1ba54aa3b211fc"
+    }
+  ],
+  "checkpoints": [
+    {
+      "label": "teacher old source download succeeded",
+      "db": {
+        "counts": {
+          "question": 0,
+          "question_version": 0,
+          "question_knowledge": 0,
+          "question_import": 0,
+          "idempotency_record": 0,
+          "audit_event": 12,
+          "resource_event": 1,
+          "preparation": 0,
+          "preparation_resource": 0,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          },
+          {
+            "id": 2,
+            "resource_id": 1,
+            "version": 2,
+            "file_id": 2
+          },
+          {
+            "id": 3,
+            "resource_id": 1,
+            "version": 3,
+            "file_id": 3
+          }
+        ],
+        "papers": [],
+        "preparations": [],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 2
+          },
+          {
+            "id": 11,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 3
+          },
+          {
+            "id": 12,
+            "action": "resource.access",
+            "object_type": "resource_version",
+            "object_id": 1
+          }
+        ],
+        "idempotency": [],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "all student source attempts rejected without events",
+      "db": {
+        "counts": {
+          "question": 0,
+          "question_version": 0,
+          "question_knowledge": 0,
+          "question_import": 0,
+          "idempotency_record": 0,
+          "audit_event": 12,
+          "resource_event": 1,
+          "preparation": 0,
+          "preparation_resource": 0,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          },
+          {
+            "id": 2,
+            "resource_id": 1,
+            "version": 2,
+            "file_id": 2
+          },
+          {
+            "id": 3,
+            "resource_id": 1,
+            "version": 3,
+            "file_id": 3
+          }
+        ],
+        "papers": [],
+        "preparations": [],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 2
+          },
+          {
+            "id": 11,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 3
+          },
+          {
+            "id": 12,
+            "action": "resource.access",
+            "object_type": "resource_version",
+            "object_id": 1
+          }
+        ],
+        "idempotency": [],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "source linked in teacher draft",
+      "db": {
+        "counts": {
+          "question": 0,
+          "question_version": 0,
+          "question_knowledge": 0,
+          "question_import": 0,
+          "idempotency_record": 0,
+          "audit_event": 13,
+          "resource_event": 1,
+          "preparation": 1,
+          "preparation_resource": 1,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          },
+          {
+            "id": 2,
+            "resource_id": 1,
+            "version": 2,
+            "file_id": 2
+          },
+          {
+            "id": 3,
+            "resource_id": 1,
+            "version": 3,
+            "file_id": 3
+          }
+        ],
+        "papers": [],
+        "preparations": [
+          {
+            "id": 1,
+            "status": "draft"
+          }
+        ],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 2
+          },
+          {
+            "id": 11,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 3
+          },
+          {
+            "id": 12,
+            "action": "resource.access",
+            "object_type": "resource_version",
+            "object_id": 1
+          },
+          {
+            "id": 13,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 1
+          }
+        ],
+        "idempotency": [],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "source preparation publication rejected",
+      "db": {
+        "counts": {
+          "question": 0,
+          "question_version": 0,
+          "question_knowledge": 0,
+          "question_import": 0,
+          "idempotency_record": 0,
+          "audit_event": 13,
+          "resource_event": 1,
+          "preparation": 1,
+          "preparation_resource": 1,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          },
+          {
+            "id": 2,
+            "resource_id": 1,
+            "version": 2,
+            "file_id": 2
+          },
+          {
+            "id": 3,
+            "resource_id": 1,
+            "version": 3,
+            "file_id": 3
+          }
+        ],
+        "papers": [],
+        "preparations": [
+          {
+            "id": 1,
+            "status": "draft"
+          }
+        ],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 2
+          },
+          {
+            "id": 11,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 3
+          },
+          {
+            "id": 12,
+            "action": "resource.access",
+            "object_type": "resource_version",
+            "object_id": 1
+          },
+          {
+            "id": 13,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 1
+          }
+        ],
+        "idempotency": [],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "source linked in teacher draft",
+      "db": {
+        "counts": {
+          "question": 0,
+          "question_version": 0,
+          "question_knowledge": 0,
+          "question_import": 0,
+          "idempotency_record": 0,
+          "audit_event": 14,
+          "resource_event": 1,
+          "preparation": 2,
+          "preparation_resource": 2,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          },
+          {
+            "id": 2,
+            "resource_id": 1,
+            "version": 2,
+            "file_id": 2
+          },
+          {
+            "id": 3,
+            "resource_id": 1,
+            "version": 3,
+            "file_id": 3
+          }
+        ],
+        "papers": [],
+        "preparations": [
+          {
+            "id": 1,
+            "status": "draft"
+          },
+          {
+            "id": 2,
+            "status": "draft"
+          }
+        ],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 2
+          },
+          {
+            "id": 11,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 3
+          },
+          {
+            "id": 12,
+            "action": "resource.access",
+            "object_type": "resource_version",
+            "object_id": 1
+          },
+          {
+            "id": 13,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 1
+          },
+          {
+            "id": 14,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 2
+          }
+        ],
+        "idempotency": [],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "source preparation publication rejected",
+      "db": {
+        "counts": {
+          "question": 0,
+          "question_version": 0,
+          "question_knowledge": 0,
+          "question_import": 0,
+          "idempotency_record": 0,
+          "audit_event": 14,
+          "resource_event": 1,
+          "preparation": 2,
+          "preparation_resource": 2,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          },
+          {
+            "id": 2,
+            "resource_id": 1,
+            "version": 2,
+            "file_id": 2
+          },
+          {
+            "id": 3,
+            "resource_id": 1,
+            "version": 3,
+            "file_id": 3
+          }
+        ],
+        "papers": [],
+        "preparations": [
+          {
+            "id": 1,
+            "status": "draft"
+          },
+          {
+            "id": 2,
+            "status": "draft"
+          }
+        ],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 2
+          },
+          {
+            "id": 11,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 3
+          },
+          {
+            "id": 12,
+            "action": "resource.access",
+            "object_type": "resource_version",
+            "object_id": 1
+          },
+          {
+            "id": 13,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 1
+          },
+          {
+            "id": 14,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 2
+          }
+        ],
+        "idempotency": [],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "source linked in teacher draft",
+      "db": {
+        "counts": {
+          "question": 0,
+          "question_version": 0,
+          "question_knowledge": 0,
+          "question_import": 0,
+          "idempotency_record": 0,
+          "audit_event": 15,
+          "resource_event": 1,
+          "preparation": 3,
+          "preparation_resource": 3,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          },
+          {
+            "id": 2,
+            "resource_id": 1,
+            "version": 2,
+            "file_id": 2
+          },
+          {
+            "id": 3,
+            "resource_id": 1,
+            "version": 3,
+            "file_id": 3
+          }
+        ],
+        "papers": [],
+        "preparations": [
+          {
+            "id": 1,
+            "status": "draft"
+          },
+          {
+            "id": 2,
+            "status": "draft"
+          },
+          {
+            "id": 3,
+            "status": "draft"
+          }
+        ],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 2
+          },
+          {
+            "id": 11,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 3
+          },
+          {
+            "id": 12,
+            "action": "resource.access",
+            "object_type": "resource_version",
+            "object_id": 1
+          },
+          {
+            "id": 13,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 1
+          },
+          {
+            "id": 14,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 2
+          },
+          {
+            "id": 15,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 3
+          }
+        ],
+        "idempotency": [],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "source preparation publication rejected",
+      "db": {
+        "counts": {
+          "question": 0,
+          "question_version": 0,
+          "question_knowledge": 0,
+          "question_import": 0,
+          "idempotency_record": 0,
+          "audit_event": 15,
+          "resource_event": 1,
+          "preparation": 3,
+          "preparation_resource": 3,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          },
+          {
+            "id": 2,
+            "resource_id": 1,
+            "version": 2,
+            "file_id": 2
+          },
+          {
+            "id": 3,
+            "resource_id": 1,
+            "version": 3,
+            "file_id": 3
+          }
+        ],
+        "papers": [],
+        "preparations": [
+          {
+            "id": 1,
+            "status": "draft"
+          },
+          {
+            "id": 2,
+            "status": "draft"
+          },
+          {
+            "id": 3,
+            "status": "draft"
+          }
+        ],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 2
+          },
+          {
+            "id": 11,
+            "action": "resource.version_add",
+            "object_type": "resource_version",
+            "object_id": 3
+          },
+          {
+            "id": 12,
+            "action": "resource.access",
+            "object_type": "resource_version",
+            "object_id": 1
+          },
+          {
+            "id": 13,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 1
+          },
+          {
+            "id": 14,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 2
+          },
+          {
+            "id": 15,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 3
+          }
+        ],
+        "idempotency": [],
+        "foreign_key_check": []
+      }
+    }
+  ],
+  "final_db": {
+    "counts": {
+      "question": 0,
+      "question_version": 0,
+      "question_knowledge": 0,
+      "question_import": 0,
+      "idempotency_record": 0,
+      "audit_event": 15,
+      "resource_event": 1,
+      "preparation": 3,
+      "preparation_resource": 3,
+      "preparation_quiz": 0,
+      "paper": 0,
+      "paper_participant": 0,
+      "attempt": 0,
+      "answer": 0
+    },
+    "imports": [],
+    "resources": [
+      {
+        "id": 1,
+        "kind": "question_bank",
+        "visibility": "teacher_only"
+      }
+    ],
+    "versions": [
+      {
+        "id": 1,
+        "resource_id": 1,
+        "version": 1,
+        "file_id": 1
+      },
+      {
+        "id": 2,
+        "resource_id": 1,
+        "version": 2,
+        "file_id": 2
+      },
+      {
+        "id": 3,
+        "resource_id": 1,
+        "version": 3,
+        "file_id": 3
+      }
+    ],
+    "papers": [],
+    "preparations": [
+      {
+        "id": 1,
+        "status": "draft"
+      },
+      {
+        "id": 2,
+        "status": "draft"
+      },
+      {
+        "id": 3,
+        "status": "draft"
+      }
+    ],
+    "audit": [
+      {
+        "id": 1,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 1
+      },
+      {
+        "id": 2,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 2
+      },
+      {
+        "id": 3,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 3
+      },
+      {
+        "id": 4,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 3
+      },
+      {
+        "id": 5,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 4
+      },
+      {
+        "id": 6,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 4
+      },
+      {
+        "id": 7,
+        "action": "course.create",
+        "object_type": "course",
+        "object_id": 1
+      },
+      {
+        "id": 8,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 3
+      },
+      {
+        "id": 9,
+        "action": "resource.create",
+        "object_type": "resource",
+        "object_id": 1
+      },
+      {
+        "id": 10,
+        "action": "resource.version_add",
+        "object_type": "resource_version",
+        "object_id": 2
+      },
+      {
+        "id": 11,
+        "action": "resource.version_add",
+        "object_type": "resource_version",
+        "object_id": 3
+      },
+      {
+        "id": 12,
+        "action": "resource.access",
+        "object_type": "resource_version",
+        "object_id": 1
+      },
+      {
+        "id": 13,
+        "action": "preparation.create",
+        "object_type": "preparation",
+        "object_id": 1
+      },
+      {
+        "id": 14,
+        "action": "preparation.create",
+        "object_type": "preparation",
+        "object_id": 2
+      },
+      {
+        "id": 15,
+        "action": "preparation.create",
+        "object_type": "preparation",
+        "object_id": 3
+      }
+    ],
+    "idempotency": [],
+    "foreign_key_check": []
+  }
+}
