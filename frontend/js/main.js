@@ -7,6 +7,7 @@ import { PracticeView } from './practice-view.js'
 import { KnowledgeView } from './knowledge-view.js'
 import { AnalyticsView } from './analytics-view.js'
 import { ResourceView } from './resource-view.js'
+import { ExperimentView } from './experiment-view.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
@@ -14,9 +15,10 @@ import '../styles/papers.css'
 import '../styles/attempts.css'
 import '../styles/analytics.css'
 import '../styles/resources.css'
+import '../styles/experiments.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView },
   setup() {
     const user = ref(null)
     const csrf = ref('')
@@ -339,6 +341,7 @@ createApp({
         <AttemptView v-if="user.role !== 'admin'" :key="'attempts:' + user.id + ':' + user.role" :user="user" />
         <PracticeView v-if="user.role === 'student'" :key="'practice:' + user.id + ':' + user.role" :user="user" />
         <ResourceView v-if="user.role !== 'admin'" :key="'resources:' + user.id + ':' + user.role" />
+        <ExperimentView v-if="user.role !== 'admin'" :key="'experiments:' + user.id + ':' + user.role" :user="user" />
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />
       </template>
     </main>`,
