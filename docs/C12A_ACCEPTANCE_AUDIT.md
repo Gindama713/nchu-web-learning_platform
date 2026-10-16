@@ -25,7 +25,26 @@
 
 ## C12b修复、验证与集成边界（最新）
 
-### 2026-10-16 C12b集成续核（00:41 Asia/Shanghai，最新）
+### 2026-10-16 C12b集成续核（12:44 Asia/Shanghai，最新）
+
+本轮从干净010B feature `f1fad6563b4030f3d43b3f682e4d17865e4de3e4`接续；本地/远端一致。先fetch，origin/develop仍为`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`。独立读取四PR当前base/head、实际merged状态、精确head的Actions run元数据、全部6个jobs和ci-test原始日志，以及真实reviews、review_threads、issue comments。新快照追加于[正式门禁证据](evidence/c12a/c12b-code-head-ci.json)的`integration_recheck_followups[1]`（2026-10-16 12:44:33 Asia/Shanghai）；原start/c12b_final/integration_recheck及followups[0]保留。
+
+| PR | 本轮接入head | 当前head的CI run / 原始日志 | 真实评审及合入 |
+|---|---|---|---|
+| [#14](https://github.com/Gindama713/nchu-web-learning_platform/pull/14) | bbd9ecdb151cab0ff7a34e94261b5378ceabfb74 | [38681339662](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38681339662)，后端194项152.886秒 / 前端76项 | open/非draft，reviews/threads/comments=[]，未合入 |
+| [#15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15) | 9fefd17d99242efdd53847029d7d7cafbcadf59d | [38740733563](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38740733563)，后端190项146.828秒 / 前端79项 | open/非draft，reviews/threads/comments=[]，未合入 |
+| [#16](https://github.com/Gindama713/nchu-web-learning_platform/pull/16) | f1fad6563b4030f3d43b3f682e4d17865e4de3e4 | [38771346788](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38771346788)，后端177项95.598秒 / 前端70项 | open/非draft，reviews/threads/comments=[]，未合入 |
+| [#17](https://github.com/Gindama713/nchu-web-learning_platform/pull/17) | e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85 | [38739998112](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38739998112)，后端177项140.523秒 / 前端77项 | open/非draft，reviews/threads/comments=[]，未合入 |
+
+四PR base均为上述develop；policy/lint/test/build/required全部success，grader按现行develop规则skipped。四PR均merged=false/merged_at=null、actual merge SHA=null；Git核验四个head均不是origin/develop祖先，当前feature包含该develop基线。#16的CI tested=`8120b7783d38edc396e9e7d9132891fb825ee88a`及其他CI引用均不是实际merge。无真实新评审问题或批准；未触发所属SPEC修复、合入后同步或集成补验。
+
+本轮新增验证仅为上述远程门禁读取和本地文档/JSON一致性、矩阵保全及diff检查。131行矩阵及其Markdown、原集合检查文件均保持原样：80通过/0失败/51阻断，全部131行（包括006/008/012三个NF-UI）字典、原编号/结果/集成结果/head/tested/附件不变。三个NF-UI继续本人本地通过、集成阻断；最新门禁由本节和新增快照补充，原行中00:41登记及固定证据指针作为历史保留。复用下方006/012固定组件、真实handler、HTTP/双浏览器证据，未新增本地业务/handler/浏览器测试。真实非作者复核和课堂本轮均无新证据；完整SPEC未关闭。
+
+仅追加本审计及正式门禁JSON两项文档证据，不制造代码或测试增量。新文档提交推送后须独立核验#16当前head的CI，写回PR说明及两份本地排除个人交接，避免把自身SHA写入自身。Context7文档已查询；本机gh命令不可用，远程读取实际使用GitHub连接器，未伪称gh执行成功。本地辅助检查首轮将零失败误断言为必须存在的计数键，修正该断言后重跑通过；属于检查脚本失败留痕，矩阵和业务测试未失败。
+
+恢复条件：负责人真实复核并合入后，先fetch核对actual merge SHA位于origin/develop祖先链，再按项目流程同步最新develop，仅补006/008共用时间显示及012推荐依据截止的受影响集成验证并更新三个NF-UI；出现真实评审问题则回所属SPEC feature修复。尚未合入且无新问题继续保留阻断。不复制未合入feature实现、不代写队友、不自行合并/部署/发布或发协作消息；本轮不展开C12c。
+
+### 2026-10-16 C12b集成续核（00:41 Asia/Shanghai）
 
 本轮从干净010B feature `76a0deebaf117e8f783f4e19f96edc45f37c973a`接续。先fetch，origin/develop仍为`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`；Git确认当前feature包含该基线，四个PR head均不是develop祖先。随后独立读取四PR最新base/head/merged状态、精确head的Actions run元数据、全部6个jobs及ci-test原始日志、真实reviews/threads/comments；没有直接沿用前轮结论。追加快照见[正式证据](evidence/c12a/c12b-code-head-ci.json)的`integration_recheck_followups[0]`，原start/c12b_final/integration_recheck完整保留。
 

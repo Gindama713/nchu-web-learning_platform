@@ -1213,6 +1213,489 @@
         "17": false
       },
       "git_current_feature_contains_origin_develop": true
+    },
+    {
+      "checked_at_utc": "2026-10-16 04:44:33 UTC",
+      "checked_at_local": "2026-10-16 12:44:33 Asia/Shanghai",
+      "develop": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+      "scope": "C12b only. Fresh fetch and independent current base/head, exact-head CI/run/all jobs/raw ci-test logs, real reviews/threads/comments and actual merge checks. No local business/handler/browser rerun or classroom acceptance.",
+      "pr16_snapshot_stage": "Entry head f1fad6563b4030f3d43b3f682e4d17865e4de3e4, before this evidence-only commit. The new pushed head CI is to be independently checked and recorded in PR16 and both excluded local handoffs.",
+      "pull_requests": [
+        {
+          "pr": 14,
+          "info": {
+            "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/14",
+            "state": "open",
+            "draft": false,
+            "base_ref": "develop",
+            "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "head_ref": "feature/spec-011-qa",
+            "head_sha": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
+            "merged": false,
+            "merged_at": null,
+            "actual_merge_sha": null,
+            "ci_test_ref": "805b1afa2ca40b6955fcae9becaa62acf9c7ac95"
+          },
+          "reviews": [],
+          "review_threads": [],
+          "comments": [],
+          "run": {
+            "id": 38681339662,
+            "html_url": "https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38681339662",
+            "event": "pull_request",
+            "head_sha": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
+            "status": "completed",
+            "conclusion": "success",
+            "run_attempt": 1,
+            "created_at": "2026-10-15T04:25:02Z",
+            "updated_at": "2026-10-15T04:28:14Z",
+            "pull_requests": [
+              {
+                "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/pulls/14",
+                "id": 4868115216,
+                "number": 14,
+                "head": {
+                  "ref": "feature/spec-011-qa",
+                  "sha": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
+                  "repo": {
+                    "id": 1375570865,
+                    "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform",
+                    "name": "nchu-web-learning_platform"
+                  }
+                },
+                "base": {
+                  "ref": "develop",
+                  "sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+                  "repo": {
+                    "id": 1375570865,
+                    "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform",
+                    "name": "nchu-web-learning_platform"
+                  }
+                }
+              }
+            ]
+          },
+          "jobs": [
+            {
+              "id": 116246362814,
+              "name": "ci-lint",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38681339662
+            },
+            {
+              "id": 116246363007,
+              "name": "ci-policy",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38681339662
+            },
+            {
+              "id": 116246363127,
+              "name": "ci-build",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38681339662
+            },
+            {
+              "id": 116246363194,
+              "name": "ci-test",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38681339662
+            },
+            {
+              "id": 116246363996,
+              "name": "ci-grader",
+              "status": "completed",
+              "conclusion": "skipped",
+              "run_id": 38681339662
+            },
+            {
+              "id": 116247200897,
+              "name": "ci-required",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38681339662
+            }
+          ],
+          "ci_test_log_excerpt": [
+            "2026-10-15T04:25:06.8194705Z HEAD is now at 805b1af Merge bbd9ecdb151cab0ff7a34e94261b5378ceabfb74 into f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "2026-10-15T04:28:03.5812090Z Ran 194 tests in 152.886s",
+            "2026-10-15T04:28:03.5812552Z OK",
+            "2026-10-15T04:28:06.1424950Z # tests 76",
+            "2026-10-15T04:28:06.1425866Z # pass 76",
+            "2026-10-15T04:28:06.1426325Z # fail 0"
+          ],
+          "ancestry_check": {
+            "head_ancestor_exit_code": 1,
+            "actual_merge_ancestor_exit_code": null,
+            "note": "No actual merge exists; CI merge test ref is not an actual merge into develop."
+          }
+        },
+        {
+          "pr": 15,
+          "info": {
+            "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/15",
+            "state": "open",
+            "draft": false,
+            "base_ref": "develop",
+            "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "head_ref": "feature/spec-012-recommendation",
+            "head_sha": "9fefd17d99242efdd53847029d7d7cafbcadf59d",
+            "merged": false,
+            "merged_at": null,
+            "actual_merge_sha": null,
+            "ci_test_ref": "f71b4865bfde8daca143cf209b9fce1f24b225e5"
+          },
+          "reviews": [],
+          "review_threads": [],
+          "comments": [],
+          "run": {
+            "id": 38740733563,
+            "html_url": "https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38740733563",
+            "event": "pull_request",
+            "head_sha": "9fefd17d99242efdd53847029d7d7cafbcadf59d",
+            "status": "completed",
+            "conclusion": "success",
+            "run_attempt": 1,
+            "created_at": "2026-10-15T13:12:25Z",
+            "updated_at": "2026-10-15T13:15:33Z",
+            "pull_requests": [
+              {
+                "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/pulls/15",
+                "id": 4869336164,
+                "number": 15,
+                "head": {
+                  "ref": "feature/spec-012-recommendation",
+                  "sha": "9fefd17d99242efdd53847029d7d7cafbcadf59d",
+                  "repo": {
+                    "id": 1375570865,
+                    "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform",
+                    "name": "nchu-web-learning_platform"
+                  }
+                },
+                "base": {
+                  "ref": "develop",
+                  "sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+                  "repo": {
+                    "id": 1375570865,
+                    "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform",
+                    "name": "nchu-web-learning_platform"
+                  }
+                }
+              }
+            ]
+          },
+          "jobs": [
+            {
+              "id": 116441444027,
+              "name": "ci-build",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38740733563
+            },
+            {
+              "id": 116441444089,
+              "name": "ci-lint",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38740733563
+            },
+            {
+              "id": 116441444278,
+              "name": "ci-test",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38740733563
+            },
+            {
+              "id": 116441444298,
+              "name": "ci-policy",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38740733563
+            },
+            {
+              "id": 116441446395,
+              "name": "ci-grader",
+              "status": "completed",
+              "conclusion": "skipped",
+              "run_id": 38740733563
+            },
+            {
+              "id": 116442890208,
+              "name": "ci-required",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38740733563
+            }
+          ],
+          "ci_test_log_excerpt": [
+            "2026-10-15T13:12:31.0273765Z HEAD is now at f71b486 Merge 9fefd17d99242efdd53847029d7d7cafbcadf59d into f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "2026-10-15T13:15:20.9875711Z Ran 190 tests in 146.828s",
+            "2026-10-15T13:15:20.9876331Z OK",
+            "2026-10-15T13:15:23.5227023Z # tests 79",
+            "2026-10-15T13:15:23.5227851Z # pass 79",
+            "2026-10-15T13:15:23.5228689Z # fail 0"
+          ],
+          "ancestry_check": {
+            "head_ancestor_exit_code": 1,
+            "actual_merge_ancestor_exit_code": null,
+            "note": "No actual merge exists; CI merge test ref is not an actual merge into develop."
+          }
+        },
+        {
+          "pr": 16,
+          "info": {
+            "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/16",
+            "state": "open",
+            "draft": false,
+            "base_ref": "develop",
+            "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "head_ref": "feature/spec-010b-knowledge-analysis",
+            "head_sha": "f1fad6563b4030f3d43b3f682e4d17865e4de3e4",
+            "merged": false,
+            "merged_at": null,
+            "actual_merge_sha": null,
+            "ci_test_ref": "8120b7783d38edc396e9e7d9132891fb825ee88a"
+          },
+          "reviews": [],
+          "review_threads": [],
+          "comments": [],
+          "run": {
+            "id": 38771346788,
+            "html_url": "https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38771346788",
+            "event": "pull_request",
+            "head_sha": "f1fad6563b4030f3d43b3f682e4d17865e4de3e4",
+            "status": "completed",
+            "conclusion": "success",
+            "run_attempt": 1,
+            "created_at": "2026-10-15T16:43:12Z",
+            "updated_at": "2026-10-15T16:45:20Z",
+            "pull_requests": [
+              {
+                "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/pulls/16",
+                "id": 4869694468,
+                "number": 16,
+                "head": {
+                  "ref": "feature/spec-010b-knowledge-analysis",
+                  "sha": "f1fad6563b4030f3d43b3f682e4d17865e4de3e4",
+                  "repo": {
+                    "id": 1375570865,
+                    "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform",
+                    "name": "nchu-web-learning_platform"
+                  }
+                },
+                "base": {
+                  "ref": "develop",
+                  "sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+                  "repo": {
+                    "id": 1375570865,
+                    "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform",
+                    "name": "nchu-web-learning_platform"
+                  }
+                }
+              }
+            ]
+          },
+          "jobs": [
+            {
+              "id": 116547662381,
+              "name": "ci-policy",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38771346788
+            },
+            {
+              "id": 116547662480,
+              "name": "ci-test",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38771346788
+            },
+            {
+              "id": 116547662492,
+              "name": "ci-lint",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38771346788
+            },
+            {
+              "id": 116547662607,
+              "name": "ci-build",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38771346788
+            },
+            {
+              "id": 116547664466,
+              "name": "ci-grader",
+              "status": "completed",
+              "conclusion": "skipped",
+              "run_id": 38771346788
+            },
+            {
+              "id": 116548614983,
+              "name": "ci-required",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38771346788
+            }
+          ],
+          "ci_test_log_excerpt": [
+            "2026-10-15T16:43:17.4093931Z HEAD is now at 8120b77 Merge f1fad6563b4030f3d43b3f682e4d17865e4de3e4 into f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "2026-10-15T16:45:09.9326625Z Ran 177 tests in 95.598s",
+            "2026-10-15T16:45:09.9326848Z OK",
+            "2026-10-15T16:45:11.4728560Z # tests 70",
+            "2026-10-15T16:45:11.4728896Z # pass 70",
+            "2026-10-15T16:45:11.4729061Z # fail 0"
+          ],
+          "ancestry_check": {
+            "head_ancestor_exit_code": 1,
+            "actual_merge_ancestor_exit_code": null,
+            "note": "No actual merge exists; CI merge test ref is not an actual merge into develop."
+          }
+        },
+        {
+          "pr": 17,
+          "info": {
+            "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/17",
+            "state": "open",
+            "draft": false,
+            "base_ref": "develop",
+            "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "head_ref": "feature/spec-006-exercises",
+            "head_sha": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
+            "merged": false,
+            "merged_at": null,
+            "actual_merge_sha": null,
+            "ci_test_ref": "273081714a48eb9b85df134230d802ed6d4c4ed4"
+          },
+          "reviews": [],
+          "review_threads": [],
+          "comments": [],
+          "run": {
+            "id": 38739998112,
+            "html_url": "https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38739998112",
+            "event": "pull_request",
+            "head_sha": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
+            "status": "completed",
+            "conclusion": "success",
+            "run_attempt": 1,
+            "created_at": "2026-10-15T13:07:02Z",
+            "updated_at": "2026-10-15T13:10:21Z",
+            "pull_requests": [
+              {
+                "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/pulls/17",
+                "id": 4873749853,
+                "number": 17,
+                "head": {
+                  "ref": "feature/spec-006-exercises",
+                  "sha": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
+                  "repo": {
+                    "id": 1375570865,
+                    "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform",
+                    "name": "nchu-web-learning_platform"
+                  }
+                },
+                "base": {
+                  "ref": "develop",
+                  "sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+                  "repo": {
+                    "id": 1375570865,
+                    "url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform",
+                    "name": "nchu-web-learning_platform"
+                  }
+                }
+              }
+            ]
+          },
+          "jobs": [
+            {
+              "id": 116438884736,
+              "name": "ci-lint",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38739998112
+            },
+            {
+              "id": 116438885183,
+              "name": "ci-build",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38739998112
+            },
+            {
+              "id": 116438885208,
+              "name": "ci-policy",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38739998112
+            },
+            {
+              "id": 116438885319,
+              "name": "ci-test",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38739998112
+            },
+            {
+              "id": 116438886989,
+              "name": "ci-grader",
+              "status": "completed",
+              "conclusion": "skipped",
+              "run_id": 38739998112
+            },
+            {
+              "id": 116440406305,
+              "name": "ci-required",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38739998112
+            }
+          ],
+          "ci_test_log_excerpt": [
+            "2026-10-15T13:07:21.9392035Z HEAD is now at 2730817 Merge e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85 into f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "2026-10-15T13:10:09.0843894Z Ran 177 tests in 140.523s",
+            "2026-10-15T13:10:09.0844371Z OK",
+            "2026-10-15T13:10:11.5780587Z # tests 77",
+            "2026-10-15T13:10:11.5781530Z # pass 77",
+            "2026-10-15T13:10:11.5781949Z # fail 0"
+          ],
+          "ancestry_check": {
+            "head_ancestor_exit_code": 1,
+            "actual_merge_ancestor_exit_code": null,
+            "note": "No actual merge exists; CI merge test ref is not an actual merge into develop."
+          }
+        }
+      ],
+      "git_head_ancestor_of_origin_develop": {
+        "14": false,
+        "15": false,
+        "16": false,
+        "17": false
+      },
+      "git_current_feature_contains_origin_develop": true,
+      "acceptance_delta": {
+        "matrix_rows": 131,
+        "local_pass": 80,
+        "fail": 0,
+        "blocked": 51,
+        "matrix_changed": false,
+        "integration_rows": [
+          "SPEC-006/NF-UI",
+          "SPEC-008/NF-UI",
+          "SPEC-012/NF-UI"
+        ],
+        "integration_result": "blocked",
+        "new_local_business_handler_browser_tests": 0,
+        "real_non_author_reviews": 0,
+        "classroom_acceptance": false
+      },
+      "resume_condition": "Responsible reviewer/maintainer completes real review and merge. Fetch, verify actual merge SHA is an ancestor of origin/develop, synchronize via project process, then validate only the affected 006/008 shared-time and 012 recommendation-cutoff integration and update the three NF-UI rows. Real review issues go to the owning SPEC feature. Do not copy unmerged feature implementations.",
+      "tool_note": "Context7 Git/GitHub CLI documentation was queried successfully. Local gh executable was unavailable; GitHub connector APIs were used instead. No claim that gh ran successfully.",
+      "local_verification_note": "All 131 matrix row dictionaries, IDs/order/results/integration/head/tested/attachments and matrix Markdown/check file unchanged; 80 pass/0 fail/51 blocked. Original JSON history preserved; four current run/head/base, six jobs each, raw test summaries and 34 audit local links verified. First scratch Counter assertion incorrectly required an explicit zero-failure key; only that assertion was corrected and rerun passed. This was a local checking-script failure, not a business/test or matrix failure."
     }
   ]
 }
