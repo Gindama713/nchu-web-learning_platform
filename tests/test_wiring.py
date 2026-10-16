@@ -10,6 +10,7 @@ from unittest import TestCase
 from werkzeug.security import generate_password_hash
 
 from backend.app import create_app
+from backend.engines.wiring import _make_panel
 from backend.shared.db import connect, migrate
 
 ORIGIN = "http://127.0.0.1:5173"
@@ -59,9 +60,16 @@ class WiringApiBase(TestCase):
     def setup_experiment(self, code="EXP-01"):
         exp = self.call(self.teacher, "POST", self.exp_base,
                         {"code": code, "title": code, "description": code}, 201).json["data"]
+        panel = _make_panel(code)
+        panel["layout"] = {}
         ver = self.call(self.teacher, "POST", f"/experiments/{exp['id']}/versions",
-                        {"title": "v1", "submission_modes": ["wiring"]}, 201).json["data"]
-        return exp, ver
+                        {"title": "v1", "objectives": "模拟连线", "instructions": "完成连线",
+                         "knowledge_ids": [], "submission_modes": ["wiring"],
+                         "panel": panel, "rules": {"require_required_inputs": True}}, 201).json["data"]
+        published = self.call(self.teacher, "POST", f"/experiment-versions/{ver['id']}/publish",
+                              {"start_at": "2026-10-13T11:00:00Z",
+                               "end_at": "2026-10-20T00:00:00Z"}).json["data"]
+        return exp, published
 
     def create_attempt(self, version_id):
         return self.call(self.student, "POST",

@@ -1,7 +1,6 @@
 """SPEC-017 实验箱连线 HTTP 适配器。
 
-含最小实验/版本创建接口（SPEC-009 完整管理由对应模块扩展），
-用于支撑连线 attempt 的 experiment_version 依赖。
+实验与版本定义由 SPEC-009 管理，本模块只处理连线 attempt。
 """
 
 import hashlib
@@ -27,7 +26,6 @@ bp = Blueprint("wiring", __name__)
 
 MAX_ACTIONS_PER_SAVE = 500
 MAX_ACTIONS_TOTAL = 10000
-EXPERIMENT_CODES = ("EXP-01", "EXP-02", "EXP-03", "EXP-04")
 VALIDATOR_VERSION = "wiring-struct-v1"
 
 
@@ -42,78 +40,6 @@ def _parse_json(text, field):
         return json.loads(text)
     except (TypeError, ValueError):
         raise ApiError(500, "INTERNAL_ERROR", f"invalid {field}")
-
-
-# ---------- 最小实验接口（支撑连线） ----------
-
-@bp.post("/courses/<int:course_id>/experiments")
-def create_experiment(course_id):
-    course_access(course_id, teacher=True)
-    data = body(("code", "title", "description"))
-    code = data["code"]
-    if code not in EXPERIMENT_CODES:
-        raise ApiError(400, "VALIDATION_ERROR", "invalid experiment code")
-    title = data["title"]
-    description = data["description"]
-    with write() as db:
-        cursor = db.execute(
-            "INSERT INTO experiment(course_id,code,title,description,created_at) VALUES(?,?,?,?,?)",
-            (course_id, code, title, description, stamp()))
-        exp_id = cursor.lastrowid
-        audit("experiment.create", "experiment", exp_id, after={"code": code, "title": title})
-    return result({"id": exp_id, "title": title}, 201)
-
-
-@bp.post("/experiments/<int:experiment_id>/versions")
-def create_version(experiment_id):
-    require_user()
-    data = body(("title", "submission_modes"), ("objectives", "knowledge_ids", "instructions",
-                                                "panel", "rules"))
-    modes = data["submission_modes"]
-    if not isinstance(modes, list) or not modes:
-        raise ApiError(400, "VALIDATION_ERROR", "submission_modes must be non-empty list")
-    with write() as db:
-        exp = _row(db, "experiment", experiment_id)
-        if not exp:
-            raise ApiError(404, "NOT_FOUND", "Experiment not found")
-        course_access(exp["course_id"], teacher=True)
-        version = db.execute(
-            "SELECT COALESCE(MAX(version),0)+1 FROM experiment_version WHERE experiment_id=?",
-            (experiment_id,)).fetchone()[0]
-        panel = data.get("panel")
-        if "wiring" in modes and panel is None:
-            panel = wiring.panel_to_json(wiring._make_panel(exp["code"]))
-        elif panel is not None:
-            panel = json.dumps(panel, ensure_ascii=False)
-        rules = data.get("rules")
-        if rules is not None:
-            rules = json.dumps(rules, ensure_ascii=False)
-        cursor = db.execute(
-            "INSERT INTO experiment_version(experiment_id,version,title,submission_modes_json,panel_json,"
-            "rules_json,status,created_at) VALUES(?,?,?,?,?,?,?,?)",
-            (experiment_id, version, data["title"], json.dumps(modes), panel, rules,
-             "published", stamp()))
-        vid = cursor.lastrowid
-        audit("experiment_version.create", "experiment_version", vid,
-              after={"experiment_id": experiment_id, "version": version})
-    return result({"id": vid, "version": version, "status": "published"}, 201)
-
-
-@bp.get("/experiment-versions/<int:version_id>")
-def get_version(version_id):
-    require_user()
-    db = get_db()
-    row = _row(db, "experiment_version", version_id)
-    if not row:
-        raise ApiError(404, "NOT_FOUND", "Experiment version not found")
-    exp = _row(db, "experiment", row["experiment_id"])
-    course_access(exp["course_id"])
-    panel = _parse_json(row["panel_json"], "panel")
-    return result({
-        "id": row["id"], "experiment_id": row["experiment_id"], "version": row["version"],
-        "title": row["title"], "submission_modes": _parse_json(row["submission_modes_json"], "submission_modes"),
-        "panel": panel, "status": row["status"], "published_at": row["published_at"],
-    })
 
 
 # ---------- 连线 attempt 接口 ----------
