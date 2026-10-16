@@ -175,6 +175,12 @@ C08提供内部候选冻结、确定性回溯和不可变generation_snapshot；C
 
 沿用第8节公共`db-upgrade`，追加013_generation_snapshot和013b_generated_papers迁移，不修改已应用SQL。求解不持写锁，权限/当前资格复核及snapshot+draft/item+审计保存同一短事务。400修正参数、422调整题量/配额/覆盖、503 SEARCH_LIMIT缩小约束；失败不返回成功ID，保存错误全回滚。网络丢响应时先刷新列表检查是否已保存再重试。专题验证：`python -m unittest tests.test_generated_papers tests.test_generation_input tests.test_generation_solver tests.test_generation_snapshot -v`；真实浏览器：`python scripts/verify_spec013_browsers.py --output logs/spec-013-browsers`（已安装Chrome/Edge、browser依赖及前端依赖，5000/5173空闲）。实施、真实证据及未完成验收见[SPEC-013实施记录](docs/SPEC-013_IMPLEMENTATION.md)。
 
+### 8.7 SPEC-012个人学习推荐（C11）
+
+学生登录后在“个人学习推荐”选择课程和数量（1—20，默认5），用“刷新推荐”读取最近28天本人客观作答与当前完成状态。每项显示推荐理由、样本数、掌握度、6位排序分数及知识出处；无作答时只推荐教师标记且未完成的基础知识。分数用于排序，不代表预测概率；完成且样本≥5、掌握度≥80%的项被过滤。空课程、无基础候选和全部掌握均显示原因、截止时间和算法版本。
+
+“阅读知识”读取当前005正文/例题；“去练习”重新检查推荐资格后在已有“公开练习与个人错题”区打开对应固定版本。无合格开放客观练习时可先阅读。练习仍按006保护、判分、幂等重试规则提交；推荐失败清除旧结果，可显式刷新恢复，练习区继续可用。专题验证：`python -m unittest tests.test_recommendations -v`；真实浏览器：`python scripts/verify_spec012_browsers.py --output logs/spec-012-browsers`，环境同8.6。不新增迁移或推荐缓存；正式证据与未完成验收见[SPEC-012实施记录](docs/SPEC-012_IMPLEMENTATION.md)。
+
 <a id="submission-check"></a>
 ## 9 本次提交状态与自查
 

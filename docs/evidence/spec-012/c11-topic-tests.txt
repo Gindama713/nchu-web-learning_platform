@@ -1,0 +1,18 @@
+test_cold_start_flags_completed_and_empty_priority (tests.test_recommendations.RecommendationAlgorithmTest.test_cold_start_flags_completed_and_empty_priority) ... ok
+test_formula_reason_and_completed_mastery_combinations (tests.test_recommendations.RecommendationAlgorithmTest.test_formula_reason_and_completed_mastery_combinations) ... ok
+test_raw_score_before_rounding_tie_id_and_limit (tests.test_recommendations.RecommendationAlgorithmTest.test_raw_score_before_rounding_tie_id_and_limit) ... ok
+test_concurrent_unpublish_progress_entry_and_revoke_are_rechecked (tests.test_recommendations.RecommendationApiTest.test_concurrent_unpublish_progress_entry_and_revoke_are_rechecked) ... ok
+test_current_entry_change_deactivation_continuous_change_dependency_and_backup (tests.test_recommendations.RecommendationApiTest.test_current_entry_change_deactivation_continuous_change_dependency_and_backup) ... ok
+test_identity_level_protection_excludes_entry_and_failure_does_not_block_submit (tests.test_recommendations.RecommendationApiTest.test_identity_level_protection_excludes_entry_and_failure_does_not_block_submit) ... ok
+test_latest_eligible_version_minimum_id_private_short_archived_and_no_answer (tests.test_recommendations.RecommendationApiTest.test_latest_eligible_version_minimum_id_private_short_archived_and_no_answer) ... ok
+test_real_008_partial_objective_omission_short_and_manual_grade (tests.test_recommendations.RecommendationApiTest.test_real_008_partial_objective_omission_short_and_manual_grade) ... ok
+test_real_28day_half_open_boundaries (tests.test_recommendations.RecommendationApiTest.test_real_28day_half_open_boundaries) ... ok
+test_real_cold_foundations_progress_unpublish_empty (tests.test_recommendations.RecommendationApiTest.test_real_cold_foundations_progress_unpublish_empty) ... ok
+test_real_n5_mastery_boundary_filter_and_uncompleted_mastered (tests.test_recommendations.RecommendationApiTest.test_real_n5_mastery_boundary_filter_and_uncompleted_mastered) ... ok
+test_real_practice_multitag_fixed_version_replay_blank_and_own_identity (tests.test_recommendations.RecommendationApiTest.test_real_practice_multitag_fixed_version_replay_blank_and_own_identity) ... ok
+test_strict_limit_defaults_20_and_permissions (tests.test_recommendations.RecommendationApiTest.test_strict_limit_defaults_20_and_permissions) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 14.753s
+
+OK

@@ -271,6 +271,8 @@ C07新建knowledge/scores结果增加filters（与parameters_json一致的解析
 
 QA按当前已发布知识语料revision按需重建TF-IDF；重建失败返回503 INDEX_UNAVAILABLE，不返回旧内容；空语料found=false、matches=[]。推荐始终返回对象，items可为空，外层reason与source_until仍存在；确定算法及reason枚举见PRD第4.3节。
 
+C11已接入recommend-v1及学生页面。推荐仅会话学生本人，单个limit为1—20/默认5；不接受user_id/student_id/客户端截止参数，重复或未知参数400。复用5.1现有客观事实提取，窗口为UTC毫秒的 `[source_until−28天,source_until)`，候选/完成状态取同一当前读快照；返回前重新授权并核验当前候选和练习资格，持续变化或计算/事实读取故障503 RECOMMENDATION_UNAVAILABLE。响应均no-store，不依赖看板API或持久化推荐缓存。练习从每题最新版本中过滤同课、未归档、开放客观、本点标签与现行保密保护，再取版本ID最小者；无则null。实际阅读/练习入口再次经005/006当前权限及保护检查。实现及证据见[SPEC-012实施记录](SPEC-012_IMPLEMENTATION.md)。
+
 ### 5.3 组卷与重放
 
 组卷只返回草稿，不直接发布。请求采用二选一模型：首次传第5节字段及history_until?；重放仅传replay_of及新title，禁止同时覆盖约束/seed；响应含generation_snapshot_id。冻结候选最新版本（同question一份）、历史正确率/样本数、排序、约束、seed、算法版本；重放严格读取快照，不查新题库。配分用total_points*100整分，按选中顺序均分、余数给前若干题，每题至少1个百分之一分。不满足数量/配额/覆盖的确定矛盾422；搜索预算耗尽503 SEARCH_LIMIT，不能伪报无解。具体算法见PRD第4.2节；confidential同候选快照一起冻结。

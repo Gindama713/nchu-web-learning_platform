@@ -5,7 +5,7 @@ import { questionTypes } from './question-client.js'
 const show = value => Array.isArray(value) ? value.join('、') : typeof value === 'boolean' ? (value ? '正确' : '错误') : String(value)
 
 export const PracticeView = {
-  props: { user: { type: Object, required: true } },
+  props: { user: { type: Object, required: true }, entry: { type: Object, default: null } },
   setup(props) {
     let api = new PracticeClient(props.user), epoch = 0
     const courses = ref([]), course = ref(''), mode = ref('public'), knowledge = ref(''), tags = ref([])
@@ -46,6 +46,29 @@ export const PracticeView = {
       if (!available.some(c => String(c.id) === course.value)) course.value = available.length ? String(available[0].id) : ''
       await load(ticket)
     }
+    async function openEntry(ticket) {
+      const entry = props.entry
+      if (!entry) return boot(ticket)
+      clear(); courses.value = []; tags.value = []
+      const available = await api.courses()
+      if (ticket !== epoch) return
+      if (!available.some(row => String(row.id) === String(entry.courseId))) throw Object.assign(new Error('推荐课程已不可访问。'), { status: 404 })
+      courses.value = available; course.value = String(entry.courseId); knowledge.value = String(entry.knowledgeId)
+      mode.value = 'public'; page.value = 1
+      for (;;) {
+        await load(ticket)
+        if (ticket !== epoch) return
+        const question = rows.value.find(row => row.version_id === entry.versionId && row.practice_available && row.type !== 'short')
+        if (question) { choose(question); return }
+        if (!rows.value.length || page.value * 20 >= total.value) throw new Error('推荐练习已变化或不可用，请刷新推荐。')
+        page.value++
+      }
+    }
+    watch(() => props.entry, () => {
+      if (pending.value) { notice.value = '请先确认或重试当前练习，再打开推荐练习。'; return }
+      epoch++; busy.value = false; clear()
+      if (props.user.role === 'student') run(openEntry)
+    })
     function change(action) {
       epoch++; busy.value = false; clear(); page.value = 1; action(); run(ticket => load(ticket))
     }
@@ -67,7 +90,7 @@ export const PracticeView = {
       api = new PracticeClient(props.user)
       if (props.user.role === 'student') run(boot)
     })
-    onMounted(() => { if (props.user.role === 'student') run(boot) })
+    onMounted(() => { if (props.user.role === 'student') run(props.entry ? openEntry : boot) })
     onUnmounted(() => { epoch++ })
     const button = (text, action, disabled = false) => h('button', { type: 'button', disabled: busy.value || disabled, onClick: action }, text)
     const select = (label, val, update, options) => h('label', [label, h('select', { 'aria-label': label, value: val,

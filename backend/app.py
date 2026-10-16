@@ -25,6 +25,7 @@ from backend.apis import (
     quizzes,
     recognition,
     resources,
+    recommendations,
     warnings,
     wiring,
 )
@@ -57,7 +58,8 @@ def create_app(config=None):
     app.teardown_appcontext(close_db)
     for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
                       recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp, quizzes.bp,
-                      resources.bp, experiments.bp, preparations.bp, demo.bp, wiring.bp):
+                      resources.bp, experiments.bp, preparations.bp, demo.bp, wiring.bp,
+                      recommendations.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
     app.register_blueprint(knowledge_blueprint)
     app.extensions["qa_cache"] = IndexCache()
