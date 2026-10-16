@@ -21,11 +21,9 @@ class WarningFactsTest(TestCase):
             migrate(path)
             db = connect(path)
             db.executescript("""
-                CREATE TABLE wiring_attempt(experiment_version_id INTEGER,student_id INTEGER,
-                    status TEXT,completed INTEGER,submitted_at TEXT);
-                CREATE TABLE submission(id INTEGER PRIMARY KEY,experiment_version_id INTEGER,
+                CREATE TABLE IF NOT EXISTS submission(id INTEGER PRIMARY KEY,experiment_version_id INTEGER,
                     student_id INTEGER,created_at TEXT);
-                CREATE TABLE grading_run(id INTEGER PRIMARY KEY,submission_id INTEGER,status TEXT,finished_at TEXT);
+                CREATE TABLE IF NOT EXISTS grading_run(id INTEGER PRIMARY KEY,submission_id INTEGER,status TEXT,finished_at TEXT);
             """)
             db.execute("INSERT INTO user(id,student_no,name,password_hash,role,created_at,updated_at) "
                        "VALUES(1,'STUDENT01','S','x','student',?,?)", (AT, AT))
@@ -61,8 +59,7 @@ class WarningFactsTest(TestCase):
                 db.execute("INSERT INTO attendance_participant VALUES(?,1)", (task_id,))
                 db.execute("INSERT INTO attendance_record(task_id,student_id,status,source,created_at,updated_at) "
                            "VALUES(?,1,?,'close',?,?)", (task_id, status, AT, AT))
-            # SPEC-009 now owns experiment/experiment_version/experiment_participant;
-            # keep wiring/submission/grading fixtures until SPEC-017/018 land.
+            # SPEC-009 owns experiment definitions; SPEC-017 owns wiring attempts.
             db.execute("INSERT INTO experiment(id,course_id,code,title,created_at,updated_at) "
                        "VALUES(1,1,'EXP-01','fixture',?,?)", (AT, AT))
             db.execute("INSERT INTO experiment_version(id,experiment_id,version,title,objectives,instructions,"
@@ -71,7 +68,8 @@ class WarningFactsTest(TestCase):
                        "VALUES(1,1,1,'fixture','o','i','[\"wiring\",\"circuit\"]','published',?,?,?,'x',?,?)",
                        (AT, START, AT, AT, AT))
             db.execute("INSERT INTO experiment_participant VALUES(1,1)")
-            db.execute("INSERT INTO wiring_attempt VALUES(1,1,'submitted',1,?)", (AT,))
+            db.execute("INSERT INTO wiring_attempt(experiment_version_id,student_id,status,completed,submitted_at,"
+                       "state_json,created_at,updated_at) VALUES(1,1,'submitted',1,?,'{}',?,?)", (AT, AT, AT))
             db.execute("INSERT INTO submission VALUES(1,1,1,?)", (AT,))
             db.execute("INSERT INTO grading_run VALUES(1,1,'accepted',?)", (AT,))
             facts = read_facts(db, 1, START, END, END)

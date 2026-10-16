@@ -47,6 +47,12 @@ def positive_int(value, field):
     return int(value)
 
 
+def non_negative_int(value, field):
+    if isinstance(value, bool) or not re.fullmatch(r"0|[1-9][0-9]*", str(value)):
+        raise ApiError(400, "VALIDATION_ERROR", f"{field} must be a non-negative integer")
+    return int(value)
+
+
 def body(required=(), allowed=()):
     value = request.get_json(silent=True)
     if not isinstance(value, dict):

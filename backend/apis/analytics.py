@@ -1,4 +1,4 @@
-"""SPEC-010A: immutable attendance/performance snapshots."""
+"""SPEC-010A/010C: immutable attendance and wiring analytics snapshots."""
 
 import csv
 import io
@@ -25,10 +25,13 @@ from backend.shared.db import get_db, write
 
 bp = Blueprint("analytics", __name__)
 VERSION = "attendance-performance-v1"
+WIRING_VERSION = "wiring-analysis-v1"
 METRIC_KEYS = ("expected_count", "present_count", "late_count", "leave_count", "absent_count",
                "attendance_rate", "performance_mean_percentage", "performance_correlation",
                "correlation_reason", "candidate_count", "paired_count", "missing_performance_count",
                "selected_paper_ids")
+WIRING_METRIC_KEYS = ("assigned_count", "completed_student_count", "completion_rate",
+                      "attempt_count", "error_counts")
 
 
 @bp.after_request
@@ -159,11 +162,122 @@ def week_series(snapshot, start, end, subject):
     return rows
 
 
+# ---------- SPEC-010C 连线统计 ----------
+
+def wiring_model_ready(db):
+    names = {row[0] for row in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    required = {"experiment", "experiment_version", "experiment_participant",
+                "wiring_attempt", "wiring_validation"}
+    if not required <= names:
+        raise ApiError(503, "DEPENDENCY_UNAVAILABLE", "Wiring tables are not installed")
+
+
+def wiring_facts(db, course_id, start, end, cutoff):
+    """读取课程内已发布连线实验的分配、提交与验证事实。"""
+    wiring_model_ready(db)
+    db.execute("BEGIN")
+    try:
+        versions = [dict(row) for row in db.execute(
+            "SELECT v.id,v.experiment_id,v.submission_modes_json,v.status,v.end_at,v.published_at "
+            "FROM experiment_version v JOIN experiment e ON e.id=v.experiment_id "
+            "WHERE e.course_id=? AND v.status='published' ORDER BY v.id", (course_id,))]
+        # 仅保留含 wiring 提交模式的版本
+        wiring_versions = []
+        for v in versions:
+            try:
+                modes = json.loads(v["submission_modes_json"])
+            except (TypeError, ValueError):
+                continue
+            if "wiring" in modes:
+                wiring_versions.append(v)
+        vid_list = [v["id"] for v in wiring_versions]
+        participants = []
+        attempts = []
+        validations = []
+        if vid_list:
+            marks = ",".join("?" for _ in vid_list)
+            participants = [dict(row) for row in db.execute(
+                f"SELECT experiment_version_id,student_id FROM experiment_participant "
+                f"WHERE experiment_version_id IN ({marks})", vid_list)]
+            attempts = [dict(row) for row in db.execute(
+                f"SELECT id,experiment_version_id,student_id,status,completed,submitted_at "
+                f"FROM wiring_attempt WHERE experiment_version_id IN ({marks})", vid_list)]
+            validations = [dict(row) for row in db.execute(
+                f"SELECT v.attempt_id,v.revision,v.errors_json "
+                f"FROM wiring_validation v JOIN wiring_attempt a ON a.id=v.attempt_id "
+                f"WHERE a.experiment_version_id IN ({marks})", vid_list)]
+        db.execute("COMMIT")
+        return {"versions": wiring_versions, "participants": participants,
+                "attempts": attempts, "validations": validations}
+    except BaseException:
+        db.execute("ROLLBACK")
+        raise
+
+
+def wiring_interval_metrics(snapshot, start, end):
+    """计算区间内连线指标。start/end 为 ISO 字符串，按 experiment_version.end_at 筛选。"""
+    versions = [v for v in snapshot["versions"]
+                if v.get("end_at") and start <= v["end_at"] < end]
+    vid_set = {v["id"] for v in versions}
+    participants = [p for p in snapshot["participants"] if p["experiment_version_id"] in vid_set]
+    assigned = len({(p["experiment_version_id"], p["student_id"]) for p in participants})
+    submitted = [a for a in snapshot["attempts"]
+                 if a["experiment_version_id"] in vid_set and a["status"] == "submitted"]
+    completed_students = {(a["experiment_version_id"], a["student_id"])
+                          for a in submitted if a["completed"]}
+    completed_count = len(completed_students)
+    attempt_count = len(submitted)
+    # 错误统计：仅归属本区间内版本（按 end_at），同 attempt/revision/code 只计一次
+    attempt_version = {a["id"]: a["experiment_version_id"] for a in snapshot["attempts"]}
+    error_seen = set()
+    error_counts = {}
+    for val in snapshot["validations"]:
+        if attempt_version.get(val["attempt_id"]) not in vid_set:
+            continue
+        try:
+            errors = json.loads(val["errors_json"])
+        except (TypeError, ValueError):
+            continue
+        for err in errors:
+            code = err.get("code") if isinstance(err, dict) else str(err)
+            if not code:
+                continue
+            key = (val["attempt_id"], val["revision"], code)
+            if key in error_seen:
+                continue
+            error_seen.add(key)
+            error_counts[code] = error_counts.get(code, 0) + 1
+    return {
+        "assigned_count": assigned,
+        "completed_student_count": completed_count,
+        "completion_rate": round(completed_count / assigned, 4) if assigned else None,
+        "attempt_count": attempt_count,
+        "error_counts": error_counts,
+    }
+
+
+def wiring_week_series(snapshot, start, end):
+    shanghai = ZoneInfo("Asia/Shanghai")
+    cursor = parse_time(start, "from")
+    stop = parse_time(end, "to")
+    rows = []
+    while cursor < stop:
+        local = cursor.astimezone(shanghai)
+        next_monday = (local - timedelta(days=local.weekday())).replace(
+            hour=0, minute=0, second=0, microsecond=0) + timedelta(days=7)
+        boundary = min(stop, next_monday.astimezone(cursor.tzinfo))
+        rows.append({"period_start": stamp(cursor), "period_end": stamp(boundary),
+                     "metrics": wiring_interval_metrics(snapshot, stamp(cursor), stamp(boundary))})
+        cursor = boundary
+    return rows
+
+
 def permitted_run(course_id, run_id):
     user = require_user()
     course_access(course_id)
     row = get_db().execute("SELECT * FROM analysis_run WHERE id=? AND course_id=? AND creator_id=? "
-                           "AND kind IN ('attendance','knowledge','scores','resources')", (run_id, course_id, user["id"])).fetchone()
+                           "AND kind IN ('attendance','wiring','knowledge','scores','resources')",
+                           (run_id, course_id, user["id"])).fetchone()
     if not row:
         raise ApiError(404, "NOT_FOUND", "Analysis snapshot not found")
     if user["role"] == "student" and (row["scope"] != "self" or row["subject_student_id"] != user["id"]):
@@ -184,14 +298,18 @@ def analytics(course_id):
             raise ApiError(400, 'VALIDATION_ERROR', 'Duplicate snapshot ID')
         row = permitted_run(course_id, knowledge_analytics.identifier(request.args["analysis_run_id"], "analysis_run_id"))
         return result(json.loads(row["result_json"]))
-    if request.args.get('dimension') == 'knowledge':
+    dimension = request.args.get("dimension", "attendance")
+    if dimension == "wiring":
+        return wiring_analytics(course_id)
+    if dimension == "knowledge":
         return knowledge_analytics.create(course_id, request.args)
-    if request.args.get('dimension') == 'scores':
+    if dimension == "scores":
         return score_analytics.create(course_id, request.args)
-    if request.args.get('dimension') == 'resources':
+    if dimension == 'resources':
         return resource_analytics.create(course_id, request.args)
-    if request.args.get("dimension") != "attendance":
-        raise ApiError(400, "VALIDATION_ERROR", "Supported dimensions: attendance, knowledge, scores, resources")
+    if dimension != "attendance":
+        raise ApiError(400, "VALIDATION_ERROR",
+                       "Supported dimensions: attendance, wiring, knowledge, scores, resources")
     if set(request.args) - {"dimension", "from", "to", "student_id", "performance_paper_ids"}:
         raise ApiError(400, "VALIDATION_ERROR", "Invalid attendance filters")
     user = require_user()
@@ -235,6 +353,41 @@ def analytics(course_id):
     return result(data)
 
 
+def wiring_analytics(course_id):
+    if set(request.args) - {"dimension", "from", "to"}:
+        raise ApiError(400, "VALIDATION_ERROR", "Invalid wiring filters")
+    user = require_user()
+    _, role = course_access(course_id)
+    if role != "teacher":
+        raise ApiError(403, "FORBIDDEN", "Wiring analytics requires teacher role")
+    start, end = date_range()
+    if start == end:
+        raise ApiError(400, "VALIDATION_ERROR", "Empty date range")
+    cutoff = stamp(now())
+    snapshot = wiring_facts(get_db(), course_id, start, end, cutoff)
+    metrics = wiring_interval_metrics(snapshot, start, end)
+    generated = stamp()
+    data = {"dimension": "wiring", "sample_size": metrics["assigned_count"], "metrics": metrics,
+            "series": wiring_week_series(snapshot, start, end), "source_until": cutoff,
+            "population_basis": "published_wiring_experiment_participants",
+            "unit": {"completion_rate": "ratio", "attempt_count": "count"},
+            "warnings": ["完成率仅统计功能全过的提交，草稿不计入"], "algorithm_version": WIRING_VERSION,
+            "generated_at": generated}
+    with write() as db:
+        course_access(course_id, teacher=True)
+        cursor = db.execute("INSERT INTO analysis_run(course_id,creator_id,scope,subject_student_id,kind,"
+                            "algorithm_version,parameters_json,source_until,generated_at,sample_size,result_json,"
+                            "input_snapshot_json,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                            (course_id, user["id"], "class", None, "wiring", WIRING_VERSION,
+                             json.dumps({"from": start, "to": end}),
+                             cutoff, generated, data["sample_size"], json.dumps(data, ensure_ascii=False),
+                             json.dumps(snapshot, ensure_ascii=False), generated))
+        data["analysis_run_id"] = cursor.lastrowid
+        db.execute("UPDATE analysis_run SET result_json=? WHERE id=?",
+                   (json.dumps(data, ensure_ascii=False), cursor.lastrowid))
+    return result(data)
+
+
 @bp.get("/courses/<int:course_id>/analytics/export")
 def export(course_id):
     if (set(request.args) != {"analysis_run_id", "format"} or request.args["format"] != "csv" or
@@ -248,16 +401,18 @@ def export(course_id):
     if row['kind'] in ('knowledge', 'scores', 'resources'):
         from backend.apis.statistics_csv import response as statistics_csv
         return statistics_csv(data)
+    dimension = data.get("dimension", "attendance")
+    keys = WIRING_METRIC_KEYS if dimension == "wiring" else METRIC_KEYS
     stream = io.StringIO()
     writer = csv.writer(stream)
     for key in ("analysis_run_id", "source_until", "generated_at", "algorithm_version"):
         writer.writerow([key, data[key]])
-    writer.writerow(["period_start", "period_end", *METRIC_KEYS])
+    writer.writerow(["period_start", "period_end", *keys])
     for item in data["series"]:
         writer.writerow([item["period_start"], item["period_end"],
-                         *(json.dumps(item["metrics"][key], ensure_ascii=False) if isinstance(item["metrics"][key], list)
-                           else item["metrics"][key] for key in METRIC_KEYS)])
+                         *(json.dumps(item["metrics"][key], ensure_ascii=False) if isinstance(item["metrics"][key], (list, dict))
+                           else item["metrics"][key] for key in keys)])
     response = make_response("\ufeff" + stream.getvalue())
     response.headers["Content-Type"] = "text/csv; charset=utf-8"
-    response.headers["Content-Disposition"] = f'attachment; filename="attendance-{row["id"]}.csv"'
+    response.headers["Content-Disposition"] = f'attachment; filename="{dimension}-{row["id"]}.csv"'
     return response

@@ -150,3 +150,21 @@ def bookmark(store, user, knowledge_id):
 @endpoint
 def progress(store, user, knowledge_id):
     return store.personal_state(user, knowledge_id, request.get_json(), "progress"), 200, {}
+
+
+@blueprint.get("/courses/<int:course_id>/knowledge-graph")
+@endpoint
+def knowledge_graph(store, user, course_id):
+    root_id = request.args.get("root_id")
+    if root_id is not None:
+        try:
+            root_id = int(root_id)
+        except ValueError:
+            invalid("root_id 必须为正整数")
+    return store.knowledge_graph(user, course_id, root_id), 200, {}
+
+
+@blueprint.post("/courses/<int:course_id>/knowledge-edges")
+@endpoint
+def add_edge(store, user, course_id):
+    return store.add_edge(user, course_id, request.get_json()), 201, {}
