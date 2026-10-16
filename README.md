@@ -68,6 +68,8 @@ SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数�
 
 ## 7 检查与提交
 
+黄俊诚（24201716）的C12c正式材料见[个人交付索引](docs/C12C_DELIVERY_HUANG_JUNCHENG.md)，含[测试报告](docs/TEST_REPORT_HUANG_JUNCHENG.md)、[阶段检查报告](docs/checkpoints/HUANG_JUNCHENG_C12C.md)、[本人模块用户说明](docs/USER_GUIDE_HUANG_JUNCHENG.md)和[个人设计报告准备稿](docs/reports/24201716_黄俊诚_设计报告.docx)。该材料区分develop现有矩阵与待合入#27的补验登记，不代表完整SPEC、Gitea或课堂通过；原课程最终格式附件仍未提供。
+
 第二次课堂提交的组员分批操作见 [docs/SECOND_SUBMISSION_TEAM_PROMPT.md](docs/SECOND_SUBMISSION_TEAM_PROMPT.md)。
 
 六份需求设计文档仍保留；本开发分支增加前后端框架、测试和 CI。README 在仓库根、其余五份在 docs，课程检查仍按 Gitea 要求归档。班级242017、组号g24201710及GitHub开发地址已登记。实验模型与引擎已设计选定，运行兼容性尚未实测。

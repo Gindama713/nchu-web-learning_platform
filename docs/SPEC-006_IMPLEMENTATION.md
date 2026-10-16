@@ -1,5 +1,7 @@
 # SPEC-006 / C02a—C04 实施与验证记录
 
+> 2026-10-16 C12c材料导航：当前合入、真实评审、两个矩阵版本及交付状态见[个人交付索引](C12C_DELIVERY_HUANG_JUNCHENG.md)和[本轮远程快照](evidence/c12c/entry-state.json)。下文各节保留原日期、SHA及当时事实；旧“未合入/待实现/最新”措辞按其历史范围阅读，不覆盖索引中的当前状态。完整SPEC仍未凭材料整理关闭。
+
 ## 2026-10-15 C12b：共用时间显示修复（最新）
 
 黄俊诚（24201716）授权下Codex执行。C12a-UI-02由SPEC-006主修，影响SPEC-008共用PaperView/AttemptView；008分支不重复修复，只经负责人合入develop后消费。既有006 feature快进至最新已合入develop `f9c49b19c59053be2b171e0b7f2a35d1e050e57e`，未复制open #14/15/16实现。接入时三个PR均open/非draft，实际reviews/threads/comments为空；各当前head必需CI重新读取成功，grader按develop跳过，详见[远端快照](evidence/spec-006/c12b-time/start-remote.json)。#7已合入，不重开，使用006后续PR。

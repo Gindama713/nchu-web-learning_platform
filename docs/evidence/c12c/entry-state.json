@@ -1,0 +1,403 @@
+{
+  "checked_at_utc": "2026-10-16T12:05:38Z",
+  "checked_at_local": "2026-10-16 20:05:38 Asia/Shanghai",
+  "scope": "C12c documentation preparation only. No new business/browser execution, no acceptance-row changes and no merge/deploy/publication.",
+  "develop": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "branch": "feature/spec-010b-c12c-materials",
+  "branch_start": "origin/develop; no unmerged PR27 files copied",
+  "historical_prs": [
+    {
+      "number": 4,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-14T11:11:38Z",
+      "base": "develop",
+      "base_sha": "6a170a3e8aa4970dea9a68718fc4067d1f109f8a",
+      "head": "feature/spec-005-knowledge",
+      "head_sha": "fc67f0c649ae904039f210875de5e388926805a9",
+      "actual_merge_sha": "17fd54e6dd428c1446127a4338ddf6b51a85e656",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/4",
+      "author": "Nelpine",
+      "reviews": [
+        {
+          "id": "PRR_kwDOUf2Lsc8AAAABSNZ8nA",
+          "state": "APPROVED",
+          "body": "已审查 SPEC-005 当前实现范围：课程/成员隔离、章节原子排序、知识发布可见性、收藏/进度持久化及迁移接入；本地 40 项后端测试与更新 develop 后的必需 CI 均通过。批准本 PR 的现有代码集成。授权图片图文、目标环境性能和课堂验收仍未完成，不将整个 SPEC-005 标为通过。",
+          "submitted_at": "2026-10-14T11:11:03Z",
+          "author": {
+            "login": "Gindama713",
+            "name": "Gindama713",
+            "email": null,
+            "avatar_url": "https://avatars.githubusercontent.com/u/228866489?u=8bc4503150d80d80028bd1beff1b636cb5db91bd&v=4",
+            "id": null
+          }
+        }
+      ],
+      "actual_merge_ancestor_exit_code": 0
+    },
+    {
+      "number": 7,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-14T12:11:41Z",
+      "base": "develop",
+      "base_sha": "17fd54e6dd428c1446127a4338ddf6b51a85e656",
+      "head": "feature/spec-006-exercises",
+      "head_sha": "335a1239ae93f46f089b524687e82549693b836a",
+      "actual_merge_sha": "5718fabf73c39f49ce8231d30620cfe08dd2283a",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/7",
+      "author": "Nelpine",
+      "reviews": [
+        {
+          "id": "PRR_kwDOUf2Lsc8AAAABSOCW1w",
+          "state": "APPROVED",
+          "body": "组长复核 C02a–C04 实现及与已合入 SPEC-005 的集成冲突修复。真实知识 API 标签、权限/保密、试卷/作答/练习链路和迁移回归已检查；本地后端 107 项、前端 46 项、ruff、lint、build、文档检查通过，当前 SHA 的 GitHub 必需 CI 全部成功。同意将本阶段代码合入 develop。C05 专用 quiz、003/004 接缝、目标环境/完整恢复及合并后双浏览器验收仍为后续工作，不据此标记 SPEC-006 全部完成。",
+          "submitted_at": "2026-10-14T12:10:58Z",
+          "author": {
+            "login": "Gindama713",
+            "name": "Gindama713",
+            "email": null,
+            "avatar_url": "https://avatars.githubusercontent.com/u/228866489?u=8bc4503150d80d80028bd1beff1b636cb5db91bd&v=4",
+            "id": null
+          }
+        }
+      ],
+      "actual_merge_ancestor_exit_code": 0
+    },
+    {
+      "number": 9,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-14T15:49:35Z",
+      "base": "develop",
+      "base_sha": "253a736a79a6b6778e8bde0e58673d1f4c7641d7",
+      "head": "feature/spec-008-quiz",
+      "head_sha": "fafc69aecf723d06181e807bc1124aed2bd915de",
+      "actual_merge_sha": "b4a376b860e891a969c9507d69b4cefba5c7f290",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/9",
+      "author": "Nelpine",
+      "reviews": [
+        {
+          "id": "PRR_kwDOUf2Lsc8AAAABSQ6gGA",
+          "state": "APPROVED",
+          "body": "组长复核 SPEC-008 C05a/C05b：专用发布复用原试卷事务与冻结名单，讲评保持原时间并按实际讲评时刻释放解析；逐题统计按固定版本及原答卷聚合，身份、CSRF、保密边界与失败回滚已检查。本地后端专项 15 项、前端 54 项、ruff/lint/build/文档检查通过，当前 SHA 的必需 GitHub CI 全绿。同意此阶段合入 develop。003/004 接缝、目标环境和课堂验收仍未完成，不将 SPEC-008 整体标为通过。",
+          "submitted_at": "2026-10-14T15:46:44Z",
+          "author": {
+            "login": "Gindama713",
+            "name": "Gindama713",
+            "email": null,
+            "avatar_url": "https://avatars.githubusercontent.com/u/228866489?u=8bc4503150d80d80028bd1beff1b636cb5db91bd&v=4",
+            "id": null
+          }
+        }
+      ],
+      "actual_merge_ancestor_exit_code": 0
+    },
+    {
+      "number": 10,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-14T16:10:10Z",
+      "base": "develop",
+      "base_sha": "b4a376b860e891a969c9507d69b4cefba5c7f290",
+      "head": "feature/spec-010b-knowledge-analysis",
+      "head_sha": "0d1ad349fe761cdbd99e53e05a89e34bfbf684ab",
+      "actual_merge_sha": "7759d650e9b0a9b6c2a8070471f1040af603a22f",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/10",
+      "author": "Nelpine",
+      "reviews": [
+        {
+          "id": "PRR_kwDOUf2Lsc8AAAABSRNYGg",
+          "state": "APPROVED",
+          "body": "组长复核 SPEC-010B：知识样本按真实作答及固定版本标签去重，进度限定当前发布集合；分类成绩按冻结人卷次、待批/缺交和百分比分箱；读取/导出使用原 analysis_run 快照并复核当前权限。合入 SPEC-008 后补真实专用测验发布→交卷→逐题统计→批阅→讲评→成绩快照/CSV 回归。合并树本地后端147项、前端62项、ruff/lint/build/文档检查通过，当前SHA必需CI全绿。同意此阶段合入develop；003/004、合并后双浏览器、目标性能和完整恢复仍需后续验收。",
+          "submitted_at": "2026-10-14T16:09:45Z",
+          "author": {
+            "login": "Gindama713",
+            "name": "Gindama713",
+            "email": null,
+            "avatar_url": "https://avatars.githubusercontent.com/u/228866489?u=8bc4503150d80d80028bd1beff1b636cb5db91bd&v=4",
+            "id": null
+          }
+        }
+      ],
+      "actual_merge_ancestor_exit_code": 0
+    },
+    {
+      "number": 11,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-15T03:07:56Z",
+      "base": "develop",
+      "base_sha": "7759d650e9b0a9b6c2a8070471f1040af603a22f",
+      "head": "feature/spec-013-paper-generation",
+      "head_sha": "d7a0e7819eabbab68899381e322ce6df97b9f4ad",
+      "actual_merge_sha": "bcda8c468e9054579639f3f66c709a54283494aa",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/11",
+      "author": "Nelpine",
+      "reviews": [
+        {
+          "id": "PRR_kwDOUf2Lsc8AAAABSXgHZA",
+          "state": "APPROVED",
+          "body": "组长评审：C08 候选事实、确定性求解和不可变快照已审查；吸收最新 develop 后新增真实专用随堂测作答进入冻结历史的回归。合并树后端 166 项、前端 62 项及 lint/build/docs 通过，最终 SHA 的 GitHub 必需检查全绿。C09 页面/API 与完整课程验收仍按文档留待后续。",
+          "submitted_at": "2026-10-15T03:07:23Z",
+          "author": {
+            "login": "Gindama713",
+            "name": "Gindama713",
+            "email": null,
+            "avatar_url": "https://avatars.githubusercontent.com/u/228866489?u=8bc4503150d80d80028bd1beff1b636cb5db91bd&v=4",
+            "id": null
+          }
+        }
+      ],
+      "actual_merge_ancestor_exit_code": 0
+    },
+    {
+      "number": 12,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-15T03:45:05Z",
+      "base": "develop",
+      "base_sha": "bcda8c468e9054579639f3f66c709a54283494aa",
+      "head": "feature/spec-010b-knowledge-analysis",
+      "head_sha": "ab91dc1b666c1382d170fba189d1dc3e7654bf26",
+      "actual_merge_sha": "cdbda1e4a6bce19e2a5c4016a528d1d3d8b2aceb",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/12",
+      "author": "Nelpine",
+      "reviews": [
+        {
+          "id": "PRR_kwDOUf2Lsc8AAAABSXsXug",
+          "state": "APPROVED",
+          "body": "组长评审：专用随堂测→逐题统计、知识/成绩快照、人工批分与讲评、旧ID/CSV及备份恢复的联测已核对。合并C08基线后相关后端18项通过；页面加载时序缺陷已修复并有前端63项、Chrome/Edge各6组干净证据。最终SHA的policy/lint/test/build/required全部成功。003/004、目标环境与课堂验收仍单列。",
+          "submitted_at": "2026-10-15T03:43:56Z",
+          "author": {
+            "login": "Gindama713",
+            "name": "Gindama713",
+            "email": null,
+            "avatar_url": "https://avatars.githubusercontent.com/u/228866489?u=8bc4503150d80d80028bd1beff1b636cb5db91bd&v=4",
+            "id": null
+          }
+        }
+      ],
+      "actual_merge_ancestor_exit_code": 0
+    },
+    {
+      "number": 13,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-15T04:07:29Z",
+      "base": "develop",
+      "base_sha": "cdbda1e4a6bce19e2a5c4016a528d1d3d8b2aceb",
+      "head": "feature/spec-013-paper-generation",
+      "head_sha": "4710a56399d3c3eaf5a97ceaba142fa403263e07",
+      "actual_merge_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/13",
+      "author": "Nelpine",
+      "reviews": [
+        {
+          "id": "PRR_kwDOUf2Lsc8AAAABSX0t2g",
+          "state": "APPROVED",
+          "body": "组长评审：C09 教师生成草稿、严格快照重放、64位seed无损传输、发布接缝和短事务回滚已审查；合入#12后专题后端30项、前端69项及Chrome/Edge各5组通过。最终SHA的policy/lint/test/build/required均成功。003/004、目标环境性能、生产恢复与课堂整体验收仍留待后续。",
+          "submitted_at": "2026-10-15T04:06:52Z",
+          "author": {
+            "login": "Gindama713",
+            "name": "Gindama713",
+            "email": null,
+            "avatar_url": "https://avatars.githubusercontent.com/u/228866489?u=8bc4503150d80d80028bd1beff1b636cb5db91bd&v=4",
+            "id": null
+          }
+        }
+      ],
+      "actual_merge_ancestor_exit_code": 0
+    },
+    {
+      "number": 14,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "base": "develop",
+      "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+      "head": "feature/spec-011-qa",
+      "head_sha": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
+      "actual_merge_sha": "336806072638a4ab0a973b3e7b01b517f73aa9d6",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/14",
+      "author": "Nelpine",
+      "reviews": [],
+      "actual_merge_ancestor_exit_code": 0
+    },
+    {
+      "number": 15,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "base": "develop",
+      "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+      "head": "feature/spec-012-recommendation",
+      "head_sha": "9fefd17d99242efdd53847029d7d7cafbcadf59d",
+      "actual_merge_sha": "0a2b84c7ecf05df9f29c4142cd36c28266b3eb4d",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/15",
+      "author": "Nelpine",
+      "reviews": [],
+      "actual_merge_ancestor_exit_code": 0
+    },
+    {
+      "number": 16,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "base": "develop",
+      "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+      "head": "feature/spec-010b-knowledge-analysis",
+      "head_sha": "16d55979e6f36688e1ef8114577c2ee8e0dc8cd5",
+      "actual_merge_sha": "aa373606f47d4e5c4533e6d48d263c7781bddf26",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/16",
+      "author": "Nelpine",
+      "reviews": [],
+      "actual_merge_ancestor_exit_code": 0
+    },
+    {
+      "number": 17,
+      "state": "closed",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "base": "develop",
+      "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+      "head": "feature/spec-006-exercises",
+      "head_sha": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
+      "actual_merge_sha": "32ec16bf3a281d6f4d9be8f1c19410239d73145c",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/17",
+      "author": "Nelpine",
+      "reviews": [],
+      "actual_merge_ancestor_exit_code": 0
+    }
+  ],
+  "pr27": {
+    "number": 27,
+    "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/27",
+    "state": "open",
+    "draft": false,
+    "base_sha": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+    "head_sha": "7096b496504f62181f60987062b1397bdb96a937",
+    "merged": false,
+    "merged_at": null,
+    "actual_merge_sha": null,
+    "api_merge_commit_sha_test_reference": "a4ed987609132694c08c59650f92721abc223e0d",
+    "reviews": [],
+    "review_threads": [],
+    "comments": [],
+    "run": {
+      "id": 38896062651,
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38896062651",
+      "head_sha": "7096b496504f62181f60987062b1397bdb96a937",
+      "head_branch": "feature/spec-010b-knowledge-analysis",
+      "event": "pull_request",
+      "run_attempt": 1,
+      "status": "completed",
+      "conclusion": "success",
+      "base_sha": "dfb23271b470a93d557a2695fed0e04caf59d0d2"
+    },
+    "jobs": [
+      {
+        "id": 116956695194,
+        "name": "ci-test",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38896062651
+      },
+      {
+        "id": 116956695492,
+        "name": "ci-build",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38896062651
+      },
+      {
+        "id": 116956695501,
+        "name": "ci-policy",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38896062651
+      },
+      {
+        "id": 116956696218,
+        "name": "ci-lint",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38896062651
+      },
+      {
+        "id": 116956696238,
+        "name": "ci-grader",
+        "status": "completed",
+        "conclusion": "skipped",
+        "run_id": 38896062651
+      },
+      {
+        "id": 116958370751,
+        "name": "ci-required",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38896062651
+      }
+    ],
+    "ci_tested_sha": "a4ed987609132694c08c59650f92721abc223e0d",
+    "raw_ci_test_log_excerpt": [
+      "2026-10-16T11:47:08.7544774Z HEAD is now at a4ed987 Merge 7096b496504f62181f60987062b1397bdb96a937 into dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "2026-10-16T11:51:34.5105884Z Ran 312 tests in 243.204s",
+      "2026-10-16T11:51:37.5669057Z # tests 119",
+      "2026-10-16T11:51:37.5670129Z # pass 119",
+      "2026-10-16T11:51:37.5670591Z # fail 0"
+    ],
+    "ci_is_not_actual_merge": true
+  },
+  "acceptance": {
+    "source_of_truth": "Original matrices remain at their fixed revisions. Counts are source-qualified summaries, not a new acceptance matrix.",
+    "develop": {
+      "ref": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "path": "docs/evidence/c12a/acceptance-matrix.json",
+      "rows": 131,
+      "local": {
+        "passed": 80,
+        "failed": 0,
+        "blocked": 51
+      },
+      "integration": {
+        "passed": 59,
+        "blocked": 72
+      }
+    },
+    "pending_pr27": {
+      "ref": "7096b496504f62181f60987062b1397bdb96a937",
+      "path": "docs/evidence/c12a/acceptance-matrix.json",
+      "rows": 131,
+      "local": {
+        "passed": 80,
+        "failed": 0,
+        "blocked": 51
+      },
+      "integration": {
+        "passed": 62,
+        "blocked": 69
+      },
+      "changed_row_ids": [
+        "SPEC-006/NF-UI",
+        "SPEC-008/NF-UI",
+        "SPEC-012/NF-UI"
+      ],
+      "other_128_rows_unchanged": true
+    }
+  },
+  "real_non_author_review": {
+    "note": "Reviews list was freshly read for each historical PR and PR27. One APPROVED review on PR4/7/9/10/11/12/13; empty lists on PR14/15/16/17/27. Review-thread closure was only freshly inspected for PR27. No blanket R47 or two-reviewer completion inferred."
+  },
+  "classroom_acceptance": "Not performed.",
+  "gitea_and_chaoxing_submission": "Not performed.",
+  "course_attachment": {
+    "path": "《Web高级编程》课程项目大作业任务说明（24级，下发学生）.docx",
+    "verified": "Read document text and both embedded filename images. docs/checkpoints/ required; personal filename 24201716_黄俊诚_设计报告.docx; separate final report format attachment absent."
+  },
+  "execution_notes": [
+    "Initial section-reader mishandled a single range array while reading the audit; corrected with targeted read. Read-only helper issue, not a business/test failure.",
+    "Initial attachment text output used an incompatible stdout encoding; re-read the delivery section with UTF-8 and inspected both filename images. Original attachment unchanged."
+  ],
+  "final_c12c_head_ci": "Recorded separately in the C12c PR and excluded personal handoffs after final push to avoid self-SHA commit loop."
+}
