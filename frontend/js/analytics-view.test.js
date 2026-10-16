@@ -74,6 +74,20 @@ test('renders real zero vs unknown, text escapes, and stores only snapshot point
   assert.ok(button(root, '导出当前快照 CSV'))
 })
 
+test('snapshot times and week boundaries display Shanghai across UTC midnight without changing the snapshot', async t => {
+  const { root, fixture } = await mount(t)
+  fixture.data = { ...knowledge(), source_until: '2026-10-14T16:00:00Z', generated_at: '2026-10-14T16:00:01Z',
+    filters: { from: '2026-10-13T16:00:00Z', to: '2026-10-14T16:00:00Z' },
+    series: [{ period_start: '2026-10-13T16:00:00Z', period_end: '2026-10-14T16:00:00Z', metrics: {} }] }
+  const original = globalThis.structuredClone(fixture.data)
+  button(root, '查询统计').props.onClick(); await flush()
+  assert.match(content(root), /数据截止 2026\/10\/15 00:00:00/)
+  assert.match(content(root), /生成 2026\/10\/15 00:00:01（Asia\/Shanghai）/)
+  assert.match(content(root), /2026\/10\/14 00:00:00 — 2026\/10\/15 00:00:00/)
+  assert.doesNotMatch(content(root), /T16:00:/)
+  assert.deepEqual(fixture.data, original)
+})
+
 test('reload restores saved ID only and unavailable old ID never silently creates new snapshot', async t => {
   const { root, fixture, paths } = await mount(t, { course: '3', run: 17 })
   assert.equal(paths.at(-1), '/api/v1/courses/3/analytics?analysis_run_id=17')

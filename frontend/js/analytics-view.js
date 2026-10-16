@@ -8,6 +8,12 @@ const labels = { expected_count: '应交人卷次', submitted_count: '已交人�
 const ratio = value => value === null || value === undefined ? '无数据' : `${(value * 100).toFixed(2)}%`
 const shown = (key, value) => ['mastery', 'progress'].includes(key) ? ratio(value) : value === null || value === undefined
   ? '无数据' : ['mean_score', 'mean_percentage'].includes(key) ? `${Number(value).toFixed(2)}${key === 'mean_percentage' ? '%' : ' 分'}` : String(value)
+const shanghaiFormat = new globalThis.Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai',
+  year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' })
+const shanghaiTime = value => {
+  const date = new Date(value)
+  return value && Number.isFinite(date.getTime()) ? shanghaiFormat.format(date) : '无时间记录'
+}
 
 export const AnalyticsView = {
   props: { user: { type: Object, required: true } },
@@ -97,8 +103,8 @@ export const AnalyticsView = {
       const value = data.value, m = value.metrics
       const keys = Object.keys(labels).filter(key => Object.hasOwn(m, key))
       return h('article', { class: 'analytics-report' }, [h('h3', `原快照 #${value.analysis_run_id} · ${value.dimension === 'knowledge' ? '知识分析' : `分类成绩 / ${m.kind}`}`),
-        h('p', `数据截止 ${value.source_until} · 生成 ${value.generated_at} · 算法 ${value.algorithm_version}`),
-        h('p', value.filters ? `原筛选 ${value.filters.from} 至 ${value.filters.to} · ${value.filters.student_id ? `学生 #${value.filters.student_id}` : '全班'}${value.filters.paper_id ? ` · 试卷 #${value.filters.paper_id}` : ''}` : '历史快照未记录可展示的筛选摘要；以下为原保存结果。'),
+        h('p', `数据截止 ${shanghaiTime(value.source_until)} · 生成 ${shanghaiTime(value.generated_at)}（Asia/Shanghai） · 算法 ${value.algorithm_version}`),
+        h('p', value.filters ? `原筛选 ${shanghaiTime(value.filters.from)} 至 ${shanghaiTime(value.filters.to)}（Asia/Shanghai） · ${value.filters.student_id ? `学生 #${value.filters.student_id}` : '全班'}${value.filters.paper_id ? ` · 试卷 #${value.filters.paper_id}` : ''}` : '历史快照未记录可展示的筛选摘要；以下为原保存结果。'),
         h('p', `有效样本 ${value.sample_size} · ${value.dimension === 'knowledge' ? '按实际客观作答去重；进度取原查询时的发布集合' : '按试卷开始时间选任务；应交取冻结名单，均分只计已批卷'}`),
         ...value.warnings.map(w => h('p', w)),
         m.selected_paper_ids && h('p', `实际试卷：${m.selected_paper_ids.join('、') || '无'}`),
@@ -109,8 +115,8 @@ export const AnalyticsView = {
           ['知识点', '作答', '正确', '错题', '掌握度'], m.items.map(item => [`#${item.knowledge_id} ${item.title}`, item.answered_count, item.correct_count, item.wrong_count, ratio(item.mastery)]))
           : h('div', [h('h4', '已批成绩百分比分布'), ...m.score_bins.map(bin => h('div', { class: 'analytics-bin' }, [
             h('span', bin.label), h('meter', { min: 0, max: Math.max(1, m.graded_count), value: bin.count, 'aria-label': `${bin.label} ${bin.count} 人卷次` }), h('span', `${bin.count} 人卷次`)]))]),
-        table('按上海周一划分的周趋势', ['区间（左闭右开）', ...keys.map(key => labels[key])], value.series.map(p => [
-          `${p.period_start} — ${p.period_end}`, ...keys.map(key => shown(key, p.metrics[key]))])),
+        table('按上海周一划分的周趋势', ['区间（左闭右开，Asia/Shanghai）', ...keys.map(key => labels[key])], value.series.map(p => [
+          `${shanghaiTime(p.period_start)} — ${shanghaiTime(p.period_end)}`, ...keys.map(key => shown(key, p.metrics[key]))])),
         props.user.role === 'teacher' && button('导出当前快照 CSV', download),
       ])
     }
