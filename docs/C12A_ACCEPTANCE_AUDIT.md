@@ -6,7 +6,9 @@
 
 ## 当前结论与完整集合
 
-2026-10-15 C12b增量优先：C12a-UI-02在006 feature由SPEC-006主修并引用008，已提交[后续PR #17](https://github.com/Gindama713/nchu-web-learning_platform/pull/17)；C12a-UI-03在原012 feature更新[PR #15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15)。三个NF-UI失败行经所属feature组件与真实HTTP/双浏览器复验改为本人适用范围“通过”，集成结果仍阻断，完整SPEC不关闭。代码没有互相复制到未合入分支；本010B分支只更新审计记录，不引入006/012实现。其余128行结果及原证据保持。
+2026-10-16 C12b合入后集成补验：#14/#15/#16/#17实际merge均已核验在origin/develop祖先链，本人feature快进消费dfb23271b470a93d557a2695fed0e04caf59d0d2。006/008共用时间、012依据截止的两个既有脚本在该干净SHA双浏览器通过，三个NF-UI集成结果由阻断改为通过（仅本轮受影响接缝）。131行本地80通过/0失败/51阻断不变；集成62通过/69阻断，其余128行未改。真实非作者复核与课堂未完成，完整SPEC不关闭。详见下方最新节。
+
+历史修复范围与当时结论（原文保留；当前集成状态由最新节覆盖）：2026-10-15 C12b增量优先：C12a-UI-02在006 feature由SPEC-006主修并引用008，已提交[后续PR #17](https://github.com/Gindama713/nchu-web-learning_platform/pull/17)；C12a-UI-03在原012 feature更新[PR #15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15)。三个NF-UI失败行经所属feature组件与真实HTTP/双浏览器复验改为本人适用范围“通过”，集成结果仍阻断，完整SPEC不关闭。代码没有互相复制到未合入分支；本010B分支只更新审计记录，不引入006/012实现。其余128行结果及原证据保持。
 
 完整逐行记录见[验收矩阵](evidence/c12a/acceptance-matrix.md)，可机器读取的[完整字段JSON](evidence/c12a/acceptance-matrix.json)保留每行来源、输入/预期、实现、测试/人工步骤、证据层、补验、实际、结果、执行人/日期、PR/head/tested和附件。
 
@@ -25,7 +27,32 @@
 
 ## C12b修复、验证与集成边界（最新）
 
-### 2026-10-16 C12b集成续核（12:44 Asia/Shanghai，最新）
+### 2026-10-16 C12b合入后集成补验（19:43 Asia/Shanghai，最新）
+
+本轮从干净本人010B feature `16d55979e6f36688e1ef8114577c2ee8e0dc8cd5`接续，先fetch。origin/develop已推进至`dfb23271b470a93d557a2695fed0e04caf59d0d2`；四PR API均merged=true，merged_at均为2026-10-16T05:50:33Z。Git逐一核验以下实际merge SHA以及四个原head均位于该origin/develop祖先链，退出码均0。随后在原本人feature执行快进同步，无冲突、未复制未合入feature代码。完整门禁及合入后报告索引见[正式快照](evidence/c12a/c12b-code-head-ci.json)的`integration_recheck_followups[2]`；此前start/c12b_final/integration_recheck/followups[0]/[1]完整保留。
+
+| PR | 合入时精确head | 已验证祖先的actual merge SHA | 原精确head CI run |
+|---|---|---|---|
+| [#14](https://github.com/Gindama713/nchu-web-learning_platform/pull/14) | bbd9ecdb151cab0ff7a34e94261b5378ceabfb74 | 336806072638a4ab0a973b3e7b01b517f73aa9d6 | [38681339662](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38681339662) |
+| [#15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15) | 9fefd17d99242efdd53847029d7d7cafbcadf59d | 0a2b84c7ecf05df9f29c4142cd36c28266b3eb4d | [38740733563](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38740733563) |
+| [#16](https://github.com/Gindama713/nchu-web-learning_platform/pull/16) | 16d55979e6f36688e1ef8114577c2ee8e0dc8cd5 | aa373606f47d4e5c4533e6d48d263c7781bddf26 | [38852326280](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38852326280) |
+| [#17](https://github.com/Gindama713/nchu-web-learning_platform/pull/17) | e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85 | 32ec16bf3a281d6f4d9be8f1c19410239d73145c | [38739998112](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38739998112) |
+
+本轮独立重读四PR当前元数据、真实reviews/threads/comments、上述精确head的run元数据、全部6 jobs和ci-test原始日志。各run的head严格匹配表中head，policy/lint/test/build/required全部success，grader按develop规则skipped；#14后端194项152.886秒/前端76，#15为190项146.828秒/79，#16为177项139.184秒/70，#17为177项140.523秒/77。这是原合入head的远程CI读取，不能称为本轮本地执行或新develop的CI。API中的PR base SHA仍为合入时的`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`，与本轮消费的develop分开登记。CI日志中的测试合并引用亦与表中actual merge分开。
+
+新增本地集成验证仅复用两个已有C12b脚本，在**干净tested `dfb23271b470a93d557a2695fed0e04caf59d0d2`**上执行；两报告dirty_paths=[]、page_errors=[]，无成功响应替身。Chrome155.0.8059.41使用UTC，Edge155.0.4283.45使用America/Los_Angeles，账号bootstrap/TEST_NOW仍明确为受控夹具：
+- [006/008共用时间与提交报告](evidence/c12a/c12b-integration-dfb2327/paper/report.json)：两浏览器各4组，真实005知识→006考试/008专用发布与UI交卷；上海周日跨周一/午夜00、null讲评、开始前/截止新交409、原键截止和讲评后201字节重放、讲评前保护及定时/显式讲评后开放。DB submitted_at仍2026-10-18T16:00:00.000Z，GET data不变；8张390px截图自动无横向溢出并分批目视。
+- [012依据截止与练习报告](evidence/c12a/c12b-integration-dfb2327/recommendation/report.json)：两浏览器各3组，UTC周日15:59:59/16:00显示上海周日23:59:59/周一00:00，source_until/整个GET data不变；推荐练习真实201、原键字节重放样本仍1，DB created_at仍2026-10-18T16:00:01.000Z；2张390px截图目视通过且无横向溢出。Chrome/Edge PNG哈希相同，图像内容及尺寸358×848均确认有效。
+
+两个脚本及相关显示源码与原006/012固定版本逐路径diff为空。原26+8组件、5+2真实handler及完整C12a/E006/E008/EQB/E012/CSV/恢复证据继续按原固定SHA复用，没有重跑整套组件/handler/业务、C10/C11/C09/C07或008→010B专用联测。原006会话/信封/late表单、012Edge空图/日志空行和上轮辅助断言失败留痕全部保留。本轮证据准备首轮因临时路径绑定未初始化而未找到辅助脚本，纠正本任务生成的两个临时文件位置后通过；未影响已通过的两个集成运行，未改仓库源码/测试。远程快照辅助检查首轮错误要求已关闭PR的run.pull_requests必须非空，现按真实空数组保留，并以精确run head_sha/event/head_branch核验；属于检查脚本假设错误，不是CI或业务失败。
+
+仅更新006/008/012三个NF-UI的集成结果、actual merge、集成tested/证据和已解除的未合入阻断描述：三行**本地通过 / 本轮受影响集成通过**，适用范围限本节显示及提交接缝。矩阵131行本人本地结果仍80通过/0失败/51阻断，集成结果由59通过/72阻断变为62通过/69阻断；其余128行字典完全不变。所有131行原编号/顺序、本地结果、原head_SHA/本轮tested_SHA/证据附件保持，新集成tested与附件另列。未借本轮重新判定其他跨链或队友行。
+
+四PR当前真实reviews=[]、review_threads=[]、comments=[]，实际合入不冒充真实非作者批准。本轮无课堂验收、目标性能、生产恢复或Gitea新证据，完整SPEC及R47等原缺口不关闭；全组代码虽已进入develop，本轮仅核对指定三个NF-UI，不接管队友模块或扩大为C12c。
+
+原#16已实际合入，保留其历史；本轮集成补证沿用本人feature提交并开后续PR回develop，不重开旧PR。新证据提交的精确head CI须另独立核验run、全部jobs和原始日志，并写后续PR及两份本地排除交接，避免自身SHA循环提交。未自行合并、部署/发布、代写队友或发送协作消息。
+
+### 2026-10-16 C12b集成续核（12:44 Asia/Shanghai）
 
 本轮从干净010B feature `f1fad6563b4030f3d43b3f682e4d17865e4de3e4`接续；本地/远端一致。先fetch，origin/develop仍为`f9c49b19c59053be2b171e0b7f2a35d1e050e57e`。独立读取四PR当前base/head、实际merged状态、精确head的Actions run元数据、全部6个jobs和ci-test原始日志，以及真实reviews、review_threads、issue comments。新快照追加于[正式门禁证据](evidence/c12a/c12b-code-head-ci.json)的`integration_recheck_followups[1]`（2026-10-16 12:44:33 Asia/Shanghai）；原start/c12b_final/integration_recheck及followups[0]保留。
 
