@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from unittest import TestCase
+from unittest import TestCase, expectedFailure
 
 from scripts.i03_support import facts, record, save
 from tests.test_demo import ORIGIN, DemoApiBase
@@ -17,12 +17,13 @@ class I03EntryTest(TestCase):
         DemoApiBase.setUp(self)
         self.addCleanup(self.evidence)
 
-    def call(self, client, method, path, data=None, status=200):
+    def call(self, client, method, path, data=None, status=200, headers=None):
         response = client.open('/api/v1' + path, method=method, json=data,
-                               headers={'Origin': ORIGIN, 'X-CSRF-Token': getattr(client, 'csrf', '')})
+                               headers={'Origin': ORIGIN, 'X-CSRF-Token': getattr(client, 'csrf', ''), **(headers or {})})
         actor = next((name for name in ('admin', 'teacher', 'student', 'outsider')
                       if getattr(self, name, None) is client), 'controlled-student')
-        record(self.requests, actor, method, path, data, response.status_code, response.get_json(silent=True))
+        actual = response.get_json(silent=True) if response.is_json else response.get_data(as_text=True)
+        record(self.requests, actor, method, path, data, response.status_code, actual)
         self.assertEqual(response.status_code, status, response.get_json(silent=True))
         return response
 
@@ -58,16 +59,22 @@ class I03EntryTest(TestCase):
             self.assertEqual(current, advanced)
         self.call(self.teacher, 'PUT', f"/demo-sessions/{demo['id']}/state",
                   {'revision': 0, 'action': 'step'}, 409)
-        # Record a real contract defect separately; this is not a passing AC-03 assertion.
-        future = self.call(self.student, 'GET', f"/demo-sessions/{demo['id']}?after_revision=99").json['data']
-        self.observations['future_revision'] = {
-            'acceptance': 'SPEC-007/AC-03; APIC 4 GET current revision', 'owner': '罗浩铭',
-            'expected_revision': advanced['revision'], 'actual_revision': future['revision'],
-            'result': 'failed' if future['revision'] != advanced['revision'] else 'passed',
-        }
         self.observations['cpu_initial'] = {'ram_prefix': demo['state']['ram'][:12],
                                            'state_fields': list(demo['state']), 'not_full_R07': True}
         self.call(self.teacher, 'DELETE', f'/courses/{course}/members/{self.student_id}', status=204)
         self.call(self.student, 'GET', self.base, status=404)
         self.call(self.student, 'GET', f"/demo-sessions/{demo['id']}", status=404)
         self.assertEqual(facts(self.path)['foreign_key_check'], [])
+
+    @expectedFailure
+    def test_contract_future_cursor_must_return_actual_revision(self):
+        demo = self.call(self.teacher, 'POST', self.base, {'preset': 'cpu'}, 201).json['data']
+        advanced = self.call(self.teacher, 'PUT', f"/demo-sessions/{demo['id']}/state",
+                             {'revision': 0, 'action': 'step'}).json['data']
+        future = self.call(self.student, 'GET', f"/demo-sessions/{demo['id']}?after_revision=99").json['data']
+        self.observations['future_revision'] = {
+            'acceptance': 'SPEC-007/AC-03; APIC 4 GET current revision', 'owner': '罗浩铭',
+            'expected_revision': advanced['revision'], 'actual_revision': future['revision'],
+            'result': 'failed' if future['revision'] != advanced['revision'] else 'passed',
+        }
+        self.assertEqual(future['revision'], advanced['revision'])
