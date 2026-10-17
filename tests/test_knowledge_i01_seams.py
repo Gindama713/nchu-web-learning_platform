@@ -27,7 +27,7 @@ from backend.shared.db import connect, migrate
 
 ORIGIN = "http://127.0.0.1:5173"
 NOW = datetime(2026, 10, 17, 4, tzinfo=UTC)
-PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1ioAAAAASUVORK5CYII=")
+PNG = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=")
 PDF1 = b"%PDF-1.4\n% I01 permitted-document control v1\n%%EOF"
 PDF2 = b"%PDF-1.4\n% I01 permitted-document control v2\n%%EOF"
 
