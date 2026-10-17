@@ -1,0 +1,226 @@
+{
+  "tested": "96f4f2989765359e01949f4003dde4d32c0c4814",
+  "layer": "independent read-only reconciliation of captured actual responses and SQLite rows",
+  "attempts": [
+    {
+      "id": 1,
+      "experiment_version_id": 1,
+      "student_id": 3,
+      "revision": 1,
+      "latest_seq": 6,
+      "status": "submitted",
+      "completed": 1,
+      "action_sequences": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "snapshot_hash": "95622327e877e994ee5e9cbc221584c197ad6ed85fd3fb5225eb3ebf5acb5c90",
+      "failed_functional_cases": []
+    },
+    {
+      "id": 2,
+      "experiment_version_id": 1,
+      "student_id": 4,
+      "revision": 1,
+      "latest_seq": 6,
+      "status": "submitted",
+      "completed": 0,
+      "action_sequences": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "snapshot_hash": "d1a771dc4ee72623cc04e485022dc4c3dfd85ccff39db5254db5e5eef2070d52",
+      "failed_functional_cases": [
+        "SUB",
+        "NOT",
+        "SHL",
+        "SHR"
+      ]
+    },
+    {
+      "id": 3,
+      "experiment_version_id": 1,
+      "student_id": 5,
+      "revision": 0,
+      "latest_seq": 0,
+      "status": "draft",
+      "completed": 0,
+      "action_sequences": []
+    },
+    {
+      "id": 4,
+      "experiment_version_id": 2,
+      "student_id": 5,
+      "revision": 1,
+      "latest_seq": 6,
+      "status": "submitted",
+      "completed": 1,
+      "action_sequences": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "snapshot_hash": "95622327e877e994ee5e9cbc221584c197ad6ed85fd3fb5225eb3ebf5acb5c90",
+      "failed_functional_cases": []
+    }
+  ],
+  "analyses": [
+    {
+      "id": 2,
+      "metrics": {
+        "assigned_count": 4,
+        "completed_student_count": 1,
+        "completion_rate": 0.25,
+        "attempt_count": 2,
+        "error_counts": {
+          "REQUIRED_OPEN": 1
+        }
+      },
+      "versions": [
+        1
+      ],
+      "participant_pairs": [
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ]
+      ],
+      "submitted_attempt_ids": [
+        1,
+        2
+      ],
+      "unique_error_keys": [
+        [
+          3,
+          0,
+          "REQUIRED_OPEN"
+        ]
+      ],
+      "raw_validation_count": 3
+    },
+    {
+      "id": 4,
+      "metrics": {
+        "assigned_count": 8,
+        "completed_student_count": 2,
+        "completion_rate": 0.25,
+        "attempt_count": 3,
+        "error_counts": {
+          "REQUIRED_OPEN": 1
+        }
+      },
+      "versions": [
+        1,
+        2
+      ],
+      "participant_pairs": [
+        [
+          1,
+          3
+        ],
+        [
+          1,
+          4
+        ],
+        [
+          1,
+          5
+        ],
+        [
+          1,
+          6
+        ],
+        [
+          2,
+          3
+        ],
+        [
+          2,
+          4
+        ],
+        [
+          2,
+          5
+        ],
+        [
+          2,
+          6
+        ]
+      ],
+      "submitted_attempt_ids": [
+        1,
+        2,
+        4
+      ],
+      "unique_error_keys": [
+        [
+          3,
+          0,
+          "REQUIRED_OPEN"
+        ]
+      ],
+      "raw_validation_count": 3
+    }
+  ],
+  "old_csv": {
+    "equal_count": 3,
+    "sha256": "8c0f36e87c48d4f6e9912b3117c4da1717482434438b1b18169c5a737183eba7",
+    "utf8_text": "analysis_run_id,2\r\nsource_until,2026-10-17T04:11:00.000Z\r\ngenerated_at,2026-10-17T04:11:00.000Z\r\nalgorithm_version,wiring-analysis-v1\r\nperiod_start,period_end,assigned_count,completed_student_count,completion_rate,attempt_count,error_counts\r\n2026-10-17T00:00:00.000Z,2026-10-17T04:11:00.000Z,4,1,0.25,2,\"{\"\"REQUIRED_OPEN\"\": 1}\"\r\n"
+  },
+  "PNG_fixture": {
+    "sha256": "5e3d382db4dd83d59aa5742793ad6b7903409e865c83bcbc54835049f043bc15",
+    "valid_signature": true,
+    "chunks_crc_verified": [
+      "IHDR",
+      "IDAT",
+      "IEND"
+    ],
+    "decompressed_scanline": "filter=1, gray=255, alpha=255; IHDR 1x1 gray+alpha 8bit"
+  },
+  "audit_links": [
+    {
+      "attempt_id": 1,
+      "create_audit_id": 20,
+      "submit_audit_id": 24,
+      "snapshot_hash": "95622327e877e994ee5e9cbc221584c197ad6ed85fd3fb5225eb3ebf5acb5c90",
+      "completed": true
+    },
+    {
+      "attempt_id": 2,
+      "create_audit_id": 21,
+      "submit_audit_id": 26,
+      "snapshot_hash": "d1a771dc4ee72623cc04e485022dc4c3dfd85ccff39db5254db5e5eef2070d52",
+      "completed": false
+    },
+    {
+      "attempt_id": 4,
+      "create_audit_id": 29,
+      "submit_audit_id": 31,
+      "snapshot_hash": "95622327e877e994ee5e9cbc221584c197ad6ed85fd3fb5225eb3ebf5acb5c90",
+      "completed": true
+    }
+  ]
+}
