@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-17 Asia/Shanghai",
+  "handler_first_attempt": {
+    "command": ".venv/Scripts/python.exe -m unittest tests.test_i03_subchain.I03SubchainTest -v",
+    "result": "error",
+    "exception": "TypeError: I03EntryTest.call() got an unexpected keyword argument 'headers'",
+    "tests_run": 1,
+    "seconds": 2.328,
+    "stage": "objects published and fixed version updated; request adapter failed before first attempt submission",
+    "repair": "accept and forward headers in recorder; no business changes",
+    "original_facts": "handler-incomplete-before-header-fix.json"
+  },
+  "initial_lint": {
+    "result": "failed",
+    "rule": "I001",
+    "file": "tests/test_i03_entry.py",
+    "repair": "sort imported names ORIGIN, DemoApiBase; no business changes"
+  },
+  "formal": "separate final clean 4498fd9 evidence; 007 expectedFailure is a real unresolved contract defect, not a script failure"
+}

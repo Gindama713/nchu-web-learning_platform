@@ -6,6 +6,8 @@
 
 ## 当前结论与完整集合
 
+2026-10-17 I-03有限续包：[007入口及本人错题→掌握度→检索定向记录](SPEC-010B_I03_SUBCHAIN_INTEGRATION.md)。从已核验develop dfb2327新建010B后续feature；007后端列表/会话已合入，但无课堂演示页面，另有after_revision虚报revision的真实契约失败（罗浩铭，单独expectedFailure）。本人子链2项handler通过、另1项007契约预期失败，Chrome/Edge各7组受测检查通过，12图目视；007缺页不计浏览器通过。原矩阵仅补13行，保留原整行历史及head/tested/附件，其余118行不变；011三个AC的集成登记只表示本次有限检索子链通过，集成62通过/69阻断、本地80通过/0失败/51阻断。004 R37两缺陷及备课UI、完整I-03/R01仍阻断；下方旧表是原日期历史，不代表当前接口仍404。未复制#27/#28/#29/#30未合入材料或重跑旧整包。
+
 2026-10-15 C12b增量优先：C12a-UI-02在006 feature由SPEC-006主修并引用008，已提交[后续PR #17](https://github.com/Gindama713/nchu-web-learning_platform/pull/17)；C12a-UI-03在原012 feature更新[PR #15](https://github.com/Gindama713/nchu-web-learning_platform/pull/15)。三个NF-UI失败行经所属feature组件与真实HTTP/双浏览器复验改为本人适用范围“通过”，集成结果仍阻断，完整SPEC不关闭。代码没有互相复制到未合入分支；本010B分支只更新审计记录，不引入006/012实现。其余128行结果及原证据保持。
 
 完整逐行记录见[验收矩阵](evidence/c12a/acceptance-matrix.md)，可机器读取的[完整字段JSON](evidence/c12a/acceptance-matrix.json)保留每行来源、输入/预期、实现、测试/人工步骤、证据层、补验、实际、结果、执行人/日期、PR/head/tested和附件。
