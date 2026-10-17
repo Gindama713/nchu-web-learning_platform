@@ -1,5 +1,6 @@
 """One bounded real-API scenario shared by handler and socket/UI evidence."""
 
+import json
 from datetime import timedelta
 from uuid import uuid4
 
@@ -133,6 +134,13 @@ class Subchain:
             source = next(a for a in raw['attempt'] if a['id'] == row['last_attempt_id'])
             assert source['student_id'] == row['student_id'] and source['paper_id'] == self.quiz
         saved = next(r for r in raw['analysis_run'] if r['id'] == knowledge['analysis_run_id'])
+        samples = json.loads(saved['input_snapshot_json'])['samples']
+        assert {(s['source'], s['sample_id']) for s in samples} == {('answer', a['id']) for a in objective}
+        tags = {(row['question_version_id'], row['knowledge_id']) for row in raw['question_knowledge']}
+        for sample in samples:
+            answer = next(a for a in objective if a['id'] == sample['sample_id'])
+            assert sample['correct'] == int(answer['score_hundredths'] > 0)
+            assert set(sample['knowledge_ids']) == {k for v, k in tags if v == answer['question_version_id']}
         self.stages['knowledge_input'] = saved['input_snapshot_json']
 
     def review(self):
@@ -171,7 +179,12 @@ class Subchain:
             assert source['excerpt'] in point['content']
             self.sources.append(matches)
         self.call(own, 'GET', f'/knowledge-points/{self.points[2]}', status=404)
-        self.capture('same_course_qa_sources')
+        raw = self.capture('same_course_qa_sources')
+        for row, result in zip(raw['qa_query'][-2:], self.sources, strict=True):
+            assert row['user_id'] == self.ids[0] and row['course_id'] == self.course
+            assert row['index_revision'] == result['index_version']
+            assert json.loads(row['matched_ids_json']) == [m['knowledge_id'] for m in result['matches']]
+            assert [round(value, 6) for value in json.loads(row['similarities_json'])] == [m['similarity'] for m in result['matches']]
 
     def unpublish(self):
         k2 = self.points[1]
