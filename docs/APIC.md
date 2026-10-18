@@ -267,6 +267,8 @@ C07新建knowledge/scores结果增加filters（与parameters_json一致的解析
 
 010B页面使用以上统计与快照接口，用户操作见[README§8.5](../README.md)。CSV的knowledge_series_items还按原周序列顺序输出每周知识明细，不遗漏series中的items；页面显示总计知识明细及周汇总表。浏览器仅以当前用户ID/角色为本地存储键保存课程/快照ID，恢复重新鉴权；过滤条件或身份变更会废弃迟到响应，恢复/导出失败清除旧结果，不静默回退新统计。此说明不改变QA或推荐契约。
 
+010D grading实施口径：`algorithm_version=grading-teaching-v1`；查询只接受`dimension/from/to/student_id`，按已发布circuit版本`start_at`左闭右开选任务，`sample_size=effective_count`。教学单元为`(student_id,experiment_version_id)`：按`(created_at,id)`倒序取首个具有effective_run的submission，effective_run为其id最大的accepted/wrong_answer/timeout/resource_limit/invalid_circuit run；queued/running/system_error不覆盖旧分。`pass_rate=accepted_count/effective_count`，`student_count`为有效成绩去重学生，`mean_score`按原始分（0—100）等权，`score_bins`固定`[0,60)`/`[60,70)`/`[70,80)`/`[80,90)`/`[90,100]`。`run_count/system_error_count/timeout_count/resource_limit_count`统计区间内全部run，独立于教学分母。`metrics.suites`按`suite_id`分组、字段同口径，只出现system_error的suite同样列出；suite层`submission_count`为在该suite产生过run的submission数。空样本计数0、比率与均分null并保存合法快照；CSV只序列化该快照。读取与导出复用analysis_run及统一404/403语义，详见[SPEC-010D实施记录](SPEC-010D_IMPLEMENTATION.md)。
+
 ### 5.2 问答与推荐
 
 QA按当前已发布知识语料revision按需重建TF-IDF；重建失败返回503 INDEX_UNAVAILABLE，不返回旧内容；空语料found=false、matches=[]。推荐始终返回对象，items可为空，外层reason与source_until仍存在；确定算法及reason枚举见PRD第4.3节。
