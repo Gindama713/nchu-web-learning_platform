@@ -422,7 +422,7 @@ def publish_version(version_id):
             validate_rules(rules)
         if "circuit" in modes:
             # R04：缺判分配置发布 409 且保持 draft；配置与有效测试集齐全才可发布。
-            profile = db.execute("SELECT id FROM judge_profile WHERE experiment_version_id=?",
+            profile = db.execute("SELECT * FROM judge_profile WHERE experiment_version_id=?",
                                  (version_id,)).fetchone()
             if not profile:
                 raise ApiError(409, "STATE_CONFLICT",
@@ -430,7 +430,22 @@ def publish_version(version_id):
             if "initial_test_suite_id" not in data:
                 raise _bad("initial_test_suite_id is required for circuit versions")
             positive_int(data["initial_test_suite_id"], "initial_test_suite_id")
-            # SPEC-018 将在此复核测试集同版本、已发布且验证身份一致。
+            # SPEC-018：同事务复核测试集同版本、已发布且验证身份与当前 profile 一致。
+            suite = db.execute(
+                "SELECT * FROM test_suite WHERE id=? AND experiment_version_id=? AND status='published'",
+                (data["initial_test_suite_id"], version_id)).fetchone()
+            if not suite:
+                raise ApiError(409, "STATE_CONFLICT",
+                               "initial_test_suite_id must be a published suite of this version")
+            validation = db.execute(
+                "SELECT * FROM test_suite_validation WHERE id=?",
+                (suite["published_validation_id"],)).fetchone()
+            if not validation or validation["status"] != "passed" \
+                    or validation["profile_sha256"] != profile["canonical_sha256"] \
+                    or validation["suite_sha256"] != suite["content_sha256"] \
+                    or validation["jar_sha256"] != profile["jar_sha256"]:
+                raise ApiError(409, "STATE_CONFLICT",
+                               "Test suite validation does not match the current configuration")
         students = db.execute(
             "SELECT m.user_id FROM course_member m JOIN user u ON u.id=m.user_id "
             "WHERE m.course_id=? AND m.member_role='student' AND m.active=1 "
@@ -447,6 +462,10 @@ def publish_version(version_id):
             notify(student["user_id"], row["course_id"],
                    f"实验发布：{row['experiment_title']}", "experiment_version", version_id,
                    f"experiment.published:{version_id}")
+        if "circuit" in modes:
+            # 发布成功后冻结配置并建立 experiment_grading.active_suite_id（APIC 第7节）。
+            db.execute("INSERT INTO experiment_grading(experiment_version_id,active_suite_id,"
+                       "revision) VALUES(?,?,1)", (version_id, suite["id"]))
         audit("experiment.publish", "experiment_version", version_id,
               after={"participants": len(students), "start_at": stamp(start), "end_at": stamp(end)})
         published = version_row(db, version_id)

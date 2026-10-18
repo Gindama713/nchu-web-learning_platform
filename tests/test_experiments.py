@@ -244,10 +244,9 @@ class ExperimentsTest(TestCase):
         self.assertEqual(experiments["data"][0]["latest_version"]["id"], published2["id"])
 
     def test_ac04_module_boundary(self):
-        # 覆盖 T009-AC04（模块边界）：本模块不提供 017 连线与 018 评测端点。
+        # 覆盖 T009-AC04（模块边界）：本模块不提供 017 连线端点；
+        # 018 评测端点已在 SPEC-018 分支落地，不再 404。
         self.call(self.student, "GET", "/wiring-attempts/1", status=404)
-        self.call(self.student, "POST", "/experiment-versions/1/submissions", {}, status=404)
-        self.call(self.teacher, "PUT", "/experiment-versions/1/judge-profile", {}, status=404)
 
     def test_r02_student_finds_version_from_list(self):
         # 覆盖 T009-R02：学生从列表获得版本 id 后打开详情，不手工猜 ID。
