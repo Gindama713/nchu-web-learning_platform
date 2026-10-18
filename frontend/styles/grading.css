@@ -1,0 +1,40 @@
+/* SPEC-018 在线评测工作台样式（复用 main.css 的 card/rows/actions/inline-form 基类）。 */
+.grading-center .grading-config {
+  border-top: 1px solid var(--line, #d8dee9);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
+.grading-center h4 {
+  margin: 0.9rem 0 0.4rem;
+}
+.grading-upload {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.grading-entry {
+  border-top: 1px solid var(--line, #d8dee9);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
+.grading-cases {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  font-size: 0.92rem;
+}
+.grading-cases th,
+.grading-cases td {
+  border: 1px solid var(--line, #d8dee9);
+  padding: 0.35rem 0.55rem;
+  text-align: left;
+  vertical-align: top;
+}
+.grading-cases thead {
+  background: var(--accent-soft, #eef2f8);
+}
+.grading-list {
+  border-top: 1px solid var(--line, #d8dee9);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+}
