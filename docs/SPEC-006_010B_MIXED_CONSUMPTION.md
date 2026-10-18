@@ -42,7 +42,7 @@
 
 ## 真实运行与页面证据
 
-正式tested=`938a45c0b169cf0bbbe335c92ae4ec6841d20929`，[handler报告](evidence/mixed-consumption/handlers/report.json)及[浏览器报告](evidence/mixed-consumption/browsers/report.json)均dirty_paths=[]。handler 2项11.369秒，2通过/0失败/0expectedFailure，见[原日志](evidence/mixed-consumption/handlers/handlers.txt)。Chrome155.0.8059.41及Edge155.0.4283.45各完成两个场景，page_errors=[]。
+正式tested=`938a45c0b169cf0bbbe335c92ae4ec6841d20929`，[handler报告](evidence/mixed-consumption/handlers/report.json)及[浏览器报告](evidence/mixed-consumption/browsers/report.json)均dirty_paths=[]。handler 2项11.369秒，2通过/0失败/0expectedFailure，见[原日志](evidence/mixed-consumption/handlers/handlers.txt)。Chrome155.0.8059.41及Edge155.0.4283.62各完成两个场景，page_errors=[]。
 
 只有最初admin/teacher SQL bootstrap、随机口令与TEST_NOW是夹具；学生、知识、题目、生成、发布、交卷、批阅及查询均真实API。没有业务表直插、成功mock、故障注入或算法double。本轮业务准备/交卷/批阅明确是handler操作；现成页面通过真实socket完成查看生成草稿/已发布名单、恢复知识/多类别成绩ID、显示、刷新推荐和CSV下载，不冒充全部业务由UI点击。两浏览器handler证据在[Chrome A](evidence/mixed-consumption/browsers/chrome-handlers/test_generated_homework_exam_cross_paper_scores_and_saved_snapshots.json)/[B](evidence/mixed-consumption/browsers/chrome-handlers/test_mixed_practice_quiz_versions_recommendation_and_weekly_knowledge.json)、[Edge A](evidence/mixed-consumption/browsers/msedge-handlers/test_generated_homework_exam_cross_paper_scores_and_saved_snapshots.json)/[B](evidence/mixed-consumption/browsers/msedge-handlers/test_mixed_practice_quiz_versions_recommendation_and_weekly_knowledge.json)，socket见[Chrome](evidence/mixed-consumption/browsers/chrome-socket-requests.json)/[Edge](evidence/mixed-consumption/browsers/msedge-socket-requests.json)。已脱敏口令/CSRF等，保留原响应SHA与CSV；未提交数据库或会话。
 
