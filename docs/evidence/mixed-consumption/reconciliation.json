@@ -1,0 +1,120 @@
+{
+  "method": "raw table joins and arithmetic; no business algorithm imports",
+  "checks": [
+    {
+      "file": "docs\\evidence\\mixed-consumption\\browsers\\chrome-handlers\\test_generated_homework_exam_cross_paper_scores_and_saved_snapshots.json",
+      "scope": "generated versions/source/points; category/cross-paper/weekly scores",
+      "result": "passed"
+    },
+    {
+      "file": "docs\\evidence\\mixed-consumption\\browsers\\chrome-handlers\\test_mixed_practice_quiz_versions_recommendation_and_weekly_knowledge.json",
+      "scope": "raw practice/answer namespace, answered objective filter, fixed labels, two weeks, recommendation",
+      "sources": [
+        [
+          "answer",
+          1,
+          2,
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          "practice",
+          1,
+          1,
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          "practice",
+          2,
+          5,
+          [
+            2
+          ]
+        ]
+      ],
+      "result": "passed"
+    },
+    {
+      "file": "docs\\evidence\\mixed-consumption\\browsers\\msedge-handlers\\test_generated_homework_exam_cross_paper_scores_and_saved_snapshots.json",
+      "scope": "generated versions/source/points; category/cross-paper/weekly scores",
+      "result": "passed"
+    },
+    {
+      "file": "docs\\evidence\\mixed-consumption\\browsers\\msedge-handlers\\test_mixed_practice_quiz_versions_recommendation_and_weekly_knowledge.json",
+      "scope": "raw practice/answer namespace, answered objective filter, fixed labels, two weeks, recommendation",
+      "sources": [
+        [
+          "answer",
+          1,
+          2,
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          "practice",
+          1,
+          1,
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          "practice",
+          2,
+          5,
+          [
+            2
+          ]
+        ]
+      ],
+      "result": "passed"
+    },
+    {
+      "file": "docs\\evidence\\mixed-consumption\\handlers\\test_generated_homework_exam_cross_paper_scores_and_saved_snapshots.json",
+      "scope": "generated versions/source/points; category/cross-paper/weekly scores",
+      "result": "passed"
+    },
+    {
+      "file": "docs\\evidence\\mixed-consumption\\handlers\\test_mixed_practice_quiz_versions_recommendation_and_weekly_knowledge.json",
+      "scope": "raw practice/answer namespace, answered objective filter, fixed labels, two weeks, recommendation",
+      "sources": [
+        [
+          "answer",
+          1,
+          2,
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          "practice",
+          1,
+          1,
+          [
+            1,
+            2
+          ]
+        ],
+        [
+          "practice",
+          2,
+          5,
+          [
+            2
+          ]
+        ]
+      ],
+      "result": "passed"
+    }
+  ],
+  "result": "passed"
+}
