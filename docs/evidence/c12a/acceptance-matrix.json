@@ -66,7 +66,15 @@
     "head_SHA": "fc67f0c649ae904039f210875de5e388926805a9",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -89,7 +97,15 @@
     "head_SHA": "fc67f0c649ae904039f210875de5e388926805a9",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -158,7 +174,15 @@
     "head_SHA": "fc67f0c649ae904039f210875de5e388926805a9",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -1479,7 +1503,15 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -1548,7 +1580,15 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -1709,7 +1749,15 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -1732,7 +1780,15 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -1916,7 +1972,15 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-010B",
