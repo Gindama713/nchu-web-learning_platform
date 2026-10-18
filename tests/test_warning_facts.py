@@ -20,11 +20,7 @@ class WarningFactsTest(TestCase):
         try:
             migrate(path)
             db = connect(path)
-            db.executescript("""
-                CREATE TABLE IF NOT EXISTS submission(id INTEGER PRIMARY KEY,experiment_version_id INTEGER,
-                    student_id INTEGER,created_at TEXT);
-                CREATE TABLE IF NOT EXISTS grading_run(id INTEGER PRIMARY KEY,submission_id INTEGER,status TEXT,finished_at TEXT);
-            """)
+            # submission/grading_run 由 SPEC-018 迁移提供真实表，直接插入。
             db.execute("INSERT INTO user(id,student_no,name,password_hash,role,created_at,updated_at) "
                        "VALUES(1,'STUDENT01','S','x','student',?,?)", (AT, AT))
             db.execute("INSERT INTO user(id,student_no,name,password_hash,role,created_at,updated_at) "
@@ -70,8 +66,18 @@ class WarningFactsTest(TestCase):
             db.execute("INSERT INTO experiment_participant VALUES(1,1)")
             db.execute("INSERT INTO wiring_attempt(experiment_version_id,student_id,status,completed,submitted_at,"
                        "state_json,created_at,updated_at) VALUES(1,1,'submitted',1,?,'{}',?,?)", (AT, AT, AT))
-            db.execute("INSERT INTO submission VALUES(1,1,1,?)", (AT,))
-            db.execute("INSERT INTO grading_run VALUES(1,1,'accepted',?)", (AT,))
+            # SPEC-018 拥有 submission/grading_run；按真实表结构插入验收数据。
+            db.execute("INSERT INTO file_object(id,owner_id,storage_key,original_name,media_type,"
+                       "size_bytes,sha256,purpose,created_at) VALUES(1,2,'k','f.circ','application/xml',"
+                       "10,'x','grading_submission',?)", (AT,))
+            db.execute("INSERT INTO submission(id,experiment_version_id,student_id,file_id,file_sha256,"
+                       "size_bytes,filename,created_at) VALUES(1,1,1,1,'x',10,'f.circ',?)", (AT,))
+            db.execute("INSERT INTO test_suite(id,experiment_version_id,version,status,content_sha256,"
+                       "scoring_groups_json,created_at) VALUES(1,1,1,'published','x','{}',?)", (AT,))
+            db.execute("INSERT INTO grading_run(id,submission_id,suite_id,engine_version,jar_sha256,status,"
+                       "score_hundredths,passed_count,executed_count,total_count,finished_at,"
+                       "profile_snapshot_json,profile_sha256,suite_sha256,created_at) "
+                       "VALUES(1,1,1,'fixture',NULL,'accepted',10000,1,1,1,?,'{}','x','x',?)", (AT, AT))
             facts = read_facts(db, 1, START, END, END)
             self.assertEqual(facts[0]["answers"], 5)
             self.assertEqual(facts[0]["correct"], 1)

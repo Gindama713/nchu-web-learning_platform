@@ -3,7 +3,6 @@
 import os
 import secrets
 import sqlite3
-from pathlib import Path
 
 import click
 from flask import Flask, g, jsonify, request
@@ -17,6 +16,7 @@ from backend.apis import (
     courses,
     demo,
     experiments,
+    grading,
     identity,
     papers,
     practices,
@@ -59,8 +59,12 @@ def create_app(config=None):
     for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
                       recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp, quizzes.bp,
                       resources.bp, experiments.bp, preparations.bp, demo.bp, wiring.bp,
-                      recommendations.bp):
+                      recommendations.bp, grading.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
+    if not app.config.get("TESTING"):
+        # SPEC-018：Web 进程每5秒扫描过期运行/排队超时（DBD 第7节）。
+        from backend.engines.grading import start_scanner
+        start_scanner(app)
     app.register_blueprint(knowledge_blueprint)
     app.extensions["qa_cache"] = IndexCache()
     app.register_blueprint(qa_blueprint)
@@ -116,12 +120,12 @@ def create_app(config=None):
     @app.get("/api/v1/health")
     def health():
         db_ready = database_ready(app.config["DATABASE_PATH"])
-        jar = os.environ.get("LOGISIM_JAR_PATH")
-        # The grader and sandbox are separate work; a JAR path alone is not readiness.
-        grader_ready = False
-        status = "ready" if db_ready and grader_ready else "degraded"
-        return result({"web_ready": True, "db_ready": db_ready, "grader_ready": grader_ready,
-                       "status": status, "grader_configured": bool(jar and Path(jar).is_file())},
+        # SPEC-018：固定 JAR 存在且身份可校验才视为评测就绪；清理失败禁止新任务。
+        from backend.engines.grading import grader_ready
+        ready = grader_ready()
+        status = "ready" if db_ready and ready else "degraded"
+        return result({"web_ready": True, "db_ready": db_ready, "grader_ready": ready,
+                       "status": status},
                       200 if status == "ready" else 503)
 
     @app.get("/api/v1/modules")
