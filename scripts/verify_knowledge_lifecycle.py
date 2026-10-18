@@ -1,6 +1,7 @@
 """Run only the finite knowledge lifecycle, optionally observing existing pages."""
 
 import argparse
+import hashlib
 import json
 import shutil
 import socket
@@ -28,7 +29,8 @@ def serving(case, output):
     for port in (5000, 5173):
         with socket.socket() as probe:
             probe.bind(('127.0.0.1', port))
-    server = make_server('127.0.0.1', 5000, case.app, threaded=True, request_handler=QuietHandler)
+    # Match existing browser harnesses: this finite check is not a concurrency benchmark.
+    server = make_server('127.0.0.1', 5000, case.app, request_handler=QuietHandler)
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()
     process = None
@@ -64,6 +66,8 @@ def browser_check(playwright, channel, output):
 
     from scripts.verify_spec010b_analytics import download
 
+    expect.set_options(timeout=20000)
+
     folder = output / channel
     folder.mkdir(parents=True, exist_ok=True)
     case = KnowledgeLifecycleTest(METHOD)
@@ -84,6 +88,16 @@ def browser_check(playwright, channel, output):
                 pages = [teacher.new_page(), student.new_page()]
                 for page, number in zip(pages, ('T006TEACH', 'T006STUD1'), strict=True):
                     page.on('pageerror', lambda error: errors.append(type(error).__name__))
+                    def record_response(response, actor=number):
+                        if '/api/v1/' not in response.url:
+                            return
+                        response.body()
+                        content = response.headers.get('content-type', '')
+                        requests.append({'actor': actor, 'transport': 'real socket HTTP',
+                            'method': response.request.method, 'url': response.url, 'status': response.status,
+                            'response': sanitized(response.json()) if 'application/json' in content
+                            else {'sha256': hashlib.sha256(response.body()).hexdigest()}})
+                    page.on('response', record_response)
                     with page.expect_response(lambda r: r.url.endswith('/auth/session')) as initial:
                         page.goto(ORIGIN)
                     initial.value.body()
@@ -92,6 +106,7 @@ def browser_check(playwright, channel, output):
                     with page.expect_response(lambda r: r.url.endswith('/auth/login')) as signed:
                         page.get_by_role('button', name='登录', exact=True).click()
                     assert signed.value.status == 200
+                    expect(page.locator('.analytics-bank')).to_have_attribute('aria-busy', 'false')
                     expect(page.locator('.analytics-bank').get_by_label('统计课程', exact=True)).to_be_enabled()
 
                 def observe(name, values):
@@ -142,6 +157,10 @@ def browser_check(playwright, channel, output):
                 assert errors == []
                 return {'channel': channel, 'version': browser.version, 'checks': checks,
                         'page_errors': errors, 'result': 'passed'}
+            except AssertionError:
+                for index, page in enumerate(pages):
+                    page.screenshot(path=str(folder / f'failure-{index}.png'))
+                raise
             finally:
                 browser.close()
     finally:
