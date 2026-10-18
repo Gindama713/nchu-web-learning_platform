@@ -59,7 +59,9 @@ def cases_payload():
             for index, group in enumerate(GROUPS)]
 
 
-class GradingTest(TestCase):
+class GradingFixture(TestCase):
+    """共享 SPEC-018 fixture 与真实 API 辅助；不含测试方法，供 018/010D 复用。"""
+
     def setUp(self):
         self.temporary = TemporaryDirectory()
         self.path = Path(self.temporary.name)/"grading.db"
@@ -235,6 +237,16 @@ class GradingTest(TestCase):
         assert response.status_code == status, (response.status_code, response.json)
         return response.json.get("data", response.json)
 
+    def call(self, client, method, path, payload=None, status=200, headers_extra=None):
+        headers = {"Origin": ORIGIN, "X-CSRF-Token": getattr(client, "csrf", "")}
+        if headers_extra:
+            headers.update(headers_extra)
+        response = getattr(client, method.lower())(f"/api/v1{path}", json=payload, headers=headers)
+        assert response.status_code == status, (path, response.status_code, response.json)
+        return response
+
+
+class GradingTest(GradingFixture):
     # ---------- 教师配置（R04/R13） ----------
 
     def test_teacher_profile_configuration(self):
@@ -618,11 +630,3 @@ class GradingTest(TestCase):
                   f"{self.course}/submissions?student_id={self._uid(self.student2)}", status=403)
         # 他课教师：课程不可见（APIC 总则，非成员统一 404）。
         self.call(self.teacher2, "GET", f"{self.course}/submissions", status=404)
-
-    def call(self, client, method, path, payload=None, status=200, headers_extra=None):
-        headers = {"Origin": ORIGIN, "X-CSRF-Token": getattr(client, "csrf", "")}
-        if headers_extra:
-            headers.update(headers_extra)
-        response = getattr(client, method.lower())(f"/api/v1{path}", json=payload, headers=headers)
-        assert response.status_code == status, (path, response.status_code, response.json)
-        return response

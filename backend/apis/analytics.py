@@ -10,7 +10,12 @@ from zoneinfo import ZoneInfo
 import pandas as pd
 from flask import Blueprint, make_response, request
 
-from backend.apis import knowledge_analytics, resource_analytics, score_analytics
+from backend.apis import (
+    grading_analytics,
+    knowledge_analytics,
+    resource_analytics,
+    score_analytics,
+)
 from backend.shared.api import (
     ApiError,
     date_range,
@@ -276,7 +281,7 @@ def permitted_run(course_id, run_id):
     user = require_user()
     course_access(course_id)
     row = get_db().execute("SELECT * FROM analysis_run WHERE id=? AND course_id=? AND creator_id=? "
-                           "AND kind IN ('attendance','wiring','knowledge','scores','resources')",
+                           "AND kind IN ('attendance','wiring','knowledge','scores','resources','grading')",
                            (run_id, course_id, user["id"])).fetchone()
     if not row:
         raise ApiError(404, "NOT_FOUND", "Analysis snapshot not found")
@@ -284,7 +289,7 @@ def permitted_run(course_id, run_id):
         raise ApiError(404, "NOT_FOUND", "Analysis snapshot not found")
     if user["role"] == "teacher" and row["scope"] == "self":
         raise ApiError(404, "NOT_FOUND", "Analysis snapshot not found")
-    if row['kind'] in ('knowledge', 'scores', 'resources'):
+    if row['kind'] in ('knowledge', 'scores', 'resources', 'grading'):
         knowledge_analytics.authorize(course_id, row['subject_student_id'])
     return row
 
@@ -307,9 +312,11 @@ def analytics(course_id):
         return score_analytics.create(course_id, request.args)
     if dimension == 'resources':
         return resource_analytics.create(course_id, request.args)
+    if dimension == 'grading':
+        return grading_analytics.create(course_id, request.args)
     if dimension != "attendance":
         raise ApiError(400, "VALIDATION_ERROR",
-                       "Supported dimensions: attendance, wiring, knowledge, scores, resources")
+                       "Supported dimensions: attendance, wiring, knowledge, scores, resources, grading")
     if set(request.args) - {"dimension", "from", "to", "student_id", "performance_paper_ids"}:
         raise ApiError(400, "VALIDATION_ERROR", "Invalid attendance filters")
     user = require_user()
@@ -398,7 +405,7 @@ def export(course_id):
         raise ApiError(403, "FORBIDDEN", "Course teacher required")
     row = permitted_run(course_id, knowledge_analytics.identifier(request.args["analysis_run_id"], "analysis_run_id"))
     data = json.loads(row["result_json"])
-    if row['kind'] in ('knowledge', 'scores', 'resources'):
+    if row['kind'] in ('knowledge', 'scores', 'resources', 'grading'):
         from backend.apis.statistics_csv import response as statistics_csv
         return statistics_csv(data)
     dimension = data.get("dimension", "attendance")

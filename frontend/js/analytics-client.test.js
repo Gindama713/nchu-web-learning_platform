@@ -15,6 +15,17 @@ test('knowledge excludes stale score filters; scores requires category; restore 
   assert.equal(requests.at(-1), '/api/v1/courses/3/analytics?analysis_run_id=17')
 })
 
+test('grading keeps only dimension, range and student filters', async () => {
+  const requests = []
+  const api = new AnalyticsClient({ id: 1, role: 'teacher' }, async path => {
+    requests.push(path); return { ok: true, json: async () => ({ data: {} }) }
+  })
+  await api.query(3, { dimension: 'grading' })
+  assert.equal(requests.at(-1), '/api/v1/courses/3/analytics?dimension=grading')
+  await api.query(3, { dimension: 'grading', from: 'A', to: 'B', student_id: '2', kind: 'exam', paper_id: '9' })
+  assert.equal(requests.at(-1), '/api/v1/courses/3/analytics?dimension=grading&from=A&to=B&student_id=2')
+})
+
 test('CSV validates current identity/role and downloads only saved ID, rejecting failures', async () => {
   const paths = []
   let session = { user: { id: 1, role: 'teacher' }, csrf_token: 'current' }, status = 200

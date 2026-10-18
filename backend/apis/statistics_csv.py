@@ -30,7 +30,7 @@ def response(data):
         row([key, data[key]])
     row(['filters', data.get('filters')])
     metrics = data['metrics']
-    keys = [key for key in metrics if key not in ('items', 'score_bins')]
+    keys = [key for key in metrics if key not in ('items', 'score_bins', 'suites')]
     # Explicit keys rather than JSON object order (Flask may sort response keys).
     keys.sort()
     row(['section', 'period_start', 'period_end', *keys])
@@ -56,6 +56,19 @@ def response(data):
         for period in data['series']:
             for item in period['metrics']['items']:
                 row(['series_item', period['period_start'], period['period_end'], *(item[key] for key in columns)])
+    elif data['dimension'] == 'grading':
+        row(['score_bins', 'period_start', 'period_end', 'label', 'count'])
+        for item in metrics['score_bins']:
+            row(['overall_bin', '', '', item['label'], item['count']])
+        for period in data['series']:
+            for item in period['metrics']['score_bins']:
+                row(['series_bin', period['period_start'], period['period_end'], item['label'], item['count']])
+        columns = ('suite_id', 'student_count', 'submission_count', 'effective_count', 'accepted_count',
+                   'pass_rate', 'mean_score', 'run_count', 'system_error_count', 'timeout_count',
+                   'resource_limit_count')
+        row(['suites', *columns])
+        for item in metrics['suites']:
+            row(['suite', *(item[key] for key in columns)])
     else:
         row(['score_bins', 'period_start', 'period_end', 'label', 'count'])
         for item in metrics['score_bins']:

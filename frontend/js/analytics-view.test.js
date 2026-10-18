@@ -88,6 +88,47 @@ test('snapshot times and week boundaries display Shanghai across UTC midnight wi
   assert.deepEqual(fixture.data, original)
 })
 
+const grading = (id = 21) => ({ analysis_run_id: id, dimension: 'grading', source_until: '2026-10-14T00:00:00Z',
+  generated_at: 'same', algorithm_version: 'grading-teaching-v1', sample_size: 5,
+  population_basis: 'published_circuit_version_start_at', warnings: ['故障 run 不进教学分母'],
+  metrics: { selected_version_ids: [7], student_count: 5, submission_count: 5, effective_count: 5, accepted_count: 2,
+    pass_rate: 0.4, mean_score: 50, run_count: 5, system_error_count: 0, timeout_count: 0, resource_limit_count: 0,
+    score_bins: [{ label: '[0,60)', count: 3 }, { label: '[60,70)', count: 0 }, { label: '[70,80)', count: 0 },
+      { label: '[80,90)', count: 0 }, { label: '[90,100]', count: 2 }],
+    suites: [{ suite_id: 3, student_count: 5, submission_count: 5, effective_count: 5, accepted_count: 2,
+      pass_rate: 0.4, mean_score: 50, run_count: 5, system_error_count: 0, timeout_count: 0, resource_limit_count: 0 }] },
+  series: [] })
+
+test('grading shows pass rate, suite split and reliability, never the scores wording', async t => {
+  const { root, fixture, paths } = await mount(t)
+  change(root, '统计维度', 'grading'); await flush()
+  fixture.data = grading()
+  button(root, '查询统计').props.onClick(); await flush()
+  assert.match(paths.at(-1), /dimension=grading/)
+  assert.match(content(root), /电路评测分析/)
+  assert.match(content(root), /教学通过率40.00%/)
+  assert.match(content(root), /有效成绩学生5/)
+  assert.match(content(root), /实际实验版本：7/)
+  assert.match(content(root), /按测试集分组的教学分布与运行可靠性/)
+  assert.match(content(root), /#3/)
+  assert.match(content(root), /3 个有效成绩/)
+  assert.doesNotMatch(content(root), /人卷次/)
+})
+
+test('grading empty sample shows unknown rate and no suite table', async t => {
+  const { root, fixture } = await mount(t)
+  change(root, '统计维度', 'grading'); await flush()
+  fixture.data = { ...grading(22), sample_size: 0, metrics: { selected_version_ids: [], student_count: 0,
+    submission_count: 0, effective_count: 0, accepted_count: 0, pass_rate: null, mean_score: null, run_count: 0,
+    system_error_count: 0, timeout_count: 0, resource_limit_count: 0,
+    score_bins: [{ label: '[0,60)', count: 0 }, { label: '[60,70)', count: 0 }, { label: '[70,80)', count: 0 },
+      { label: '[80,90)', count: 0 }, { label: '[90,100]', count: 0 }], suites: [] } }
+  button(root, '查询统计').props.onClick(); await flush()
+  assert.match(content(root), /教学通过率无数据/)
+  assert.match(content(root), /无有效样本/)
+  assert.match(content(root), /本区间没有可归组的测试集运行记录/)
+})
+
 test('reload restores saved ID only and unavailable old ID never silently creates new snapshot', async t => {
   const { root, fixture, paths } = await mount(t, { course: '3', run: 17 })
   assert.equal(paths.at(-1), '/api/v1/courses/3/analytics?analysis_run_id=17')

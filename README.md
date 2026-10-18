@@ -173,6 +173,8 @@ npm run build
 
 运行沿用第8节，无新增迁移。独立API测试为`python -m unittest tests.test_knowledge_analytics tests.test_score_analytics -v`；008已合入后的专用联合为`python -m unittest tests.test_quiz_analytics_integration -v`。可选真实Chrome/Edge回归分别为`python -m scripts.verify_spec010b_analytics`及`python -m scripts.verify_spec010b_quiz_integration`（需已安装两浏览器、`backend/requirements-browser.txt`依赖及前端依赖，5000/5173端口空闲）。专用quiz逐题统计包含提交漏答、knowledge只计实际客观作答，分母不同属于规定口径；批分后新scores变化，原ID/CSV保持原值。测试使用临时受控课程，不写教学库；报告和剩余验收见[SPEC-010B实施记录](docs/SPEC-010B_IMPLEMENTATION.md)。目标环境性能、完整生产恢复及课堂验收仍未关闭。
 
+010D 电路评测统计复用同一页面：维度选“电路评测通过率与运行可靠性”，显示每名学生每个 circuit 实验版本的有效成绩、教学通过率、分数分布，以及独立的 run 系统错误/超时/限额计数，另按测试集分组列出。教学成绩取最新具有 `effective_run` 的提交，排队、运行中与系统错误不覆盖旧分、也不进教学分母。无新增迁移；独立API测试为`python -m unittest tests.test_grading_analytics -v`。实施口径与剩余验收见[SPEC-010D实施记录](docs/SPEC-010D_IMPLEMENTATION.md)。
+
 ### 8.6 SPEC-013草稿组卷与快照重放（C08/C09）
 
 C08提供内部候选冻结、确定性回溯和不可变generation_snapshot；C09接入`POST /courses/{id}/generated-papers`及教师“课程试卷/随堂测→智能组卷”。首次填写新标题、题量、总分、难度配额和必选知识点，可选随机种子/历史截止/保密；成功仅保存草稿，显示固定版本和精确配分。“查看草稿与发布设置”继续006/008原流程，发布前仍检查题目资格和冻结名单。通过“从此快照重放”或原快照编号仅填写新标题，使用原约束/seed/全部候选历史，不读取新题库重新选题；原卷不变。
