@@ -70,7 +70,9 @@ def verify(playwright, channel, output, report):
             prep = call(teacher, 'POST', f'/courses/{course_id}/preparations', {
                 'title': 'R37关联备课', 'knowledge_ids': [knowledge['id']], 'resource_version_ids': [],
                 'question_version_ids': [], 'quiz_ids': [quiz['id']]}, 201)
-            call(teacher, 'POST', f"/preparations/{prep['id']}/publish", {}, 404)
+            rejected = request(teacher, 'POST', f"/preparations/{prep['id']}/publish", {}, 409,
+                               trace=entry['http'])
+            assert rejected['error']['code'] == 'QUIZ_NOT_PUBLISHED'
             start, end = at+timedelta(minutes=1), at+timedelta(minutes=2)
             call(teacher, 'POST', f'/courses/{course_id}/quizzes', {
                 'paper_id': quiz['id'], 'start_at': start.isoformat(), 'end_at': end.isoformat(),
@@ -95,9 +97,11 @@ def verify(playwright, channel, output, report):
             login(page, 'B006STUD1', password)
             detail = call(student, 'GET', f"/preparations/{prep['id']}")
             assert detail['quiz_ids'] == [quiz['id']]
-            assert set(detail['quizzes'][0]) == {'id', 'title', 'start_at', 'end_at'}
-            entry['known_contract_failures'] = ['R37-004-01: 404 NOT_FOUND instead of 409 QUIZ_NOT_PUBLISHED',
-                                                 'R37-004-02: preparation metadata missing window_state']
+            assert set(detail['quizzes'][0]) == {'id', 'title', 'window_state', 'start_at', 'end_at'}
+            assert detail['quizzes'][0]['window_state'] == 'upcoming'
+            entry['resolved_contract_failures'] = ['R37-004-01: 409 QUIZ_NOT_PUBLISHED',
+                                                  'R37-004-02: window_state=upcoming']
+            entry['checks'].append('postmerge_R37_004_01_and_02_contracts_pass')
             view = open_quiz(page, detail['quiz_ids'][0], '未开始')
             expect(view.get_by_text('试卷尚未开始，开始后可查看题目。')).to_be_visible()
             expect(view.locator('.attempt-answer-form')).to_have_count(0)
