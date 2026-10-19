@@ -78,9 +78,11 @@ def servers():
             for number, role in (("T005ADMIN", "admin"), ("T005TEACH", "teacher")):
                 db.execute("INSERT INTO user(student_no,name,password_hash,role,active,created_at,updated_at) "
                            "VALUES(?,?,?,?,1,?,?)", (number, number, generate_password_hash(password), role, now, now))
-        app = create_app({"DATABASE_PATH": str(database), "APP_ORIGIN": ORIGIN,
+        app = create_app({"TESTING": True, "DATABASE_PATH": str(database), "APP_ORIGIN": ORIGIN,
                           "APP_ENV": "development", "SECRET_KEY": secrets.token_hex(32)})
-        server = make_server("127.0.0.1", 5000, app, threaded=True, request_handler=QuietHandler)
+        # This controlled teaching fixture does not exercise the grading scanner
+        # or concurrent WSGI throughput. Keep one server connection at a time.
+        server = make_server("127.0.0.1", 5000, app, request_handler=QuietHandler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         vite = None
