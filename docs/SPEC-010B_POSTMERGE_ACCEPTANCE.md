@@ -50,7 +50,7 @@
 
 推荐首次运行在干净90a69c上Chrome7组通过、Edge未完成；退出时临时库PermissionError遮蔽最初异常，因此不能确诊Edge第一处失败。原[失败报告](evidence/postmerge-20261019/preflight/recommendation-browsers/browser-results.json)、[控制台](evidence/postmerge-20261019/preflight/recommendation-console.txt)及诊断截图保留。核对发现旧005浏览器夹具以非TESTING应用启动新增评测扫描器，且使用多线程WSGI。夹具改为TESTING=True以停用无关扫描器，并采用既有验证使用的单线程WSGI；补异常因果链位置留痕后，干净d8509d6双浏览器各7组通过。该结果不证明生产扫描器关闭、并发/吞吐或隔离验收通过，原失败也不以未保留的响应猜测成特定业务缺陷。
 
-辅助检查曾有一次PowerShell内嵌引号解析失败、一处Ruff re.M别名提示，以及链接检查器将合法目录误判为非文件，均在正式材料检查前修正；它们不是业务用例失败。完整后端原日志中的ResourceWarning保留，不改写成无警告。最终[材料检查](evidence/postmerge-20261019/material-checks.json)按每批最多3份文档核对链接、131行/31项AC、业务源码无差异及脱敏；[文件SHA清单](evidence/postmerge-20261019/sha256.json)可校验本包附件。
+辅助检查曾有一次PowerShell内嵌引号解析失败、一处Ruff re.M别名提示，以及链接检查器将合法目录误判为非文件，均在正式材料检查前修正；它们不是业务用例失败。完整后端原日志中的ResourceWarning保留，不改写成无警告。最终[材料检查](evidence/postmerge-20261019/material-checks.json)按每批最多3份文档核对链接、131行/31项AC、业务源码无差异及脱敏。提交后校验发现Windows换行会使工作区原字节SHA与Git文本对象不同，已改为UTF-8文本统一LF、图片保持原字节及正斜杠相对路径；[文件SHA清单](evidence/postmerge-20261019/sha256.json)可跨平台校验本包附件。
 
 ## 剩余工作与恢复条件
 
@@ -78,8 +78,9 @@
 .\.venv\Scripts\python.exe -m scripts.verify_spec011_qa --output logs/recheck/qa-ui
 .\.venv\Scripts\python.exe -m scripts.verify_spec012_browsers --output logs/recheck/recommendation-ui
 .\.venv\Scripts\python.exe -m scripts.reconcile_postmerge_acceptance
+.\.venv\Scripts\python.exe -m scripts.check_postmerge_evidence
 ```
 
-最后一条只校验本次固定证据对应的矩阵和历史保全，不运行业务或批准状态；需要重新生成同一固定收口时用--write，不能拿它替新基线自动改判。
+reconcile命令只校验本次固定证据对应的矩阵和历史保全，check命令只核对附件SHA；均不运行业务或批准状态。需要重新生成同一固定收口时用reconcile的--write，不能拿它替新基线自动改判。
 
 回退仅撤销本包脚本、状态/导航和证据增量，不回滚#38修复，不修改数据库、旧事实、迁移或队友实现。本包最终head CI及PR在实际完成后独立读取并登记到PR与本地交接；未授权代合并、部署或归档。
