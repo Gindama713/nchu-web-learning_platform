@@ -131,6 +131,8 @@ npm run build
 | SPEC-016 | PNG/JPEG 边界校验、固定字典模板、人工确认及成绩隔离；合成图测试 | PRD 固定 SHA 的 F01—F05 原图未在当前资料中找到，TV-03 尚不能宣称通过；模板 SHA/定位版本仍为 provisional |
 | SPEC-019 | GitHub PR 门禁、依赖锁定及 main/develop 分支保护已落地 | SPEC-017/018 真实 Logisim 冒烟、目标环境检查、release 保护及远端拒绝场景演练仍为发布阻断项 |
 
+2026-10-19 当前进展：SPEC-016 的固定输入已改为仓库内可核验的 `recognition-fixtures-v2` F01—F05，模板/预处理哈希见[PRD第4.5节](docs/PRD.md#recognition-acceptance)，原计划v1图片未交付的历史状态仅保留在上表。姜苏豪负责模块的最新验收记录见[个人实施与验收记录](docs/JIANG_SUHAO_IMPLEMENTATION.md)；目标环境、课堂和全组发布结论仍以实际证据为准。
+
 
 ### 8.2 完整系统实施契约（待实现）
 

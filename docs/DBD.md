@@ -130,7 +130,7 @@ C07 scores继续复用此表，无新迁移。parameters_json保存from/to、kin
 
 考勤关联分析不建新的可写成绩表。事实来源为attendance_task/participant/record与paper/participant/attempt，按PRD第4.4节及APIC第5.4节配对。analysis_run.parameters_json另保存实际selected_paper_ids，input_snapshot_json保存有序student_id、考勤分子/分母、有效attempt_id及score/total_points；结果与algorithm_version=attendance-performance-v1同事务保存。后续人工评分、考勤更正、知识上下架或新提交不修改旧分析快照。页面按analysis_run_id读取已保存结果，CSV也只序列化该结果，不从当前事实表重算；读取和导出均重新校验当前课程授权、creator_id、scope及kind。六种统计快照保留至课程验收后90天，清理后按不可用处理，不能回退为最新结果。快照仅是历史查询证据，不参与评分写入。
 
-recognition.items_json保存symbol/bbox/confidence/confidence_band/label/label_status；算法版本及模板SHA在受理时固定。确认只允许recognized/unrecognized→confirmed，同事务保存confirmed_items_json，不允许写成绩或网表实体；低置信度不另存状态。图片继续由file_object管理并先按recognition归属鉴权。
+recognition.items_json保存symbol/bbox/confidence/confidence_band/label/label_bbox/label_status；未知标签的label_bbox为null。算法版本及模板SHA在受理时固定。确认只允许recognized/unrecognized→confirmed，同事务保存confirmed_items_json，不允许写成绩或网表实体；低置信度不另存状态。图片继续由file_object管理并先按recognition归属鉴权。
 
 ## 6 实验及接线过程 SPEC-009/017
 
@@ -208,7 +208,7 @@ SPEC-006/C03a新增`backend/migrations/006c_attempts.sql`，不修改既有迁�
 
 SPEC-006/C04新增`backend/migrations/006d_practice_wrong.sql`，不修改已应用迁移。practice_attempt保存固定公开客观版本、原answer_json、answered/correct、整数百分之一分（0/10000）及created_at，与既有预警事实适配器时间字段兼容；不可UPDATE/DELETE。wrong_question只保存UQ(student_id,question_id)状态和最近错误来源（paper=attempt.id，practice=practice_attempt.id），触发器确保来源是同学生/同question的实际客观错误，身份不变、不能删除。wrong_count和来源版本/标签从原answer及practice事实派生，不存易漂移的重复计数。迁移按submitted_at/id倒序回填已有客观错答，漏答/简答排除；迁移重放不重复导入。业务后续交卷/练习与状态投影、审计及公共幂等快照同事务，正确练习只设resolved=1，新错误再置0。
 
-C04独立迁移和带数据备份副本的完整性/外键、HTTP错题/原键重放恢复验证见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。当前SPEC-014适配器按practice_attempt.correct计样本但尚未筛answered=1：本包保留未作答事实并在错题/以后010B口径排除，014的漏答样本筛选需姜苏豪在其分支对接，未改队友统计业务。该依赖不能被既有全部为已作答的适配器测试通过替代。生产恢复、003/004和005真实联测仍须按原边界完成。
+C04独立迁移和带数据备份副本的完整性/外键、HTTP错题/原键重放恢复验证见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。当时SPEC-014适配器尚未筛`answered=1`，该历史依赖已由姜苏豪后续修复并在真实表上补漏答回归；当前`backend/apis/warnings.py`只把已作答客观练习计入分母。生产恢复、003/004和005真实联测仍须按原边界完成。
 
 SPEC-008/C05a不新增quiz、答卷、成绩或通知表，不修改已应用迁移。专用发布复用006b的quiz空review_at约束；原paper、冻结名单、保密检查、paper.publish审计及冻结学生的quiz提醒共用BEGIN IMMEDIATE事务。通知复用notification的UQ(user_id,event_key)，target_type固定quiz，target_id为原paper.id，event_key为quiz.published:{paper_id}；普通paper发布quiz也用同一事件身份。失败全部回滚，转入/退出不改历史名单或通知身份。paper/quiz仍共用006c的paper_attempt成功快照和同一attempt/answer事实。实施及验证边界见[SPEC-008实施记录](SPEC-008_IMPLEMENTATION.md)。
 

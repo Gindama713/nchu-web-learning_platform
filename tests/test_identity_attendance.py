@@ -3,7 +3,7 @@
 from datetime import UTC, datetime, timedelta
 from io import BytesIO
 from pathlib import Path
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -252,6 +252,45 @@ class FlowTest(TestCase):
         for file in upload.iterdir():
             file.unlink()
         upload.rmdir()
+
+    def test_fixed_recognition_pngs_through_authenticated_http(self):
+        student_id = self.register(self.student, "STUDENT01")
+        teacher_id = self.teacher.get("/api/v1/auth/session").json["data"]["user"]["id"]
+        course_id = self.call(self.admin, "POST", "/api/v1/courses",
+                              {"title": "CPU", "teacher_id": teacher_id}).json["data"]["id"]
+        self.call(self.teacher, "POST", f"/api/v1/courses/{course_id}/members",
+                  {"user_id": student_id, "member_role": "student"})
+        fixtures = Path(__file__).parent / "fixtures" / "recognition"
+        with TemporaryDirectory(dir=Path(__file__).parent) as upload:
+            self.app.config["UPLOAD_ROOT"] = upload
+            for name, expected_status in (("F01-standard.png", "recognized"),
+                                          ("F02-low-quality.png", "recognized"),
+                                          ("F03-unsupported.png", "unrecognized"),
+                                          ("F04-unknown-label.png", "recognized"),
+                                          ("F05-blank.png", "unrecognized")):
+                created = self.student.post(f"/api/v1/courses/{course_id}/recognitions",
+                                            headers={"Origin": ORIGIN, "X-CSRF-Token": self.student.csrf},
+                                            data={"image": (BytesIO((fixtures / name).read_bytes()), name)})
+                self.assertEqual(created.status_code, 201, (name, created.json))
+                self.assertEqual(created.json["data"]["status"], expected_status, name)
+                items = created.json["data"]["items"]
+                if name == "F01-standard.png":
+                    self.assertEqual([item["label"] for item in items], ["A", "Y"])
+                    self.assertTrue(all(item["label_bbox"] for item in items))
+                if name == "F02-low-quality.png":
+                    self.assertEqual(items[0]["confidence_band"], "low")
+                if name == "F04-unknown-label.png":
+                    self.assertIsNone(items[0]["label_bbox"])
+                    confirmed = self.call(self.student, "POST",
+                                          f"/api/v1/recognitions/{created.json['data']['id']}/confirm",
+                                          {"items": [{"symbol": "AND", "bbox": items[0]["bbox"], "label": "A"}]})
+                    self.assertEqual(confirmed.status_code, 200, confirmed.json)
+            db = connect(self.path)
+            try:
+                for table in ("analysis_run", "wiring_attempt", "grading_run"):
+                    self.assertEqual(db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0], 0, table)
+            finally:
+                db.close()
 
     def test_analytics_export_keeps_original_snapshot_after_correction(self):
         student_id = self.register(self.student, "STUDENT01")

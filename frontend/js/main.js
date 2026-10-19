@@ -36,6 +36,7 @@ createApp({
     const courses = ref([])
     const people = ref([])
     const courseId = ref(null)
+    const members = ref([])
     const tasks = ref([])
     const leaves = ref([])
     const records = ref([])
@@ -50,6 +51,29 @@ createApp({
     const memberNo = ref('')
     const taskForm = reactive({ title: '', start_at: '', late_at: '', end_at: '' })
     const check = reactive({ task_id: '', code: '', reason: '' })
+    const analysisFilter = reactive({ from: '', to: '', paper_ids: '' })
+    let courseEpoch = 0
+
+    function clearCourse() {
+      courseEpoch += 1
+      courseId.value = null
+      members.value = []
+      tasks.value = []
+      leaves.value = []
+      records.value = []
+      warnings.value = []
+      analysis.value = null
+      recognition.value = null
+      draft.value = '[]'
+      secretCode.value = ''
+      check.task_id = ''
+      check.code = ''
+      check.reason = ''
+      memberNo.value = ''
+      analysisFilter.from = ''
+      analysisFilter.to = ''
+      analysisFilter.paper_ids = ''
+    }
 
     async function act(operation, success) {
       try {
@@ -61,30 +85,59 @@ createApp({
     }
     const write = (path, method, payload, headers) => apiRequest(path, method, payload, csrf.value, headers)
     async function refreshCourses() {
-      courses.value = await readApi('/api/v1/courses?page_size=100')
-      if (user.value.role === 'admin') people.value = await readApi('/api/v1/users?page_size=100')
-      notifications.value = await readApi('/api/v1/notifications?page_size=100')
+      const currentUser = user.value
+      const [courseRows, peopleRows, noticeRows] = await Promise.all([
+        readApi('/api/v1/courses?page_size=100'),
+        currentUser.role === 'admin' ? readApi('/api/v1/users?page_size=100') : Promise.resolve([]),
+        readApi('/api/v1/notifications?page_size=100'),
+      ])
+      if (user.value !== currentUser) return
+      courses.value = courseRows
+      people.value = peopleRows
+      notifications.value = noticeRows
     }
     async function refreshCourse() {
-      if (!courseId.value || user.value.role === 'admin') return
-      const base = `/api/v1/courses/${courseId.value}`
-      tasks.value = await readApi(`${base}/attendance-tasks?page_size=100`)
-      leaves.value = await readApi(`${base}/leave-requests?page_size=100`)
-      records.value = await readApi(`${base}/attendance-records?page_size=100`)
-      if (user.value.role === 'teacher') warnings.value = await readApi(`${base}/warnings?page_size=100`)
+      const id = courseId.value
+      const currentUser = user.value
+      const epoch = courseEpoch
+      if (!id || currentUser.role === 'admin') return
+      const base = `/api/v1/courses/${id}`
+      const teacher = currentUser.role === 'teacher'
+      const [taskRows, leaveRows, recordRows, warningRows, memberRows] = await Promise.all([
+        readApi(`${base}/attendance-tasks?page_size=100`),
+        readApi(`${base}/leave-requests?page_size=100`),
+        readApi(`${base}/attendance-records?page_size=100`),
+        teacher ? readApi(`${base}/warnings?page_size=100`) : Promise.resolve([]),
+        teacher ? readApi(`${base}/members?page_size=100`) : Promise.resolve([]),
+      ])
+      if (courseEpoch !== epoch || courseId.value !== id || user.value !== currentUser) return
+      tasks.value = taskRows
+      leaves.value = leaveRows
+      records.value = recordRows
+      warnings.value = warningRows
+      members.value = memberRows
     }
     async function session() {
       try {
         const data = await readApi('/api/v1/auth/session')
+        clearCourse()
         user.value = data.user
         csrf.value = data.csrf_token
         await refreshCourses()
         message.value = `欢迎，${data.user.name}。`
-      } catch { user.value = null }
+      } catch {
+        clearCourse()
+        user.value = null
+        csrf.value = ''
+        courses.value = []
+        people.value = []
+        notifications.value = []
+      }
     }
     async function loginRequest() {
       const data = await apiRequest('/api/v1/auth/login', 'POST',
         { student_no: auth.student_no, password: auth.password })
+      clearCourse()
       user.value = data.user
       csrf.value = data.csrf_token
       auth.password = ''
@@ -102,17 +155,18 @@ createApp({
     async function logout() {
       await act(async () => {
         await write('/api/v1/auth/logout', 'POST')
+        clearCourse()
         user.value = null
         practiceEntry.value = null
         csrf.value = ''
-        courseId.value = null
         courses.value = []
+        people.value = []
+        notifications.value = []
       }, '已退出。')
     }
     async function selectCourse(id) {
+      clearCourse()
       courseId.value = Number(id)
-      analysis.value = null
-      recognition.value = null
       await act(refreshCourse, '课程已加载。')
     }
     async function createCourse() {
@@ -145,31 +199,52 @@ createApp({
     }
     async function addMember() {
       await act(async () => {
+        const id = courseId.value
+        const epoch = courseEpoch
         const found = await readApi(`/api/v1/users/lookup?student_no=${encodeURIComponent(memberNo.value)}`)
-        await write(`/api/v1/courses/${courseId.value}/members`, 'POST',
+        if (courseEpoch !== epoch || courseId.value !== id) return
+        await write(`/api/v1/courses/${id}/members`, 'POST',
           { user_id: found.id, member_role: 'student' })
-        memberNo.value = ''
+        if (courseEpoch === epoch && courseId.value === id) {
+          memberNo.value = ''
+          await refreshCourse()
+        }
       }, '学生已加入课程。')
+    }
+    async function removeMember(id) {
+      await act(async () => {
+        await write(`/api/v1/courses/${courseId.value}/members/${id}`, 'DELETE')
+        await refreshCourse()
+      }, '学生已移出课程；历史冻结名单保留。')
     }
     async function createTask() {
       await act(async () => {
+        const id = courseId.value
+        const epoch = courseEpoch
         const payload = Object.fromEntries(Object.entries(taskForm).map(([key, value]) =>
           [key, key === 'title' ? value : new Date(value).toISOString()]))
-        const data = await write(`/api/v1/courses/${courseId.value}/attendance-tasks`, 'POST', payload)
-        secretCode.value = data.code
-        await refreshCourse()
+        const data = await write(`/api/v1/courses/${id}/attendance-tasks`, 'POST', payload)
+        if (courseEpoch === epoch && courseId.value === id) {
+          secretCode.value = data.code
+          await refreshCourse()
+        }
       }, '任务已创建；明文签到码仅显示本次。')
     }
     async function rotate(id) {
       await act(async () => {
+        const epoch = courseEpoch
         const data = await write(`/api/v1/attendance-tasks/${id}/rotate-code`, 'POST')
-        secretCode.value = data.code
+        if (courseEpoch === epoch) secretCode.value = data.code
       }, '新签到码已生效，旧码失效。')
     }
     async function close(id) {
       await act(async () => {
+        const epoch = courseEpoch
         await write(`/api/v1/attendance-tasks/${id}/close`, 'POST')
-        await refreshCourse()
+        if (courseEpoch === epoch) {
+          secretCode.value = ''
+          await refreshCourse()
+        }
       }, '缺勤已结算。')
     }
     async function checkIn() {
@@ -231,7 +306,16 @@ createApp({
     }
     async function analyze() {
       await act(async () => {
-        analysis.value = await readApi(`/api/v1/courses/${courseId.value}/analytics?dimension=attendance`)
+        const id = courseId.value
+        const epoch = courseEpoch
+        const params = new globalThis.URLSearchParams({ dimension: 'attendance' })
+        if (analysisFilter.from) params.set('from', new Date(analysisFilter.from).toISOString())
+        if (analysisFilter.to) params.set('to', new Date(analysisFilter.to).toISOString())
+        for (const paperId of analysisFilter.paper_ids.split(',').map(value => value.trim()).filter(Boolean)) {
+          params.append('performance_paper_ids', paperId)
+        }
+        const data = await readApi(`/api/v1/courses/${id}/analytics?${params}`)
+        if (courseEpoch === epoch && courseId.value === id) analysis.value = data
       }, '统计快照已生成。')
     }
     async function warn() {
@@ -256,23 +340,30 @@ createApp({
       const file = event.target.files?.[0]
       if (!file) return
       await act(async () => {
+        const id = courseId.value
+        const epoch = courseEpoch
         const data = new FormData()
         data.append('image', file)
-        recognition.value = await write(`/api/v1/courses/${courseId.value}/recognitions`, 'POST', data)
-        draft.value = JSON.stringify(recognition.value.items.map(({ symbol, bbox, label }) =>
+        const recognized = await write(`/api/v1/courses/${id}/recognitions`, 'POST', data)
+        if (courseEpoch !== epoch || courseId.value !== id) return
+        recognition.value = recognized
+        draft.value = JSON.stringify(recognized.items.map(({ symbol, bbox, label }) =>
           ({ symbol, bbox, label })), null, 2)
       }, '识别结果仅供人工确认；可修改或删除草稿项。')
     }
     async function confirm() {
       await act(async () => {
-        recognition.value = await write(`/api/v1/recognitions/${recognition.value.id}/confirm`,
-          'POST', { items: JSON.parse(draft.value) })
+        const epoch = courseEpoch
+        const id = recognition.value.id
+        const confirmed = await write(`/api/v1/recognitions/${id}/confirm`, 'POST',
+          { items: JSON.parse(draft.value) })
+        if (courseEpoch === epoch && recognition.value?.id === id) recognition.value = confirmed
       }, '结构草稿已确认，不会自动运行或计分。')
     }
     onMounted(session)
-    return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, tasks, leaves, records, warnings, notifications, analysis,
-      recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, login, register,
-      logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, createTask, rotate, close, checkIn,
+    return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
+      recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
+      logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
       leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm }
   },
   template: `
@@ -312,6 +403,12 @@ createApp({
           <section class="card"><h2>考勤与请假</h2>
             <form v-if="user.role === 'teacher'" class="inline-form" @submit.prevent="addMember">
               <label>学生完整学号 <input v-model.trim="memberNo" required></label><button>加入课程</button></form>
+            <template v-if="user.role === 'teacher'"><h3>课程成员</h3>
+              <p v-if="!members.length">暂无成员。</p>
+              <ul class="rows"><li v-for="member in members" :key="member.user_id">
+                {{ member.name }} · {{ member.student_no }} · {{ member.member_role }} · {{ member.active ? '在课' : '已移出' }}
+                <button v-if="member.member_role === 'student' && member.active" type="button" class="secondary"
+                  @click="removeMember(member.user_id)">移出课程</button></li></ul></template>
             <form v-if="user.role === 'teacher'" class="inline-form" @submit.prevent="createTask">
               <label>任务 <input v-model.trim="taskForm.title" required></label>
               <label>开始 <input v-model="taskForm.start_at" type="datetime-local" required></label>
@@ -333,17 +430,39 @@ createApp({
               <button v-if="user.role === 'student' && item.status === 'rejected'" type="button" class="secondary" @click="resubmit(item.id)">修改重提</button></li></ul>
             <h3>有效考勤</h3><ul class="rows"><li v-for="item in records" :key="item.id">任务 #{{ item.task_id }} · 学生 #{{ item.student_id }} · {{ item.status }}
               <button v-if="user.role === 'teacher'" type="button" class="secondary" @click="correct(item)">更正</button></li></ul></section>
-          <section class="card"><h2>考勤与成绩关联</h2><button type="button" @click="analyze">生成统计快照</button>
+          <section class="card"><h2>考勤与成绩关联</h2>
+            <form class="inline-form" @submit.prevent="analyze">
+              <label>开始（可选）<input v-model="analysisFilter.from" type="datetime-local"></label>
+              <label>结束（可选）<input v-model="analysisFilter.to" type="datetime-local"></label>
+              <label v-if="user.role === 'teacher'">测评卷 ID（逗号分隔，可选）<input v-model.trim="analysisFilter.paper_ids" inputmode="numeric"></label>
+              <button>生成统计快照</button></form>
             <template v-if="analysis"><p>快照 #{{ analysis.analysis_run_id }} · 考勤率 {{ analysis.metrics.attendance_rate ?? '无数据' }} · 已评分表现 {{ analysis.metrics.performance_mean_percentage ?? '无数据' }}</p>
               <p>相关系数：{{ analysis.metrics.performance_correlation ?? analysis.metrics.correlation_reason }}</p>
+              <p>样本：{{ analysis.sample_size }}；来源截止：{{ analysis.source_until }}。</p>
+              <h3>每周趋势</h3><p v-if="!analysis.series?.length">当前区间无周数据。</p>
+              <ul class="rows"><li v-for="week in analysis.series" :key="week.period_start">
+                {{ week.period_start }}—{{ week.period_end }} · 到勤率 {{ week.metrics.attendance_rate ?? '无数据' }} · 已评分表现 {{ week.metrics.performance_mean_percentage ?? '无数据' }}
+              </li></ul>
               <a v-if="user.role === 'teacher'" :href="'/api/v1/courses/' + courseId + '/analytics/export?analysis_run_id=' + analysis.analysis_run_id + '&format=csv'">导出同快照 CSV</a>
               <p>{{ analysis.warnings.join('；') }}</p></template></section>
           <section v-if="user.role === 'teacher'" class="card"><h2>学习预警</h2><button type="button" @click="warn">生成预警批次</button>
-            <ul class="rows"><li v-for="item in warnings" :key="item.id">学生 #{{ item.student_id }} · {{ item.reasons.map(r => r.code).join('、') }} · {{ item.status }}
+            <p v-if="!warnings.length">当前筛选下暂无预警。</p>
+            <ul class="rows"><li v-for="item in warnings" :key="item.id">学生 #{{ item.student_id }} · {{ item.status }}
+              <span v-for="reason in item.reasons" :key="reason.code" class="tag">
+                {{ reason.code }} · 样本 {{ reason.sample_size }}<template v-if="reason.value != null"> · 值 {{ reason.value }}</template>
+              </span>
               <button v-if="item.status === 'open'" type="button" class="secondary" @click="handle(item.id)">标记处理</button></li></ul></section>
           <section class="card"><h2>实验图辅助识别</h2><p>仅支持标准黑白正向门符号；必须人工确认，不自动判分。</p>
             <label>PNG/JPEG 图片 <input type="file" accept="image/png,image/jpeg" @change="upload"></label>
-            <template v-if="recognition"><p>状态：{{ recognition.status }} · {{ recognition.items?.length ?? 0 }} 项</p>
+            <template v-if="recognition"><p>状态：{{ recognition.status }} · {{ recognition.items?.length ?? recognition.confirmed_items?.length ?? 0 }} 项</p>
+              <p v-if="recognition.status === 'unrecognized'">未识别到支持的门符号，请使用实验中的手工建模入口。</p>
+              <ul v-if="recognition.items?.length" class="rows"><li v-for="(item, index) in recognition.items" :key="index">
+                {{ item.symbol }} · 坐标 {{ item.bbox.join(', ') }} · 模板相似度 {{ item.confidence }}（{{ item.confidence_band }}）
+                · 标签 {{ item.label ?? '未知，确认时补齐或删除' }}<template v-if="item.label_bbox">（坐标 {{ item.label_bbox.join(', ') }}）</template>
+              </li></ul>
+              <ul v-if="recognition.confirmed_items?.length" class="rows"><li v-for="(item, index) in recognition.confirmed_items" :key="index">
+                已确认 {{ item.symbol }} · 坐标 {{ item.bbox.join(', ') }} · 标签 {{ item.label ?? '无' }}
+              </li></ul>
               <label v-if="recognition.status !== 'confirmed'">结构草稿（可删改 symbol、bbox、label）<textarea v-model="draft" rows="8"></textarea></label>
               <button v-if="recognition.status !== 'confirmed'" type="button" @click="confirm">人工确认草稿</button></template></section>
         </template>

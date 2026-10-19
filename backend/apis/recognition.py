@@ -16,7 +16,7 @@ from backend.shared.auth import course_access, require_user
 from backend.shared.db import write
 
 bp = Blueprint("recognition", __name__)
-VERSION = "recognition-template-v1-provisional"
+VERSION = "recognition-template-v1"
 SYMBOLS = ("NOT", "AND", "OR", "XOR")
 LABELS = ("A", "B", "Y", "D", "Q", "CLK", "RESET", "EN", "PC", "ACC", "IR")
 MAX_BYTES = 5 * 1024 * 1024
@@ -48,7 +48,7 @@ def label_mask(label):
 
 
 TEMPLATES = {**{key: gate_mask(key) for key in SYMBOLS}, **{key: label_mask(key) for key in LABELS}}
-TEMPLATE_SHA = hashlib.sha256(b"gray<128;crop;nearest;64x64" + b"".join(
+TEMPLATE_SHA = hashlib.sha256(b"gray<128;crop;nearest;64x64;gate-close:3x15;label-close:3x15;external-contours" + b"".join(
     key.encode() + TEMPLATES[key].tobytes() for key in sorted(TEMPLATES))).hexdigest()
 
 
@@ -120,8 +120,8 @@ def recognize(image):
     foreground = (image < 128).astype(np.uint8) * 255
     if not np.any(foreground):
         return []
-    # ponytail: fixed morphology handles printed diagrams; revisit after F01-F05 fixture QA.
-    joined = cv2.morphologyEx(foreground, cv2.MORPH_CLOSE, np.ones((3, 5), np.uint8))
+    # ponytail: fixed morphology handles printed diagrams; revisit for photos and rotations.
+    joined = cv2.morphologyEx(foreground, cv2.MORPH_CLOSE, np.ones((3, 15), np.uint8))
     contours, _ = cv2.findContours(joined, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     gates = []
     for contour in contours:
@@ -144,7 +144,7 @@ def recognize(image):
                        min(full_height, image.shape[0] - full_y)]
                 gates.append({"symbol": symbol, "bbox": box, "tight_bbox": [x, y, width, height],
                               "confidence": round(score, 6), "confidence_band": confidence_band(score),
-                              "label": None, "label_status": "unknown"})
+                              "label": None, "label_bbox": None, "label_status": "unknown"})
     letters = foreground.copy()
     for gate in gates:
         x, y, width, height = gate.pop("tight_bbox")
@@ -158,13 +158,14 @@ def recognize(image):
             continue
         label, score = match(letters[y:y + height, x:x + width], LABELS)
         if confidence_band(score):
-            labels.append((x + width / 2, y + height / 2, label, score))
+            labels.append((x + width / 2, y + height / 2, label, score, [x, y, width, height]))
     for gate in gates:
         x, y, width, height = gate["bbox"]
         nearby = sorted(labels, key=lambda item: ((item[0] - (x + width / 2)) ** 2 +
                                                    (item[1] - (y + height / 2)) ** 2, item[2]))
         if nearby and nearby[0][3] >= 0.55:
             gate["label"], gate["label_status"] = nearby[0][2], "recognized"
+            gate["label_bbox"] = nearby[0][4]
     return sorted(gates, key=lambda item: (item["bbox"][1], item["bbox"][0]))
 
 
