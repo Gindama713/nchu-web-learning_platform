@@ -2,6 +2,16 @@
 
 > 2026-10-16 C12c材料导航：当前合入、真实评审、两个矩阵版本及交付状态见[个人交付索引](C12C_DELIVERY_HUANG_JUNCHENG.md)和[本轮远程快照](evidence/c12c/entry-state.json)。下文各节保留原日期、SHA及当时事实；旧“未合入/待实现/最新”措辞按其历史范围阅读，不覆盖索引中的当前状态。完整SPEC仍未凭材料整理关闭。
 
+## 2026-10-16 R37定向接缝（当前增量）
+
+004/#20、003/#19、007/#21已合入develop，不再沿用下方C05历史的“004未就绪”作为当前判断。详见[004→008正式联调报告](SPEC-008_R37_INTEGRATION.md)。从核验后的develop dfb23271建立本人008后续feature，干净tested `7204a14054611ab6b68f4ebfae3fd1c6115d575d`；真实handler 8项中6通过、2项004契约预期失败（17.525秒），Chrome155.0.8059.41/Edge155.0.4283.45各5组通过、page_errors=[]、6图目视。
+
+真实知识/题目/quiz/备课关联、跨课/非quiz/重复拒绝、复制不复制/发布quiz、发布后HTTP/UPDATE冻结、冻结名单过滤、开始前保护、讲评前后答案及撤权、通知失败回滚已覆盖。无成功响应mock，账号bootstrap/TEST_NOW与失败注入单列，DB关联/状态/名单/答卷均有快照；未发现需修改本人008/006业务的缺陷。
+
+完整R37仍阻断：罗浩铭004的R37-004-01（未发布quiz应409 QUIZ_NOT_PUBLISHED，实为404 NOT_FOUND）、R37-004-02（备课测验元数据缺window_state）及当前缺备课UI。两项以expectedFailure明确保留，CI成功不等于契约通过。实际仅通过现有008页面消费备课返回的原quiz ID，不冒充备课页面跳转，不代写队友。只补原矩阵SPEC-008/R37行，其余130行不变；历史404/判定/附件/head/tested保留。003完整R01下一包处理，不关闭UC-02/I-03。
+
+#27/#28 head/状态未变、无实际merge/反馈，复用各自固定CI；不改写#27、不把本包混入#28，不执行两个C12b脚本或008整套专用链。下方C05及C12b记录为原版本历史；新最终head CI只写本包PR及两份本地排除交接。此段记录的是该分支形成时的状态，后续合并状态以仓库记录为准。
+
 ## 2026-10-15 C12b共用显示增量（最新）
 
 C12a-UI-02共用PaperView/AttemptView由SPEC-006主修，详见[006 C12b记录](SPEC-006_IMPLEMENTATION.md)及[真实HTTP/双浏览器报告](evidence/spec-006/c12b-time/report.json)。006 feature干净tested=4eadbcbcaf1df2cb8f1245c9fdfcbcfca4523072；008不建立重复代码修复、不从未合入feature复制，后续只消费最新develop。仅窗口/讲评/截止/提交显示Asia/Shanghai，UTC数据及服务器截止、答案保护、原成功幂等快照不改。组件替身与5项真实handler、Chrome/Edge真实HTTP/UI分层；原C05/EQB等证据按原SHA复用，没有重跑008→010B专用链。新PR/真实评审/CI/合入独立核验；完整008、003/004/007接缝、目标性能/生产恢复/Gitea/课堂仍未关闭。下方“当前恢复”保留C05历史，以上增量优先。

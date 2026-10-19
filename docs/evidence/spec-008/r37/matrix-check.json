@@ -1,0 +1,17 @@
+{
+  "changed_rows": [
+    "SPEC-008/R37"
+  ],
+  "unchanged_rows": 130,
+  "historical_row_exactly_preserved": true,
+  "local_counts": {
+    "通过": 80,
+    "阻断": 51
+  },
+  "integration_counts": {
+    "通过": 59,
+    "阻断": 72
+  },
+  "report_local_links_checked": 16,
+  "original_head_tested_and_attachments": "preserved; new clean tested stored separately"
+}
