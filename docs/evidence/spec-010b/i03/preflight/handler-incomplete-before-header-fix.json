@@ -1,0 +1,2145 @@
+{
+  "requests": [
+    {
+      "actor": "admin",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T007ADMIN",
+        "password": "[redacted]"
+      },
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "T007ADMIN",
+            "role": "admin",
+            "student_no": "T007ADMIN"
+          }
+        },
+        "request_id": "c223634e25904ceab4a7f8310c2db57f"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T007TEACH",
+        "password": "[redacted]"
+      },
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "T007TEACH",
+            "role": "teacher",
+            "student_no": "T007TEACH"
+          }
+        },
+        "request_id": "0b929e99957f4ecabfd3ab64a98085b8"
+      }
+    },
+    {
+      "actor": "student",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T007STUD1",
+        "name": "T007STUD1",
+        "password": "[redacted]"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T007STUD1",
+            "role": "student",
+            "student_no": "T007STUD1"
+          }
+        },
+        "request_id": "aecde5ba970f430fac8a82139c32a8bc"
+      }
+    },
+    {
+      "actor": "student",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T007STUD1",
+        "password": "[redacted]"
+      },
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T007STUD1",
+            "role": "student",
+            "student_no": "T007STUD1"
+          }
+        },
+        "request_id": "d0220102944742d78ab0535cd4d6b7f7"
+      }
+    },
+    {
+      "actor": "outsider",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T007STUD2",
+        "name": "T007STUD2",
+        "password": "[redacted]"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T007STUD2",
+            "role": "student",
+            "student_no": "T007STUD2"
+          }
+        },
+        "request_id": "3e4f5f533fdf4e42b15746fdb6b7aa85"
+      }
+    },
+    {
+      "actor": "outsider",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T007STUD2",
+        "password": "[redacted]"
+      },
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T007STUD2",
+            "role": "student",
+            "student_no": "T007STUD2"
+          }
+        },
+        "request_id": "0ed35b359c6a4edd8bd533363d5aa54b"
+      }
+    },
+    {
+      "actor": "admin",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses",
+      "request": {
+        "title": "C02d CPU",
+        "teacher_id": 2
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02d CPU"
+        },
+        "request_id": "97715eeeb2984f47be260242d7aaa675"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 3,
+        "member_role": "student"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 3
+        },
+        "request_id": "ff5754aa4c63433881885ab5dc796af1"
+      }
+    },
+    {
+      "actor": "student",
+      "transport": "handler",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "expires_at": "2026-10-13T14:00:00.000Z",
+          "user": {
+            "id": 3,
+            "name": "T007STUD1",
+            "role": "student",
+            "student_no": "T007STUD1"
+          }
+        },
+        "request_id": "94d593d452654ca08fee75471fc70d0a"
+      }
+    },
+    {
+      "actor": "controlled-student",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "I03STUDENT2",
+        "name": "I03STUDENT2",
+        "password": "[redacted]"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 5,
+            "name": "I03STUDENT2",
+            "role": "student",
+            "student_no": "I03STUDENT2"
+          }
+        },
+        "request_id": "3ad470af6207425a980a718508af5ad3"
+      }
+    },
+    {
+      "actor": "controlled-student",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "I03STUDENT2",
+        "password": "[redacted]"
+      },
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "user": {
+            "active": 1,
+            "id": 5,
+            "name": "I03STUDENT2",
+            "role": "student",
+            "student_no": "I03STUDENT2"
+          }
+        },
+        "request_id": "0211289c36224f9399f65f9665455838"
+      }
+    },
+    {
+      "actor": "controlled-student",
+      "transport": "handler",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "expires_at": "2026-10-13T14:00:00.000Z",
+          "user": {
+            "id": 5,
+            "name": "I03STUDENT2",
+            "role": "student",
+            "student_no": "I03STUDENT2"
+          }
+        },
+        "request_id": "e5529fe593f942e2a2327105049d3af8"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 5,
+        "member_role": "student"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 5
+        },
+        "request_id": "912d8f6451164a0f9f3cba29e03a57d9"
+      }
+    },
+    {
+      "actor": "controlled-student",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "I03STUDENT3",
+        "name": "I03STUDENT3",
+        "password": "[redacted]"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 6,
+            "name": "I03STUDENT3",
+            "role": "student",
+            "student_no": "I03STUDENT3"
+          }
+        },
+        "request_id": "91bd2cedae5b4347b48bf8d1300c2e30"
+      }
+    },
+    {
+      "actor": "controlled-student",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "I03STUDENT3",
+        "password": "[redacted]"
+      },
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "user": {
+            "active": 1,
+            "id": 6,
+            "name": "I03STUDENT3",
+            "role": "student",
+            "student_no": "I03STUDENT3"
+          }
+        },
+        "request_id": "5f3d9cae6a2f488b9ee2248239325c46"
+      }
+    },
+    {
+      "actor": "controlled-student",
+      "transport": "handler",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "expires_at": "2026-10-13T14:00:00.000Z",
+          "user": {
+            "id": 6,
+            "name": "I03STUDENT3",
+            "role": "student",
+            "student_no": "I03STUDENT3"
+          }
+        },
+        "request_id": "05fdf76553a6427ab93f7e3009cd8ac2"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 6,
+        "member_role": "student"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 6
+        },
+        "request_id": "1411a4f792cf44368460ee5b4a85b775"
+      }
+    },
+    {
+      "actor": "controlled-student",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "I03STUDENT4",
+        "name": "I03STUDENT4",
+        "password": "[redacted]"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 7,
+            "name": "I03STUDENT4",
+            "role": "student",
+            "student_no": "I03STUDENT4"
+          }
+        },
+        "request_id": "2d52204e8b9f488b9b9ba0180d6eb516"
+      }
+    },
+    {
+      "actor": "controlled-student",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "I03STUDENT4",
+        "password": "[redacted]"
+      },
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "user": {
+            "active": 1,
+            "id": 7,
+            "name": "I03STUDENT4",
+            "role": "student",
+            "student_no": "I03STUDENT4"
+          }
+        },
+        "request_id": "fd690aacda9a45e1b366663131058668"
+      }
+    },
+    {
+      "actor": "controlled-student",
+      "transport": "handler",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[redacted]",
+          "expires_at": "2026-10-13T14:00:00.000Z",
+          "user": {
+            "id": 7,
+            "name": "I03STUDENT4",
+            "role": "student",
+            "student_no": "I03STUDENT4"
+          }
+        },
+        "request_id": "ad63f1f5a20447ba9d56ead0addce781"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 7,
+        "member_role": "student"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 7
+        },
+        "request_id": "2281098b9e8347d29e3963c61e691e97"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/chapters",
+      "request": {
+        "title": "I03固定版本知识"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 1,
+          "position": 0,
+          "title": "I03固定版本知识"
+        },
+        "request_id": "af74653f098d4ea0a964b64dec4abf45"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "程序计数器",
+        "content": "<p>程序计数器保存下一条指令的地址。I03原始知识出处。</p>",
+        "published": true
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>程序计数器保存下一条指令的地址。I03原始知识出处。</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "055c6de65d82445a93db8cf72509da05"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "算术逻辑单元",
+        "content": "<p>算术逻辑单元执行加减和逻辑运算。I03第二知识出处。</p>",
+        "published": true
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>算术逻辑单元执行加减和逻辑运算。I03第二知识出处。</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "算术逻辑单元"
+        },
+        "request_id": "541af689947e4789828d0ec2762da173"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "草稿禁止语料",
+        "content": "<p>草稿秘密不可作为出处</p>",
+        "published": false
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>草稿秘密不可作为出处</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 3,
+          "is_foundational": false,
+          "published": false,
+          "title": "草稿禁止语料"
+        },
+        "request_id": "7b73e815bb07424ca4d689a2b2ab3c93"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/questions",
+      "request": {
+        "type": "single",
+        "stem": "I03原版本第1题",
+        "options": [
+          {
+            "key": "A",
+            "text": "甲"
+          },
+          {
+            "key": "B",
+            "text": "乙"
+          }
+        ],
+        "answer": "A",
+        "explanation": "I03原版本解析1",
+        "difficulty": "easy",
+        "knowledge_ids": [
+          1,
+          2
+        ]
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "answer": "A",
+          "difficulty": "easy",
+          "explanation": "I03原版本解析1",
+          "id": 1,
+          "knowledge_ids": [
+            1,
+            2
+          ],
+          "options": [
+            {
+              "key": "A",
+              "text": "甲"
+            },
+            {
+              "key": "B",
+              "text": "乙"
+            }
+          ],
+          "practice_available": false,
+          "stem": "I03原版本第1题",
+          "tolerance": 0.0,
+          "type": "single",
+          "version": 1,
+          "version_id": 1
+        },
+        "request_id": "870d9e010ed348f38f2f0d27ec4653b6"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/questions",
+      "request": {
+        "type": "single",
+        "stem": "I03原版本第2题",
+        "options": [
+          {
+            "key": "A",
+            "text": "甲"
+          },
+          {
+            "key": "B",
+            "text": "乙"
+          }
+        ],
+        "answer": "A",
+        "explanation": "I03原版本解析2",
+        "difficulty": "easy",
+        "knowledge_ids": [
+          1
+        ]
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "answer": "A",
+          "difficulty": "easy",
+          "explanation": "I03原版本解析2",
+          "id": 2,
+          "knowledge_ids": [
+            1
+          ],
+          "options": [
+            {
+              "key": "A",
+              "text": "甲"
+            },
+            {
+              "key": "B",
+              "text": "乙"
+            }
+          ],
+          "practice_available": false,
+          "stem": "I03原版本第2题",
+          "tolerance": 0.0,
+          "type": "single",
+          "version": 1,
+          "version_id": 2
+        },
+        "request_id": "92297ff472b046bda2c5c7564d70882c"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/questions",
+      "request": {
+        "type": "single",
+        "stem": "I03原版本第3题",
+        "options": [
+          {
+            "key": "A",
+            "text": "甲"
+          },
+          {
+            "key": "B",
+            "text": "乙"
+          }
+        ],
+        "answer": "A",
+        "explanation": "I03原版本解析3",
+        "difficulty": "easy",
+        "knowledge_ids": [
+          2
+        ]
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "answer": "A",
+          "difficulty": "easy",
+          "explanation": "I03原版本解析3",
+          "id": 3,
+          "knowledge_ids": [
+            2
+          ],
+          "options": [
+            {
+              "key": "A",
+              "text": "甲"
+            },
+            {
+              "key": "B",
+              "text": "乙"
+            }
+          ],
+          "practice_available": false,
+          "stem": "I03原版本第3题",
+          "tolerance": 0.0,
+          "type": "single",
+          "version": 1,
+          "version_id": 3
+        },
+        "request_id": "db54f3a60b654d69ad8e319a51624909"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/questions",
+      "request": {
+        "type": "short",
+        "stem": "I03原版本第4题",
+        "options": [],
+        "answer": "原版本参考简答",
+        "explanation": "I03原版本解析4",
+        "difficulty": "easy",
+        "knowledge_ids": [
+          1
+        ]
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "answer": "原版本参考简答",
+          "difficulty": "easy",
+          "explanation": "I03原版本解析4",
+          "id": 4,
+          "knowledge_ids": [
+            1
+          ],
+          "options": [],
+          "practice_available": false,
+          "stem": "I03原版本第4题",
+          "tolerance": 0.0,
+          "type": "short",
+          "version": 1,
+          "version_id": 4
+        },
+        "request_id": "5af19fc9e4af4b1890e674551be95d83"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/papers",
+      "request": {
+        "title": "I03四人固定版本测验",
+        "kind": "quiz",
+        "confidential": true,
+        "items": [
+          {
+            "question_version_id": 1,
+            "points": 10
+          },
+          {
+            "question_version_id": 2,
+            "points": 10
+          },
+          {
+            "question_version_id": 3,
+            "points": 10
+          },
+          {
+            "question_version_id": 4,
+            "points": 10
+          }
+        ]
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "algorithm_version": null,
+          "confidential": true,
+          "confidentiality_note": null,
+          "end_at": null,
+          "generation_snapshot_id": null,
+          "id": 1,
+          "items": [
+            {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "I03原版本解析1",
+              "id": 1,
+              "knowledge_ids": [
+                1,
+                2
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "甲"
+                },
+                {
+                  "key": "B",
+                  "text": "乙"
+                }
+              ],
+              "points": 10.0,
+              "position": 1,
+              "practice_available": false,
+              "question_version_id": 1,
+              "stem": "I03原版本第1题",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 1
+            },
+            {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "I03原版本解析2",
+              "id": 2,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "甲"
+                },
+                {
+                  "key": "B",
+                  "text": "乙"
+                }
+              ],
+              "points": 10.0,
+              "position": 2,
+              "practice_available": false,
+              "question_version_id": 2,
+              "stem": "I03原版本第2题",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 2
+            },
+            {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "I03原版本解析3",
+              "id": 3,
+              "knowledge_ids": [
+                2
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "甲"
+                },
+                {
+                  "key": "B",
+                  "text": "乙"
+                }
+              ],
+              "points": 10.0,
+              "position": 3,
+              "practice_available": false,
+              "question_version_id": 3,
+              "stem": "I03原版本第3题",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 3
+            },
+            {
+              "answer": "原版本参考简答",
+              "difficulty": "easy",
+              "explanation": "I03原版本解析4",
+              "id": 4,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [],
+              "points": 10.0,
+              "position": 4,
+              "practice_available": false,
+              "question_version_id": 4,
+              "stem": "I03原版本第4题",
+              "tolerance": 0.0,
+              "type": "short",
+              "version": 1,
+              "version_id": 4
+            }
+          ],
+          "kind": "quiz",
+          "participant_count": 0,
+          "review_at": null,
+          "seed": null,
+          "start_at": null,
+          "status": "draft",
+          "title": "I03四人固定版本测验",
+          "total_points": 40.0,
+          "window_state": null
+        },
+        "request_id": "cd2df1777e784ef8ad89c127ca176ff7"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "POST",
+      "path": "/courses/1/quizzes",
+      "request": {
+        "paper_id": 1,
+        "start_at": "2026-10-13T12:01:00+00:00",
+        "end_at": "2026-10-13T12:02:00+00:00",
+        "confidentiality_note": "确认未公开且非复制公开题"
+      },
+      "status": 201,
+      "response": {
+        "data": {
+          "algorithm_version": null,
+          "confidential": true,
+          "confidentiality_note": "确认未公开且非复制公开题",
+          "end_at": "2026-10-13T12:02:00.000Z",
+          "generation_snapshot_id": null,
+          "id": 1,
+          "kind": "quiz",
+          "paper_id": 1,
+          "participant_count": 4,
+          "review_at": null,
+          "seed": null,
+          "start_at": "2026-10-13T12:01:00.000Z",
+          "status": "upcoming",
+          "title": "I03四人固定版本测验",
+          "total_points": 40.0,
+          "window_state": "upcoming"
+        },
+        "request_id": "6e587cebd9414cbf99a1c45dbfab47a3"
+      }
+    },
+    {
+      "actor": "teacher",
+      "transport": "handler",
+      "method": "PATCH",
+      "path": "/questions/1",
+      "request": {
+        "stem": "I03后续版本不应改写原答卷",
+        "answer": "B",
+        "knowledge_ids": [
+          1
+        ]
+      },
+      "status": 200,
+      "response": {
+        "data": {
+          "answer": "B",
+          "difficulty": "easy",
+          "explanation": "I03原版本解析1",
+          "id": 1,
+          "knowledge_ids": [
+            1
+          ],
+          "options": [
+            {
+              "key": "A",
+              "text": "甲"
+            },
+            {
+              "key": "B",
+              "text": "乙"
+            }
+          ],
+          "practice_available": false,
+          "stem": "I03后续版本不应改写原答卷",
+          "tolerance": 0.0,
+          "type": "single",
+          "version": 2,
+          "version_id": 5
+        },
+        "request_id": "ce6b1b8270704290af1ecfc31fbce5df"
+      }
+    },
+    {
+      "actor": "student",
+      "transport": "handler",
+      "method": "PUT",
+      "path": "/knowledge-points/1/progress",
+      "request": {
+        "completed": true
+      },
+      "status": 200,
+      "response": {
+        "data": {
+          "completed": true,
+          "updated_at": "2026-10-17T02:06:39.860375Z"
+        },
+        "request_id": "c7f1c806dd8e423a81d7938578315bb8"
+      }
+    }
+  ],
+  "observations": {
+    "stages": {
+      "published_frozen_four": {
+        "course": [
+          {
+            "id": 1,
+            "title": "C02d CPU",
+            "description": "",
+            "chapters_revision": 1,
+            "teacher_id": 2,
+            "created_at": "2026-10-13T12:00:00.000Z",
+            "updated_at": "2026-10-13T12:00:00.000Z"
+          }
+        ],
+        "course_member": [
+          {
+            "id": 1,
+            "course_id": 1,
+            "user_id": 2,
+            "member_role": "teacher",
+            "active": 1,
+            "created_at": "2026-10-13T12:00:00.000Z",
+            "updated_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 2,
+            "course_id": 1,
+            "user_id": 3,
+            "member_role": "student",
+            "active": 1,
+            "created_at": "2026-10-13T12:00:00.000Z",
+            "updated_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 3,
+            "course_id": 1,
+            "user_id": 5,
+            "member_role": "student",
+            "active": 1,
+            "created_at": "2026-10-13T12:00:00.000Z",
+            "updated_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 4,
+            "course_id": 1,
+            "user_id": 6,
+            "member_role": "student",
+            "active": 1,
+            "created_at": "2026-10-13T12:00:00.000Z",
+            "updated_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 5,
+            "course_id": 1,
+            "user_id": 7,
+            "member_role": "student",
+            "active": 1,
+            "created_at": "2026-10-13T12:00:00.000Z",
+            "updated_at": "2026-10-13T12:00:00.000Z"
+          }
+        ],
+        "chapter": [
+          {
+            "id": 1,
+            "course_id": 1,
+            "title": "I03固定版本知识",
+            "position": 0
+          }
+        ],
+        "knowledge_point": [
+          {
+            "id": 1,
+            "chapter_id": 1,
+            "title": "程序计数器",
+            "content": "<p>程序计数器保存下一条指令的地址。I03原始知识出处。</p>",
+            "example": "",
+            "published": 1,
+            "content_revision": 1,
+            "is_foundational": 0
+          },
+          {
+            "id": 2,
+            "chapter_id": 1,
+            "title": "算术逻辑单元",
+            "content": "<p>算术逻辑单元执行加减和逻辑运算。I03第二知识出处。</p>",
+            "example": "",
+            "published": 1,
+            "content_revision": 1,
+            "is_foundational": 0
+          },
+          {
+            "id": 3,
+            "chapter_id": 1,
+            "title": "草稿禁止语料",
+            "content": "<p>草稿秘密不可作为出处</p>",
+            "example": "",
+            "published": 0,
+            "content_revision": 1,
+            "is_foundational": 0
+          }
+        ],
+        "question": [
+          {
+            "id": 1,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 0
+          },
+          {
+            "id": 2,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 0
+          },
+          {
+            "id": 3,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 0
+          },
+          {
+            "id": 4,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 0
+          }
+        ],
+        "question_version": [
+          {
+            "id": 1,
+            "question_id": 1,
+            "version": 1,
+            "type": "single",
+            "stem": "I03原版本第1题",
+            "options_json": "[{\"key\":\"A\",\"text\":\"甲\"},{\"key\":\"B\",\"text\":\"乙\"}]",
+            "answer_json": "\"A\"",
+            "explanation": "I03原版本解析1",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          },
+          {
+            "id": 2,
+            "question_id": 2,
+            "version": 1,
+            "type": "single",
+            "stem": "I03原版本第2题",
+            "options_json": "[{\"key\":\"A\",\"text\":\"甲\"},{\"key\":\"B\",\"text\":\"乙\"}]",
+            "answer_json": "\"A\"",
+            "explanation": "I03原版本解析2",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          },
+          {
+            "id": 3,
+            "question_id": 3,
+            "version": 1,
+            "type": "single",
+            "stem": "I03原版本第3题",
+            "options_json": "[{\"key\":\"A\",\"text\":\"甲\"},{\"key\":\"B\",\"text\":\"乙\"}]",
+            "answer_json": "\"A\"",
+            "explanation": "I03原版本解析3",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          },
+          {
+            "id": 4,
+            "question_id": 4,
+            "version": 1,
+            "type": "short",
+            "stem": "I03原版本第4题",
+            "options_json": "[]",
+            "answer_json": "\"原版本参考简答\"",
+            "explanation": "I03原版本解析4",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          },
+          {
+            "id": 5,
+            "question_id": 1,
+            "version": 2,
+            "type": "single",
+            "stem": "I03后续版本不应改写原答卷",
+            "options_json": "[{\"key\":\"A\",\"text\":\"甲\"},{\"key\":\"B\",\"text\":\"乙\"}]",
+            "answer_json": "\"B\"",
+            "explanation": "I03原版本解析1",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          }
+        ],
+        "question_knowledge": [
+          {
+            "question_version_id": 1,
+            "knowledge_id": 1
+          },
+          {
+            "question_version_id": 1,
+            "knowledge_id": 2
+          },
+          {
+            "question_version_id": 2,
+            "knowledge_id": 1
+          },
+          {
+            "question_version_id": 3,
+            "knowledge_id": 2
+          },
+          {
+            "question_version_id": 4,
+            "knowledge_id": 1
+          },
+          {
+            "question_version_id": 5,
+            "knowledge_id": 1
+          }
+        ],
+        "paper": [
+          {
+            "id": 1,
+            "course_id": 1,
+            "title": "I03四人固定版本测验",
+            "kind": "quiz",
+            "status": "published",
+            "confidential": 1,
+            "confidentiality_note": "确认未公开且非复制公开题",
+            "start_at": "2026-10-13T12:01:00.000Z",
+            "end_at": "2026-10-13T12:02:00.000Z",
+            "review_at": null,
+            "seed": null,
+            "algorithm_version": null,
+            "generation_snapshot_id": null
+          }
+        ],
+        "paper_item": [
+          {
+            "paper_id": 1,
+            "question_version_id": 1,
+            "question_id": 1,
+            "position": 1,
+            "points_hundredths": 1000
+          },
+          {
+            "paper_id": 1,
+            "question_version_id": 2,
+            "question_id": 2,
+            "position": 2,
+            "points_hundredths": 1000
+          },
+          {
+            "paper_id": 1,
+            "question_version_id": 3,
+            "question_id": 3,
+            "position": 3,
+            "points_hundredths": 1000
+          },
+          {
+            "paper_id": 1,
+            "question_version_id": 4,
+            "question_id": 4,
+            "position": 4,
+            "points_hundredths": 1000
+          }
+        ],
+        "paper_participant": [
+          {
+            "paper_id": 1,
+            "student_id": 3
+          },
+          {
+            "paper_id": 1,
+            "student_id": 5
+          },
+          {
+            "paper_id": 1,
+            "student_id": 6
+          },
+          {
+            "paper_id": 1,
+            "student_id": 7
+          }
+        ],
+        "attempt": [],
+        "answer": [],
+        "wrong_question": [],
+        "analysis_run": [],
+        "qa_index": [],
+        "qa_query": [],
+        "demo_session": [],
+        "audit_event": [
+          {
+            "id": 1,
+            "actor_id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1,
+            "request_id": "c223634e25904ceab4a7f8310c2db57f",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 2,
+            "actor_id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2,
+            "request_id": "0b929e99957f4ecabfd3ab64a98085b8",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 3,
+            "actor_id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "aecde5ba970f430fac8a82139c32a8bc",
+            "before_summary": null,
+            "after_summary": "{\"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 4,
+            "actor_id": 3,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "d0220102944742d78ab0535cd4d6b7f7",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 5,
+            "actor_id": 4,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "3e4f5f533fdf4e42b15746fdb6b7aa85",
+            "before_summary": null,
+            "after_summary": "{\"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 6,
+            "actor_id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "0ed35b359c6a4edd8bd533363d5aa54b",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 7,
+            "actor_id": 1,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1,
+            "request_id": "97715eeeb2984f47be260242d7aaa675",
+            "before_summary": null,
+            "after_summary": "{\"teacher_id\": 2}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 8,
+            "actor_id": 2,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3,
+            "request_id": "ff5754aa4c63433881885ab5dc796af1",
+            "before_summary": null,
+            "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 9,
+            "actor_id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 5,
+            "request_id": "3ad470af6207425a980a718508af5ad3",
+            "before_summary": null,
+            "after_summary": "{\"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 10,
+            "actor_id": 5,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 5,
+            "request_id": "0211289c36224f9399f65f9665455838",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 11,
+            "actor_id": 2,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 5,
+            "request_id": "912d8f6451164a0f9f3cba29e03a57d9",
+            "before_summary": null,
+            "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 12,
+            "actor_id": 6,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 6,
+            "request_id": "91bd2cedae5b4347b48bf8d1300c2e30",
+            "before_summary": null,
+            "after_summary": "{\"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 13,
+            "actor_id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 6,
+            "request_id": "5f3d9cae6a2f488b9ee2248239325c46",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 14,
+            "actor_id": 2,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 6,
+            "request_id": "1411a4f792cf44368460ee5b4a85b775",
+            "before_summary": null,
+            "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 15,
+            "actor_id": 7,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 7,
+            "request_id": "2d52204e8b9f488b9b9ba0180d6eb516",
+            "before_summary": null,
+            "after_summary": "{\"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 16,
+            "actor_id": 7,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 7,
+            "request_id": "fd690aacda9a45e1b366663131058668",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 17,
+            "actor_id": 2,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 7,
+            "request_id": "2281098b9e8347d29e3963c61e691e97",
+            "before_summary": null,
+            "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 18,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 1,
+            "request_id": "870d9e010ed348f38f2f0d27ec4653b6",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 1}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 19,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 2,
+            "request_id": "92297ff472b046bda2c5c7564d70882c",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 2}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 20,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 3,
+            "request_id": "db54f3a60b654d69ad8e319a51624909",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 3}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 21,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 4,
+            "request_id": "5af19fc9e4af4b1890e674551be95d83",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 4}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 22,
+            "actor_id": 2,
+            "action": "paper.create",
+            "object_type": "paper",
+            "object_id": 1,
+            "request_id": "cd2df1777e784ef8ad89c127ca176ff7",
+            "before_summary": null,
+            "after_summary": "{\"kind\": \"quiz\", \"item_count\": 4}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 23,
+            "actor_id": 2,
+            "action": "paper.publish",
+            "object_type": "paper",
+            "object_id": 1,
+            "request_id": "6e587cebd9414cbf99a1c45dbfab47a3",
+            "before_summary": "{\"status\": \"draft\"}",
+            "after_summary": "{\"status\": \"published\", \"participant_count\": 4, \"end_at\": \"2026-10-13T12:02:00.000Z\", \"start_at\": \"2026-10-13T12:01:00.000Z\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 24,
+            "actor_id": 2,
+            "action": "question.version",
+            "object_type": "question",
+            "object_id": 1,
+            "request_id": "ce6b1b8270704290af1ecfc31fbce5df",
+            "before_summary": "{\"version_id\": 1}",
+            "after_summary": "{\"version_id\": 5}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          }
+        ],
+        "foreign_key_check": [],
+        "integrity_check": "ok"
+      }
+    }
+  },
+  "facts": {
+    "course": [
+      {
+        "id": 1,
+        "title": "C02d CPU",
+        "description": "",
+        "chapters_revision": 1,
+        "teacher_id": 2,
+        "created_at": "2026-10-13T12:00:00.000Z",
+        "updated_at": "2026-10-13T12:00:00.000Z"
+      }
+    ],
+    "course_member": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "user_id": 2,
+        "member_role": "teacher",
+        "active": 1,
+        "created_at": "2026-10-13T12:00:00.000Z",
+        "updated_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 2,
+        "course_id": 1,
+        "user_id": 3,
+        "member_role": "student",
+        "active": 1,
+        "created_at": "2026-10-13T12:00:00.000Z",
+        "updated_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 3,
+        "course_id": 1,
+        "user_id": 5,
+        "member_role": "student",
+        "active": 1,
+        "created_at": "2026-10-13T12:00:00.000Z",
+        "updated_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 4,
+        "course_id": 1,
+        "user_id": 6,
+        "member_role": "student",
+        "active": 1,
+        "created_at": "2026-10-13T12:00:00.000Z",
+        "updated_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 5,
+        "course_id": 1,
+        "user_id": 7,
+        "member_role": "student",
+        "active": 1,
+        "created_at": "2026-10-13T12:00:00.000Z",
+        "updated_at": "2026-10-13T12:00:00.000Z"
+      }
+    ],
+    "chapter": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "title": "I03固定版本知识",
+        "position": 0
+      }
+    ],
+    "knowledge_point": [
+      {
+        "id": 1,
+        "chapter_id": 1,
+        "title": "程序计数器",
+        "content": "<p>程序计数器保存下一条指令的地址。I03原始知识出处。</p>",
+        "example": "",
+        "published": 1,
+        "content_revision": 1,
+        "is_foundational": 0
+      },
+      {
+        "id": 2,
+        "chapter_id": 1,
+        "title": "算术逻辑单元",
+        "content": "<p>算术逻辑单元执行加减和逻辑运算。I03第二知识出处。</p>",
+        "example": "",
+        "published": 1,
+        "content_revision": 1,
+        "is_foundational": 0
+      },
+      {
+        "id": 3,
+        "chapter_id": 1,
+        "title": "草稿禁止语料",
+        "content": "<p>草稿秘密不可作为出处</p>",
+        "example": "",
+        "published": 0,
+        "content_revision": 1,
+        "is_foundational": 0
+      }
+    ],
+    "question": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "archived": 0,
+        "ever_public": 0
+      },
+      {
+        "id": 2,
+        "course_id": 1,
+        "archived": 0,
+        "ever_public": 0
+      },
+      {
+        "id": 3,
+        "course_id": 1,
+        "archived": 0,
+        "ever_public": 0
+      },
+      {
+        "id": 4,
+        "course_id": 1,
+        "archived": 0,
+        "ever_public": 0
+      }
+    ],
+    "question_version": [
+      {
+        "id": 1,
+        "question_id": 1,
+        "version": 1,
+        "type": "single",
+        "stem": "I03原版本第1题",
+        "options_json": "[{\"key\":\"A\",\"text\":\"甲\"},{\"key\":\"B\",\"text\":\"乙\"}]",
+        "answer_json": "\"A\"",
+        "explanation": "I03原版本解析1",
+        "difficulty": "easy",
+        "tolerance": 0.0,
+        "practice_available": 0
+      },
+      {
+        "id": 2,
+        "question_id": 2,
+        "version": 1,
+        "type": "single",
+        "stem": "I03原版本第2题",
+        "options_json": "[{\"key\":\"A\",\"text\":\"甲\"},{\"key\":\"B\",\"text\":\"乙\"}]",
+        "answer_json": "\"A\"",
+        "explanation": "I03原版本解析2",
+        "difficulty": "easy",
+        "tolerance": 0.0,
+        "practice_available": 0
+      },
+      {
+        "id": 3,
+        "question_id": 3,
+        "version": 1,
+        "type": "single",
+        "stem": "I03原版本第3题",
+        "options_json": "[{\"key\":\"A\",\"text\":\"甲\"},{\"key\":\"B\",\"text\":\"乙\"}]",
+        "answer_json": "\"A\"",
+        "explanation": "I03原版本解析3",
+        "difficulty": "easy",
+        "tolerance": 0.0,
+        "practice_available": 0
+      },
+      {
+        "id": 4,
+        "question_id": 4,
+        "version": 1,
+        "type": "short",
+        "stem": "I03原版本第4题",
+        "options_json": "[]",
+        "answer_json": "\"原版本参考简答\"",
+        "explanation": "I03原版本解析4",
+        "difficulty": "easy",
+        "tolerance": 0.0,
+        "practice_available": 0
+      },
+      {
+        "id": 5,
+        "question_id": 1,
+        "version": 2,
+        "type": "single",
+        "stem": "I03后续版本不应改写原答卷",
+        "options_json": "[{\"key\":\"A\",\"text\":\"甲\"},{\"key\":\"B\",\"text\":\"乙\"}]",
+        "answer_json": "\"B\"",
+        "explanation": "I03原版本解析1",
+        "difficulty": "easy",
+        "tolerance": 0.0,
+        "practice_available": 0
+      }
+    ],
+    "question_knowledge": [
+      {
+        "question_version_id": 1,
+        "knowledge_id": 1
+      },
+      {
+        "question_version_id": 1,
+        "knowledge_id": 2
+      },
+      {
+        "question_version_id": 2,
+        "knowledge_id": 1
+      },
+      {
+        "question_version_id": 3,
+        "knowledge_id": 2
+      },
+      {
+        "question_version_id": 4,
+        "knowledge_id": 1
+      },
+      {
+        "question_version_id": 5,
+        "knowledge_id": 1
+      }
+    ],
+    "paper": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "title": "I03四人固定版本测验",
+        "kind": "quiz",
+        "status": "published",
+        "confidential": 1,
+        "confidentiality_note": "确认未公开且非复制公开题",
+        "start_at": "2026-10-13T12:01:00.000Z",
+        "end_at": "2026-10-13T12:02:00.000Z",
+        "review_at": null,
+        "seed": null,
+        "algorithm_version": null,
+        "generation_snapshot_id": null
+      }
+    ],
+    "paper_item": [
+      {
+        "paper_id": 1,
+        "question_version_id": 1,
+        "question_id": 1,
+        "position": 1,
+        "points_hundredths": 1000
+      },
+      {
+        "paper_id": 1,
+        "question_version_id": 2,
+        "question_id": 2,
+        "position": 2,
+        "points_hundredths": 1000
+      },
+      {
+        "paper_id": 1,
+        "question_version_id": 3,
+        "question_id": 3,
+        "position": 3,
+        "points_hundredths": 1000
+      },
+      {
+        "paper_id": 1,
+        "question_version_id": 4,
+        "question_id": 4,
+        "position": 4,
+        "points_hundredths": 1000
+      }
+    ],
+    "paper_participant": [
+      {
+        "paper_id": 1,
+        "student_id": 3
+      },
+      {
+        "paper_id": 1,
+        "student_id": 5
+      },
+      {
+        "paper_id": 1,
+        "student_id": 6
+      },
+      {
+        "paper_id": 1,
+        "student_id": 7
+      }
+    ],
+    "attempt": [],
+    "answer": [],
+    "wrong_question": [],
+    "analysis_run": [],
+    "qa_index": [],
+    "qa_query": [],
+    "demo_session": [],
+    "audit_event": [
+      {
+        "id": 1,
+        "actor_id": 1,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 1,
+        "request_id": "c223634e25904ceab4a7f8310c2db57f",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 2,
+        "actor_id": 2,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 2,
+        "request_id": "0b929e99957f4ecabfd3ab64a98085b8",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 3,
+        "actor_id": 3,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 3,
+        "request_id": "aecde5ba970f430fac8a82139c32a8bc",
+        "before_summary": null,
+        "after_summary": "{\"role\": \"student\"}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 4,
+        "actor_id": 3,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 3,
+        "request_id": "d0220102944742d78ab0535cd4d6b7f7",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 5,
+        "actor_id": 4,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 4,
+        "request_id": "3e4f5f533fdf4e42b15746fdb6b7aa85",
+        "before_summary": null,
+        "after_summary": "{\"role\": \"student\"}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 6,
+        "actor_id": 4,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 4,
+        "request_id": "0ed35b359c6a4edd8bd533363d5aa54b",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 7,
+        "actor_id": 1,
+        "action": "course.create",
+        "object_type": "course",
+        "object_id": 1,
+        "request_id": "97715eeeb2984f47be260242d7aaa675",
+        "before_summary": null,
+        "after_summary": "{\"teacher_id\": 2}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 8,
+        "actor_id": 2,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 3,
+        "request_id": "ff5754aa4c63433881885ab5dc796af1",
+        "before_summary": null,
+        "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 9,
+        "actor_id": 5,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 5,
+        "request_id": "3ad470af6207425a980a718508af5ad3",
+        "before_summary": null,
+        "after_summary": "{\"role\": \"student\"}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 10,
+        "actor_id": 5,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 5,
+        "request_id": "0211289c36224f9399f65f9665455838",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 11,
+        "actor_id": 2,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 5,
+        "request_id": "912d8f6451164a0f9f3cba29e03a57d9",
+        "before_summary": null,
+        "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 12,
+        "actor_id": 6,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 6,
+        "request_id": "91bd2cedae5b4347b48bf8d1300c2e30",
+        "before_summary": null,
+        "after_summary": "{\"role\": \"student\"}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 13,
+        "actor_id": 6,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 6,
+        "request_id": "5f3d9cae6a2f488b9ee2248239325c46",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 14,
+        "actor_id": 2,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 6,
+        "request_id": "1411a4f792cf44368460ee5b4a85b775",
+        "before_summary": null,
+        "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 15,
+        "actor_id": 7,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 7,
+        "request_id": "2d52204e8b9f488b9b9ba0180d6eb516",
+        "before_summary": null,
+        "after_summary": "{\"role\": \"student\"}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 16,
+        "actor_id": 7,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 7,
+        "request_id": "fd690aacda9a45e1b366663131058668",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 17,
+        "actor_id": 2,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 7,
+        "request_id": "2281098b9e8347d29e3963c61e691e97",
+        "before_summary": null,
+        "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 18,
+        "actor_id": 2,
+        "action": "question.create",
+        "object_type": "question",
+        "object_id": 1,
+        "request_id": "870d9e010ed348f38f2f0d27ec4653b6",
+        "before_summary": null,
+        "after_summary": "{\"version_id\": 1}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 19,
+        "actor_id": 2,
+        "action": "question.create",
+        "object_type": "question",
+        "object_id": 2,
+        "request_id": "92297ff472b046bda2c5c7564d70882c",
+        "before_summary": null,
+        "after_summary": "{\"version_id\": 2}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 20,
+        "actor_id": 2,
+        "action": "question.create",
+        "object_type": "question",
+        "object_id": 3,
+        "request_id": "db54f3a60b654d69ad8e319a51624909",
+        "before_summary": null,
+        "after_summary": "{\"version_id\": 3}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 21,
+        "actor_id": 2,
+        "action": "question.create",
+        "object_type": "question",
+        "object_id": 4,
+        "request_id": "5af19fc9e4af4b1890e674551be95d83",
+        "before_summary": null,
+        "after_summary": "{\"version_id\": 4}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 22,
+        "actor_id": 2,
+        "action": "paper.create",
+        "object_type": "paper",
+        "object_id": 1,
+        "request_id": "cd2df1777e784ef8ad89c127ca176ff7",
+        "before_summary": null,
+        "after_summary": "{\"kind\": \"quiz\", \"item_count\": 4}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 23,
+        "actor_id": 2,
+        "action": "paper.publish",
+        "object_type": "paper",
+        "object_id": 1,
+        "request_id": "6e587cebd9414cbf99a1c45dbfab47a3",
+        "before_summary": "{\"status\": \"draft\"}",
+        "after_summary": "{\"status\": \"published\", \"participant_count\": 4, \"end_at\": \"2026-10-13T12:02:00.000Z\", \"start_at\": \"2026-10-13T12:01:00.000Z\"}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      },
+      {
+        "id": 24,
+        "actor_id": 2,
+        "action": "question.version",
+        "object_type": "question",
+        "object_id": 1,
+        "request_id": "ce6b1b8270704290af1ecfc31fbce5df",
+        "before_summary": "{\"version_id\": 1}",
+        "after_summary": "{\"version_id\": 5}",
+        "created_at": "2026-10-13T12:00:00.000Z"
+      }
+    ],
+    "foreign_key_check": [],
+    "integrity_check": "ok"
+  },
+  "fixtures": [
+    "bootstrap admin/teacher only",
+    "TEST_NOW; all business objects via API"
+  ]
+}
