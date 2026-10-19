@@ -630,6 +630,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "A",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -793,6 +799,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "A",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -980,7 +992,13 @@
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "2026-10-18有限消费补验": {
+      "工作包": "A",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -1072,7 +1090,13 @@
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "2026-10-18有限消费补验": {
+      "工作包": "A",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -1339,7 +1363,13 @@
     "集成后补验": "干净dfb2327：既有paper脚本在Chrome155.0.8059.41(UTC)/Edge155.0.4283.45(America/Los_Angeles)各4组通过，8张390px截图；006考试/008专用发布、跨日/午夜00、开始前/截止409、原键201字节重放、讲评前保护/讲评后开放、DB submitted_at及GET data保持UTC。dirty_paths=[]/page_errors=[]；仅受影响HTTP/UI集成，原组件/handler及其余完整业务证据按固定SHA复用，未重跑整套；非课堂或真实非作者批准。",
     "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck_followups[2]",
     "集成tested_SHA": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
-    "集成证据附件": "docs/evidence/c12a/c12b-integration-dfb2327/paper/report.json；同目录截图"
+    "集成证据附件": "docs/evidence/c12a/c12b-integration-dfb2327/paper/report.json；同目录截图",
+    "2026-10-18有限消费补验": {
+      "工作包": "A",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -2233,6 +2263,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "A/B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -2394,6 +2430,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "A/B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -2449,6 +2491,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "A/B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -2472,7 +2520,13 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "2026-10-18有限消费补验": {
+      "工作包": "A/B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -2495,7 +2549,13 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "2026-10-18有限消费补验": {
+      "工作包": "A/B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -2541,7 +2601,13 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "2026-10-18有限消费补验": {
+      "工作包": "A/B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -2649,6 +2715,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "A/B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -2886,7 +2958,13 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "2026-10-18有限消费补验": {
+      "工作包": "A/B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -3399,6 +3477,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -3454,6 +3538,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -3578,6 +3668,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -3829,6 +3925,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "B",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -3907,6 +4009,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "A",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
@@ -4293,6 +4401,12 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
+    },
+    "2026-10-18有限消费补验": {
+      "工作包": "A",
+      "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+      "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
+      "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
     }
   },
   {
