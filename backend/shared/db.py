@@ -65,10 +65,28 @@ def migrate(path):
                 if existing["checksum"] != checksum:
                     raise RuntimeError(f"Migration changed after application: {migration.name}")
                 continue
-            # executescript commits first, so put the migration and ledger in one script transaction.
-            db.executescript("BEGIN IMMEDIATE;\n" + sql + "\nINSERT INTO schema_migration "
-                             "(version,applied_at,checksum) VALUES "
-                             f"('{migration.stem}',strftime('%Y-%m-%dT%H:%M:%fZ','now'),'{checksum}');\nCOMMIT;")
+            if migration.stem == "019_wiring_retries":
+                # SQLite cannot drop the old UNIQUE table while child FKs are enabled.
+                # Disable only on this dedicated migration connection, validate before commit.
+                db.execute("PRAGMA foreign_keys=OFF")
+                try:
+                    db.executescript("BEGIN IMMEDIATE;\n" + sql)
+                    if db.execute("PRAGMA foreign_key_check").fetchall():
+                        raise RuntimeError("Wiring retry migration breaks foreign keys")
+                    db.execute("INSERT INTO schema_migration(version,applied_at,checksum) "
+                               "VALUES(?,strftime('%Y-%m-%dT%H:%M:%fZ','now'),?)",
+                               (migration.stem, checksum))
+                    db.commit()
+                except BaseException:
+                    db.rollback()
+                    raise
+                finally:
+                    db.execute("PRAGMA foreign_keys=ON")
+            else:
+                # executescript commits first, so put the migration and ledger in one script transaction.
+                db.executescript("BEGIN IMMEDIATE;\n" + sql + "\nINSERT INTO schema_migration "
+                                 "(version,applied_at,checksum) VALUES "
+                                 f"('{migration.stem}',strftime('%Y-%m-%dT%H:%M:%fZ','now'),'{checksum}');\nCOMMIT;")
     finally:
         db.close()
 

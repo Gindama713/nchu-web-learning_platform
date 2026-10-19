@@ -1,0 +1,27 @@
+# 规格目录
+
+按老师展示的 `specs/001-.../{plan,spec,tasks,wireframes}` 整理。规范正文仍以 [PRD](../docs/PRD.md)、[APIC](../docs/APIC.md)、[DBD](../docs/DBD.md) 为准。
+
+- SPEC-001：[计划](001-user-auth/plan.md) · [规格](001-user-auth/spec.md) · [任务](001-user-auth/tasks.md) · [界面设计](001-user-auth/wireframes.md)
+- SPEC-002：[计划](002-attendance/plan.md) · [规格](002-attendance/spec.md) · [任务](002-attendance/tasks.md) · [界面设计](002-attendance/wireframes.md)
+- SPEC-003：[计划](003-resources/plan.md) · [规格](003-resources/spec.md) · [任务](003-resources/tasks.md) · [界面设计](003-resources/wireframes.md)
+- SPEC-004：[计划](004-preparation/plan.md) · [规格](004-preparation/spec.md) · [任务](004-preparation/tasks.md) · [界面设计](004-preparation/wireframes.md)
+- SPEC-005：[计划](005-knowledge/plan.md) · [规格](005-knowledge/spec.md) · [任务](005-knowledge/tasks.md) · [界面设计](005-knowledge/wireframes.md)
+- SPEC-006：[计划](006-exercises/plan.md) · [规格](006-exercises/spec.md) · [任务](006-exercises/tasks.md) · [界面设计](006-exercises/wireframes.md)
+- SPEC-007：[计划](007-cpu-demo/plan.md) · [规格](007-cpu-demo/spec.md) · [任务](007-cpu-demo/tasks.md) · [界面设计](007-cpu-demo/wireframes.md)
+- SPEC-008：[计划](008-quiz/plan.md) · [规格](008-quiz/spec.md) · [任务](008-quiz/tasks.md) · [界面设计](008-quiz/wireframes.md)
+- SPEC-009：[计划](009-experiments/plan.md) · [规格](009-experiments/spec.md) · [任务](009-experiments/tasks.md) · [界面设计](009-experiments/wireframes.md)
+- SPEC-010：[计划](010-analytics/plan.md) · [规格](010-analytics/spec.md) · [任务](010-analytics/tasks.md) · [界面设计](010-analytics/wireframes.md)
+- SPEC-010A：[计划](010a-attendance-analytics/plan.md) · [规格](010a-attendance-analytics/spec.md) · [任务](010a-attendance-analytics/tasks.md) · [界面设计](010a-attendance-analytics/wireframes.md)
+- SPEC-010B：[计划](010b-knowledge-analytics/plan.md) · [规格](010b-knowledge-analytics/spec.md) · [任务](010b-knowledge-analytics/tasks.md) · [界面设计](010b-knowledge-analytics/wireframes.md)
+- SPEC-010C：[计划](010c-wiring-analytics/plan.md) · [规格](010c-wiring-analytics/spec.md) · [任务](010c-wiring-analytics/tasks.md) · [界面设计](010c-wiring-analytics/wireframes.md)
+- SPEC-010D：[计划](010d-grading-analytics/plan.md) · [规格](010d-grading-analytics/spec.md) · [任务](010d-grading-analytics/tasks.md) · [界面设计](010d-grading-analytics/wireframes.md)
+- SPEC-011：[计划](011-qa/plan.md) · [规格](011-qa/spec.md) · [任务](011-qa/tasks.md) · [界面设计](011-qa/wireframes.md)
+- SPEC-012：[计划](012-recommendations/plan.md) · [规格](012-recommendations/spec.md) · [任务](012-recommendations/tasks.md) · [界面设计](012-recommendations/wireframes.md)
+- SPEC-013：[计划](013-paper-generation/plan.md) · [规格](013-paper-generation/spec.md) · [任务](013-paper-generation/tasks.md) · [界面设计](013-paper-generation/wireframes.md)
+- SPEC-014：[计划](014-warnings/plan.md) · [规格](014-warnings/spec.md) · [任务](014-warnings/tasks.md) · [界面设计](014-warnings/wireframes.md)
+- SPEC-015：[计划](015-knowledge-graph/plan.md) · [规格](015-knowledge-graph/spec.md) · [任务](015-knowledge-graph/tasks.md) · [界面设计](015-knowledge-graph/wireframes.md)
+- SPEC-016：[计划](016-recognition/plan.md) · [规格](016-recognition/spec.md) · [任务](016-recognition/tasks.md) · [界面设计](016-recognition/wireframes.md)
+- SPEC-017：[计划](017-wiring/plan.md) · [规格](017-wiring/spec.md) · [任务](017-wiring/tasks.md) · [界面设计](017-wiring/wireframes.md)
+- SPEC-018：[计划](018-logisim-grading/plan.md) · [规格](018-logisim-grading/spec.md) · [任务](018-logisim-grading/tasks.md) · [界面设计](018-logisim-grading/wireframes.md)
+- SPEC-019：[计划](019-engineering-delivery/plan.md) · [规格](019-engineering-delivery/spec.md) · [任务](019-engineering-delivery/tasks.md) · [界面设计](019-engineering-delivery/wireframes.md)

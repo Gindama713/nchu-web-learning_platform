@@ -16,7 +16,7 @@ from contextlib import closing
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 from uuid import uuid4
 
 from werkzeug.security import generate_password_hash
@@ -314,12 +314,10 @@ class KnowledgeI01SeamsTest(TestCase):
                                  "image_preview_download": "blocked: no API-created image object",
                                  "resource_control": "PDF only; not an image proof"}
 
-    @expectedFailure
     def test_contract_017_future_window_rejects_new_attempt(self):
         _, version, _ = self.experiment(start=NOW + timedelta(hours=1), end=NOW + timedelta(hours=2))
         self.call(self.students[0], "POST", f"/experiment-versions/{version['id']}/wiring-attempts", {}, 409)
 
-    @expectedFailure
     def test_contract_017_closed_window_rejects_submit(self):
         _, version, _ = self.experiment()
         attempt = self.attempt(self.students[0], version["id"])
@@ -327,7 +325,6 @@ class KnowledgeI01SeamsTest(TestCase):
         self.app.config["TEST_NOW"] = NOW + timedelta(minutes=11)
         self.submit(self.students[0], attempt, 409)
 
-    @expectedFailure
     def test_contract_017_revoked_member_rejects_old_mutations(self):
         _, version, _ = self.experiment()
         student = self.students[0]
@@ -342,11 +339,15 @@ class KnowledgeI01SeamsTest(TestCase):
                               headers={"Idempotency-Key": str(uuid4())}).status_code]
         self.assertEqual(statuses, [404, 404, 404])
 
-    @expectedFailure
     def test_contract_017_redo_creates_new_attempt_after_submission(self):
         _, version, _ = self.experiment()
         student = self.students[0]
         attempt = self.attempt(student, version["id"])
         self.save(student, attempt)
         self.submit(student, attempt)
-        self.call(student, "POST", f"/experiment-versions/{version['id']}/wiring-attempts", {}, 201)
+        redo = self.call(student, "POST", f"/experiment-versions/{version['id']}/wiring-attempts", {}, 201).json["data"]
+        self.assertNotEqual(redo["id"], attempt["id"])
+        self.assertEqual(redo["status"], "draft")
+        self.assertEqual(self.call(student, "GET", f"/wiring-attempts/{attempt['id']}").json["data"]["status"],
+                         "submitted")
+        self.assertEqual(database_facts(self.path)["foreign_key_check"], [])

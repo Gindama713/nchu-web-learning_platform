@@ -139,7 +139,7 @@ recognition.items_json保存symbol/bbox/confidence/confidence_band/label/label_s
 | experiment | course_id FK；code TEXT；title/description TEXT；archived INTEGER | UQ(course_id,code)，如EXP-01 |
 | experiment_version | experiment_id FK；version INTEGER；objectives/instructions TEXT；panel_json/rules_json TEXT；submission_modes_json TEXT NN；status TEXT；published_at TEXT；start_at/end_at TEXT；definition_sha256 TEXT | UQ(experiment_id,version)；status=draft/published；已发布版本不可变；发布时非空且start<end；内容与时间冻结 |
 | experiment_knowledge | experiment_version_id FK；knowledge_id FK | 复合主键 |
-| wiring_attempt | experiment_version_id FK；student_id FK；revision INTEGER默认0；latest_seq INTEGER默认0；state_json TEXT；status TEXT；completed INTEGER NN默认0；functional_results_json TEXT可空；saved_at/submitted_at TEXT可空；snapshot_hash TEXT可空 | status=draft/submitted；submitted后禁止写；索引(student_id,experiment_version_id,created_at) |
+| wiring_attempt | experiment_version_id FK；student_id FK；revision INTEGER默认0；latest_seq INTEGER默认0；state_json TEXT；status TEXT；completed INTEGER NN默认0；functional_results_json TEXT可空；saved_at/submitted_at TEXT可空；snapshot_hash TEXT可空 | status=draft/submitted；submitted后禁止写；索引(student_id,experiment_version_id,created_at)；允许同一学生/版本多条历史submitted记录，至多一条draft |
 | wiring_action | attempt_id FK；seq INTEGER；type TEXT；payload_json TEXT；client_at TEXT可空；received_at TEXT | UQ(attempt_id,seq)；服务端确认seq连续及动作合法 |
 | wiring_validation | attempt_id FK；revision INTEGER；valid INTEGER；errors_json TEXT；validator_version TEXT | 每次验证追加；提交只使用当前revision的服务端重新验证结果 |
 | experiment_participant | experiment_version_id FK,student_id FK | 复合PK；发布时冻结；wiring_attempt/submission复合FK |

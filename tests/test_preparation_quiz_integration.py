@@ -7,7 +7,6 @@ and membership changes use HTTP. SQL writes below are rollback/failure fixtures.
 import sqlite3
 from contextlib import closing
 from datetime import UTC, datetime
-from unittest import expectedFailure
 
 from backend.shared.db import connect
 from tests.test_attempts import AttemptApiBase
@@ -123,8 +122,7 @@ class PreparationQuizIntegrationTest(AttemptApiBase):
         self.assertEqual((copy['status'], copy['source_id'], copy['quiz_ids']),
                          ('draft', prep['id'], [self.quiz['id']]))
         for row in (prep, copy):
-            # Barrier works; exact 409 contract is the separate known-failure test.
-            self.call(self.teacher, 'POST', f"/preparations/{row['id']}/publish", {}, 404)
+            self.call(self.teacher, 'POST', f"/preparations/{row['id']}/publish", {}, 409)
         state = self.snapshot('draft_copy_and_blocked_publish')
         self.assertEqual(len(state['papers']), 1)
         self.assertEqual(state['papers'][0]['status'], 'draft')
@@ -210,14 +208,12 @@ class PreparationQuizIntegrationTest(AttemptApiBase):
             db.execute('DROP TRIGGER r37_fail_notification')
         self.call(self.teacher, 'POST', f"/preparations/{prep['id']}/publish", {})
 
-    @expectedFailure
     def test_r37_004_01_unpublished_quiz_requires_contract_409(self):
         """R37-004-01, owner 罗浩铭: actual 404 NOT_FOUND, APIC§3 requires 409."""
         prep = self.prep()
         response = self.call(self.teacher, 'POST', f"/preparations/{prep['id']}/publish", {}, 409)
         self.assertEqual(response.json['error']['code'], 'QUIZ_NOT_PUBLISHED')
 
-    @expectedFailure
     def test_r37_004_02_prestart_metadata_requires_window_state(self):
         """R37-004-02, owner 罗浩铭: APIC§3 metadata omits window_state."""
         prep = self.published_prep()

@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from unittest import TestCase, expectedFailure
+from unittest import TestCase
 
 from scripts.i03_support import facts, record, save
 from tests.test_demo import ORIGIN, DemoApiBase
@@ -66,7 +66,6 @@ class I03EntryTest(TestCase):
         self.call(self.student, 'GET', f"/demo-sessions/{demo['id']}", status=404)
         self.assertEqual(facts(self.path)['foreign_key_check'], [])
 
-    @expectedFailure
     def test_contract_future_cursor_must_return_actual_revision(self):
         demo = self.call(self.teacher, 'POST', self.base, {'preset': 'cpu'}, 201).json['data']
         advanced = self.call(self.teacher, 'PUT', f"/demo-sessions/{demo['id']}/state",

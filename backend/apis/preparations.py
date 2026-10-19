@@ -9,8 +9,10 @@ from backend.shared.api import (
     audit,
     body,
     notify,
+    now,
     page_args,
     paged,
+    parse_time,
     positive_int,
     result,
     stamp,
@@ -88,7 +90,10 @@ def _serialize(db, row, role, user_id=None):
         quizzes = db.execute(
             "SELECT id,title,start_at,end_at FROM paper WHERE id IN ("
             + ",".join("?" * len(visible_quiz)) + ")", visible_quiz or [0]).fetchall() if visible_quiz else []
-        item["quizzes"] = [dict(q) for q in quizzes]
+        current = now()
+        item["quizzes"] = [dict(q) | {"window_state": "upcoming" if current < parse_time(q["start_at"], "start_at")
+                            else "open" if current < parse_time(q["end_at"], "end_at") else "closed"}
+                           for q in quizzes]
     return item
 
 
@@ -141,8 +146,14 @@ def _validate_links(db, course_id, knowledge_ids, resource_ids, question_ids, qu
         extra = " AND qv.practice_available=1 AND qv.type IN ('single','multiple','boolean','numeric')" if for_publish else ""
         _assert_same_course(db, course_id, "question_version", "id", question_ids, extra)
     if quiz_ids:
-        extra = " AND kind='quiz' AND status='published'" if for_publish else " AND kind='quiz'"
-        _assert_same_course(db, course_id, "paper", "id", quiz_ids, extra)
+        _assert_same_course(db, course_id, "paper", "id", quiz_ids, " AND kind='quiz'")
+        if for_publish:
+            placeholders = ",".join("?" * len(quiz_ids))
+            unpublished = db.execute(
+                f"SELECT id FROM paper WHERE id IN ({placeholders}) AND status!='published'",
+                quiz_ids).fetchall()
+            if unpublished:
+                raise ApiError(409, "QUIZ_NOT_PUBLISHED", "Linked quiz is not published")
 
 
 def _replace_links(db, preparation_id, knowledge_ids, resource_ids, question_ids, quiz_ids):

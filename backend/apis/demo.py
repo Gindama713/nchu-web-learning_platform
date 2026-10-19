@@ -410,8 +410,6 @@ def get_session(demo_id):
         raise ApiError(404, "NOT_FOUND", "Demo session not found")
     course_access(row["course_id"])
     item = _serialize(row)
-    if after_revision is not None and item["revision"] <= after_revision:
-        item["revision"] = after_revision
     return result(item)
 
 

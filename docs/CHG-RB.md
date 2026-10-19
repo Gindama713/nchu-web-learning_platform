@@ -1,5 +1,11 @@
 # 变更日志与发布回滚手册
 
+## 2026-10-19 组员 PR 集成与老师目录调整
+
+在 `develop` 最新提交基础上逐个合入 #27—#35 原作者提交，保留各分支历史、测试及实施证据；共享验收矩阵按 JSON 行和 Markdown 单元格合并，不覆盖其他人的新增字段。按老师展示新增 `steering/{product,database,architecture,api-contract}` 与 `specs/001-.../{plan,spec,tasks,wireframes}` 的阅读目录，保留任务书指定六份主文档路径和规范性权威。备课关联未发布测验改为契约规定的 409、学生元数据补 `window_state`；演示轮询只返回真实 revision；连线创建/提交补发布窗口与冻结名单核查，退课后旧写入拒绝。对应原预期失败用例转为正常回归。此记录只描述本次代码和文档变更；CI、课堂、部署和发布结果按其实际证据另行判定。
+
+连线重做以追加的 `019_wiring_retries` 迁移重建旧表，保留所有 attempt ID、动作和验证外键，改为仅对 draft 建唯一索引；迁移在专用连接短暂关闭外键并在提交前执行 `foreign_key_check`，异常回滚、恢复外键。SPEC-018 固定 JAR 真实冒烟和目标环境隔离尚未通过，`main/release` 的 `ci-grader` 当前显式失败。本次不得绕过该门禁发布。回退本次代码前保留已产生的 attempt/评分/审计事实、使用相同 SHA 的数据库备份，不改旧迁移或删除提交记录。
+
 ## 2026-10-16 黄俊诚 C12c 正式材料整理
 
 从已核验develop dfb23271建立独立010B材料feature，补[交付索引](C12C_DELIVERY_HUANG_JUNCHENG.md)、个人测试汇总、docs/checkpoints/阶段报告、本人用户说明和个人设计报告准备稿。重新读取历史实现PR的actual merge及真实review，核验merge祖先；#27仍待合入，其补验结果按固定head引用，不混入本材料基线。七份实施说明增加当前材料导航，原日期/SHA/失败及逐项矩阵保持。
