@@ -13,8 +13,10 @@ from backend.shared.api import (
     ApiError,
     audit,
     body,
+    now,
     page_args,
     paged,
+    parse_time,
     positive_int,
     result,
     stamp,
@@ -48,6 +50,26 @@ def _attempt_row(db, aid):
     return db.execute("SELECT * FROM wiring_attempt WHERE id=?", (aid,)).fetchone()
 
 
+def _student_version(db, version_id, student_id, *, require_window=False):
+    version = _row(db, "experiment_version", version_id)
+    if not version:
+        raise ApiError(404, "NOT_FOUND", "Experiment version not found")
+    experiment = _row(db, "experiment", version["experiment_id"])
+    course_access(experiment["course_id"])
+    participant = db.execute(
+        "SELECT 1 FROM experiment_participant WHERE experiment_version_id=? AND student_id=?",
+        (version_id, student_id)).fetchone()
+    if not participant:
+        raise ApiError(404, "NOT_FOUND", "Experiment version not found")
+    if "wiring" not in _parse_json(version["submission_modes_json"], "submission_modes"):
+        raise ApiError(409, "STATE_CONFLICT", "Wiring is not enabled for this version")
+    if require_window and (version["status"] != "published" or not
+                           (parse_time(version["start_at"], "start_at") <= now()
+                            < parse_time(version["end_at"], "end_at"))):
+        raise ApiError(409, "WINDOW_CLOSED", "Experiment is outside its submission window")
+    return version
+
+
 def _serialize_attempt(db, row, include_state=True):
     state = _parse_json(row["state_json"], "state") if include_state else None
     item = {
@@ -69,22 +91,18 @@ def _serialize_attempt(db, row, include_state=True):
 @bp.post("/experiment-versions/<int:version_id>/wiring-attempts")
 def create_attempt(version_id):
     user = require_user()
-    db = get_db()
-    row = _row(db, "experiment_version", version_id)
-    if not row:
-        raise ApiError(404, "NOT_FOUND", "Experiment version not found")
-    exp = _row(db, "experiment", row["experiment_id"])
-    course_access(exp["course_id"])
     if user["role"] != "student":
         raise ApiError(403, "FORBIDDEN", "Only students can create wiring attempts")
-    existing = db.execute(
-        "SELECT * FROM wiring_attempt WHERE experiment_version_id=? AND student_id=?",
-        (version_id, user["id"])).fetchone()
-    if existing:
-        return result(_serialize_attempt(db, existing))
-    panel = _parse_json(row["panel_json"], "panel")
-    state = wiring.initial_state(panel)
     with write() as wdb:
+        version = _student_version(wdb, version_id, user["id"], require_window=True)
+        existing = wdb.execute(
+            "SELECT * FROM wiring_attempt WHERE experiment_version_id=? AND student_id=? "
+            "AND status='draft' ORDER BY id DESC LIMIT 1",
+            (version_id, user["id"])).fetchone()
+        if existing:
+            return result(_serialize_attempt(wdb, existing))
+        panel = _parse_json(version["panel_json"], "panel")
+        state = wiring.initial_state(panel)
         timestamp = stamp()
         cursor = wdb.execute(
             "INSERT INTO wiring_attempt(experiment_version_id,student_id,revision,status,state_json,"
@@ -131,6 +149,7 @@ def save_attempt(aid):
             raise ApiError(404, "NOT_FOUND", "Wiring attempt not found")
         if row["student_id"] != user["id"]:
             raise ApiError(403, "FORBIDDEN", "Not your attempt")
+        _student_version(db, row["experiment_version_id"], user["id"])
         if row["status"] != "draft":
             raise ApiError(409, "STATE_CONFLICT", "Submitted attempt cannot be edited")
         if row["revision"] != revision:
@@ -183,6 +202,7 @@ def validate_attempt(aid):
             raise ApiError(404, "NOT_FOUND", "Wiring attempt not found")
         if row["student_id"] != user["id"]:
             raise ApiError(403, "FORBIDDEN", "Not your attempt")
+        _student_version(db, row["experiment_version_id"], user["id"])
         if row["status"] != "draft":
             raise ApiError(409, "STATE_CONFLICT", "Submitted attempt cannot be validated")
         if row["revision"] != revision:
@@ -210,8 +230,10 @@ def submit_attempt(aid):
             raise ApiError(404, "NOT_FOUND", "Wiring attempt not found")
         if row["student_id"] != user["id"]:
             raise ApiError(403, "FORBIDDEN", "Not your attempt")
+        _student_version(db, row["experiment_version_id"], user["id"])
         if row["status"] == "submitted":
             return result(_serialize_attempt(db, row))
+        _student_version(db, row["experiment_version_id"], user["id"], require_window=True)
         if row["revision"] != revision:
             raise ApiError(409, "REVISION_CONFLICT", "stale revision")
         ver = _row(db, "experiment_version", row["experiment_version_id"])

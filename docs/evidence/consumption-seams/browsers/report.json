@@ -1,0 +1,31 @@
+{
+  "started_at": "2026-10-17T03:19:05.021732+00:00",
+  "tested_head": "c5852ed6266184dd7e9682eb9683981b2a662f45",
+  "dirty_paths": [],
+  "fixtures": "Only admin/teacher SQL bootstrap, random secrets and TEST_NOW; all business via actual API. Handler setup/changes and browser socket requests saved separately; no response replacement.",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "checks": [
+        "A: recommendation entry -> wrong v1 -> wrong-book correct v1 -> latest v2; same facts n3/c2, per-tag2/1 and3/2; old ID/CSV unchanged",
+        "B: generated quiz UI -> dedicated publish roster3 -> real UI partial + blank + missing -> scores quiz only; grade new percentage; old CSV/ID and generation row unchanged; confidential replay409"
+      ],
+      "page_errors": [],
+      "browser_timezone": "UTC",
+      "version": "155.0.8059.41",
+      "status": "passed"
+    },
+    {
+      "channel": "msedge",
+      "checks": [
+        "A: recommendation entry -> wrong v1 -> wrong-book correct v1 -> latest v2; same facts n3/c2, per-tag2/1 and3/2; old ID/CSV unchanged",
+        "B: generated quiz UI -> dedicated publish roster3 -> real UI partial + blank + missing -> scores quiz only; grade new percentage; old CSV/ID and generation row unchanged; confidential replay409"
+      ],
+      "page_errors": [],
+      "browser_timezone": "UTC",
+      "version": "155.0.4283.45",
+      "status": "passed"
+    }
+  ],
+  "status": "passed"
+}

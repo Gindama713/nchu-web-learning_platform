@@ -1,0 +1,148 @@
+{
+  "date": "2026-10-16 Asia/Shanghai",
+  "develop": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "branch": "feature/spec-006-resource-integration",
+  "preexisted": false,
+  "entry_workspace_clean": true,
+  "pull_requests": [
+    {
+      "number": 27,
+      "head": "7096b496504f62181f60987062b1397bdb96a937",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "ci_test_ref": "a4ed987609132694c08c59650f92721abc223e0d",
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/27",
+        "title": "Gindama713/nchu-web-learning_platform Issue #27 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/27",
+        "display_title": "Gindama713/nchu-web-learning_platform Issue #27 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "threads": {
+        "review_threads": []
+      },
+      "fixed_ci_reused": 38896062651
+    },
+    {
+      "number": 28,
+      "head": "8111c5395d8b7cf33205065c77490593e07ed045",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "ci_test_ref": "b4a44411a719c490de01942ff5a4d251f007d8a6",
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/28",
+        "title": "Gindama713/nchu-web-learning_platform Issue #28 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/28",
+        "display_title": "Gindama713/nchu-web-learning_platform Issue #28 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "threads": {
+        "review_threads": []
+      },
+      "fixed_ci_reused": 38904433916
+    },
+    {
+      "number": 29,
+      "head": "b56141f2e060d1ec5464d58d52f6f735c445d56c",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "state": "open",
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "ci_test_ref": "5b67d9bc10a44cce388172a1e79001e2d5f90343",
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/29",
+        "title": "Gindama713/nchu-web-learning_platform Issue #29 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/29",
+        "display_title": "Gindama713/nchu-web-learning_platform Issue #29 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "threads": {
+        "review_threads": []
+      },
+      "fixed_ci_reused": 38907219999
+    }
+  ],
+  "recorded_actual_merges_verified": [
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    26
+  ],
+  "ancestry_exit_codes": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "notes": [
+    "fetch origin left develop unchanged; no actual merge among PR27/28/29, no synchronization/merge required",
+    "Original fixed CI reused only because heads and states unchanged",
+    "No R37/PR27/PR28 unmerged implementation copied; new branch starts at verified origin/develop"
+  ],
+  "actual_merge_ancestry": [
+    {
+      "pr": 18,
+      "sha": "53d9a2a4db9aa715c8951a99a25005b497b38024",
+      "exit": 0
+    },
+    {
+      "pr": 19,
+      "sha": "991566cbdb84a036259363d43b89a16dc52cdbed",
+      "exit": 0
+    },
+    {
+      "pr": 20,
+      "sha": "4399cb8138c3f56f23c535f23fe2a5af1d819998",
+      "exit": 0
+    },
+    {
+      "pr": 21,
+      "sha": "d3e0e3325a2892097780b23ca3092140adcccfd3",
+      "exit": 0
+    },
+    {
+      "pr": 22,
+      "sha": "5eea466ec2a9b9f23cc4ccf9f1548d16545b43d1",
+      "exit": 0
+    },
+    {
+      "pr": 23,
+      "sha": "6ec4c53f6130b3ad3f17b52c757afbf2c0e39b66",
+      "exit": 0
+    },
+    {
+      "pr": 24,
+      "sha": "eaaf043f16e1725886a83166b33c13867ef368dc",
+      "exit": 0
+    },
+    {
+      "pr": 26,
+      "sha": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "exit": 0
+    }
+  ]
+}

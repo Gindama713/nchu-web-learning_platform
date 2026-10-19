@@ -1,0 +1,11 @@
+{
+  "started_at": "2026-10-16T13:38:07.454440+00:00",
+  "tested_head": "270dd8e2dbf17cfb4104a2dbe1afb9696c173169",
+  "dirty_paths": [],
+  "layer": "real Flask handlers/SQLite; bootstrap admin/teacher and TEST_NOW; separate audit fault trigger",
+  "tests": 4,
+  "failures": 0,
+  "errors": 0,
+  "expected_failures": 0,
+  "status": "passed"
+}

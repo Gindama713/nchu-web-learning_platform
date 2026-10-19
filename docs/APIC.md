@@ -314,7 +314,7 @@ Action模型：seq正整数、type、payload、client_at。type为connect时payl
 | POST /experiments/{id}/versions | title,objectives,knowledge_ids,instructions,submission_modes,panel?,rules；不接收judge_profile_id或其他服务端派生字段 | 新draft版本，judge_profile_id=null | T；wiring模式必须提供panel；检查panel/rules/schema；circuit草稿允许尚无评测配置 |
 | POST /experiment-versions/{id}/publish | start_at,end_at,initial_test_suite_id?（circuit必需） | 已发布版本 | T；wiring模式需端子和规则完整，circuit模式需判分配置齐全且测试集验证通过；不支持的提交模式返回409 |
 | GET /experiment-versions/{id} | 无 | 脱敏ExperimentVersion | L；学生不可见隐藏rules答案与测试集 |
-| POST /experiment-versions/{id}/wiring-attempts | 无 | WiringAttempt:{id,revision:0,status:draft,state,latest_seq:0} | S |
+| POST /experiment-versions/{id}/wiring-attempts | 无 | WiringAttempt:{id,revision:0,status:draft,state,latest_seq:0} | S；已发布、冻结参与名单且在窗口内；已有draft可返回原attempt，已submitted则201创建新attempt重做，旧记录不变 |
 | GET /wiring-attempts/{id} | 无 | WiringAttempt、actions摘要、saved_at | 本人/T |
 | PUT /wiring-attempts/{id} | revision,state,actions | {id,revision:旧值+1,latest_seq,saved_at} | 本人S；旧revision409；服务端重放结果须与state一致，否则422 STATE_MISMATCH；同批状态/动作原子保存 |
 | POST /wiring-attempts/{id}/validate | revision | {valid,errors:[{code,terminal_ids,wire_ids,message}],revision} | 本人；数据冲突409，合法请求但错误连线返回200且valid=false |

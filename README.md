@@ -2,7 +2,7 @@
 
 本项目主题为中央处理器，班级242017，组号g24201710，组长24201718姜苏豪，组员24201716黄俊诚、24201723罗浩铭、24201737石佰合。按照任务书要求，采用Vue 3、Flask、SQLite和RESTful API，围绕CPU提供教学管理、知识学习、测评、实验与学情分析。数字逻辑作为前置知识。实验箱连线过程模拟和Logisim电路文件在线评测均为必做功能，不能以静态图片、视频或文件上传页面代替。
 
-六份需求设计文档为 v0.6。2026-10-16 第二次课堂提交整合了各组员当前的资源、实验、备课、CPU 演示、实验箱连线、问答、推荐和分析代码；[分批提交提示词](docs/SECOND_SUBMISSION_TEAM_PROMPT.md)记录各人的分支与课堂归档顺序。实验箱连线已接入，Logisim 在线评测 worker（SPEC-018）尚未实现，当前整体系统不得视为已完成。
+六份需求设计主文档为 v0.6。2026-10-16 第二次课堂提交的分批操作见[组员提示词](docs/SECOND_SUBMISSION_TEAM_PROMPT.md)。实验箱连线和 SPEC-018 评测 worker 代码已接入 `develop`；固定引擎真实冒烟、目标环境部署及全部课程验收仍未通过，当前整体系统不得视为已完成或可发布。
 
 ## 1 文档入口
 
@@ -15,11 +15,13 @@
 | CHG-RB.md | [docs/CHG-RB.md](docs/CHG-RB.md) | 变更、发布、回灌、备份与回滚 |
 | DBD.md | [docs/DBD.md](docs/DBD.md) | 表、字段、关系、约束与生命周期 |
 
+老师展示的阅读目录另见 [steering](steering/README.md)（product、database、architecture、api-contract）及 [specs](specs/README.md)（每个 SPEC 的 plan、spec、tasks、wireframes）。它们按六份主文档生成摘要与导航，不替代任务书指定文件，也不另造一套接口契约。
+
 六份主文档中，README.md 置于仓库根，其余五份（PRD、APIC、ADR、CHG-RB、DBD）置于 docs 目录。实名分工、阶段计划、技术风险、完整验收索引和R01—R48纳入PRD第10—12节；Git与CI协作规范纳入本文件附录A。业务规格引用在这六份主文档之间跳转。
 
 ### 1.1 文档维护
 
-后续统一维护本文件（仓库根 README.md）与 docs 目录下的五份主文档。分工、排期、追溯和完整验收见PRD第10—12节，Git/CI协作规范见本文件附录A。
+规范正文统一维护本文件（仓库根 README.md）与 docs 目录下的五份主文档；同一 PR 同步受影响的 steering/specs 摘要。分工、排期、追溯和完整验收见PRD第10—12节，Git/CI协作规范见本文件附录A。
 
 六份主文档包含本阶段所需设计，可独立阅读。历史辅助资料暂未纳入此仓库。
 
@@ -33,16 +35,16 @@
 
 ## 3 计划目录
 
-README 置于仓库根；docs/ 保留五份需求设计文档。backend/apis 按 SPEC 划分 HTTP 边界，backend/shared 放共享授权/事务/响应，backend/migrations 放校验和锁定的 SQLite 迁移；frontend/ 是 Vue 3 页面，tests/ 是后端测试，scripts/ 是文档检查，.github/workflows/ 是 PR 检查。上传目录由 `UPLOAD_ROOT` 指定；生产环境应设为源码目录之外的持久化目录，数据库、日志、密钥不提交版本库。公开合成测试数据可以进入 tests；隐藏评测数据不得进入公开仓库。
+README 置于仓库根；docs/ 保留五份需求设计文档与实施证据；steering/ 放四项全局设计导航；specs/ 按 SPEC 编号分置 plan/spec/tasks/wireframes。backend/apis 按 SPEC 划分 HTTP 边界，backend/shared 放共享授权/事务/响应，backend/migrations 放校验和锁定的 SQLite 迁移；frontend/ 是 Vue 3 页面，tests/ 是后端测试，scripts/ 是文档检查，.github/workflows/ 是 PR 检查。上传目录由 `UPLOAD_ROOT` 指定；生产环境应设为源码目录之外的持久化目录，数据库、日志、密钥不提交版本库。公开合成测试数据可以进入 tests；隐藏评测数据不得进入公开仓库。
 
 ## 4 运行与配置契约
 
-引擎选定Logisim-evolution 5.0.0，实验箱采用PRD定义的CPU-EDU-8 v1。前后端框架运行命令见第8节；Java/JAR校验和与评测 worker 的启动方式须在SPEC-018实现时补齐并实测。正式进入检查点2前须在目标环境复现完整业务命令。
+引擎选定Logisim-evolution 5.0.0，实验箱采用PRD定义的CPU-EDU-8 v1。前后端框架运行命令见第8节；评测 worker 已有代码，固定 Java/JAR、独立启动、隔离与真实电路判分仍须在目标环境实测。正式发布前须复现完整业务命令。
 
 | 运行单元 | 启动前条件 | 预期行为 | 完成证据 |
 |---|---|---|---|
 | 前端 | 安装锁文件指定依赖，配置同源 /api 代理 | 开发可访问，生产输出静态资源 | 安装、开发启动、构建的真实命令及日志 |
-| Flask API | 配置数据库与文件路径，执行 `db-upgrade` 迁移及管理员初始化 | /api/v1/health 显示 `db_ready=true`，整体仍因 grader 降级 | 启动入口、端口、健康检查记录 |
+| Flask API | 配置数据库与文件路径，执行 `db-upgrade` 迁移及管理员初始化 | /api/v1/health 按数据库与 JAR 可用性返回 ready/degraded | 启动入口、端口、健康检查记录 |
 | 评测 worker | 固定 Java/JAR 校验和，隔离环境可用 | 从 SQLite 领取任务并写回结果 | 独立启动入口、标准电路实测报告 |
 | 完整系统 | 前两项就绪且 worker 可用 | 完成连线保存、提交 .circ、获取判分 | 新环境端到端运行录像或记录 |
 
@@ -54,7 +56,7 @@ README 置于仓库根；docs/ 保留五份需求设计文档。backend/apis 按
 
 测试分为接口/数据库约束测试、前端交互测试、真实 Logisim 集成测试、浏览器端到端测试。每项关联 SPEC 与 AC 编号。检查点 2 之前落实测试入口与命令；检查点 5 必须在干净环境按本说明完成安装、测试、构建和启动。
 
-GitHub PR 到 main 必须自动执行测试、构建、lint；门禁还覆盖真实评测冒烟和规格完整性检查，具体见 README附录A。缺少源码或测试时不能用“无测试即成功”、空命令或跳过 job 冒充绿色 CI。框架及已实现业务检查现已落地；main/release 的真实评测检查会明确失败，直到 SPEC-018 实测通过。main/develop 分支保护已配置并经 API 读取核对，拒绝直推等负向演练及未来 release 规则仍待验证。
+GitHub PR 到 main 必须自动执行测试、构建、lint；门禁还覆盖真实评测冒烟和规格完整性检查，具体见 README附录A。缺少源码或测试时不能用“无测试即成功”、空命令或跳过 job 冒充绿色 CI。框架及已实现业务检查现已落地；main/release 的真实评测检查目前仍显式失败，直到 SPEC-018 固定引擎冒烟实测通过并替换该阻断步骤。main/develop 分支保护已配置并经 API 读取核对，拒绝直推等负向演练及未来 release 规则仍待验证。
 
 两条关键端到端验收：学生打开实验箱→连接端子→观察逻辑输出→保存并重开→提交记录→教师查看；学生提交 .circ→后端校验并入队→隔离运行固定引擎→按测试判分→查看报告→教师按班级统计。错误电路、越权访问、超时、评测服务不可用均必须有测试。
 
@@ -67,6 +69,8 @@ SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数�
 运行手册后续还须补充评测 worker 的启动/停止、备份位置、日志位置及故障定位步骤；不得将尚未实现的业务命令当成已验证操作。
 
 ## 7 检查与提交
+
+黄俊诚（24201716）的C12c正式材料见[个人交付索引](docs/C12C_DELIVERY_HUANG_JUNCHENG.md)，含[测试报告](docs/TEST_REPORT_HUANG_JUNCHENG.md)、[阶段检查报告](docs/checkpoints/HUANG_JUNCHENG_C12C.md)、[本人模块用户说明](docs/USER_GUIDE_HUANG_JUNCHENG.md)和[个人设计报告准备稿](docs/reports/24201716_黄俊诚_设计报告.docx)。材料形成时 #27 尚待合入；本轮 #27—#35 的审计与集成见[检查点记录](docs/checkpoints/2026-10-19_PR_INTEGRATION.md)。个人材料不代表完整SPEC、Gitea或课堂通过；原课程最终格式附件仍未提供。
 
 第二次课堂提交的组员分批操作见 [docs/SECOND_SUBMISSION_TEAM_PROMPT.md](docs/SECOND_SUBMISSION_TEAM_PROMPT.md)。
 
@@ -99,7 +103,7 @@ npm ci
 npm run dev
 ```
 
-打开 `http://127.0.0.1:5173`。Vite 把 `/api` 代理到 Flask。开发环境默认 `APP_ORIGIN=http://127.0.0.1:5173`，若改变前端地址必须同步设置 `APP_ORIGIN`；生产环境必须设置至少 32 字符的随机 `SECRET_KEY`、HTTPS `APP_ORIGIN`、外置 `DATABASE_PATH` 和 `UPLOAD_ROOT`。`GET /api/v1/health` 在迁移后显示 `db_ready=true`，仍返回 503、`grader_ready=false`，如实表示真实评测 worker 尚未实现。
+打开 `http://127.0.0.1:5173`。Vite 把 `/api` 代理到 Flask。开发环境默认 `APP_ORIGIN=http://127.0.0.1:5173`，若改变前端地址必须同步设置 `APP_ORIGIN`；生产环境必须设置至少 32 字符的随机 `SECRET_KEY`、HTTPS `APP_ORIGIN`、外置 `DATABASE_PATH` 和 `UPLOAD_ROOT`。`GET /api/v1/health` 在迁移后可显示 `db_ready=true`；未配置实际 JAR 时返回 503、`grader_ready=false`。该探针当前只检查 JAR 路径是否为文件，不等于证明引擎、隔离和 worker 已完成真实评测验收。
 
 本地检查：
 
@@ -113,7 +117,7 @@ npm run lint
 npm run build
 ```
 
-当前后端在 Python 3.12 运行并通过测试；课程完整运行基线仍需在 Python 3.12、Java 21、Logisim-evolution 5.0.0 的目标环境验证。`db-upgrade` 可重复执行并验证迁移 SHA，`admin-create` 提示输入学号、姓名和隐藏密码；管理员改密可用 `PATCH /api/v1/users/me`，请求须含旧密码。评测 worker、备份与完整生产部署命令待对应模块实现。
+当前后端曾在 Python 3.12 运行并通过对应提交的测试；课程完整运行基线仍需在 Python 3.12、Java 21、Logisim-evolution 5.0.0 的目标环境验证。`db-upgrade` 可重复执行并验证迁移 SHA，`admin-create` 提示输入学号、姓名和隐藏密码；管理员改密可用 `PATCH /api/v1/users/me`，请求须含旧密码。评测 worker 的目标环境启动、备份与完整生产部署命令仍待实测并固化。
 
 ### 8.1 原组长基线范围与集成边界（历史记录）
 

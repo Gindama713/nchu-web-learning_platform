@@ -1696,6 +1696,526 @@
       "resume_condition": "Responsible reviewer/maintainer completes real review and merge. Fetch, verify actual merge SHA is an ancestor of origin/develop, synchronize via project process, then validate only the affected 006/008 shared-time and 012 recommendation-cutoff integration and update the three NF-UI rows. Real review issues go to the owning SPEC feature. Do not copy unmerged feature implementations.",
       "tool_note": "Context7 Git/GitHub CLI documentation was queried successfully. Local gh executable was unavailable; GitHub connector APIs were used instead. No claim that gh ran successfully.",
       "local_verification_note": "All 131 matrix row dictionaries, IDs/order/results/integration/head/tested/attachments and matrix Markdown/check file unchanged; 80 pass/0 fail/51 blocked. Original JSON history preserved; four current run/head/base, six jobs each, raw test summaries and 34 audit local links verified. First scratch Counter assertion incorrectly required an explicit zero-failure key; only that assertion was corrected and rerun passed. This was a local checking-script failure, not a business/test or matrix failure."
+    },
+    {
+      "checked_at_utc": "2026-10-16 11:40:29 UTC",
+      "checked_at_local": "2026-10-16 19:40:29 Asia/Shanghai",
+      "develop": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "entry_feature_head": "16d55979e6f36688e1ef8114577c2ee8e0dc8cd5",
+      "scope": "C12b post-merge affected integration only. Fresh fetch, actual merge ancestry and independent exact original PR-head CI/run/all six jobs/raw ci-test logs and real discussions. Existing fixed local component/handler/full business evidence reused.",
+      "pull_requests": [
+        {
+          "pr": 14,
+          "info": {
+            "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/14",
+            "state": "closed",
+            "draft": false,
+            "base_ref": "develop",
+            "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "head_ref": "feature/spec-011-qa",
+            "head_sha": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
+            "merged": true,
+            "merged_at": "2026-10-16T05:50:33Z",
+            "actual_merge_sha": "336806072638a4ab0a973b3e7b01b517f73aa9d6"
+          },
+          "reviews": [],
+          "review_threads": [],
+          "comments": [],
+          "run": {
+            "id": 38681339662,
+            "html_url": "https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38681339662",
+            "event": "pull_request",
+            "head_sha": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
+            "status": "completed",
+            "conclusion": "success",
+            "run_attempt": 1,
+            "created_at": "2026-10-15T04:25:02Z",
+            "updated_at": "2026-10-15T04:28:14Z",
+            "pull_requests": [],
+            "head_branch": "feature/spec-011-qa"
+          },
+          "jobs": [
+            {
+              "id": 116246362814,
+              "name": "ci-lint",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38681339662
+            },
+            {
+              "id": 116246363007,
+              "name": "ci-policy",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38681339662
+            },
+            {
+              "id": 116246363127,
+              "name": "ci-build",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38681339662
+            },
+            {
+              "id": 116246363194,
+              "name": "ci-test",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38681339662
+            },
+            {
+              "id": 116246363996,
+              "name": "ci-grader",
+              "status": "completed",
+              "conclusion": "skipped",
+              "run_id": 38681339662
+            },
+            {
+              "id": 116247200897,
+              "name": "ci-required",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38681339662
+            }
+          ],
+          "ci_test_log_excerpt": [
+            "2026-10-15T04:25:06.8194705Z HEAD is now at 805b1af Merge bbd9ecdb151cab0ff7a34e94261b5378ceabfb74 into f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "2026-10-15T04:28:03.5812090Z Ran 194 tests in 152.886s",
+            "2026-10-15T04:28:03.5812552Z OK",
+            "2026-10-15T04:28:06.1424950Z # tests 76",
+            "2026-10-15T04:28:06.1425866Z # pass 76",
+            "2026-10-15T04:28:06.1426325Z # fail 0"
+          ],
+          "ancestry_check": {
+            "head_ancestor_exit_code": 0,
+            "actual_merge_ancestor_exit_code": 0,
+            "note": "Both original head and actual merge checked against fetched origin/develop. CI test checkout in logs is historical and distinct from this actual merge."
+          }
+        },
+        {
+          "pr": 15,
+          "info": {
+            "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/15",
+            "state": "closed",
+            "draft": false,
+            "base_ref": "develop",
+            "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "head_ref": "feature/spec-012-recommendation",
+            "head_sha": "9fefd17d99242efdd53847029d7d7cafbcadf59d",
+            "merged": true,
+            "merged_at": "2026-10-16T05:50:33Z",
+            "actual_merge_sha": "0a2b84c7ecf05df9f29c4142cd36c28266b3eb4d"
+          },
+          "reviews": [],
+          "review_threads": [],
+          "comments": [],
+          "run": {
+            "id": 38740733563,
+            "html_url": "https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38740733563",
+            "event": "pull_request",
+            "head_sha": "9fefd17d99242efdd53847029d7d7cafbcadf59d",
+            "status": "completed",
+            "conclusion": "success",
+            "run_attempt": 1,
+            "created_at": "2026-10-15T13:12:25Z",
+            "updated_at": "2026-10-15T13:15:33Z",
+            "pull_requests": [],
+            "head_branch": "feature/spec-012-recommendation"
+          },
+          "jobs": [
+            {
+              "id": 116441444027,
+              "name": "ci-build",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38740733563
+            },
+            {
+              "id": 116441444089,
+              "name": "ci-lint",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38740733563
+            },
+            {
+              "id": 116441444278,
+              "name": "ci-test",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38740733563
+            },
+            {
+              "id": 116441444298,
+              "name": "ci-policy",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38740733563
+            },
+            {
+              "id": 116441446395,
+              "name": "ci-grader",
+              "status": "completed",
+              "conclusion": "skipped",
+              "run_id": 38740733563
+            },
+            {
+              "id": 116442890208,
+              "name": "ci-required",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38740733563
+            }
+          ],
+          "ci_test_log_excerpt": [
+            "2026-10-15T13:12:31.0273765Z HEAD is now at f71b486 Merge 9fefd17d99242efdd53847029d7d7cafbcadf59d into f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "2026-10-15T13:15:20.9875711Z Ran 190 tests in 146.828s",
+            "2026-10-15T13:15:20.9876331Z OK",
+            "2026-10-15T13:15:23.5227023Z # tests 79",
+            "2026-10-15T13:15:23.5227851Z # pass 79",
+            "2026-10-15T13:15:23.5228689Z # fail 0"
+          ],
+          "ancestry_check": {
+            "head_ancestor_exit_code": 0,
+            "actual_merge_ancestor_exit_code": 0,
+            "note": "Both original head and actual merge checked against fetched origin/develop. CI test checkout in logs is historical and distinct from this actual merge."
+          }
+        },
+        {
+          "pr": 16,
+          "info": {
+            "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/16",
+            "state": "closed",
+            "draft": false,
+            "base_ref": "develop",
+            "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "head_ref": "feature/spec-010b-knowledge-analysis",
+            "head_sha": "16d55979e6f36688e1ef8114577c2ee8e0dc8cd5",
+            "merged": true,
+            "merged_at": "2026-10-16T05:50:33Z",
+            "actual_merge_sha": "aa373606f47d4e5c4533e6d48d263c7781bddf26"
+          },
+          "reviews": [],
+          "review_threads": [],
+          "comments": [],
+          "run": {
+            "id": 38852326280,
+            "html_url": "https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38852326280",
+            "event": "pull_request",
+            "head_sha": "16d55979e6f36688e1ef8114577c2ee8e0dc8cd5",
+            "status": "completed",
+            "conclusion": "success",
+            "run_attempt": 1,
+            "created_at": "2026-10-16T04:46:17Z",
+            "updated_at": "2026-10-16T04:49:17Z",
+            "pull_requests": [],
+            "head_branch": "feature/spec-010b-knowledge-analysis"
+          },
+          "jobs": [
+            {
+              "id": 116816072239,
+              "name": "ci-test",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38852326280
+            },
+            {
+              "id": 116816072400,
+              "name": "ci-build",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38852326280
+            },
+            {
+              "id": 116816072423,
+              "name": "ci-policy",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38852326280
+            },
+            {
+              "id": 116816072480,
+              "name": "ci-lint",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38852326280
+            },
+            {
+              "id": 116816073573,
+              "name": "ci-grader",
+              "status": "completed",
+              "conclusion": "skipped",
+              "run_id": 38852326280
+            },
+            {
+              "id": 116816827076,
+              "name": "ci-required",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38852326280
+            }
+          ],
+          "ci_test_log_excerpt": [
+            "2026-10-16T04:46:22.8472039Z HEAD is now at 9d0337d Merge 16d55979e6f36688e1ef8114577c2ee8e0dc8cd5 into f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "2026-10-16T04:49:06.2551784Z Ran 177 tests in 139.184s",
+            "2026-10-16T04:49:06.2552189Z OK",
+            "2026-10-16T04:49:08.6666386Z # tests 70",
+            "2026-10-16T04:49:08.6667028Z # pass 70",
+            "2026-10-16T04:49:08.6667533Z # fail 0"
+          ],
+          "ancestry_check": {
+            "head_ancestor_exit_code": 0,
+            "actual_merge_ancestor_exit_code": 0,
+            "note": "Both original head and actual merge checked against fetched origin/develop. CI test checkout in logs is historical and distinct from this actual merge."
+          }
+        },
+        {
+          "pr": 17,
+          "info": {
+            "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/17",
+            "state": "closed",
+            "draft": false,
+            "base_ref": "develop",
+            "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "head_ref": "feature/spec-006-exercises",
+            "head_sha": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
+            "merged": true,
+            "merged_at": "2026-10-16T05:50:33Z",
+            "actual_merge_sha": "32ec16bf3a281d6f4d9be8f1c19410239d73145c"
+          },
+          "reviews": [],
+          "review_threads": [],
+          "comments": [],
+          "run": {
+            "id": 38739998112,
+            "html_url": "https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38739998112",
+            "event": "pull_request",
+            "head_sha": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
+            "status": "completed",
+            "conclusion": "success",
+            "run_attempt": 1,
+            "created_at": "2026-10-15T13:07:02Z",
+            "updated_at": "2026-10-15T13:10:21Z",
+            "pull_requests": [],
+            "head_branch": "feature/spec-006-exercises"
+          },
+          "jobs": [
+            {
+              "id": 116438884736,
+              "name": "ci-lint",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38739998112
+            },
+            {
+              "id": 116438885183,
+              "name": "ci-build",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38739998112
+            },
+            {
+              "id": 116438885208,
+              "name": "ci-policy",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38739998112
+            },
+            {
+              "id": 116438885319,
+              "name": "ci-test",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38739998112
+            },
+            {
+              "id": 116438886989,
+              "name": "ci-grader",
+              "status": "completed",
+              "conclusion": "skipped",
+              "run_id": 38739998112
+            },
+            {
+              "id": 116440406305,
+              "name": "ci-required",
+              "status": "completed",
+              "conclusion": "success",
+              "run_id": 38739998112
+            }
+          ],
+          "ci_test_log_excerpt": [
+            "2026-10-15T13:07:21.9392035Z HEAD is now at 2730817 Merge e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85 into f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+            "2026-10-15T13:10:09.0843894Z Ran 177 tests in 140.523s",
+            "2026-10-15T13:10:09.0844371Z OK",
+            "2026-10-15T13:10:11.5780587Z # tests 77",
+            "2026-10-15T13:10:11.5781530Z # pass 77",
+            "2026-10-15T13:10:11.5781949Z # fail 0"
+          ],
+          "ancestry_check": {
+            "head_ancestor_exit_code": 0,
+            "actual_merge_ancestor_exit_code": 0,
+            "note": "Both original head and actual merge checked against fetched origin/develop. CI test checkout in logs is historical and distinct from this actual merge."
+          }
+        }
+      ],
+      "synchronization": {
+        "branch": "feature/spec-010b-knowledge-analysis",
+        "method": "git merge --ff-only origin/develop",
+        "consumed_develop_sha": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+        "conflicts": false,
+        "copied_unmerged_feature_code": false
+      },
+      "post_merge_validation": {
+        "status": "passed",
+        "scope": "Only SPEC-006/NF-UI, SPEC-008/NF-UI, SPEC-012/NF-UI affected display/submission integration. Not full SPEC closure or classroom acceptance.",
+        "reports": {
+          "paper": {
+            "report": "docs/evidence/c12a/c12b-integration-dfb2327/paper/report.json",
+            "tested_head": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+            "dirty_paths": [],
+            "page_errors": [],
+            "started_at": "2026-10-16T11:39:12.000158+00:00",
+            "finished_at": "2026-10-16T11:39:59.301690+00:00",
+            "browsers": [
+              {
+                "channel": "chrome",
+                "version": "155.0.8059.41",
+                "browser_timezone": "UTC",
+                "checks": [
+                  "exam: real window Sunday-to-Monday Shanghai, explicit zone, null review, UTC HTTP unchanged",
+                  "exam: UI submit Shanghai midnight; prestart/deadline 409; review protection/release; byte-exact UTC replay and DB unchanged",
+                  "quiz: real window Sunday-to-Monday Shanghai, explicit zone, null review, UTC HTTP unchanged",
+                  "quiz: UI submit Shanghai midnight; prestart/deadline 409; review protection/release; byte-exact UTC replay and DB unchanged"
+                ],
+                "utc_facts": [
+                  {
+                    "kind": "exam",
+                    "submitted_at": "2026-10-18T16:00:00.000Z",
+                    "success_snapshot_sha256": "c700dbcc6ab0e61de765489523875517f2f9b5fe51eec2739f11a10b09740142"
+                  },
+                  {
+                    "kind": "quiz",
+                    "submitted_at": "2026-10-18T16:00:00.000Z",
+                    "success_snapshot_sha256": "fa7ea6e2abaad5ea3049f3927339e43c5aef932b8b0c0728f54226d00dc0dcd3"
+                  }
+                ]
+              },
+              {
+                "channel": "msedge",
+                "version": "155.0.4283.45",
+                "browser_timezone": "America/Los_Angeles",
+                "checks": [
+                  "exam: real window Sunday-to-Monday Shanghai, explicit zone, null review, UTC HTTP unchanged",
+                  "exam: UI submit Shanghai midnight; prestart/deadline 409; review protection/release; byte-exact UTC replay and DB unchanged",
+                  "quiz: real window Sunday-to-Monday Shanghai, explicit zone, null review, UTC HTTP unchanged",
+                  "quiz: UI submit Shanghai midnight; prestart/deadline 409; review protection/release; byte-exact UTC replay and DB unchanged"
+                ],
+                "utc_facts": [
+                  {
+                    "kind": "exam",
+                    "submitted_at": "2026-10-18T16:00:00.000Z",
+                    "success_snapshot_sha256": "ad87ff7d0a7e3a57a6cab87926a92954169283f33fa9e4799f60748272f87b8f"
+                  },
+                  {
+                    "kind": "quiz",
+                    "submitted_at": "2026-10-18T16:00:00.000Z",
+                    "success_snapshot_sha256": "9e03f619f8e25b032181369cf4a63ffe444febfc5a47d3c054e427b1a8919411"
+                  }
+                ]
+              }
+            ],
+            "status": "passed"
+          },
+          "recommendation": {
+            "report": "docs/evidence/c12a/c12b-integration-dfb2327/recommendation/report.json",
+            "tested_head": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+            "dirty_paths": [],
+            "page_errors": [],
+            "started_at": "2026-10-16T11:40:38.424878+00:00",
+            "finished_at": "2026-10-16T11:40:54.153555+00:00",
+            "browsers": [
+              {
+                "channel": "chrome",
+                "version": "155.0.8059.41",
+                "browser_timezone": "UTC",
+                "checks": [
+                  {
+                    "utc_source_until": "2026-10-18T15:59:59.000Z",
+                    "displayed": "2026-10-18 23:59:59 (Asia/Shanghai)",
+                    "http_data_unchanged_after_render": true
+                  },
+                  {
+                    "utc_source_until": "2026-10-18T16:00:00.000Z",
+                    "displayed": "2026-10-19 00:00:00 (Asia/Shanghai)",
+                    "http_data_unchanged_after_render": true
+                  },
+                  {
+                    "real_practice_http": 201,
+                    "replay_bytes_equal": true,
+                    "sample_size": 1,
+                    "db_created_at_utc": "2026-10-18T16:00:01.000Z",
+                    "success_snapshot_sha256": "bf13dd8e6a362eb37352d724ad0d38074ab749b8f1d316b23bb6ffa8897a2aa3"
+                  }
+                ]
+              },
+              {
+                "channel": "msedge",
+                "version": "155.0.4283.45",
+                "browser_timezone": "America/Los_Angeles",
+                "checks": [
+                  {
+                    "utc_source_until": "2026-10-18T15:59:59.000Z",
+                    "displayed": "2026-10-18 23:59:59 (Asia/Shanghai)",
+                    "http_data_unchanged_after_render": true
+                  },
+                  {
+                    "utc_source_until": "2026-10-18T16:00:00.000Z",
+                    "displayed": "2026-10-19 00:00:00 (Asia/Shanghai)",
+                    "http_data_unchanged_after_render": true
+                  },
+                  {
+                    "real_practice_http": 201,
+                    "replay_bytes_equal": true,
+                    "sample_size": 1,
+                    "db_created_at_utc": "2026-10-18T16:00:01.000Z",
+                    "success_snapshot_sha256": "c1f65d19f6f79f8284c501416b10ebeae39857aaf2af4d87230b39434847471f"
+                  }
+                ]
+              }
+            ],
+            "status": "passed"
+          }
+        },
+        "screenshots": {
+          "paper": 8,
+          "recommendation": 2,
+          "viewport_width": 390,
+          "visual_qa": "All screenshot names inspected in batches; Shanghai date/time visible, no horizontal overflow per script. Identical Chrome/Edge recommendation PNG SHA256 confirms same nonblank image content."
+        },
+        "fixed_evidence_reused": "Original 26+8 components, 5+2 real handler tests and all prior full business/CSV/recovery evidence retained at fixed SHAs; not rerun.",
+        "local_results": {
+          "pass": 80,
+          "fail": 0,
+          "blocked": 51
+        },
+        "integration_results_before": {
+          "pass": 59,
+          "blocked": 72
+        },
+        "integration_results_after": {
+          "pass": 62,
+          "blocked": 69
+        },
+        "other_128_rows": "unchanged",
+        "classroom_acceptance": false,
+        "real_non_author_approval": false
+      },
+      "non_author_review": "No submitted reviews, review threads or issue comments; merging is not recorded as real non-author approval.",
+      "classroom_acceptance": "Not performed.",
+      "snapshot_stage": "After actual merges and clean develop-based focused integration, before the evidence-only follow-up commit. The new feature-head CI and follow-up PR are independently recorded in PR and excluded personal handoffs.",
+      "execution_notes": [
+        "The first artifact-preparation invocation could not locate its scratch script because the scratch path binding had not been initialized in this turn. Only the two task-created files were relocated into work, the path was corrected, and preparation passed. Both business/browser runs had already passed and were not rerun; no repository source/test changes resulted.",
+        "First local remote-snapshot check incorrectly required run.pull_requests[0] after PR closure; current run metadata legitimately returns an empty list for closed PRs. The checker was corrected to verify exact run head_sha/event/head_branch, and only validate associations when present. The empty arrays are preserved, not fabricated; this is a checker failure, not a CI/business failure."
+      ]
     }
   ]
 }

@@ -1,5 +1,7 @@
 # SPEC-011 检索问答实施记录
 
+> 2026-10-16 C12c材料导航：当前合入、真实评审、两个矩阵版本及交付状态见[个人交付索引](C12C_DELIVERY_HUANG_JUNCHENG.md)和[本轮远程快照](evidence/c12c/entry-state.json)。下文各节保留原日期、SHA及当时事实；旧“未合入/待实现/最新”措辞按其历史范围阅读，不覆盖索引中的当前状态。完整SPEC仍未凭材料整理关闭。
+
 负责人：黄俊诚（24201716）。范围为C10，依据[PRD§4.3](PRD.md#qa-recommendation-acceptance)、[011有效验收](PRD.md#accept-spec-011)、[APIC](APIC.md)第5.2节及[DBD](DBD.md)第3/5节。只返回知识检索片段与出处，不接生成模型、向量库或新调度平台；不开展C11。
 
 ## 接入基线与评审边界

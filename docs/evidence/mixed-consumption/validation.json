@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-18 Asia/Shanghai",
+  "tested": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+  "visual_review": "18 formal 390px screenshots individually viewed; labels/counts/old IDs/two weeks/recommendation match evidence; scrollable tables preserve full fields in JSON/CSV",
+  "report_links": 43,
+  "matrix_rows_appended": 19,
+  "other_matrix_rows_unchanged": 112,
+  "six_main_documents": "local links checked in two batches of three",
+  "sensitive_json_keys": "redacted",
+  "ruff": "new test plus three scripts passed",
+  "business_source_changes": false
+}

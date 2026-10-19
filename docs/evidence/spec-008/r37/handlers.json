@@ -1,0 +1,4840 @@
+{
+  "at_utc": "2026-10-16T13:15:50.797828+00:00",
+  "tested_head": "7204a14054611ab6b68f4ebfae3fd1c6115d575d",
+  "dirty_paths": [],
+  "layer": "real Flask handlers / temporary SQLite; not socket or UI",
+  "fixtures": [
+    "initial admin/teacher bootstrap only",
+    "TEST_NOW",
+    "rollback-only link UPDATE",
+    "preparation notification abort trigger"
+  ],
+  "business_setup": "actual 001/005/006/008/004 HTTP; no successful-response mocks",
+  "tests_run": 8,
+  "passed": 6,
+  "expected_contract_failures": [
+    {
+      "test": "tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_r37_004_01_unpublished_quiz_requires_contract_409",
+      "traceback": "Traceback (most recent call last):\n  File \"E:\\develop\\code\\IDEA-CODE\\nchu-web-learning_platform\\tests\\test_preparation_quiz_integration.py\", line 217, in test_r37_004_01_unpublished_quiz_requires_contract_409\n    response = self.call(self.teacher, 'POST', f\"/preparations/{prep['id']}/publish\", {}, 409)\n  File \"E:\\develop\\code\\IDEA-CODE\\nchu-web-learning_platform\\tests\\test_preparation_quiz_integration.py\", line 38, in call\n    self.assertEqual(response.status_code, status, response.json)\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: 404 != 409 : {'error': {'code': 'NOT_FOUND', 'details': {'ids': [1]}, 'message': 'Related paper not found in this course'}, 'request_id': '39da524edbdc43a8995f102fe95e5902'}\n"
+    },
+    {
+      "test": "tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_r37_004_02_prestart_metadata_requires_window_state",
+      "traceback": "Traceback (most recent call last):\n  File \"E:\\develop\\code\\IDEA-CODE\\nchu-web-learning_platform\\tests\\test_preparation_quiz_integration.py\", line 225, in test_r37_004_02_prestart_metadata_requires_window_state\n    self.assertEqual(set(item), {'id', 'title', 'window_state', 'start_at', 'end_at'})\n    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: Items in the second set but not the first:\n'window_state'\n"
+    }
+  ],
+  "failures": [],
+  "unexpected_successes": [],
+  "acceptance": "blocked while R37-004-01/02 or preparation UI gaps remain",
+  "records": [
+    {
+      "test": "tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_copy_draft_preserves_links_without_copying_or_publishing_quiz",
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses",
+          "request": {
+            "title": "C02a CPU",
+            "teacher_id": 2
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "description": "",
+              "id": 1,
+              "teacher_id": 2,
+              "title": "C02a CPU"
+            },
+            "request_id": "875a3f7bf09e42d090a765b1c1e31979"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "request": {
+            "user_id": 3,
+            "member_role": "student"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 3
+            },
+            "request_id": "1046f6e38cce41108c271d4ac2e4aadf"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "request": {
+            "title": "CPU"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "CPU"
+            },
+            "request_id": "51b0e6afebbc455b81f5fe201777e305"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点1",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点1"
+            },
+            "request_id": "3ef1c47d824349ea9405e71814180100"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点2",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 2,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点2"
+            },
+            "request_id": "0f4ada4454404cc4b6bcf0e2dd90354d"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "request": {
+            "type": "single",
+            "stem": "PC的作用？",
+            "difficulty": "easy",
+            "knowledge_ids": [
+              1
+            ],
+            "options": [
+              {
+                "key": "A",
+                "text": "下一条指令地址"
+              },
+              {
+                "key": "B",
+                "text": "当前数据"
+              }
+            ],
+            "answer": "A",
+            "explanation": "R37讲评解析"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "R37讲评解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "下一条指令地址"
+                },
+                {
+                  "key": "B",
+                  "text": "当前数据"
+                }
+              ],
+              "practice_available": false,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "8eb50271b7fc49949dbf44265fb7add0"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "request": {
+            "title": "R37随堂测",
+            "kind": "quiz",
+            "confidential": true,
+            "items": [
+              {
+                "question_version_id": 1,
+                "points": 10
+              }
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "R37讲评解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "f783ef6570b24ab5b9a657c338a838d2"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "R37备课",
+            "knowledge_ids": [
+              1
+            ],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              1
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "ce7baa44682c46e4a9f42ee28be2c56b"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/copy",
+          "request": {
+            "title": "R37草稿副本"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 2,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": 1,
+              "status": "draft",
+              "title": "R37草稿副本",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "d3a6542384b3423f9a3491a6c9f51c0a"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {
+                "ids": [
+                  1
+                ]
+              },
+              "message": "Related paper not found in this course"
+            },
+            "request_id": "5c55ee6e06f54db8abd4fa3d04f84571"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/2/publish",
+          "request": {},
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {
+                "ids": [
+                  1
+                ]
+              },
+              "message": "Related paper not found in this course"
+            },
+            "request_id": "204768c515a3452f9f70322aba471c9a"
+          },
+          "cache_control": "no-store"
+        }
+      ],
+      "database": [
+        {
+          "label": "draft_copy_and_blocked_publish",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": null
+            },
+            {
+              "id": 2,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": 1
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            },
+            {
+              "preparation_id": 2,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            }
+          ],
+          "roster": [],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.copy",
+              "object_id": 2
+            }
+          ],
+          "foreign_key_check": []
+        },
+        {
+          "label": "final",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": null
+            },
+            {
+              "id": 2,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": 1
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            },
+            {
+              "preparation_id": 2,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            }
+          ],
+          "roster": [],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.copy",
+              "object_id": 2
+            }
+          ],
+          "foreign_key_check": []
+        }
+      ]
+    },
+    {
+      "test": "tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_frozen_roster_filters_detail_and_list_before_start",
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses",
+          "request": {
+            "title": "C02a CPU",
+            "teacher_id": 2
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "description": "",
+              "id": 1,
+              "teacher_id": 2,
+              "title": "C02a CPU"
+            },
+            "request_id": "e0897418ddd2406e94c8f7fe2a14f73a"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "request": {
+            "user_id": 3,
+            "member_role": "student"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 3
+            },
+            "request_id": "cf5dfbd377f24692bdc468085eda7508"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "request": {
+            "title": "CPU"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "CPU"
+            },
+            "request_id": "3a57fa83c700496495eb51506bfa5daf"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点1",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点1"
+            },
+            "request_id": "57fcbe3cc0354d0aa3da7c37561509d2"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点2",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 2,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点2"
+            },
+            "request_id": "bf91790e9dbb4347b5b603dc134e944d"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "request": {
+            "type": "single",
+            "stem": "PC的作用？",
+            "difficulty": "easy",
+            "knowledge_ids": [
+              1
+            ],
+            "options": [
+              {
+                "key": "A",
+                "text": "下一条指令地址"
+              },
+              {
+                "key": "B",
+                "text": "当前数据"
+              }
+            ],
+            "answer": "A",
+            "explanation": "R37讲评解析"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "R37讲评解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "下一条指令地址"
+                },
+                {
+                  "key": "B",
+                  "text": "当前数据"
+                }
+              ],
+              "practice_available": false,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "9ce0689b29f44b9488a4de9af7ab5502"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "request": {
+            "title": "R37随堂测",
+            "kind": "quiz",
+            "confidential": true,
+            "items": [
+              {
+                "question_version_id": 1,
+                "points": 10
+              }
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "R37讲评解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "b0810a642b714514924a900c39a3e67e"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/quizzes",
+          "request": {
+            "paper_id": 1,
+            "start_at": "2026-10-13T13:00:00.000Z",
+            "end_at": "2026-10-13T14:00:00.000Z",
+            "confidentiality_note": "确认未公开且非简单复制"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": "确认未公开且非简单复制",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "generation_snapshot_id": null,
+              "id": 1,
+              "kind": "quiz",
+              "paper_id": 1,
+              "participant_count": 1,
+              "review_at": null,
+              "seed": null,
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "status": "upcoming",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": "upcoming"
+            },
+            "request_id": "1281dab3b4cf4c0b8ba76a0c2c3ae744"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "request": {
+            "user_id": 4,
+            "member_role": "student"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 4
+            },
+            "request_id": "1a339ee6c1a64a69b647346450452f0e"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "R37备课",
+            "knowledge_ids": [
+              1
+            ],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              1
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "6f6d715bc9264723999df2c76f8b8f6f"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-13T12:00:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "d71295be52f54fd38d4d7f9f1dc3208e"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/courses/1/preparations",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": [
+              {
+                "course_id": 1,
+                "id": 1,
+                "knowledge_ids": [
+                  1
+                ],
+                "published_at": "2026-10-13T12:00:00.000Z",
+                "question_version_ids": [],
+                "quiz_ids": [
+                  1
+                ],
+                "quizzes": [
+                  {
+                    "end_at": "2026-10-13T14:00:00.000Z",
+                    "id": 1,
+                    "start_at": "2026-10-13T13:00:00.000Z",
+                    "title": "R37随堂测"
+                  }
+                ],
+                "replaces_id": null,
+                "resource_version_ids": [],
+                "scheduled_at": null,
+                "source_id": null,
+                "status": "published",
+                "title": "R37备课",
+                "withdraw_reason": null,
+                "withdrawn_at": null
+              }
+            ],
+            "page": 1,
+            "page_size": 20,
+            "request_id": "d02fb17f7a35420cb99bfdf84ddee722",
+            "total": 1
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-13T12:00:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "quizzes": [
+                {
+                  "end_at": "2026-10-13T14:00:00.000Z",
+                  "id": 1,
+                  "start_at": "2026-10-13T13:00:00.000Z",
+                  "title": "R37随堂测"
+                }
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "09fcc985ab564fd99d285d0a5578f37b"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/courses/1/preparations",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": [
+              {
+                "course_id": 1,
+                "id": 1,
+                "knowledge_ids": [
+                  1
+                ],
+                "published_at": "2026-10-13T12:00:00.000Z",
+                "question_version_ids": [],
+                "quiz_ids": [],
+                "quizzes": [],
+                "replaces_id": null,
+                "resource_version_ids": [],
+                "scheduled_at": null,
+                "source_id": null,
+                "status": "published",
+                "title": "R37备课",
+                "withdraw_reason": null,
+                "withdrawn_at": null
+              }
+            ],
+            "page": 1,
+            "page_size": 20,
+            "request_id": "e4b730ea3a0c49809edb9596bd585fa6",
+            "total": 1
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-13T12:00:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [],
+              "quizzes": [],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "792fbb94911f4dc2ad4f6a72a2ca84d7"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "request": null,
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "试卷不存在或不可见"
+            },
+            "request_id": "9e8d3dfbd08e42faa23f158625361c39"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": {
+              "confidential": true,
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "id": 1,
+              "kind": "quiz",
+              "review_at": null,
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "status": "published",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": "upcoming"
+            },
+            "request_id": "fc67043619d84fa4b154818e2942d92d"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/courses/1/quizzes",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": [],
+            "page": 1,
+            "page_size": 20,
+            "request_id": "1129aba4502a4f85a8c3377f4fc3b991",
+            "total": 0
+          },
+          "cache_control": "no-store"
+        }
+      ],
+      "database": [
+        {
+          "label": "late_member_not_in_roster",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "published",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": null
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.publish",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        },
+        {
+          "label": "final",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "published",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": null
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.publish",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        }
+      ]
+    },
+    {
+      "test": "tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_permissions_and_publication_notification_failure_rollback",
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses",
+          "request": {
+            "title": "C02a CPU",
+            "teacher_id": 2
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "description": "",
+              "id": 1,
+              "teacher_id": 2,
+              "title": "C02a CPU"
+            },
+            "request_id": "c20aace7f8fc4baeabbda89ff5b580a5"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "request": {
+            "user_id": 3,
+            "member_role": "student"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 3
+            },
+            "request_id": "ea04fa8717834ad3908d66a19d9a2a12"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "request": {
+            "title": "CPU"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "CPU"
+            },
+            "request_id": "6feafa6f9c3548a782c8e80425dd73b2"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点1",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点1"
+            },
+            "request_id": "df7703d7ed104a48bf5cb795cd121d8a"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点2",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 2,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点2"
+            },
+            "request_id": "53df1ca1d44645d2ba29fb8e2174f592"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "request": {
+            "type": "single",
+            "stem": "PC的作用？",
+            "difficulty": "easy",
+            "knowledge_ids": [
+              1
+            ],
+            "options": [
+              {
+                "key": "A",
+                "text": "下一条指令地址"
+              },
+              {
+                "key": "B",
+                "text": "当前数据"
+              }
+            ],
+            "answer": "A",
+            "explanation": "R37讲评解析"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "R37讲评解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "下一条指令地址"
+                },
+                {
+                  "key": "B",
+                  "text": "当前数据"
+                }
+              ],
+              "practice_available": false,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "43a37586d91747c889d3723d0bc25fb5"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "request": {
+            "title": "R37随堂测",
+            "kind": "quiz",
+            "confidential": true,
+            "items": [
+              {
+                "question_version_id": 1,
+                "points": 10
+              }
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "R37讲评解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "7e07ac1103ff427faa5b12fef8a1d0d5"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "R37备课",
+            "knowledge_ids": [
+              1
+            ],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              1
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "36393a0e501246dca0c6a08962dce831"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 403,
+          "response": {
+            "error": {
+              "code": "FORBIDDEN",
+              "details": {},
+              "message": "Course teacher required"
+            },
+            "request_id": "ae49ae5762b349469641d1a12fef002a"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/copy",
+          "request": {
+            "title": "x"
+          },
+          "status": 403,
+          "response": {
+            "error": {
+              "code": "FORBIDDEN",
+              "details": {},
+              "message": "Course teacher required"
+            },
+            "request_id": "4e9bc4cecef74914a83c786061b0fb39"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "5d50baec154b402c872c8653044df654"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/copy",
+          "request": {
+            "title": "x"
+          },
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "1ad3fe6512454a8c8cd80ed279c749ea"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 401,
+          "response": {
+            "error": {
+              "code": "UNAUTHENTICATED",
+              "details": {},
+              "message": "Login required"
+            },
+            "request_id": "fb45e6ac831647bea8477020af312588"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/copy",
+          "request": {
+            "title": "x"
+          },
+          "status": 401,
+          "response": {
+            "error": {
+              "code": "UNAUTHENTICATED",
+              "details": {},
+              "message": "Login required"
+            },
+            "request_id": "64111982e6cf495a8ca3ac1c8019cb14"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/quizzes",
+          "request": {
+            "paper_id": 1,
+            "start_at": "2026-10-13T13:00:00.000Z",
+            "end_at": "2026-10-13T14:00:00.000Z",
+            "confidentiality_note": "确认未公开且非简单复制"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": "确认未公开且非简单复制",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "generation_snapshot_id": null,
+              "id": 1,
+              "kind": "quiz",
+              "paper_id": 1,
+              "participant_count": 1,
+              "review_at": null,
+              "seed": null,
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "status": "upcoming",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": "upcoming"
+            },
+            "request_id": "78f0dda8535441849f00665633958b01"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 409,
+          "response": {
+            "data": {},
+            "request_id": "eb1788feb7f84c568cfbcceb54e6c8a4"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-13T12:00:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "f9522500f7a14b2c94147f57892013f9"
+          },
+          "cache_control": "no-store"
+        }
+      ],
+      "database": [
+        {
+          "label": "before_injected_notification_failure",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": null
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        },
+        {
+          "label": "after_injected_notification_failure",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": null
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        },
+        {
+          "label": "final",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "published",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": null
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.publish",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        }
+      ]
+    },
+    {
+      "test": "tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_preparation_entry_respects_deadline_review_and_revocation",
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses",
+          "request": {
+            "title": "C02a CPU",
+            "teacher_id": 2
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "description": "",
+              "id": 1,
+              "teacher_id": 2,
+              "title": "C02a CPU"
+            },
+            "request_id": "1ea9746dc4844bcea74449f1013592ab"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "request": {
+            "user_id": 3,
+            "member_role": "student"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 3
+            },
+            "request_id": "abb344e3ade84cf184d73c29f39c10be"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "request": {
+            "title": "CPU"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "CPU"
+            },
+            "request_id": "34193cbad9924472a6a002ee5744ee1c"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点1",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点1"
+            },
+            "request_id": "90a467bca4c64336946fa56cfff29990"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点2",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 2,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点2"
+            },
+            "request_id": "0109a2cadeab4a978d77f88efb770894"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "request": {
+            "type": "single",
+            "stem": "PC的作用？",
+            "difficulty": "easy",
+            "knowledge_ids": [
+              1
+            ],
+            "options": [
+              {
+                "key": "A",
+                "text": "下一条指令地址"
+              },
+              {
+                "key": "B",
+                "text": "当前数据"
+              }
+            ],
+            "answer": "A",
+            "explanation": "R37讲评解析"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "R37讲评解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "下一条指令地址"
+                },
+                {
+                  "key": "B",
+                  "text": "当前数据"
+                }
+              ],
+              "practice_available": false,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "84f7b04b5ec74f78a65d65c990ea8a93"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "request": {
+            "title": "R37随堂测",
+            "kind": "quiz",
+            "confidential": true,
+            "items": [
+              {
+                "question_version_id": 1,
+                "points": 10
+              }
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "R37讲评解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "89d5c8bdd45942e6a04bf073a973a833"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/quizzes",
+          "request": {
+            "paper_id": 1,
+            "start_at": "2026-10-13T13:00:00.000Z",
+            "end_at": "2026-10-13T14:00:00.000Z",
+            "confidentiality_note": "确认未公开且非简单复制"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": "确认未公开且非简单复制",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "generation_snapshot_id": null,
+              "id": 1,
+              "kind": "quiz",
+              "paper_id": 1,
+              "participant_count": 1,
+              "review_at": null,
+              "seed": null,
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "status": "upcoming",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": "upcoming"
+            },
+            "request_id": "6f993092b2ca4ab3abcc80ec7778bbca"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "R37备课",
+            "knowledge_ids": [
+              1
+            ],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              1
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "3d577b899b084c9b9517750a98d341b8"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-13T12:00:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "0e0e62c439c342458908750f3230fc44"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/quizzes/1/attempts",
+          "status": 201,
+          "response": {
+            "data": {
+              "answers": [
+                {
+                  "answered": true,
+                  "comment": "",
+                  "correct": false,
+                  "grading_status": "graded",
+                  "max_score": 10.0,
+                  "question_version_id": 1,
+                  "score": 0.0,
+                  "value": "B"
+                }
+              ],
+              "id": 1,
+              "paper_id": 1,
+              "partial_score": 0.0,
+              "revision": 0,
+              "score": 0.0,
+              "status": "graded",
+              "student_id": 3,
+              "submitted_at": "2026-10-13T13:00:00.000Z",
+              "total_points": 10.0
+            },
+            "request_id": "ca8cba4ca4a745a09e760c9f1dd0a27b"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/quizzes/1/review",
+          "request": {},
+          "status": 409,
+          "response": {
+            "error": {
+              "code": "WINDOW_OPEN",
+              "details": {},
+              "message": "仅已截止的随堂测可发布讲评"
+            },
+            "request_id": "5006d610a9be4e9c8ae25130a4b7f4dc"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": {
+              "confidential": true,
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "id": 1,
+              "items": [
+                {
+                  "difficulty": "easy",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "review_at": null,
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "status": "published",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": "closed"
+            },
+            "request_id": "c2ffa9db01e8435faf1c9d8aaab7d129"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/attempts/1",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": {
+              "answers": [
+                {
+                  "answered": true,
+                  "comment": "",
+                  "correct": false,
+                  "grading_status": "graded",
+                  "max_score": 10.0,
+                  "question_version_id": 1,
+                  "score": 0.0,
+                  "value": "B"
+                }
+              ],
+              "id": 1,
+              "paper_id": 1,
+              "partial_score": 0.0,
+              "revision": 0,
+              "score": 0.0,
+              "status": "graded",
+              "student_id": 3,
+              "submitted_at": "2026-10-13T13:00:00.000Z",
+              "total_points": 10.0
+            },
+            "request_id": "98151359f0194384a51c1ce10f32a4b5"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/users/me/wrong-questions",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": [
+              {
+                "answer_visible": false,
+                "can_practice": false,
+                "difficulty": "easy",
+                "id": 1,
+                "knowledge_ids": [
+                  1
+                ],
+                "last_attempt_id": 1,
+                "last_attempt_type": "paper",
+                "options": [
+                  {
+                    "key": "A",
+                    "text": "下一条指令地址"
+                  },
+                  {
+                    "key": "B",
+                    "text": "当前数据"
+                  }
+                ],
+                "practice_available": false,
+                "question_id": 1,
+                "question_version_id": 1,
+                "resolved": false,
+                "stem": "PC的作用？",
+                "tolerance": 0.0,
+                "type": "single",
+                "version": 1,
+                "version_id": 1,
+                "wrong_count": 1
+              }
+            ],
+            "page": 1,
+            "page_size": 20,
+            "request_id": "9edf4a5ae6a948f5aba0fd059485a909",
+            "total": 1
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-13T12:00:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "quizzes": [
+                {
+                  "end_at": "2026-10-13T14:00:00.000Z",
+                  "id": 1,
+                  "start_at": "2026-10-13T13:00:00.000Z",
+                  "title": "R37随堂测"
+                }
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "c94ee32ad98147f3beac4db6fa7254c0"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "PATCH",
+          "path": "/questions/1",
+          "request": {
+            "practice_available": true
+          },
+          "status": 409,
+          "response": {
+            "error": {
+              "code": "QUESTION_RESERVED",
+              "details": {},
+              "message": "题目仍被试卷保护，不能公开或再次发布"
+            },
+            "request_id": "9f7526c4a4154dd588a58e86da255520"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/quizzes/1/review",
+          "request": {},
+          "status": 200,
+          "response": {
+            "data": {
+              "review_published_at": "2026-10-13T14:00:00.000Z"
+            },
+            "request_id": "2ff44bd82d924b74bac38625d505f69c"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": {
+              "confidential": true,
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "id": 1,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "R37讲评解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "review_at": "2026-10-13T14:00:00.000Z",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "status": "published",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": "closed"
+            },
+            "request_id": "bf69a276fcd14baeba8fb1fa2021bbcc"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/attempts/1",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": {
+              "answers": [
+                {
+                  "answer": "A",
+                  "answered": true,
+                  "comment": "",
+                  "correct": false,
+                  "explanation": "R37讲评解析",
+                  "grading_status": "graded",
+                  "max_score": 10.0,
+                  "question_version_id": 1,
+                  "score": 0.0,
+                  "value": "B"
+                }
+              ],
+              "id": 1,
+              "paper_id": 1,
+              "partial_score": 0.0,
+              "revision": 0,
+              "score": 0.0,
+              "status": "graded",
+              "student_id": 3,
+              "submitted_at": "2026-10-13T13:00:00.000Z",
+              "total_points": 10.0
+            },
+            "request_id": "6f8c8f38c06c402ab1b723d367f2f88f"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/users/me/wrong-questions",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": [
+              {
+                "answer": "A",
+                "answer_visible": true,
+                "can_practice": false,
+                "difficulty": "easy",
+                "explanation": "R37讲评解析",
+                "id": 1,
+                "knowledge_ids": [
+                  1
+                ],
+                "last_attempt_id": 1,
+                "last_attempt_type": "paper",
+                "options": [
+                  {
+                    "key": "A",
+                    "text": "下一条指令地址"
+                  },
+                  {
+                    "key": "B",
+                    "text": "当前数据"
+                  }
+                ],
+                "practice_available": false,
+                "question_id": 1,
+                "question_version_id": 1,
+                "resolved": false,
+                "stem": "PC的作用？",
+                "tolerance": 0.0,
+                "type": "single",
+                "version": 1,
+                "version_id": 1,
+                "wrong_count": 1
+              }
+            ],
+            "page": 1,
+            "page_size": 20,
+            "request_id": "b4cfa28cccdb423c9797bf33fce436c0",
+            "total": 1
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-13T12:00:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "quizzes": [
+                {
+                  "end_at": "2026-10-13T14:00:00.000Z",
+                  "id": 1,
+                  "start_at": "2026-10-13T13:00:00.000Z",
+                  "title": "R37随堂测"
+                }
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "d0e3c318d8a04b6fb458ed0389d02d4d"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "DELETE",
+          "path": "/courses/1/members/3",
+          "request": null,
+          "status": 204,
+          "response": null,
+          "cache_control": null
+        },
+        {
+          "method": "GET",
+          "path": "/courses/1/preparations",
+          "request": null,
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "6bb021153a5d4462a751a56804c1e68d"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "request": null,
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "ce6f5dd9c3304842b29fe7040a94343b"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "request": null,
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "d232188c4a6044d98b3b15ffcd5f69ad"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/attempts/1",
+          "request": null,
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "f75e37ec1c14491cbfa2c93c757d9efa"
+          },
+          "cache_control": "no-store"
+        }
+      ],
+      "database": [
+        {
+          "label": "closed_unreviewed",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "published",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": null
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [
+            {
+              "id": 1,
+              "paper_id": 1,
+              "student_id": 3,
+              "status": "graded",
+              "submitted_at": "2026-10-13T13:00:00.000Z"
+            }
+          ],
+          "audit": [
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.publish",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        },
+        {
+          "label": "revoked_access_roster_retained",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "published",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": "2026-10-13T14:00:00.000Z"
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [
+            {
+              "id": 1,
+              "paper_id": 1,
+              "student_id": 3,
+              "status": "graded",
+              "submitted_at": "2026-10-13T13:00:00.000Z"
+            }
+          ],
+          "audit": [
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.publish",
+              "object_id": 1
+            },
+            {
+              "action": "quiz.review",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        },
+        {
+          "label": "final",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "published",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": "2026-10-13T14:00:00.000Z"
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [
+            {
+              "id": 1,
+              "paper_id": 1,
+              "student_id": 3,
+              "status": "graded",
+              "submitted_at": "2026-10-13T13:00:00.000Z"
+            }
+          ],
+          "audit": [
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.publish",
+              "object_id": 1
+            },
+            {
+              "action": "quiz.review",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        }
+      ]
+    },
+    {
+      "test": "tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_published_copy_and_http_and_database_update_freeze",
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses",
+          "request": {
+            "title": "C02a CPU",
+            "teacher_id": 2
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "description": "",
+              "id": 1,
+              "teacher_id": 2,
+              "title": "C02a CPU"
+            },
+            "request_id": "5fd186ee7d0547bd893c6f88db42578c"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "request": {
+            "user_id": 3,
+            "member_role": "student"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 3
+            },
+            "request_id": "622c5af4b38945f6908d93a97daa63a8"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "request": {
+            "title": "CPU"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "CPU"
+            },
+            "request_id": "bdd10b5b86dd4b39a93ea60a4b730df5"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点1",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点1"
+            },
+            "request_id": "ed6183fa3bc647429b62e568bc442f7f"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点2",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 2,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点2"
+            },
+            "request_id": "1068284c72984202987fb90448ec664e"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "request": {
+            "type": "single",
+            "stem": "PC的作用？",
+            "difficulty": "easy",
+            "knowledge_ids": [
+              1
+            ],
+            "options": [
+              {
+                "key": "A",
+                "text": "下一条指令地址"
+              },
+              {
+                "key": "B",
+                "text": "当前数据"
+              }
+            ],
+            "answer": "A",
+            "explanation": "R37讲评解析"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "R37讲评解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "下一条指令地址"
+                },
+                {
+                  "key": "B",
+                  "text": "当前数据"
+                }
+              ],
+              "practice_available": false,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "fbb0d225594e4d13be5b99c261e78d0e"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "request": {
+            "title": "R37随堂测",
+            "kind": "quiz",
+            "confidential": true,
+            "items": [
+              {
+                "question_version_id": 1,
+                "points": 10
+              }
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "R37讲评解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "694690d9cb6f4c9fa34b451c4e8546eb"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/quizzes",
+          "request": {
+            "paper_id": 1,
+            "start_at": "2026-10-13T13:00:00.000Z",
+            "end_at": "2026-10-13T14:00:00.000Z",
+            "confidentiality_note": "确认未公开且非简单复制"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": "确认未公开且非简单复制",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "generation_snapshot_id": null,
+              "id": 1,
+              "kind": "quiz",
+              "paper_id": 1,
+              "participant_count": 1,
+              "review_at": null,
+              "seed": null,
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "status": "upcoming",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": "upcoming"
+            },
+            "request_id": "de2f3b47da13438cbf6434fb1e538d82"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "R37备课",
+            "knowledge_ids": [
+              1
+            ],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              1
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "4fa7856c45b74cbea389f3d85be40a6f"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-13T12:00:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "2febbc4cb8364fdc9c06e1e7bf30acc1"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/copy",
+          "request": {
+            "title": "R37发布后副本"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 2,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": 1,
+              "status": "draft",
+              "title": "R37发布后副本",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "ddaf59e0a5034e419c52bd8367de22d2"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "PATCH",
+          "path": "/preparations/1",
+          "request": {
+            "quiz_ids": []
+          },
+          "status": 409,
+          "response": {
+            "error": {
+              "code": "STATE_CONFLICT",
+              "details": {},
+              "message": "Only draft preparation can be updated"
+            },
+            "request_id": "77e680157bc5489b9bcd43fa369bf847"
+          },
+          "cache_control": "no-store"
+        }
+      ],
+      "database": [
+        {
+          "label": "published",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "published",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": null
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.publish",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        },
+        {
+          "label": "published_copy_and_refused_mutation",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "published",
+              "source_id": null
+            },
+            {
+              "id": 2,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": 1
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            },
+            {
+              "preparation_id": 2,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": null
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.copy",
+              "object_id": 2
+            }
+          ],
+          "foreign_key_check": []
+        },
+        {
+          "label": "final",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "published",
+              "source_id": null
+            },
+            {
+              "id": 2,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": 1
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            },
+            {
+              "preparation_id": 2,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": null
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.copy",
+              "object_id": 2
+            }
+          ],
+          "foreign_key_check": []
+        }
+      ]
+    },
+    {
+      "test": "tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_r37_004_01_unpublished_quiz_requires_contract_409",
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses",
+          "request": {
+            "title": "C02a CPU",
+            "teacher_id": 2
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "description": "",
+              "id": 1,
+              "teacher_id": 2,
+              "title": "C02a CPU"
+            },
+            "request_id": "1924fdf1ebe441dd86575530c646c4d3"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "request": {
+            "user_id": 3,
+            "member_role": "student"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 3
+            },
+            "request_id": "b47197f0c23648b6a35cc1e4de9bdbe2"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "request": {
+            "title": "CPU"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "CPU"
+            },
+            "request_id": "eb5494a48397447792ed50d4916b5c54"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点1",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点1"
+            },
+            "request_id": "ced141bcaeb24389bd2d6959220eb018"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点2",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 2,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点2"
+            },
+            "request_id": "1bbb44d3e1674d74b3355bf907be31df"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "request": {
+            "type": "single",
+            "stem": "PC的作用？",
+            "difficulty": "easy",
+            "knowledge_ids": [
+              1
+            ],
+            "options": [
+              {
+                "key": "A",
+                "text": "下一条指令地址"
+              },
+              {
+                "key": "B",
+                "text": "当前数据"
+              }
+            ],
+            "answer": "A",
+            "explanation": "R37讲评解析"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "R37讲评解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "下一条指令地址"
+                },
+                {
+                  "key": "B",
+                  "text": "当前数据"
+                }
+              ],
+              "practice_available": false,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "2a47216573e443a19083962e28c9a4f9"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "request": {
+            "title": "R37随堂测",
+            "kind": "quiz",
+            "confidential": true,
+            "items": [
+              {
+                "question_version_id": 1,
+                "points": 10
+              }
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "R37讲评解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "76b51c6b7f624140a03e7909ccdbfe0d"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "R37备课",
+            "knowledge_ids": [
+              1
+            ],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              1
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "52276055fd2541bb93775b0af1ebd801"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {
+                "ids": [
+                  1
+                ]
+              },
+              "message": "Related paper not found in this course"
+            },
+            "request_id": "39da524edbdc43a8995f102fe95e5902"
+          },
+          "cache_control": "no-store"
+        }
+      ],
+      "database": [
+        {
+          "label": "final",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            }
+          ],
+          "roster": [],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        }
+      ]
+    },
+    {
+      "test": "tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_r37_004_02_prestart_metadata_requires_window_state",
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses",
+          "request": {
+            "title": "C02a CPU",
+            "teacher_id": 2
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "description": "",
+              "id": 1,
+              "teacher_id": 2,
+              "title": "C02a CPU"
+            },
+            "request_id": "861a423a5c474c4e8c70fc36666dc1ce"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "request": {
+            "user_id": 3,
+            "member_role": "student"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 3
+            },
+            "request_id": "9a0c8c38599340c6adffb5e294d42254"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "request": {
+            "title": "CPU"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "CPU"
+            },
+            "request_id": "5d1d5c730cf44b60b47be3caa79c8697"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点1",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点1"
+            },
+            "request_id": "4e0a02d195e446c98ef6e1b0c0883bc1"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点2",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 2,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点2"
+            },
+            "request_id": "296b81e51d40449aa79f3270d4385e60"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "request": {
+            "type": "single",
+            "stem": "PC的作用？",
+            "difficulty": "easy",
+            "knowledge_ids": [
+              1
+            ],
+            "options": [
+              {
+                "key": "A",
+                "text": "下一条指令地址"
+              },
+              {
+                "key": "B",
+                "text": "当前数据"
+              }
+            ],
+            "answer": "A",
+            "explanation": "R37讲评解析"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "R37讲评解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "下一条指令地址"
+                },
+                {
+                  "key": "B",
+                  "text": "当前数据"
+                }
+              ],
+              "practice_available": false,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "df91d9ccce8b4b5c94e26d6b3d39c3c2"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "request": {
+            "title": "R37随堂测",
+            "kind": "quiz",
+            "confidential": true,
+            "items": [
+              {
+                "question_version_id": 1,
+                "points": 10
+              }
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "R37讲评解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "9981b64d118c45f385b5df65abb3edd6"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/quizzes",
+          "request": {
+            "paper_id": 1,
+            "start_at": "2026-10-13T13:00:00.000Z",
+            "end_at": "2026-10-13T14:00:00.000Z",
+            "confidentiality_note": "确认未公开且非简单复制"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": "确认未公开且非简单复制",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "generation_snapshot_id": null,
+              "id": 1,
+              "kind": "quiz",
+              "paper_id": 1,
+              "participant_count": 1,
+              "review_at": null,
+              "seed": null,
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "status": "upcoming",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": "upcoming"
+            },
+            "request_id": "be220371b6a14d05a93bf85bfb293c0e"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "R37备课",
+            "knowledge_ids": [
+              1
+            ],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              1
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "9291b90fcbdf4913b8ea508841116d02"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "request": {},
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-13T12:00:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "6ad7838b47cd4997ae6538a04d9eb05d"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "request": null,
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-13T12:00:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "quizzes": [
+                {
+                  "end_at": "2026-10-13T14:00:00.000Z",
+                  "id": 1,
+                  "start_at": "2026-10-13T13:00:00.000Z",
+                  "title": "R37随堂测"
+                }
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "f9acc48088ce4570b1d8b814de09126d"
+          },
+          "cache_control": "no-store"
+        }
+      ],
+      "database": [
+        {
+          "label": "final",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "published",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "published",
+              "start_at": "2026-10-13T13:00:00.000Z",
+              "end_at": "2026-10-13T14:00:00.000Z",
+              "review_at": null
+            }
+          ],
+          "roster": [
+            {
+              "paper_id": 1,
+              "student_id": 3
+            }
+          ],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "paper.publish",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            },
+            {
+              "action": "preparation.publish",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        }
+      ]
+    },
+    {
+      "test": "tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_same_course_links_and_invalid_create_patch_are_atomic",
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses",
+          "request": {
+            "title": "C02a CPU",
+            "teacher_id": 2
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "description": "",
+              "id": 1,
+              "teacher_id": 2,
+              "title": "C02a CPU"
+            },
+            "request_id": "999f3ea077304769a5a5b628e0c24d16"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "request": {
+            "user_id": 3,
+            "member_role": "student"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 3
+            },
+            "request_id": "ef3e2f26b1104860adf394965b93c38f"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "request": {
+            "title": "CPU"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "CPU"
+            },
+            "request_id": "d7baf02963ce44adaa44b64070b42c3c"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点1",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点1"
+            },
+            "request_id": "87698747d8304f1398e45ccd87240b25"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "request": {
+            "title": "知识点2",
+            "content": "教学正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "教学正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 2,
+              "is_foundational": false,
+              "published": true,
+              "title": "知识点2"
+            },
+            "request_id": "66f4b023f7684eeeac773e929b1a5f0b"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "request": {
+            "type": "single",
+            "stem": "PC的作用？",
+            "difficulty": "easy",
+            "knowledge_ids": [
+              1
+            ],
+            "options": [
+              {
+                "key": "A",
+                "text": "下一条指令地址"
+              },
+              {
+                "key": "B",
+                "text": "当前数据"
+              }
+            ],
+            "answer": "A",
+            "explanation": "R37讲评解析"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "R37讲评解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "下一条指令地址"
+                },
+                {
+                  "key": "B",
+                  "text": "当前数据"
+                }
+              ],
+              "practice_available": false,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "b91c586d33ee41d383f040b09cfac390"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "request": {
+            "title": "R37随堂测",
+            "kind": "quiz",
+            "confidential": true,
+            "items": [
+              {
+                "question_version_id": 1,
+                "points": 10
+              }
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "R37讲评解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "d907f3a6e655452d926059f0538ed077"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "R37备课",
+            "knowledge_ids": [
+              1
+            ],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              1
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "8a732fbd253f4873b903b367165b18b4"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses",
+          "request": {
+            "title": "R37其他课程",
+            "teacher_id": 2
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "description": "",
+              "id": 2,
+              "teacher_id": 2,
+              "title": "R37其他课程"
+            },
+            "request_id": "2d56160c2b9343f18b63f21300c54b30"
+          },
+          "cache_control": null
+        },
+        {
+          "method": "POST",
+          "path": "/courses/2/chapters",
+          "request": {
+            "title": "其他"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 2,
+              "position": 0,
+              "title": "其他"
+            },
+            "request_id": "e06bf2c4dcbe4d1cace460d56b49af00"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/2/knowledge-points",
+          "request": {
+            "title": "其他知识",
+            "content": "正文",
+            "published": true
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 2,
+              "content": "正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 3,
+              "is_foundational": false,
+              "published": true,
+              "title": "其他知识"
+            },
+            "request_id": "a344f80e9e19496aa6eb231c444969cc"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/2/questions",
+          "request": {
+            "type": "single",
+            "stem": "PC的作用？",
+            "difficulty": "easy",
+            "knowledge_ids": [
+              3
+            ],
+            "options": [
+              {
+                "key": "A",
+                "text": "下一条指令地址"
+              },
+              {
+                "key": "B",
+                "text": "当前数据"
+              }
+            ],
+            "answer": "A"
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "",
+              "id": 2,
+              "knowledge_ids": [
+                3
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "下一条指令地址"
+                },
+                {
+                  "key": "B",
+                  "text": "当前数据"
+                }
+              ],
+              "practice_available": false,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 2
+            },
+            "request_id": "26155623a9ab41ad9d8376700a2c40a4"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/2/papers",
+          "request": {
+            "title": "跨课quiz",
+            "kind": "quiz",
+            "items": [
+              {
+                "question_version_id": 2,
+                "points": 10
+              }
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": false,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 2,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "",
+                  "id": 2,
+                  "knowledge_ids": [
+                    3
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 2,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 2
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "跨课quiz",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "cfa906ce266c447bad376d3e5ae84eb4"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "request": {
+            "title": "R37随堂测",
+            "kind": "homework",
+            "confidential": true,
+            "items": [
+              {
+                "question_version_id": 1,
+                "points": 10
+              }
+            ]
+          },
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 3,
+              "items": [
+                {
+                  "answer": "A",
+                  "difficulty": "easy",
+                  "explanation": "R37讲评解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [
+                    {
+                      "key": "A",
+                      "text": "下一条指令地址"
+                    },
+                    {
+                      "key": "B",
+                      "text": "当前数据"
+                    }
+                  ],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "PC的作用？",
+                  "tolerance": 0.0,
+                  "type": "single",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "homework",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37随堂测",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "e96afba594f1497087c36d45f04cad8c"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "invalid",
+            "knowledge_ids": [],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              2
+            ]
+          },
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {
+                "ids": [
+                  2
+                ]
+              },
+              "message": "Related paper not found in this course"
+            },
+            "request_id": "15e71437e7aa4567bd71c23b790f863b"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "PATCH",
+          "path": "/preparations/1",
+          "request": {
+            "quiz_ids": [
+              2
+            ]
+          },
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {
+                "ids": [
+                  2
+                ]
+              },
+              "message": "Related paper not found in this course"
+            },
+            "request_id": "ab82345204674bc397796ca21c79d581"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "invalid",
+            "knowledge_ids": [],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              3
+            ]
+          },
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {
+                "ids": [
+                  3
+                ]
+              },
+              "message": "Related paper not found in this course"
+            },
+            "request_id": "527cb861879a4299911b5a304e261082"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "PATCH",
+          "path": "/preparations/1",
+          "request": {
+            "quiz_ids": [
+              3
+            ]
+          },
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {
+                "ids": [
+                  3
+                ]
+              },
+              "message": "Related paper not found in this course"
+            },
+            "request_id": "81e148d5b1eb4b47aa7c782715fb0228"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "request": {
+            "title": "invalid",
+            "knowledge_ids": [],
+            "resource_version_ids": [],
+            "question_version_ids": [],
+            "quiz_ids": [
+              1,
+              1
+            ]
+          },
+          "status": 400,
+          "response": {
+            "error": {
+              "code": "VALIDATION_ERROR",
+              "details": {},
+              "message": "quiz_ids must not contain duplicates"
+            },
+            "request_id": "c8e3a5633c6e4b3a820420623d900b6a"
+          },
+          "cache_control": "no-store"
+        },
+        {
+          "method": "PATCH",
+          "path": "/preparations/1",
+          "request": {
+            "quiz_ids": [
+              1,
+              1
+            ]
+          },
+          "status": 400,
+          "response": {
+            "error": {
+              "code": "VALIDATION_ERROR",
+              "details": {},
+              "message": "quiz_ids must not contain duplicates"
+            },
+            "request_id": "1df2768f888b4b5aadecb1e440a37421"
+          },
+          "cache_control": "no-store"
+        }
+      ],
+      "database": [
+        {
+          "label": "before_invalid_links",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            },
+            {
+              "id": 2,
+              "course_id": 2,
+              "kind": "quiz",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            },
+            {
+              "id": 3,
+              "course_id": 1,
+              "kind": "homework",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            }
+          ],
+          "roster": [],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        },
+        {
+          "label": "after_invalid_links",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            },
+            {
+              "id": 2,
+              "course_id": 2,
+              "kind": "quiz",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            },
+            {
+              "id": 3,
+              "course_id": 1,
+              "kind": "homework",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            }
+          ],
+          "roster": [],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        },
+        {
+          "label": "final",
+          "preparations": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "status": "draft",
+              "source_id": null
+            }
+          ],
+          "links": [
+            {
+              "preparation_id": 1,
+              "paper_id": 1
+            }
+          ],
+          "papers": [
+            {
+              "id": 1,
+              "course_id": 1,
+              "kind": "quiz",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            },
+            {
+              "id": 2,
+              "course_id": 2,
+              "kind": "quiz",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            },
+            {
+              "id": 3,
+              "course_id": 1,
+              "kind": "homework",
+              "status": "draft",
+              "start_at": null,
+              "end_at": null,
+              "review_at": null
+            }
+          ],
+          "roster": [],
+          "attempts": [],
+          "audit": [
+            {
+              "action": "preparation.create",
+              "object_id": 1
+            }
+          ],
+          "foreign_key_check": []
+        }
+      ]
+    }
+  ]
+}
