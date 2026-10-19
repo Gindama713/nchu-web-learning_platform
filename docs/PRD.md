@@ -247,16 +247,16 @@ SPEC-010A AC-01—04：依次复算C01—C04；AC-05：跨课选卷404、个人�
 <a id="recognition-acceptance"></a>
 ### 4.5 SPEC-016 识别范围与固定验收
 
-recognition-template-v1 仅识别白底黑色、正向标准 NOT/AND/OR/XOR 门及字典 A/B/Y/D/Q/CLK/RESET/EN/PC/ACC/IR 的印刷标签；不识别连线拓扑、旋转手绘、卡诺图、任意字体或完整CPU。模板及预处理配置要在第5周技术验证时冻结到 template_set_sha256；本轮图片是固定验收输入，不表示识别已实现或效果已达标。
+recognition-template-v1 仅识别白底黑色、正向标准 NOT/AND/OR/XOR 门及字典 A/B/Y/D/Q/CLK/RESET/EN/PC/ACC/IR 的印刷标签；不识别连线拓扑、旋转手绘、卡诺图、任意字体或完整CPU。固定样例、模板与预处理配置按下方v2输入冻结；本地固定样例通过不等于对任意真实照片的识别效果已达标。
 
-匹配置信度定义为二值前景掩膜的交并比 c=|候选前景∩模板前景|/|候选前景∪模板前景|；裁掉空白后将候选及模板用最近邻缩放至64×64，灰度阈值128（小于128为前景），不旋转，字典/符号分别匹配，取最大值；同分按模板ID字典序。空前景无候选，不计算除零。该值是模板相似度，不是正确概率。候选定位与分割在验证时锁定并留算法版本，不能用输入图的文件名决定结果。
+匹配置信度定义为二值前景掩膜的交并比 c=|候选前景∩模板前景|/|候选前景∪模板前景|；裁掉空白后将候选及模板用最近邻缩放至64×64，灰度阈值128（小于128为前景），不旋转，字典/符号分别匹配，取最大值；同分按模板ID字典序。空前景无候选，不计算除零。该值是模板相似度，不是正确概率。符号和标签均使用3×15闭运算及外部轮廓定位，使OR/XOR分离的弧线合成一个候选框；配置纳入模板哈希，不能用输入图的文件名决定结果。
 
-c<0.55不输出已识别项；0.55≤c<0.85输出 confidence_band=low；c≥0.85为high。模板每类固定一个，不按图片文件名走捷径；置信度保留6位，阈值判断使用未舍入值。所有结果均须人工确认。存在可识别项时 status=recognized，即使全部low；没有项 status=unrecognized、items=[]。未知标签为label=null、label_status=unknown；不生成字典外标签。坐标为原图像素bbox=[x,y,width,height]，左上原点，整数且框不越界。
+c<0.55不输出已识别项；0.55≤c<0.85输出 confidence_band=low；c≥0.85为high。模板每类固定一个，不按图片文件名走捷径；置信度保留6位，阈值判断使用未舍入值。所有结果均须人工确认。存在可识别项时 status=recognized，即使全部low；没有项 status=unrecognized、items=[]。未知标签为label=null、label_bbox=null、label_status=unknown；不生成字典外标签。符号和已识别标签分别返回原图像素bbox与label_bbox=[x,y,width,height]，左上原点，整数且框不越界。
 
 | 图片及固定输入 | 预期类别与确认内容 | 可接受误差 |
 |---|---|---|
-| F01 清晰标准符号 640×240 | recognized；AND与NOT各1个、置信度high；A/Y标签，确认符号与标签、补连线 | AND参考框[80,60,160,120]，NOT[350,60,180,120]；每个框边界≤8像素，标签框≤4像素 |
-| F02 低质量符号 640×240 | recognized；AND为low，人工确认残损边界及全部标签；技术验证若无法稳定达到此预期，必须修订模板/样本与版本后重新评审 | AND同F01，边界≤12像素 |
+| F01 清晰标准符号 640×240 | recognized；AND与NOT各1个、置信度high；A/Y标签，确认符号与标签、补连线 | AND参考框[80,60,160,120]，NOT[350,60,180,120]；门框边界≤8像素；A标签框[45,106,21,26]、Y标签框[540,106,21,26]，边界≤4像素 |
+| F02 低质量符号 640×240 | recognized；AND为low、NOT为high，A/Y标签；人工确认残损边界及全部标签 | 门框同F01，AND边界≤12像素；标签框同F01、边界≤4像素 |
 | F03 不支持符号 640×240电阻 | unrecognized，items=[]；提示手工创建，不伪认门电路 | 不得输出框；不考核定位 |
 | F04 未知标签 640×240的AND加XYZ | recognized；AND为high，label=null、label_status=unknown，用户补为合法标签；不能宣称任意OCR | AND同F01，边界≤8像素；未知文字不作已知标签定位 |
 | F05 空白 640×240 | unrecognized，items=[]，不产生结构或成绩 | 不得输出框 |
@@ -269,17 +269,17 @@ c<0.55不输出已识别项；0.55≤c<0.85输出 confidence_band=low；c≥0.85
 
 #### 固定样例身份与后续测试约定
 
-样例版本recognition-fixtures-v1，制作日期2026-10-08，正向符号、白底灰度PNG，尺寸均为640×240，标签字体Arial 28像素。F01为标准AND/NOT与A/Y标签；F02沿用F01几何并擦除部分线段；F03为电阻；F04为AND与未知XYZ；F05全白。参考框与输出容差使用上表。SHA固定已有测试输入的字节身份，不代表模板SHA或算法效果。
+当前样例版本 `recognition-fixtures-v2`，制作日期2026-10-19，正向符号、白底灰度PNG，尺寸均为640×240；标签用OpenCV Hershey Simplex（比例1.1、线宽2）绘制。F01为标准AND/NOT与A/Y标签；F02沿用F01几何并擦除AND部分线段；F03为电阻；F04为AND与未知XYZ；F05全白。原计划v1哈希对应的PNG未交付，不能当作已测输入；按变更规则重新生成并固定v2字节。参考框与容差使用上表。图片SHA不代表模板SHA或泛化效果。
 
 | 输入编号/文件标识 | SHA-256 |
 |---|---|
-| F01 / F01-standard.png | b735adb1493a932c6ae926c3ae99c058683ac9e8881b141ca44a673184e10a68 |
-| F02 / F02-low-quality.png | 90c336f774a74582b5a3649a8e8429b70db72652f3a4758dab7f1c7be18ecd03 |
-| F03 / F03-unsupported.png | a4d8c515bb1f395c18dffc822fc2611fdff16135e4c370a2314099f3e38a09fe |
-| F04 / F04-unknown-label.png | e1abc76e764021cbb7c0e59f4f70146d0d58786392a40dee49ff90ca8e20a708 |
-| F05 / F05-blank.png | 1fb076af6c9ebc4ed12ec4cd428419d36b59147135e52e880be3db67aa6cc6e2 |
+| [F01 / F01-standard.png](../tests/fixtures/recognition/F01-standard.png) | 48b0cf5250c5f2da02185d39dda443a1945a055f09c4191989f3368835b3fc80 |
+| [F02 / F02-low-quality.png](../tests/fixtures/recognition/F02-low-quality.png) | 1bf65851321a9e9da62607eea5f0aa9ac129e7eb5396424dbbb02780888a2a43 |
+| [F03 / F03-unsupported.png](../tests/fixtures/recognition/F03-unsupported.png) | 2ab262bc482677f9d499c164baf45d52a25ab239710aae3fa4d81676a4330a9a |
+| [F04 / F04-unknown-label.png](../tests/fixtures/recognition/F04-unknown-label.png) | e5c08f91d3c64807721027e47e37ca7c37e1271c23b3d1e88ee6a8cc326ef097 |
+| [F05 / F05-blank.png](../tests/fixtures/recognition/F05-blank.png) | 34378166473655e611742543f89a2f4ee26cfc7565802c443cbdf0e4d8675f29 |
 
-本次提交在正文完整定义输入类别和验收规则，不链接外部PNG或样本清单。后续算法测试仍须使用上述SHA匹配的实际输入，并在测试产物中保留图片；新制输入字节不同须更新样例版本与SHA，不能伪称原样例。模板与定位/预处理版本在TV-03实测后冻结，template_set_sha256尚未产生；样例或阈值变更须同步需求、接口及变更记录。
+固定输入与生成脚本均在 `tests/fixtures/recognition/`；测试逐文件核对上述SHA，不能以动态重画的图片替代。模板与预处理SHA为 `e5fad902074d5401cb207932a72b539cdf2647f3fffcd29b65b42fe0bd016a49`，算法版本 `recognition-template-v1`；阈值或配置变更须更新版本、哈希、需求、接口和变更记录。v2固定输入的本地验证不替代另一设备或任意真实照片的效果验证。
 
 ## 5 CPU 教学实验基线
 

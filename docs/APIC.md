@@ -234,7 +234,7 @@ POST /quizzes/{id}/review接受空请求体或空JSON对象，拒绝业务字段
 | PATCH /warnings/{id} | status:handled，note:1—500 | Warning | T |
 | GET /courses/{id}/knowledge-graph | root_id? | {nodes:[{id,title,mastery?}],edges:[{source,target,type}],prerequisite_paths} | L，mastery仅本人或授权范围 |
 | POST /courses/{id}/knowledge-edges | source_id,target_id,type:prerequisite/contains | Edge | T；自环、跨课、先修环422 |
-| POST /courses/{id}/recognitions | image:PNG/JPEG≤5MiB且≤4096×4096 | {id,status,items:[{symbol,bbox,confidence,confidence_band,label,label_status}],requires_confirmation:true,algorithm_version,template_set_sha256} | L；不支持类型415；无法识别返回status=unrecognized |
+| POST /courses/{id}/recognitions | image:PNG/JPEG≤5MiB且≤4096×4096 | {id,status,items:[{symbol,bbox,confidence,confidence_band,label,label_bbox,label_status}],requires_confirmation:true,algorithm_version,template_set_sha256} | L；不支持类型415；无法识别返回status=unrecognized |
 | POST /recognitions/{id}/confirm | items:[{symbol,bbox,label?}] | {id,status:confirmed,confirmed_items,algorithm_version,template_set_sha256} | 原提交者；仅生成结构草稿，不执行任意文件 |
 | POST /courses/{id}/warning-runs | from?,to?；Idempotency-Key | 201 {analysis_run_id,status:completed,source_until,sample_size,model_status,warning_count} | T；默认最近28天；同步限时计算，失败503不创建半批结果；算法见PRD第4.2节 |
 | GET /courses/{id}/warning-runs | 分页 | 批次及model_status列表 | T |
@@ -295,7 +295,7 @@ attendance-performance-v1的唯一计算定义及C01—C04见PRD第4.4节：同�
 
 识别算法recognition-template-v1、二值掩膜交并比、0.55识别下限及0.85低置信度分界、固定字典、bbox约束和F01—F05见PRD第4.5节。低置信度是recognized项的confidence_band=low，不另造数据库状态；零项unrecognized。POST confirm仅原提交者，空数组允许；symbol限NOT/AND/OR/XOR，label限固定字典，非法框/枚举400，重复确认409，越权404。确认只存结构草稿，不推断网表/成绩。模型中的算法版本与模板哈希由服务端生成，不允许请求覆盖。
 
-当前模板、定位与模板哈希属于 `recognition-template-v1-provisional`；仅合成图测试已执行，PRD所列固定 SHA 的 F01—F05 原始图片尚未进入仓库，TV-03 实测与版本冻结前不得声称达到固定图片验收。上传保存图片所有权和哈希；确认仅更新 `recognition.confirmed_items_json`，不会写电路网表、实验状态或分数。
+当前模板与预处理冻结为 `recognition-template-v1`，SHA-256 为 `e5fad902074d5401cb207932a72b539cdf2647f3fffcd29b65b42fe0bd016a49`；PRD第4.5节的 F01—F05 已按 `recognition-fixtures-v2` 存入仓库并逐字节验哈希。`label_bbox` 是已识别标签的原图框，未知标签为null；模板相似度不是正确概率。上传保存图片所有权和哈希；确认仅更新 `recognition.confirmed_items_json`，不会写电路网表、实验状态或分数。固定输入的本地测试不能冒充其他环境或任意照片效果验收。
 
 confirm的items数量不得超过本次识别的items数量；因此unrecognized的确认只能提交空数组，不能通过识别确认接口创建原本未检出的符号。
 
