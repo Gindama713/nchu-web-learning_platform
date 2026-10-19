@@ -1,5 +1,7 @@
 # SPEC-008 / C05a—C05b 随堂测、逐题统计与显式讲评
 
+> 2026-10-16 C12c材料导航：当前合入、真实评审、两个矩阵版本及交付状态见[个人交付索引](C12C_DELIVERY_HUANG_JUNCHENG.md)和[本轮远程快照](evidence/c12c/entry-state.json)。下文各节保留原日期、SHA及当时事实；旧“未合入/待实现/最新”措辞按其历史范围阅读，不覆盖索引中的当前状态。完整SPEC仍未凭材料整理关闭。
+
 ## 2026-10-15 C12b共用显示增量（最新）
 
 C12a-UI-02共用PaperView/AttemptView由SPEC-006主修，详见[006 C12b记录](SPEC-006_IMPLEMENTATION.md)及[真实HTTP/双浏览器报告](evidence/spec-006/c12b-time/report.json)。006 feature干净tested=4eadbcbcaf1df2cb8f1245c9fdfcbcfca4523072；008不建立重复代码修复、不从未合入feature复制，后续只消费最新develop。仅窗口/讲评/截止/提交显示Asia/Shanghai，UTC数据及服务器截止、答案保护、原成功幂等快照不改。组件替身与5项真实handler、Chrome/Edge真实HTTP/UI分层；原C05/EQB等证据按原SHA复用，没有重跑008→010B专用链。新PR/真实评审/CI/合入独立核验；完整008、003/004/007接缝、目标性能/生产恢复/Gitea/课堂仍未关闭。下方“当前恢复”保留C05历史，以上增量优先。
