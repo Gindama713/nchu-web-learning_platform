@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-18T02:44:41.910935+00:00",
+  "tested_head": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "dirty_paths": [
+    "?? docs/evidence/knowledge-lifecycle/",
+    "?? scripts/verify_knowledge_lifecycle.py",
+    "?? tests/test_knowledge_lifecycle.py"
+  ],
+  "result": "failed"
+}

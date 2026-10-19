@@ -126,7 +126,15 @@
     "I01_tested_SHA": "96f4f2989765359e01949f4003dde4d32c0c4814",
     "I01_覆盖范围": "真实005完成1/2与017功能完成1/4独立；刷新恢复进度，实验提交不代填知识完成",
     "I01_证据附件": "docs/SPEC-005_I01_RESOURCE_SEAMS.md; docs/evidence/spec-005/i01/handlers/; docs/evidence/spec-005/i01/browsers/; docs/evidence/spec-005/i01/reconciliation.json",
-    "I01_日期": "2026-10-17 Asia/Shanghai"
+    "I01_日期": "2026-10-17 Asia/Shanghai",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -179,7 +187,15 @@
     "I01_tested_SHA": "96f4f2989765359e01949f4003dde4d32c0c4814",
     "I01_覆盖范围": "草稿/下架详情404；学生编辑403；真实撤权后旧知识/进度/个人快照404",
     "I01_证据附件": "docs/SPEC-005_I01_RESOURCE_SEAMS.md; docs/evidence/spec-005/i01/handlers/; docs/evidence/spec-005/i01/browsers/; docs/evidence/spec-005/i01/reconciliation.json",
-    "I01_日期": "2026-10-17 Asia/Shanghai"
+    "I01_日期": "2026-10-17 Asia/Shanghai",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -308,7 +324,15 @@
     "I01_tested_SHA": "96f4f2989765359e01949f4003dde4d32c0c4814",
     "I01_覆盖范围": "同课真实知识1/2下架已完成点后0/1；与实验人×版本分母独立；不重复完整R38包",
     "I01_证据附件": "docs/SPEC-005_I01_RESOURCE_SEAMS.md; docs/evidence/spec-005/i01/handlers/; docs/evidence/spec-005/i01/browsers/; docs/evidence/spec-005/i01/reconciliation.json",
-    "I01_日期": "2026-10-17 Asia/Shanghai"
+    "I01_日期": "2026-10-17 Asia/Shanghai",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -2269,6 +2293,14 @@
       "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
       "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
       "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    },
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
     }
   },
   {
@@ -2436,6 +2468,14 @@
       "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
       "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
       "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    },
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
     }
   },
   {
@@ -2721,6 +2761,14 @@
       "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
       "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
       "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    },
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
     }
   },
   {
@@ -2774,7 +2822,15 @@
     "I01_tested_SHA": "96f4f2989765359e01949f4003dde4d32c0c4814",
     "I01_覆盖范围": "仅消费005实际进度1/2→0/1，与同批017/010C完成事实分母区分；不冒充完整I-01",
     "I01_证据附件": "docs/SPEC-005_I01_RESOURCE_SEAMS.md; docs/evidence/spec-005/i01/handlers/; docs/evidence/spec-005/i01/browsers/; docs/evidence/spec-005/i01/reconciliation.json",
-    "I01_日期": "2026-10-17 Asia/Shanghai"
+    "I01_日期": "2026-10-17 Asia/Shanghai",
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -2964,6 +3020,14 @@
       "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
       "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
       "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
+    },
+    "005消费增量": {
+      "日期": "2026-10-18 Asia/Shanghai",
+      "范围": "仅005改名/改文/上下架及恢复后的010B当前投影、历史样本、进度及原快照CSV；不扩展完整编号结论",
+      "handler_tested": "6c08ae069a976d4bbe507eb2feec975f869183a7",
+      "browser_tested": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+      "证据": "docs/SPEC-005_010B_KNOWLEDGE_LIFECYCLE.md；docs/evidence/knowledge-lifecycle/",
+      "结果": "有限消费核对通过；原行结果/集成结果及历史保留"
     }
   },
   {

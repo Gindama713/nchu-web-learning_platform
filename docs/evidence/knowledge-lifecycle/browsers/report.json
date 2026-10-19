@@ -1,0 +1,44 @@
+{
+  "at": "2026-10-18T02:49:29.100498+00:00",
+  "tested_head": "6894204a285c33f65582df314cb3c1c83cd35ba0",
+  "dirty_paths": [],
+  "result": "passed",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.41",
+      "checks": [
+        "original:teacher:restore_exact_data",
+        "original:student:restore_exact_data",
+        "renamed:teacher:restore_exact_data",
+        "renamed:student:restore_exact_data",
+        "all-hidden:teacher:restore_exact_data",
+        "all-hidden:student:restore_exact_data",
+        "both-restored:teacher:restore_exact_data",
+        "both-restored:student:restore_exact_data",
+        "teacher:original_id_survives_changes_and_reload",
+        "student:original_id_survives_changes_and_reload"
+      ],
+      "page_errors": [],
+      "result": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.62",
+      "checks": [
+        "original:teacher:restore_exact_data",
+        "original:student:restore_exact_data",
+        "renamed:teacher:restore_exact_data",
+        "renamed:student:restore_exact_data",
+        "all-hidden:teacher:restore_exact_data",
+        "all-hidden:student:restore_exact_data",
+        "both-restored:teacher:restore_exact_data",
+        "both-restored:student:restore_exact_data",
+        "teacher:original_id_survives_changes_and_reload",
+        "student:original_id_survives_changes_and_reload"
+      ],
+      "page_errors": [],
+      "result": "passed"
+    }
+  ]
+}

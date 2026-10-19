@@ -1,0 +1,1603 @@
+[
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 401,
+    "response": {
+      "error": {
+        "code": "UNAUTHENTICATED",
+        "details": {},
+        "message": "Login required"
+      },
+      "request_id": "821ecf5f9ae745dabb77b030c3b0d03f"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "POST",
+    "url": "http://127.0.0.1:5173/api/v1/auth/login",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "user": {
+          "active": 1,
+          "id": 2,
+          "name": "T006TEACH",
+          "role": "teacher",
+          "student_no": "T006TEACH"
+        }
+      },
+      "request_id": "bce2935dedca4fa695ecd801924be9c8"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "b13fe3c11a7f4b259739aa74742dba93",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 2,
+          "name": "T006TEACH",
+          "role": "teacher",
+          "student_no": "T006TEACH"
+        }
+      },
+      "request_id": "fde6840303b0487d8020b0110b7995af"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/notifications?page_size=100",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "5f66e232cd8642ffb29a995ce917fd48",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 2,
+          "name": "T006TEACH",
+          "role": "teacher",
+          "student_no": "T006TEACH"
+        }
+      },
+      "request_id": "7e9fe87d78bc40a59a6d27746763bfbd"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "1bc0aeaa67dc433c98c7327feb158fb1",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 2,
+          "name": "T006TEACH",
+          "role": "teacher",
+          "student_no": "T006TEACH"
+        }
+      },
+      "request_id": "4378aa0200da42ebb49835430ea0c988"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "05ae61c1524b4ff5a99cd2c034c5e94d",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "2dc4156201354e7aa9c14578f9b9f6d8",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 2,
+          "name": "T006TEACH",
+          "role": "teacher",
+          "student_no": "T006TEACH"
+        }
+      },
+      "request_id": "05122812b7de4c8496f4ff84ee0a6be7"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/chapters?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "chapters_revision": 1,
+      "data": [
+        {
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "eb670f0d642a426dbd2170456cb34584",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/questions?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "d5675350ffd64b6c8e54fc9c85acd34b",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/knowledge-points?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点1"
+        },
+        {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点2"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "364159d3ca7a416895af380a138ce51e",
+      "total": 2
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "ef1e95cfe7244ff29edf510f9e56b4bd",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 2,
+          "name": "T006TEACH",
+          "role": "teacher",
+          "student_no": "T006TEACH"
+        }
+      },
+      "request_id": "664a7d8011cc4ee0b5ff13bc09e0e44a"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/papers?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "1a5c730ebdd349e7add363e921605343",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 2,
+          "name": "T006TEACH",
+          "role": "teacher",
+          "student_no": "T006TEACH"
+        }
+      },
+      "request_id": "d667c7fe7f6c4aa6858849ae8067c56f"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 503,
+    "response": {
+      "error": {
+        "code": "DB_BUSY",
+        "details": {},
+        "message": "Database temporarily unavailable"
+      },
+      "request_id": "e54be17cb2a54a4d8199b7dbc76bd37e"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 503,
+    "response": {
+      "error": {
+        "code": "DB_BUSY",
+        "details": {},
+        "message": "Database temporarily unavailable"
+      },
+      "request_id": "a39e92a1a693407abae1320daf6032b7"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/knowledge-points?page=1&page_size=100",
+    "status": 503,
+    "response": {
+      "error": {
+        "code": "DB_BUSY",
+        "details": {},
+        "message": "数据库忙，请重试"
+      },
+      "request_id": "82425fc9e8004cb0908ffa1923afa7e6"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "436b129d1ae04d45acff3edc1ca59dc1",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 2,
+          "name": "T006TEACH",
+          "role": "teacher",
+          "student_no": "T006TEACH"
+        }
+      },
+      "request_id": "0fce03c966cb472fa5a73e88d23e6702"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/papers?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "194a3bde7c3b46c092b6f8ca7b250557",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "9920e74a282d4e1b8374ef98070518d6",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 2,
+          "name": "T006TEACH",
+          "role": "teacher",
+          "student_no": "T006TEACH"
+        }
+      },
+      "request_id": "2f9a6d5866b04a6282a4e1fe5aa4b936"
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/knowledge-points?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点1"
+        },
+        {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点2"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "3f01da323c9f4acfa43379004dea224f",
+      "total": 2
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/attempts?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "db4c1bb9a1ab4080914968620bbe41c7",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "ee60f285fe2a4d0c993a6fde19d14d6f",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/experiments?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "b9b00e224d7e4e4ab303f8968055a1d6",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/experiment-versions?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "268afb3dc2f84b7b9de267f16e669612",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006TEACH",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/analytics?dimension=knowledge",
+    "status": 200,
+    "response": {
+      "data": {
+        "algorithm_version": "knowledge-objective-v1",
+        "analysis_run_id": 1,
+        "dimension": "knowledge",
+        "filters": {
+          "from": "2026-09-20T02:48:18.917Z",
+          "knowledge_ids": [
+            1,
+            2
+          ],
+          "student_id": null,
+          "to": "2026-10-18T02:48:18.917Z"
+        },
+        "generated_at": "2026-10-18T02:48:18.917Z",
+        "metrics": {
+          "answered_count": 0,
+          "completed_knowledge_count": null,
+          "correct_count": 0,
+          "items": [
+            {
+              "answered_count": 0,
+              "correct_count": 0,
+              "knowledge_id": 1,
+              "mastery": null,
+              "title": "知识点1",
+              "wrong_count": 0
+            },
+            {
+              "answered_count": 0,
+              "correct_count": 0,
+              "knowledge_id": 2,
+              "mastery": null,
+              "title": "知识点2",
+              "wrong_count": 0
+            }
+          ],
+          "mastery": null,
+          "progress": null,
+          "published_knowledge_count": 2
+        },
+        "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+        "sample_size": 0,
+        "series": [
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": null,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "知识点1",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "知识点2",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": null,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-09-20T16:00:00.000Z",
+            "period_start": "2026-09-20T02:48:18.917Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": null,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "知识点1",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "知识点2",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": null,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-09-27T16:00:00.000Z",
+            "period_start": "2026-09-20T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": null,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "知识点1",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "知识点2",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": null,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-04T16:00:00.000Z",
+            "period_start": "2026-09-27T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": null,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "知识点1",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "知识点2",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": null,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-11T16:00:00.000Z",
+            "period_start": "2026-10-04T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": null,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "知识点1",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "知识点2",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": null,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-18T02:48:18.917Z",
+            "period_start": "2026-10-11T16:00:00.000Z"
+          }
+        ],
+        "source_until": "2026-10-18T02:48:18.917Z",
+        "unit": {
+          "mastery": "ratio",
+          "progress": "ratio"
+        },
+        "warnings": [
+          "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合",
+          "班级进度未定义，请选择学生查看个人进度"
+        ]
+      },
+      "request_id": "6491281f25b04661966245aa4e826aae"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 401,
+    "response": {
+      "error": {
+        "code": "UNAUTHENTICATED",
+        "details": {},
+        "message": "Login required"
+      },
+      "request_id": "d6d7fcc331cb4fe09942900e30b23bc9"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "POST",
+    "url": "http://127.0.0.1:5173/api/v1/auth/login",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "user": {
+          "active": 1,
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "b2f1a4fb63cd4a8baa0d535338e404c7"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "2b384945a7054d4ab411ba6cd9e11302",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "05e2b3edcdad4892b8b6a718f9b9c545"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "c5b6a849c3864253a19f9ebcf6418f46"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "4bf670b6e64540b19f2c5f838916e67e"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "d822774c944048f280c1c5d56c56af76",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/notifications?page_size=100",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "057d8f58f2314f98917cd8ea4bbc491c",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "28f857e8c9c64dd58f58705789d736d1"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "84acbcc6aa90429593bab3e928e68bf4",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "13170d9c1d0a4d2b8c806f4546d00853"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "cd36377fc74142369bfa50999f9f6ef3",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/chapters?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "chapters_revision": 1,
+      "data": [
+        {
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "cc8bee87f0104a68b1142f93fe453a93",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "9a935d79d42e473d85a3aa6bd10670b5"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/questions?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "b37ea1c9ce88401a9194d7442002a226",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "31ad33a0e48b4482bbb7633e07a90770",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/knowledge-points?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点1"
+        },
+        {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点2"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "4ad325c1f329400da76827a0a1182c7b",
+      "total": 2
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "2bb712bf23ee4b7880a78a12945da086"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "35c8feadd57c41a8814156d9023d4db3",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/papers?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "9be59c5b7fcd488ea7caa46ee36ab115",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "c7c5dd44418142e283e998c63a829540"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "440fadbeb76c43559b546afc37722413"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "9cf34ac83ad74705bf3e72ee9826f082"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "4fbabe52b2c049ccb863539d81f1fc23",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/quizzes?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "6f5932c0c19646b687293d1e34ef9391",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "b219eecb3ced4d6198b9cc7aab7232ee"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/papers?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "c69465f9f0f54f2abcb70e1946cd2bae",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/attempts?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "56ebac9b8db144569af0bddff86e7d23",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "d1cc38eded254d0fa0b6c22789aecf0d",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "78166642a95340769e84b4138ff5fd76",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/recommendations?limit=5",
+    "status": 200,
+    "response": {
+      "data": {
+        "algorithm_version": "recommend-v1",
+        "items": [],
+        "reason": "no_foundational_candidates",
+        "source_until": "2026-10-18T02:48:18.917Z"
+      },
+      "request_id": "6cc549ba13c14ec3995ee4f7b49bca78"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "a7faebd8e41f4a4991afdbf305fa81fa",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/questions?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "3a917de7496a437cb724516643366392",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/auth/session",
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-18T04:48:18.917Z",
+        "user": {
+          "id": 3,
+          "name": "T006STUD1",
+          "role": "student",
+          "student_no": "T006STUD1"
+        }
+      },
+      "request_id": "049499a74c554803a187c7c971b911aa"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "24d3f2e9d61e4ab7a09534a78b5ab5ea",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/chapters?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "chapters_revision": 1,
+      "data": [
+        {
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "446952ded440468a84fa185786d754f6",
+      "total": 1
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/resources?page=1&page_size=20",
+    "status": 503,
+    "response": {
+      "error": {
+        "code": "DB_BUSY",
+        "details": {},
+        "message": "Database temporarily unavailable"
+      },
+      "request_id": "556bc14838c14056a72c1115ded6d112"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses?page=1&page_size=100",
+    "status": 503,
+    "response": {
+      "error": {
+        "code": "DB_BUSY",
+        "details": {},
+        "message": "Database temporarily unavailable"
+      },
+      "request_id": "e8ff84f239a74881bc4afec9cc5a570a"
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/knowledge-points?page=1&page_size=100",
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点1"
+        },
+        {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点2"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "18754d81177044f0a709daa4c802e719",
+      "total": 2
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/experiments?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "e8595467ff75492aa39478b423354325",
+      "total": 0
+    }
+  },
+  {
+    "actor": "T006STUD1",
+    "transport": "real socket HTTP",
+    "method": "GET",
+    "url": "http://127.0.0.1:5173/api/v1/courses/1/experiment-versions?page=1&page_size=20",
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "11afbfbf6b2348ec8f4dd3c67dcf9a8a",
+      "total": 0
+    }
+  }
+]
