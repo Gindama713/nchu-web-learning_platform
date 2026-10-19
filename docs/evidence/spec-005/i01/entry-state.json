@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-17",
+  "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "prs": [
+    {
+      "number": 27,
+      "head": "7096b496504f62181f60987062b1397bdb96a937",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "ci_merge_ref": "a4ed987609132694c08c59650f92721abc223e0d",
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/27",
+        "title": "Gindama713/nchu-web-learning_platform PR #27 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/27",
+        "display_title": "Gindama713/nchu-web-learning_platform PR #27 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "review_threads": {
+        "review_threads": []
+      }
+    },
+    {
+      "number": 28,
+      "head": "8111c5395d8b7cf33205065c77490593e07ed045",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "ci_merge_ref": "b4a44411a719c490de01942ff5a4d251f007d8a6",
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/28",
+        "title": "Gindama713/nchu-web-learning_platform PR #28 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/28",
+        "display_title": "Gindama713/nchu-web-learning_platform PR #28 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "review_threads": {
+        "review_threads": []
+      }
+    },
+    {
+      "number": 29,
+      "head": "b56141f2e060d1ec5464d58d52f6f735c445d56c",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "ci_merge_ref": "5b67d9bc10a44cce388172a1e79001e2d5f90343",
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/29",
+        "title": "Gindama713/nchu-web-learning_platform PR #29 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/29",
+        "display_title": "Gindama713/nchu-web-learning_platform PR #29 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "review_threads": {
+        "review_threads": []
+      }
+    },
+    {
+      "number": 30,
+      "head": "dbd32e65db1d6d371adcfe4b06889a24e7490e24",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "ci_merge_ref": "9042da8e688d275abc3366b81e5ecf064e92826c",
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/30",
+        "title": "Gindama713/nchu-web-learning_platform PR #30 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/30",
+        "display_title": "Gindama713/nchu-web-learning_platform PR #30 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "review_threads": {
+        "review_threads": []
+      }
+    },
+    {
+      "number": 31,
+      "head": "40bba87e765bc9c52498f8cf7781307172e9c310",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "ci_merge_ref": "a736e14d6a25e760643fab99c2d9fc3a89d6eb2b",
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/31",
+        "title": "Gindama713/nchu-web-learning_platform PR #31 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/31",
+        "display_title": "Gindama713/nchu-web-learning_platform PR #31 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "review_threads": {
+        "review_threads": []
+      }
+    }
+  ],
+  "fixed_ci": {
+    "27": 38896062651,
+    "28": 38904433916,
+    "29": 38907219999,
+    "30": 38909993594,
+    "31": 38994482166
+  },
+  "note": "All five open, unchanged; actual merge absent. Reuse fixed CI. PR31 report read at its fixed head, not copied."
+}

@@ -1,0 +1,17 @@
+{
+  "scope": "Preflight failures are not formal passing evidence; no business code changed to accept invalid test input.",
+  "handler_attempts": [
+    {"output": "logs/i01/preflight-handlers", "actual": "fact reader assumed id on every table, teardown error; main TEST_NOW advanced two hours, actual 401 session expiry", "fix": "read actual tables without universal id; keep authorized sessions within valid duration"},
+    {"output": "logs/i01/preflight-handlers-2", "actual": "date-only analytics from/to rejected 400 timezone required", "fix": "timezone-aware API timestamps"},
+    {"output": "logs/i01/preflight-handlers-3", "actual": "future analytics to rejected 400 Invalid date range", "fix": "query v1 after end; later publish v2 and submit within its real window, no backward clock or late success used for passing sample"}
+  ],
+  "browser_attempts": [
+    {"output": "logs/i01/preflight-browsers", "actual": "Flask refused observer registration after first handler request", "fix": "optional observer registered before bootstrap requests; socket/handler layers remain distinct"},
+    {"output": "logs/i01/preflight-browsers-2", "actual": "relative locator included redundant resource ancestor; Vite temporary log cleanup raced process lifetime", "fix": "relative heading selector; process output to DEVNULL, explicit process shutdown before fixture cleanup"},
+    {"output": "logs/i01/preflight-browsers-3", "actual": "select accessible name contains option text; exact label locator timed out", "fix": "select inside actual upload form"},
+    {"output": "logs/i01/preflight-browsers-4", "actual": "knowledge-module matched both knowledge and QA; screenshot strict-mode failure", "fix": "exclude qa-module in knowledge selectors"}
+  ],
+  "initial_2dd_fixture_correction": "PNG IDAT CRC was wrong. Type gate still rejected before decoding, but 2dd reports are retained only as preflight. Correct PNG CRC in commit96f4f29, verify signature/chunks/decompressed scanline, rerun all six targeted handlers and both browser checks on clean96f4f29. No business code changed.",
+  "formal_tested": "96f4f2989765359e01949f4003dde4d32c0c4814",
+  "formal": "handler 2 passes + 4 known 017 expected failures; Chrome/Edge 7 existing-page checks each; missing 017/010C pages and image contract explicitly blocked"
+}
