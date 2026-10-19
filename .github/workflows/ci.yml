@@ -108,7 +108,13 @@ jobs:
           GRADER: ${{ needs.ci-grader.result }}
           BASE: ${{ github.base_ref }}
         run: |
-          test "$POLICY" = success && test "$LINT" = success && test "$TEST" = success && test "$BUILD" = success
+          if [[ "$POLICY" != success || "$LINT" != success || "$TEST" != success || "$BUILD" != success ]]; then
+            echo "Required job failed: policy=$POLICY lint=$LINT test=$TEST build=$BUILD"
+            exit 1
+          fi
           if [[ "$BASE" == main || "$BASE" == release/* ]]; then
-            test "$GRADER" = success
+            if [[ "$GRADER" != success ]]; then
+              echo "Release grader check failed: grader=$GRADER"
+              exit 1
+            fi
           fi

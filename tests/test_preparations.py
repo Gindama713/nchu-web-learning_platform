@@ -169,8 +169,8 @@ class PreparationPublishTest(PreparationApiBase):
             paper_id = cursor.lastrowid
             db.commit()
         prep = self.draft(quiz_ids=[paper_id])
-        response = self.call(self.teacher, "POST", f"/preparations/{prep['id']}/publish", {}, 404)
-        self.assertEqual(response.json["error"]["code"], "NOT_FOUND")
+        response = self.call(self.teacher, "POST", f"/preparations/{prep['id']}/publish", {}, 409)
+        self.assertEqual(response.json["error"]["code"], "QUIZ_NOT_PUBLISHED")
 
     def test_student_sees_only_published(self):
         self.call(self.teacher, "POST", f"/preparations/{self.prep['id']}/publish", {})
