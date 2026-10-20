@@ -69,9 +69,13 @@
 .\.venv\Scripts\python.exe -m scripts.verify_knowledge_image_contract --output logs/knowledge-images/new-run
 ```
 
-执行器分别输出`boundary_checks`、`observations`和`image_readiness`；退出0只代表受测现有边界检查通过，**不代表003契约全部满足或图片可用**。UUID实际失败在observations中保留expected=400、actual=200和contract_failure，PNG/JPEG为当前类型契约的合法415及图文依赖blocked，不混成图片正向通过。正式干净tested与结果将在同包证据完成后登记。
+正式干净tested为`3505978e68efa514c019fcb8c79d907bc898fc21`，dirty_paths=[]；**6项现有边界检查通过、0测试失败/错误，执行器耗时14.436秒；另有1项UUID契约探针真实失败，图文能力blocked**。本机Windows、Python3.13.12；非目标环境性能证据。[正式报告](evidence/spec-005/images-20261020/handlers/report.json)、[原日志](evidence/spec-005/images-20261020/handlers/checks.txt)、[入口快照](evidence/spec-005/images-20261020/entry-state.json)。后续本包文档/证据提交不是这次运行的tested。
 
-6项的覆盖：PNG/JPEG各四kind上传及各一次新增版本均415、无多余file/resource/version；005移除图片/外部URL/data URL/属性，保留上下标，经真实登出/重登及新app读取持久正文，相同PATCH不增revision；未知图片字段整批拒绝、学生/非成员/撤权/下架访问受限；PDF控制v1/v2固定字节和当前权限；Range同UUID一次事件及跨版本/intent冲突、HEAD/304/416零新事件；缺文件/归档404。归档为显式SQL状态注入、缺文件为故障注入，因为当前无归档HTTP动作；不把它们称为真实归档UI。所有账户以外的成功对象通过真实API创建。
+执行器分别输出`boundary_checks`、`observations`和`image_readiness`；退出0只代表受测现有边界检查通过，**不代表003契约全部满足或图片可用**。UUID实际失败在[原请求/响应及事件表](evidence/spec-005/images-20261020/handlers/test_pdf_control_retries_range_conflicts_and_non_content_responses.json)中保留expected=400、actual=200和contract_failure；合法UUID及Range只有1条事件，非法UUID又实际新增1条，共2条，不能把总数2误判为重试去重失败。PNG/JPEG为当前类型契约的合法415及图文依赖blocked，不混成图片正向通过。[首次未提交探针报告](evidence/spec-005/images-20261020/preflight/report.json)、[首次UUID原响应](evidence/spec-005/images-20261020/preflight/test_pdf_control_retries_range_conflicts_and_non_content_responses.json)保留；后续只补真实跨课成员、角色标识及失败创建计数断言，没有修003来消除该失败。一次文档补丁上下文不匹配在写入前拒绝，随后按实际行修正；不是业务失败。
+
+6项的覆盖：[PNG/JPEG](evidence/spec-005/images-20261020/handlers/test_png_jpeg_uploads_and_new_versions_are_currently_blocked.json)各四kind上传及各一次新增版本共10次均415、无多余file/resource/version；[005保存/持久化](evidence/spec-005/images-20261020/handlers/test_markup_persists_without_images_urls_or_attributes_after_relogin.json)移除图片/外部URL/data URL/属性，保留上下标，经真实登出/重登及新app读取持久正文，相同PATCH不增revision；[未知字段/权限](evidence/spec-005/images-20261020/handlers/test_unknown_image_fields_fail_atomically_and_roles_remain_enforced.json)整批拒绝、学生/真实另一课程成员/撤权/下架访问受限，失败创建无新增知识；[PDF版本/当前权限](evidence/spec-005/images-20261020/handlers/test_pdf_control_fixed_versions_current_permissions_and_revocation.json)含跨课章节上传404无部分文件；Range同UUID一次事件及跨版本/intent冲突、HEAD/304/416零新事件；[缺文件/归档](evidence/spec-005/images-20261020/handlers/test_pdf_control_missing_file_and_archived_resource_fail_closed.json)404。归档为显式SQL状态注入、缺文件为故障注入，因为当前无归档HTTP动作；不把它们称为真实归档UI。所有账户以外的成功对象通过真实API创建。
+
+Ruff检查仅新增测试/执行器通过；16份变更Markdown按最多3份一批检查本地链接通过。正式证据按3份一批复算上传拒绝、无部分写入、HTML、事件原表、权限/失效、PR40状态及SQLite完整性/外键。backend/frontend/CI及原矩阵相对develop无差异；附件文本统一LF生成[SHA256清单](evidence/spec-005/images-20261020/sha256.json)，不是对运行结果的二次判分。
 
 没有运行全仓后端/前端整包，没有新增浏览器图文正向执行、目标性能、生产恢复或课堂证据。已有验收矩阵不改判；PR40尚未合入，其81/50是该PR的固定收口状态，不从本分支重新计算或复制其增量。历史失败与旧附件不覆盖。
 
