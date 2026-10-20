@@ -70,6 +70,8 @@ SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数�
 
 ## 7 检查与提交
 
+2026-10-20黄俊诚的[SPEC-005图文契约与独立准备](docs/SPEC-005_IMAGE_CONTRACT.md)核实003 PNG/JPEG仍不可合法上传，提出待复核的同课固定引用、双重当前权限及事件事务方案，并补定向真实handler检查。现有HTML禁图/禁属性保持；非法UUID真实失败保留，图文未改判通过，003与005后续各自改动及依赖见记录。
+
 黄俊诚（24201716）的C12c正式材料见[个人交付索引](docs/C12C_DELIVERY_HUANG_JUNCHENG.md)，含[测试报告](docs/TEST_REPORT_HUANG_JUNCHENG.md)、[阶段检查报告](docs/checkpoints/HUANG_JUNCHENG_C12C.md)、[本人模块用户说明](docs/USER_GUIDE_HUANG_JUNCHENG.md)和[个人设计报告准备稿](docs/reports/24201716_黄俊诚_设计报告.docx)。材料形成时 #27 尚待合入；本轮 #27—#35 的审计与集成见[检查点记录](docs/checkpoints/2026-10-19_PR_INTEGRATION.md)。个人材料不代表完整SPEC、Gitea或课堂通过；原课程最终格式附件仍未提供。
 
 第二次课堂提交的组员分批操作见 [docs/SECOND_SUBMISSION_TEAM_PROMPT.md](docs/SECOND_SUBMISSION_TEAM_PROMPT.md)。

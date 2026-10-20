@@ -75,6 +75,18 @@ erDiagram
 
 attendance_task.code_expires_at不得晚于end_at，初次生成有效到end_at；轮换原子替换code_hash，新码不能与现码相同，旧码立即失效。明文仅创建/轮换响应一次返回，任何查询都不返回，忘记须轮换。
 
+### 3.1 知识图片关系增量提案（2026-10-20，待复核/实施）
+
+与[APIC§3.2](APIC.md#32-spec-005图文增量提案2026-10-20待复核实施)和PRD§4配套，**尚无对应迁移/运行字段**。不改已应用的003/005 SQL或其校验和，也不借用preparation_resource、recognition或file_object作为知识授权关系。
+
+拟由黄俊诚追加知识迁移：`knowledge_image(knowledge_id FK knowledge_point ON DELETE RESTRICT,position INTEGER,resource_version_id FK resource_version ON DELETE RESTRICT,placement TEXT,alt TEXT,caption TEXT)`；PK(knowledge_id,position)，UQ(knowledge_id,resource_version_id)，position限定0—19，placement限定content/example，alt去首尾空白后1—200字符、caption 0—500且NN默认空串。一次替换校验完整数组后同事务写连续position=0..n−1；最多20张，省略不改、[]清空。SQL约束加应用校验，不只靠前端。资源归属通过knowledge→chapter.course_id与version→resource.course_id比较，不能以chapter_id相等代替同课。
+
+引用固定resource_version_id，不跟随latest；新版本、资源收紧/归档及知识下架均不删除历史关系/旧文件/学习记录。005对当前知识保存完整关系；本提案不引入知识正文版本快照或图片变更历史表。图片关系变化与知识content_revision在同一事务提交，失败全回滚；同值不递增。新增/替换和发布检查详见APIC，已有不可用引用允许下架/改文字，不能因此静默清空。
+
+003由石佰合追加resource_version的`width,height`可空整数及约束（同时为空，或均在1—4096内；图片必须有值，历史非图片为空），复用file_object的media_type/size_bytes/sha256，禁止移动resource.course_id或覆盖已引用resource_version的resource_id/file_id/版本字节。003与005负责各自迁移，合入前协调迁移名/顺序，当前不抢占迁移编号。内容与事件共用003服务，在同一短事务内复核会话、合法active课程成员、知识published、关系位置、资源可见性/archived、版本MIME，并处理UQ(user_id,event_id)；同ID同对象并发冲突读取胜者重放，异对象409。事务只覆盖授权/去重/打开文件和审计准备，不覆盖网络传输。撤权/归档写入须与该事务串行，不能仅在鉴权后另起事件事务。
+
+资源事件不新增第二份知识浏览计数，不把展示次数写学习进度。关系存在期间资源版本/文件删除被约束拒绝；缺文件仍按不可用返回，不换新文件。恢复需要配套DB和上传文件一致副本；回退旧程序保留新表/旧引用，旧程序只能继续无图文本，不清空关系冒充回退。本轮只是设计与边界探针，不是迁移/生产恢复通过证据。
+
 ## 4 测评与演示 SPEC-006—008
 
 | 表 | 核心字段 | 约束与用途 |
