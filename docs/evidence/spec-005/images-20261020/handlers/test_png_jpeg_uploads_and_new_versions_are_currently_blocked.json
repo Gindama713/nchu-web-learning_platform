@@ -1,0 +1,692 @@
+{
+  "layer": "real Flask handlers/SQLite; no browser or successful image integration",
+  "fixtures": "admin/teacher bootstrap; generated 2x3 PNG/JPEG; short PDF type controls",
+  "requests": [
+    {
+      "actor": "T005ADMIN",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005ADMIN",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "T005ADMIN",
+            "role": "admin",
+            "student_no": "T005ADMIN"
+          }
+        },
+        "request_id": "1bc3b9e23fb44f4a85d99888013d0bec"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005TEACH",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "T005TEACH",
+            "role": "teacher",
+            "student_no": "T005TEACH"
+          }
+        },
+        "request_id": "a843a2c3d2dd4823b38f7791c5b22267"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "bootstrap/anonymous",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T005STUD1",
+        "name": "T005STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T005STUD1",
+            "role": "student",
+            "student_no": "T005STUD1"
+          }
+        },
+        "request_id": "1c75b19e85bc49a89f1518796f1f9225"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD1",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T005STUD1",
+            "role": "student",
+            "student_no": "T005STUD1"
+          }
+        },
+        "request_id": "8ea9e09222924e26bea24964dbccbfca"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "bootstrap/anonymous",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T005STUD2",
+        "name": "T005STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "587af72c4caa4f8f9ce9ebcb1b6f28e5"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD2",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "55e36113fb9044cc81c01429198c83ed"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005ADMIN",
+      "method": "POST",
+      "path": "/courses",
+      "request": {
+        "title": "T005 controlled CPU",
+        "teacher_id": 2
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "T005 controlled CPU"
+        },
+        "request_id": "830f452625e942c5bb25c9f9649eda91"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 3,
+        "member_role": "student"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 3
+        },
+        "request_id": "01deff8b181b4faebe8f6d738845f231"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/chapters",
+      "request": {
+        "title": "CPU"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        },
+        "request_id": "90e27dbe827740e6aff683e57c9bc8a2"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "程序计数器",
+        "content": "<p>PC 指向下一条指令</p>",
+        "published": true,
+        "is_foundational": true
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC 指向下一条指令</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": true,
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "27dc3398008a4fe89a45497140422d19"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-20T04:35:57.527Z",
+          "user": {
+            "id": 2,
+            "name": "T005TEACH",
+            "role": "teacher",
+            "student_no": "T005TEACH"
+          }
+        },
+        "request_id": "e3d8024664b24068af86339dfddd212d"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD2",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-20T04:35:57.550Z",
+          "user": {
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "3dcb44452b7549f688fbc5f3ff19606e"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005ADMIN",
+      "method": "POST",
+      "path": "/courses",
+      "request": {
+        "title": "Other image contract course",
+        "teacher_id": 2
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "description": "",
+          "id": 2,
+          "teacher_id": 2,
+          "title": "Other image contract course"
+        },
+        "request_id": "dbd0c561bcb440f1b59e86458cf539ff"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/2/members",
+      "request": {
+        "user_id": 4,
+        "member_role": "student"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 4
+        },
+        "request_id": "23c8b82fe6e14029be32ccf15c7aceb5"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/2/chapters",
+      "request": {
+        "title": "Other chapter"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 2,
+          "position": 0,
+          "title": "Other chapter"
+        },
+        "request_id": "6e3d6fa3b4db415a8e2bd25be94f7a49"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/resources",
+      "request": {
+        "title": "PDF type control",
+        "kind": "guide",
+        "chapter_id": "1",
+        "file": {
+          "name": "control.pdf",
+          "mime": "application/pdf",
+          "size": 52,
+          "sha256": "a07594b8a54aebecb920f606793c9f06bcaec0d4f7ad88d2090c96990ae827df"
+        }
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "id": 1,
+          "kind": "guide",
+          "resource_id": 1,
+          "sha256": "a07594b8a54aebecb920f606793c9f06bcaec0d4f7ad88d2090c96990ae827df",
+          "size": 52,
+          "title": "PDF type control",
+          "version": 1
+        },
+        "request_id": "73e5348e822f43c6b5cfb654be32c90d"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/resources",
+      "request": {
+        "title": "PNG/JPEG readiness",
+        "kind": "slides",
+        "file": {
+          "name": "probe.png",
+          "mime": "image/png",
+          "size": 72,
+          "sha256": "2e73036206aee2509d0b43b056e196572bc1d963dbfb3c2045eb293c1d2aa1bd"
+        }
+      },
+      "status": 415,
+      "expected_status": 415,
+      "response": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA",
+          "details": {},
+          "message": "File type not supported for this kind"
+        },
+        "request_id": "8448374eb2744d27896400ce1a1e34bc"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/resources",
+      "request": {
+        "title": "PNG/JPEG readiness",
+        "kind": "guide",
+        "file": {
+          "name": "probe.png",
+          "mime": "image/png",
+          "size": 72,
+          "sha256": "2e73036206aee2509d0b43b056e196572bc1d963dbfb3c2045eb293c1d2aa1bd"
+        }
+      },
+      "status": 415,
+      "expected_status": 415,
+      "response": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA",
+          "details": {},
+          "message": "File type not supported for this kind"
+        },
+        "request_id": "7fea79314b2a44a18952831ec9926fed"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/resources",
+      "request": {
+        "title": "PNG/JPEG readiness",
+        "kind": "video",
+        "file": {
+          "name": "probe.png",
+          "mime": "image/png",
+          "size": 72,
+          "sha256": "2e73036206aee2509d0b43b056e196572bc1d963dbfb3c2045eb293c1d2aa1bd"
+        }
+      },
+      "status": 415,
+      "expected_status": 415,
+      "response": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA",
+          "details": {},
+          "message": "File type not supported for this kind"
+        },
+        "request_id": "1ad1669fd6524348bbcaf37edaa8e227"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/resources",
+      "request": {
+        "title": "PNG/JPEG readiness",
+        "kind": "question_bank",
+        "file": {
+          "name": "probe.png",
+          "mime": "image/png",
+          "size": 72,
+          "sha256": "2e73036206aee2509d0b43b056e196572bc1d963dbfb3c2045eb293c1d2aa1bd"
+        }
+      },
+      "status": 415,
+      "expected_status": 415,
+      "response": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA",
+          "details": {},
+          "message": "File type not supported for this kind"
+        },
+        "request_id": "7493f603cffa4703a8830d53a672c7d4"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/resources/1/versions",
+      "request": {
+        "file": {
+          "name": "probe.png",
+          "mime": "image/png",
+          "size": 72,
+          "sha256": "2e73036206aee2509d0b43b056e196572bc1d963dbfb3c2045eb293c1d2aa1bd"
+        }
+      },
+      "status": 415,
+      "expected_status": 415,
+      "response": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA",
+          "details": {},
+          "message": "File type not supported for this kind"
+        },
+        "request_id": "ae21e4380bf2488ab0b788b87d5caac8"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/resources",
+      "request": {
+        "title": "PNG/JPEG readiness",
+        "kind": "slides",
+        "file": {
+          "name": "probe.jpg",
+          "mime": "image/jpeg",
+          "size": 631,
+          "sha256": "b4fc5088b5e9b1aed93f5e9a642188c9ecc1c6520a88127432e404c5cbbd8085"
+        }
+      },
+      "status": 415,
+      "expected_status": 415,
+      "response": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA",
+          "details": {},
+          "message": "File type not supported for this kind"
+        },
+        "request_id": "61c9db2bc9cc4bdea609dc0eed930995"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/resources",
+      "request": {
+        "title": "PNG/JPEG readiness",
+        "kind": "guide",
+        "file": {
+          "name": "probe.jpg",
+          "mime": "image/jpeg",
+          "size": 631,
+          "sha256": "b4fc5088b5e9b1aed93f5e9a642188c9ecc1c6520a88127432e404c5cbbd8085"
+        }
+      },
+      "status": 415,
+      "expected_status": 415,
+      "response": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA",
+          "details": {},
+          "message": "File type not supported for this kind"
+        },
+        "request_id": "a7ab6372272948a9950d38305335d514"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/resources",
+      "request": {
+        "title": "PNG/JPEG readiness",
+        "kind": "video",
+        "file": {
+          "name": "probe.jpg",
+          "mime": "image/jpeg",
+          "size": 631,
+          "sha256": "b4fc5088b5e9b1aed93f5e9a642188c9ecc1c6520a88127432e404c5cbbd8085"
+        }
+      },
+      "status": 415,
+      "expected_status": 415,
+      "response": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA",
+          "details": {},
+          "message": "File type not supported for this kind"
+        },
+        "request_id": "66e8624bef904178b74a1a1606421e5a"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/resources",
+      "request": {
+        "title": "PNG/JPEG readiness",
+        "kind": "question_bank",
+        "file": {
+          "name": "probe.jpg",
+          "mime": "image/jpeg",
+          "size": 631,
+          "sha256": "b4fc5088b5e9b1aed93f5e9a642188c9ecc1c6520a88127432e404c5cbbd8085"
+        }
+      },
+      "status": 415,
+      "expected_status": 415,
+      "response": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA",
+          "details": {},
+          "message": "File type not supported for this kind"
+        },
+        "request_id": "84027137f1b64ec6991297cf28047b55"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/resources/1/versions",
+      "request": {
+        "file": {
+          "name": "probe.jpg",
+          "mime": "image/jpeg",
+          "size": 631,
+          "sha256": "b4fc5088b5e9b1aed93f5e9a642188c9ecc1c6520a88127432e404c5cbbd8085"
+        }
+      },
+      "status": 415,
+      "expected_status": 415,
+      "response": {
+        "error": {
+          "code": "UNSUPPORTED_MEDIA",
+          "details": {},
+          "message": "File type not supported for this kind"
+        },
+        "request_id": "c88f0d634dcf4cdc934db871f2c35df4"
+      },
+      "headers": {}
+    }
+  ],
+  "contract_observations": [
+    {
+      "capability": "real PNG/JPEG create and version upload",
+      "status": "blocked",
+      "reason": "no allowed image MIME in any current kind"
+    }
+  ],
+  "final_facts": {
+    "knowledge_point": [
+      {
+        "id": 1,
+        "chapter_id": 1,
+        "title": "程序计数器",
+        "content": "<p>PC 指向下一条指令</p>",
+        "example": "",
+        "published": 1,
+        "content_revision": 1,
+        "is_foundational": 1
+      }
+    ],
+    "resource": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "chapter_id": 1,
+        "title": "PDF type control",
+        "kind": "guide",
+        "visibility": "students",
+        "archived": 0,
+        "created_at": "2026-10-20T02:35:57.680Z",
+        "updated_at": "2026-10-20T02:35:57.680Z"
+      }
+    ],
+    "resource_version": [
+      {
+        "id": 1,
+        "resource_id": 1,
+        "version": 1,
+        "file_id": 1,
+        "change_note": null,
+        "created_at": "2026-10-20T02:35:57.680Z"
+      }
+    ],
+    "resource_event": [],
+    "files": [
+      {
+        "id": 1,
+        "media_type": "application/pdf",
+        "size_bytes": 52,
+        "sha256": "a07594b8a54aebecb920f606793c9f06bcaec0d4f7ad88d2090c96990ae827df",
+        "purpose": "resource:guide"
+      }
+    ],
+    "integrity_check": "ok",
+    "foreign_key_check": []
+  }
+}

@@ -1,0 +1,11 @@
+test_markup_persists_without_images_urls_or_attributes_after_relogin (tests.test_knowledge_image_contract.KnowledgeImageContractTest.test_markup_persists_without_images_urls_or_attributes_after_relogin) ... ok
+test_pdf_control_fixed_versions_current_permissions_and_revocation (tests.test_knowledge_image_contract.KnowledgeImageContractTest.test_pdf_control_fixed_versions_current_permissions_and_revocation) ... ok
+test_pdf_control_missing_file_and_archived_resource_fail_closed (tests.test_knowledge_image_contract.KnowledgeImageContractTest.test_pdf_control_missing_file_and_archived_resource_fail_closed) ... ok
+test_pdf_control_retries_range_conflicts_and_non_content_responses (tests.test_knowledge_image_contract.KnowledgeImageContractTest.test_pdf_control_retries_range_conflicts_and_non_content_responses) ... ok
+test_png_jpeg_uploads_and_new_versions_are_currently_blocked (tests.test_knowledge_image_contract.KnowledgeImageContractTest.test_png_jpeg_uploads_and_new_versions_are_currently_blocked) ... ok
+test_unknown_image_fields_fail_atomically_and_roles_remain_enforced (tests.test_knowledge_image_contract.KnowledgeImageContractTest.test_unknown_image_fields_fail_atomically_and_roles_remain_enforced) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 13.150s
+
+OK

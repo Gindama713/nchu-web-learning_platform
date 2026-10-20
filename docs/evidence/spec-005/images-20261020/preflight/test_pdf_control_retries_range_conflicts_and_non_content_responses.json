@@ -1,0 +1,542 @@
+{
+  "layer": "real Flask handlers/SQLite; no browser or successful image integration",
+  "fixtures": "admin/teacher bootstrap; generated 2x3 PNG/JPEG; short PDF type controls",
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005ADMIN",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "T005ADMIN",
+            "role": "admin",
+            "student_no": "T005ADMIN"
+          }
+        },
+        "request_id": "d0227d6d93a24f32bc8ebfe9e5623260"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005TEACH",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "T005TEACH",
+            "role": "teacher",
+            "student_no": "T005TEACH"
+          }
+        },
+        "request_id": "55a0def2b71e400198167b4be1024829"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T005STUD1",
+        "name": "T005STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T005STUD1",
+            "role": "student",
+            "student_no": "T005STUD1"
+          }
+        },
+        "request_id": "d586d5ab1ae04df09461a5869be3d54d"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T005STUD1",
+            "role": "student",
+            "student_no": "T005STUD1"
+          }
+        },
+        "request_id": "bc4279614fea43a4844da4d4c975a9d9"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T005STUD2",
+        "name": "T005STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "f35035b655b74d11a68afcf6ce7861de"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "804050a2e7214040b9ec63f4ee150f07"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/courses",
+      "request": {
+        "title": "T005 controlled CPU",
+        "teacher_id": 2
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "T005 controlled CPU"
+        },
+        "request_id": "0e72eb51d0364036a0294ea9efc04d2a"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 3,
+        "member_role": "student"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 3
+        },
+        "request_id": "1e05e4090ff1425fba6f997cf58620fb"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/chapters",
+      "request": {
+        "title": "CPU"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        },
+        "request_id": "e6e49a2b3f4e4f8585ee86e83ab04920"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "程序计数器",
+        "content": "<p>PC 指向下一条指令</p>",
+        "published": true,
+        "is_foundational": true
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC 指向下一条指令</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": true,
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "692504c0c8ba4139861c3820692260ca"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/resources",
+      "request": {
+        "title": "PDF type control",
+        "kind": "guide",
+        "chapter_id": "1",
+        "file": {
+          "name": "control.pdf",
+          "mime": "application/pdf",
+          "size": 52,
+          "sha256": "a07594b8a54aebecb920f606793c9f06bcaec0d4f7ad88d2090c96990ae827df"
+        }
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "id": 1,
+          "kind": "guide",
+          "resource_id": 1,
+          "sha256": "a07594b8a54aebecb920f606793c9f06bcaec0d4f7ad88d2090c96990ae827df",
+          "size": 52,
+          "title": "PDF type control",
+          "version": 1
+        },
+        "request_id": "63dbcd17aadd411f8992d645836f1608"
+      },
+      "headers": {}
+    },
+    {
+      "method": "HEAD",
+      "path": "/resource-versions/1/content?intent=view&event_id=2e761f7b-6676-40f2-982b-6dfe0c5c513d",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "headers": {}
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=view&event_id=2e761f7b-6676-40f2-982b-6dfe0c5c513d",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "size": 52,
+        "sha256": "a07594b8a54aebecb920f606793c9f06bcaec0d4f7ad88d2090c96990ae827df"
+      },
+      "headers": {}
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=view&event_id=2e761f7b-6676-40f2-982b-6dfe0c5c513d",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "size": 52,
+        "sha256": "a07594b8a54aebecb920f606793c9f06bcaec0d4f7ad88d2090c96990ae827df"
+      },
+      "headers": {}
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=view&event_id=2e761f7b-6676-40f2-982b-6dfe0c5c513d",
+      "request": null,
+      "status": 206,
+      "expected_status": 206,
+      "response": {
+        "size": 8,
+        "sha256": "e16fa5d9b51928755db85b917f0297babaf22c7a47e97d9212adab56e61ba04e"
+      },
+      "headers": {
+        "Range": "bytes=0-7"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=view&event_id=ce9cfabb-04fe-47c8-931e-ce7c644985a6",
+      "request": null,
+      "status": 304,
+      "expected_status": 304,
+      "response": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "headers": {
+        "If-None-Match": "\"1792463293.7606318-52-1987190061\""
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=view&event_id=bcad2e62-0f43-411a-898b-b5de9f977338",
+      "request": null,
+      "status": 416,
+      "expected_status": 416,
+      "response": {
+        "error": {
+          "code": "HTTP_ERROR",
+          "details": {},
+          "message": "The server cannot provide the requested range."
+        },
+        "request_id": "8d26f2508d0c4b03a9889c95be31e549"
+      },
+      "headers": {
+        "Range": "bytes=9999-10000"
+      }
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=download&event_id=2e761f7b-6676-40f2-982b-6dfe0c5c513d",
+      "request": null,
+      "status": 409,
+      "expected_status": 409,
+      "response": {
+        "error": {
+          "code": "EVENT_CONFLICT",
+          "details": {},
+          "message": "event_id already used with different intent or version"
+        },
+        "request_id": "699a2defe22f43e9b38628e873ba074b"
+      },
+      "headers": {}
+    },
+    {
+      "method": "POST",
+      "path": "/resources/1/versions",
+      "request": {
+        "file": {
+          "name": "v2.pdf",
+          "mime": "application/pdf",
+          "size": 52,
+          "sha256": "3c937ff5228921f76ebc535c3d0b2e917cd456e8a2606a364488987cddb7213d"
+        }
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "change_note": null,
+          "created_at": "2026-10-20T02:28:13.954Z",
+          "id": 2,
+          "kind": "guide",
+          "resource_id": 1,
+          "sha256": "3c937ff5228921f76ebc535c3d0b2e917cd456e8a2606a364488987cddb7213d",
+          "size": 52,
+          "title": "PDF type control",
+          "version": 2
+        },
+        "request_id": "29d57946637f48e29976b428c2c28519"
+      },
+      "headers": {}
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/2/content?intent=view&event_id=2e761f7b-6676-40f2-982b-6dfe0c5c513d",
+      "request": null,
+      "status": 409,
+      "expected_status": 409,
+      "response": {
+        "error": {
+          "code": "EVENT_CONFLICT",
+          "details": {},
+          "message": "event_id already used with different intent or version"
+        },
+        "request_id": "3d79c6f0c9ce4dbb89021607b076d8d6"
+      },
+      "headers": {}
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=invalid&event_id=2e761f7b-6676-40f2-982b-6dfe0c5c513d",
+      "request": null,
+      "status": 400,
+      "expected_status": 400,
+      "response": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": {},
+          "message": "intent must be view or download"
+        },
+        "request_id": "9eaefa65be7a43daa6814ea94e835050"
+      },
+      "headers": {}
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=view&event_id=",
+      "request": null,
+      "status": 400,
+      "expected_status": 400,
+      "response": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": {},
+          "message": "event_id required"
+        },
+        "request_id": "fe8b55e9bc9b492594edd94e19ebaef6"
+      },
+      "headers": {}
+    },
+    {
+      "method": "GET",
+      "path": "/resource-versions/1/content?intent=view&event_id=not-a-uuid",
+      "request": null,
+      "status": 200,
+      "expected_status": null,
+      "response": {
+        "size": 52,
+        "sha256": "a07594b8a54aebecb920f606793c9f06bcaec0d4f7ad88d2090c96990ae827df"
+      },
+      "headers": {}
+    }
+  ],
+  "contract_observations": [
+    {
+      "capability": "APIC event_id UUID validation",
+      "expected_status": 400,
+      "actual_status": 200,
+      "status": "contract_failure"
+    }
+  ],
+  "final_facts": {
+    "knowledge_point": [
+      {
+        "id": 1,
+        "chapter_id": 1,
+        "title": "程序计数器",
+        "content": "<p>PC 指向下一条指令</p>",
+        "example": "",
+        "published": 1,
+        "content_revision": 1,
+        "is_foundational": 1
+      }
+    ],
+    "resource": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "chapter_id": 1,
+        "title": "PDF type control",
+        "kind": "guide",
+        "visibility": "students",
+        "archived": 0,
+        "created_at": "2026-10-20T02:28:13.762Z",
+        "updated_at": "2026-10-20T02:28:13.954Z"
+      }
+    ],
+    "resource_version": [
+      {
+        "id": 1,
+        "resource_id": 1,
+        "version": 1,
+        "file_id": 1,
+        "change_note": null,
+        "created_at": "2026-10-20T02:28:13.762Z"
+      },
+      {
+        "id": 2,
+        "resource_id": 1,
+        "version": 2,
+        "file_id": 2,
+        "change_note": null,
+        "created_at": "2026-10-20T02:28:13.954Z"
+      }
+    ],
+    "resource_event": [
+      {
+        "id": 1,
+        "user_id": 3,
+        "resource_version_id": 1,
+        "event_type": "view",
+        "event_id": "2e761f7b-6676-40f2-982b-6dfe0c5c513d",
+        "request_id": "0370e18677d14088a0c0339404cff7f0",
+        "created_at": "2026-10-20T02:28:13.818Z"
+      },
+      {
+        "id": 2,
+        "user_id": 3,
+        "resource_version_id": 1,
+        "event_type": "view",
+        "event_id": "not-a-uuid",
+        "request_id": "74c470c981de4080a2a72dd76f039ae6",
+        "created_at": "2026-10-20T02:28:14.066Z"
+      }
+    ],
+    "files": [
+      {
+        "id": 1,
+        "media_type": "application/pdf",
+        "size_bytes": 52,
+        "sha256": "a07594b8a54aebecb920f606793c9f06bcaec0d4f7ad88d2090c96990ae827df",
+        "purpose": "resource:guide"
+      },
+      {
+        "id": 2,
+        "media_type": "application/pdf",
+        "size_bytes": 52,
+        "sha256": "3c937ff5228921f76ebc535c3d0b2e917cd456e8a2606a364488987cddb7213d",
+        "purpose": "resource:guide"
+      }
+    ],
+    "integrity_check": "ok",
+    "foreign_key_check": []
+  }
+}
