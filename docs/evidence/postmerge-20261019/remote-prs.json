@@ -1,0 +1,161 @@
+{
+  "baseline": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a",
+  "prs": [
+    {
+      "number": 27,
+      "title": "test(spec-010b): C12b合入后时间显示与提交接缝集成验收",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/27",
+      "base": "develop",
+      "head": "7096b496504f62181f60987062b1397bdb96a937",
+      "merged": true,
+      "merge": "4b8a5fbd8b0ea4f7bacf47ab504e52278500e7ef",
+      "merged_at": "2026-10-19T05:06:54Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 28,
+      "title": "docs(spec-010b): C12c个人测试、检查点、用户及设计材料",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/28",
+      "base": "develop",
+      "head": "8111c5395d8b7cf33205065c77490593e07ed045",
+      "merged": true,
+      "merge": "8c46abe9bf4872cc94ca7ad2daddcb00d965676e",
+      "merged_at": "2026-10-19T05:06:54Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 29,
+      "title": "test(spec-008): R37备课关联联测与004契约缺口证据",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/29",
+      "base": "develop",
+      "head": "b56141f2e060d1ec5464d58d52f6f735c445d56c",
+      "merged": true,
+      "merge": "299cd6e3643c4053511c32b29813c94f543b2dcf",
+      "merged_at": "2026-10-19T05:06:54Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 30,
+      "title": "test(spec-006): R01题库资源与测验保护接缝联测",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/30",
+      "base": "develop",
+      "head": "dbd32e65db1d6d371adcfe4b06889a24e7490e24",
+      "merged": true,
+      "merge": "0135502b30d12798ca7ad0141ccaab3433d5633e",
+      "merged_at": "2026-10-19T05:06:54Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 31,
+      "title": "test(spec-010b): I-03本人错题掌握度检索联测与007入口缺口",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/31",
+      "base": "develop",
+      "head": "40bba87e765bc9c52498f8cf7781307172e9c310",
+      "merged": true,
+      "merge": "5e0190e8f9da7536e7f977c08d799c10dd666913",
+      "merged_at": "2026-10-19T05:06:54Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 32,
+      "title": "test(spec-005): I-01实际消费与图文资源契约核对",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/32",
+      "base": "develop",
+      "head": "066ff930730606a519d2c094caf7f25443eb9fca",
+      "merged": true,
+      "merge": "00aad53e9ad18bcba00c43a8055a47e92cb58fc1",
+      "merged_at": "2026-10-19T05:06:54Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 33,
+      "title": "test(spec-012-013): 推荐练习与生成测验的真实消费接缝",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/33",
+      "base": "develop",
+      "head": "789745151a7885ca1e615be4660d6b80e92439b4",
+      "merged": true,
+      "merge": "4c76aa6ba7308ddfc2e814df811705a9778a2ae7",
+      "merged_at": "2026-10-19T05:06:54Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 34,
+      "title": "test(spec-006-010b): 生成作业考试与混合来源的有限消费核对",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/34",
+      "base": "develop",
+      "head": "73358de0df2a20415875bbe160b4dd57c6f64157",
+      "merged": true,
+      "merge": "dd8f9c9bfd223af220c79c879954136719b42de6",
+      "merged_at": "2026-10-19T05:06:54Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 35,
+      "title": "test(spec-010b): 005变更后的当前集合与历史快照消费核对",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/35",
+      "base": "develop",
+      "head": "8ea309442f52c31e6b6fb3d3e2efee2b7ff99800",
+      "merged": true,
+      "merge": "f0529d75e0777ba96f187679b0632c17aa7b1621",
+      "merged_at": "2026-10-19T05:06:54Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 36,
+      "title": "SPEC-018 circuit online grading: suites, lease queue, submissions and frontend workbench",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/36",
+      "base": "develop",
+      "head": "80052f29bd205e66acc3a4f7140fe92dbe9936ab",
+      "merged": true,
+      "merge": "15718fbfdf7bd11c5c499fde2a4468c281e2a41a",
+      "merged_at": "2026-10-18T10:48:31Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 37,
+      "title": "SPEC-010D circuit grading analytics: teaching pass rate, score bins and run reliability",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/37",
+      "base": "develop",
+      "head": "37e1175133c09d1d4bb78a6a3641707bf2a36493",
+      "merged": true,
+      "merge": "cebd525c160fd2948f0702a5d1e5046f2ae38e85",
+      "merged_at": "2026-10-18T13:50:01Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 38,
+      "title": "Integrate teammate work and align course documentation layout",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/38",
+      "base": "develop",
+      "head": "954f83bd32d6f1c0fcdefeeac4d5d033916c45a1",
+      "merged": true,
+      "merge": "497faaaa561876f180b41629f195b497f36e4225",
+      "merged_at": "2026-10-19T05:06:52Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    },
+    {
+      "number": 39,
+      "title": "完成姜苏豪负责模块的界面收尾与识别固定样例",
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/39",
+      "base": "develop",
+      "head": "faf17789bdd0f6bedf073fd1d4c6bd68994664dd",
+      "merged": true,
+      "merge": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a",
+      "merged_at": "2026-10-19T13:36:18Z",
+      "merge_is_baseline_ancestor": true,
+      "head_is_baseline_ancestor": true
+    }
+  ]
+}
