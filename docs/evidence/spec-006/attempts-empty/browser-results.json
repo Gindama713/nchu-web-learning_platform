@@ -1,0 +1,29 @@
+{
+  "started_at": "2026-10-14T04:33:57.391898+00:00",
+  "tested_head": "7c7daf7e9f8d9ba602f91ee078e5e696daef6b0f",
+  "knowledge_fixture": false,
+  "scope": "real empty attempt HTTP/UI without dependency fixtures",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.40",
+      "checks": [
+        "real_teacher_empty_history_without_dependency_fixtures",
+        "real_logout_removes_teacher_history",
+        "real_student_empty_history_no_teacher_controls_390px"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "checks": [
+        "real_teacher_empty_history_without_dependency_fixtures",
+        "real_logout_removes_teacher_history",
+        "real_student_empty_history_no_teacher_controls_390px"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "status": "passed",
+  "finished_at": "2026-10-14T04:34:20.080123+00:00"
+}

@@ -1,14 +1,28 @@
-:root { font-family: system-ui, sans-serif; color: #182436; background: #f3f6fb; }
+:root { font-family: system-ui, sans-serif; color: #182436; background: #f3f6fb; line-height: 1.5; }
 * { box-sizing: border-box; }
 body { margin: 0; }
-.page { width: min(1120px, 100% - 32px); margin: auto; padding: 40px 0; }
+.page { width: min(1120px, 100% - 32px); margin: auto; padding: 32px 0; display: grid; gap: 20px; }
 .hero { background: #173b6c; color: white; border-radius: 18px; padding: 40px; }
 .hero h1 { font-size: clamp(1.9rem, 4vw, 3rem); margin: 8px 0 16px; }
 .eyebrow { letter-spacing: .08em; opacity: .8; }
-h2 { margin-top: 40px; }
+h2 { margin: 0 0 16px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
 .card { background: white; border: 1px solid #dce4ee; border-radius: 12px; padding: 20px; }
 .card h3 { margin: 12px 0 4px; }
 .card p { color: #60718a; margin: 0 0 14px; }
 .card small { color: #9a5b00; }
 .tag { color: #15508e; background: #e8f2ff; border-radius: 30px; padding: 4px 10px; font-size: .8rem; }
+label { display: grid; gap: 4px; min-width: 170px; font-weight: 600; }
+input, select, textarea { width: 100%; padding: 10px; border: 1px solid #9cabc0; border-radius: 7px; color: #182436; background: white; font: inherit; }
+input[type="checkbox"] { width: auto; }
+textarea { font-family: ui-monospace, monospace; }
+button { padding: 10px 14px; border: 1px solid #173b6c; border-radius: 7px; background: #173b6c; color: white; font: inherit; cursor: pointer; }
+button.secondary { color: #173b6c; background: white; }
+button:hover { filter: brightness(.93); }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 3px solid #f0a500; outline-offset: 2px; }
+.actions, .inline-form { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 14px 0; }
+.rows { list-style: none; padding: 0; margin: 8px 0 20px; }
+.rows li { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #e1e7ee; }
+.secret { padding: 12px; border: 1px solid #d18700; background: #fff4d6; }
+.secret strong { font-size: 1.5rem; letter-spacing: .1em; }
+@media (max-width: 620px) { .hero { padding: 24px; } .inline-form { display: grid; } }

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "E011",
+    "source": "docs/evidence/spec-011/browsers/report.json",
+    "source_ref": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
+    "sha256": "b99e6620dab96f9c18760bb05a42263cfe35e652f91e203327576eff59bd1881",
+    "tested_head": "36854081b1ba991a89bacbf7d797ab0620619ae3",
+    "dirty": [],
+    "status": "passed",
+    "browsers": [
+      {
+        "channel": "chrome",
+        "version": "155.0.8059.41",
+        "checks": [
+          "real_001_login_005_publish_PC_alias_six_decimals_source_and_draft_excluded",
+          "real_zero_vector_and_no_match_response_page",
+          "real_005_update_on_demand_revision_rebuild_without_old_excerpt",
+          "injected_build_failure_real_HTTP503_clears_UI_real_progress_and_practice_submit201_work_retry_recovers",
+          "real_unpublish_failed_rebuild_never_leaks_then_empty_corpus_revision",
+          "delayed_real_HTTP_response_discarded_after_question_change",
+          "390px_mobile_no_document_overflow",
+          "real_001_membership_revocation_HTTP404_clears_and_disables_query",
+          "SQLite_query_owner_raw_similarity_revision_algorithm_records_and_FK_integrity"
+        ],
+        "page_errors": [],
+        "result": "passed"
+      },
+      {
+        "channel": "msedge",
+        "version": "155.0.4283.45",
+        "checks": [
+          "real_001_login_005_publish_PC_alias_six_decimals_source_and_draft_excluded",
+          "real_zero_vector_and_no_match_response_page",
+          "real_005_update_on_demand_revision_rebuild_without_old_excerpt",
+          "injected_build_failure_real_HTTP503_clears_UI_real_progress_and_practice_submit201_work_retry_recovers",
+          "real_unpublish_failed_rebuild_never_leaks_then_empty_corpus_revision",
+          "delayed_real_HTTP_response_discarded_after_question_change",
+          "390px_mobile_no_document_overflow",
+          "real_001_membership_revocation_HTTP404_clears_and_disables_query",
+          "SQLite_query_owner_raw_similarity_revision_algorithm_records_and_FK_integrity"
+        ],
+        "page_errors": [],
+        "result": "passed"
+      }
+    ],
+    "checks": null,
+    "compared_paths": [],
+    "changed_scoped_paths": [],
+    "reuse_boundary": "仅原独立feature证据；develop跨链阻断"
+  },
+  {
+    "id": "E012",
+    "source": "docs/evidence/spec-012/browsers/browser-results.json",
+    "source_ref": "36a9cff64425221a146bbfbf301f212a34db48f8",
+    "sha256": "9512ba64b6ec97b183db39f90922d7d289f3211dfb87a8255c869cf0486e47b1",
+    "tested_head": "e8da2410c87c1cf2173fad36aaf92fcacdf46e38",
+    "dirty": [],
+    "status": "passed",
+    "browsers": [
+      {
+        "channel": "chrome",
+        "version": "155.0.8059.41",
+        "status": "passed",
+        "checks": [
+          "real 005 empty course / no foundation / sorted cold start / completed foundation excluded",
+          "latest eligible version minimum ID; safe real knowledge source; existing practice UI 201; blank/replay excluded",
+          "five real samples, .8 boundary + completed filter; uncompleted mastery retained; all-mastered metadata",
+          "latest closed practice has null entry; unpublish before source click removes stale recommendation",
+          "server fault fixture returns real HTTP503 while independent practice UI submits201; explicit retry + 390px",
+          "server-delayed genuine response discarded after limit changed; explicit refresh recovers",
+          "real membership revocation404 + restoration; account deactivation removes result before another query"
+        ],
+        "page_errors": [],
+        "course_id": 1
+      },
+      {
+        "channel": "msedge",
+        "version": "155.0.4283.45",
+        "status": "passed",
+        "checks": [
+          "real 005 empty course / no foundation / sorted cold start / completed foundation excluded",
+          "latest eligible version minimum ID; safe real knowledge source; existing practice UI 201; blank/replay excluded",
+          "five real samples, .8 boundary + completed filter; uncompleted mastery retained; all-mastered metadata",
+          "latest closed practice has null entry; unpublish before source click removes stale recommendation",
+          "server fault fixture returns real HTTP503 while independent practice UI submits201; explicit retry + 390px",
+          "server-delayed genuine response discarded after limit changed; explicit refresh recovers",
+          "real membership revocation404 + restoration; account deactivation removes result before another query"
+        ],
+        "page_errors": [],
+        "course_id": 2
+      }
+    ],
+    "checks": null,
+    "compared_paths": [],
+    "changed_scoped_paths": [],
+    "reuse_boundary": "仅原独立feature证据；develop跨链阻断"
+  }
+]

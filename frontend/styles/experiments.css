@@ -1,0 +1,39 @@
+/* SPEC-009 实验中心 */
+.experiment-center .experiment-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-right: 1rem;
+}
+
+.experiment-guidance {
+  border-top: 1px solid rgba(15, 23, 42, 0.12);
+  padding-top: 1rem;
+}
+
+.experiment-guidance h4 {
+  margin: 0.8rem 0 0.3rem;
+}
+
+.experiment-text {
+  white-space: pre-wrap;
+}
+
+.experiment-rules {
+  background: rgba(15, 23, 42, 0.05);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  margin: 0;
+  max-height: 16rem;
+  overflow: auto;
+  padding: 0.75rem;
+  white-space: pre-wrap;
+}
+
+.experiment-entry[data-mode='wiring'] {
+  background: #1d4ed8;
+}
+
+.experiment-entry[data-mode='circuit'] {
+  background: #0f766e;
+}

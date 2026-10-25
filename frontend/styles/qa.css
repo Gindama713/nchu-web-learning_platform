@@ -1,0 +1,10 @@
+.qa-form { max-width: 780px; }
+.qa-form .knowledge-actions { align-items: end; margin-bottom: 24px; }
+.qa-form .knowledge-actions .knowledge-field { margin: 0; }
+.qa-matches { padding-left: 24px; }
+.qa-matches li { padding: 18px 0; border-top: 1px solid #cbdadf; }
+.qa-citation { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+.qa-citation span { color: #126b70; font: .9rem Consolas, monospace; }
+.qa-excerpt { line-height: 1.85; white-space: pre-wrap; overflow-wrap: anywhere; }
+.qa-meta { font: .8rem Consolas, monospace; color: #576e79; overflow-wrap: anywhere; }
+.qa-source { border-left: 4px solid #126b70; padding: 6px 20px; margin-top: 24px; }

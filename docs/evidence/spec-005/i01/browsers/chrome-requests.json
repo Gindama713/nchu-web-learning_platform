@@ -1,0 +1,5275 @@
+[
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 401,
+    "response": {
+      "error": {
+        "code": "UNAUTHENTICATED",
+        "details": {},
+        "message": "Login required"
+      },
+      "request_id": "4a38abdd02c242aab5d252ad873499bc"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "POST",
+    "path": "/api/v1/auth/login",
+    "request": {
+      "student_no": "I01TEACH",
+      "password": "[REDACTED]"
+    },
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "user": {
+          "active": 1,
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "2a32bb966bd747f1a17379534f624ffc"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "7ad3e9643b9348d09dfe66319ce3727e",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "6260878215c54eff8fdae2e3cd6f3174"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/notifications?page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "aede5d4008aa4e7cb9352c9c31468ed4",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "93fda126972742758582a24ce63e7bb5"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "93d34e5ad64d40368009b01cfdc78f84",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "ae10d4cdf414469fb0deebf780ab1692"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "7b188ea8058146bda3125b423264d6a1",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "8c769a8f871448beaedd62049f8116ad"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "34bb4a2fadda409e907386810b73d384",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/chapters?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "chapters_revision": 1,
+      "data": [
+        {
+          "id": 1,
+          "position": 0,
+          "title": "I01 ALU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "857a36cf55114c439fcc312b5cd867dd",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "6535c7c43b7147bd935869dd203116e1"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "cfa3e5943ad14835957b1e354eb46aed",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/questions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "d08b3ce1c3244711962ea9d4303237c9",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/knowledge-points?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 ALU"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 进位"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 3,
+          "is_foundational": false,
+          "published": false,
+          "title": "I01 草稿"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "7ff7f2fce376484bb8e0223550824f72",
+      "total": 3
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "b607b60737004bbaa3a62b984840c35f"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "3b071f36e7c24dcf9037b8a4b55c1378",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/papers?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "fe2c85e86593462e85410e9511404d56",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/knowledge-points?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 ALU"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 进位"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 3,
+          "is_foundational": false,
+          "published": false,
+          "title": "I01 草稿"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "aa3ecfdf33fc48099a6ff29b7b4d437f",
+      "total": 3
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "9a82e91a226e43eb8bedf179575f5f4a"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "fd87948ee1b64b488755600ad02f5f4c",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/quizzes?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "7de3f2bf46da435ea48db6fcf9bcce22",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "c5e1cb468daa41319e1cb32c6b8dc917"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "ef8b118b20be40ba9246d2f8827f576a",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/papers?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "d69d543c7e0d4d1fa0475630d05950b7",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "76b7ed4957474cab8f964cd7b8eebf70"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "3baa2a683f474dc687df3372c57e0e4d",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/chapters?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "chapters_revision": 1,
+      "data": [
+        {
+          "id": 1,
+          "position": 0,
+          "title": "I01 ALU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "775d6e8b37b84f5084837692baac4d57",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/attempts?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "0563c22e7c6143c58818a62cecc65c6f",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "38b6c59719b34750857772fbe020005b",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/knowledge-points?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 ALU"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 进位"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 3,
+          "is_foundational": false,
+          "published": false,
+          "title": "I01 草稿"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "b1e0a5ef882d4e7ba821b97913d7fce3",
+      "total": 3
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/resources?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "374a521be38a45108a01bdba3567fb29",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/analytics?dimension=knowledge",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "algorithm_version": "knowledge-objective-v1",
+        "analysis_run_id": 1,
+        "dimension": "knowledge",
+        "filters": {
+          "from": "2026-09-19T02:45:50.000Z",
+          "knowledge_ids": [
+            1,
+            2
+          ],
+          "student_id": null,
+          "to": "2026-10-17T02:45:50.000Z"
+        },
+        "generated_at": "2026-10-17T02:45:50.000Z",
+        "metrics": {
+          "answered_count": 0,
+          "completed_knowledge_count": null,
+          "correct_count": 0,
+          "items": [
+            {
+              "answered_count": 0,
+              "correct_count": 0,
+              "knowledge_id": 1,
+              "mastery": null,
+              "title": "I01 ALU",
+              "wrong_count": 0
+            },
+            {
+              "answered_count": 0,
+              "correct_count": 0,
+              "knowledge_id": 2,
+              "mastery": null,
+              "title": "I01 进位",
+              "wrong_count": 0
+            }
+          ],
+          "mastery": null,
+          "progress": null,
+          "published_knowledge_count": 2
+        },
+        "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+        "sample_size": 0,
+        "series": [
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": null,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": null,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-09-20T16:00:00.000Z",
+            "period_start": "2026-09-19T02:45:50.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": null,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": null,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-09-27T16:00:00.000Z",
+            "period_start": "2026-09-20T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": null,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": null,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-04T16:00:00.000Z",
+            "period_start": "2026-09-27T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": null,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": null,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-11T16:00:00.000Z",
+            "period_start": "2026-10-04T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": null,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": null,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-17T02:45:50.000Z",
+            "period_start": "2026-10-11T16:00:00.000Z"
+          }
+        ],
+        "source_until": "2026-10-17T02:45:50.000Z",
+        "unit": {
+          "mastery": "ratio",
+          "progress": "ratio"
+        },
+        "warnings": [
+          "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合",
+          "班级进度未定义，请选择学生查看个人进度"
+        ]
+      },
+      "request_id": "ed860f8dd49d4d489b05de7a413edc78"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/experiments?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "ef0c5b7213e24ee88f211cd559cf1a98",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/experiment-versions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "9a880f28b40c45bfaf5ca6522398666c",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "bc12b93a96a54693869d0c96d20bb1b7"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "POST",
+    "path": "/api/v1/courses/1/resources",
+    "request": {
+      "title": "I01 PNG现行入口",
+      "kind": "guide"
+    },
+    "files": [
+      {
+        "field": "file",
+        "name": "alu.png",
+        "mime": "image/png"
+      }
+    ],
+    "status": 415,
+    "response": {
+      "error": {
+        "code": "UNSUPPORTED_MEDIA",
+        "details": {},
+        "message": "File type not supported for this kind"
+      },
+      "request_id": "2bbcb50c023648ca9cde90c2e2b09fc0"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/resources",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "e1947d9c68ec494cb8c4f1ba341dc191",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "aa6a061616374c13a25faf11e8d32244"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "POST",
+    "path": "/api/v1/courses/1/resources",
+    "request": {
+      "title": "I01合法文档对照",
+      "kind": "guide"
+    },
+    "files": [
+      {
+        "field": "file",
+        "name": "control.pdf",
+        "mime": "application/pdf"
+      }
+    ],
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "kind": "guide",
+        "resource_id": 1,
+        "sha256": "c663b251938ca649283ae83ad1dbd424533bcdb6baac350736e8fd93a43cb22e",
+        "size": 50,
+        "title": "I01合法文档对照",
+        "version": 1
+      },
+      "request_id": "79878ebfc29147ecb07ee91321a04af5"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/resources?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "archived": 0,
+          "chapter_id": null,
+          "course_id": 1,
+          "id": 1,
+          "kind": "guide",
+          "latest_version": 1,
+          "latest_version_id": 1,
+          "sha256": "c663b251938ca649283ae83ad1dbd424533bcdb6baac350736e8fd93a43cb22e",
+          "size": 50,
+          "title": "I01合法文档对照",
+          "visibility": "students"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "4be8f1fa422944748c4b78ac7d394702",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/resources/1/versions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "change_note": null,
+          "created_at": "2026-10-17T02:45:50.000Z",
+          "id": 1,
+          "kind": "guide",
+          "resource_id": 1,
+          "sha256": "c663b251938ca649283ae83ad1dbd424533bcdb6baac350736e8fd93a43cb22e",
+          "size": 50,
+          "title": "I01合法文档对照",
+          "version": 1
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "ea097a48fec5495e84f805b6668a89e1",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "f08f764dacc94af98951f36f8041d710"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "POST",
+    "path": "/api/v1/resources/1/versions",
+    "request": {},
+    "files": [
+      {
+        "field": "file",
+        "name": "v2.pdf",
+        "mime": "application/pdf"
+      }
+    ],
+    "status": 201,
+    "response": {
+      "data": {
+        "change_note": null,
+        "created_at": "2026-10-17T02:45:50.000Z",
+        "id": 2,
+        "kind": "guide",
+        "resource_id": 1,
+        "sha256": "b4765c2212469d83363a2a5ded125202625ee6004b5f2a205f3cceefe6ae9534",
+        "size": 50,
+        "title": "I01合法文档对照",
+        "version": 2
+      },
+      "request_id": "5a16012a44ad4508b02e635ad07a52c0"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/resources/1/versions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "change_note": null,
+          "created_at": "2026-10-17T02:45:50.000Z",
+          "id": 2,
+          "kind": "guide",
+          "resource_id": 1,
+          "sha256": "b4765c2212469d83363a2a5ded125202625ee6004b5f2a205f3cceefe6ae9534",
+          "size": 50,
+          "title": "I01合法文档对照",
+          "version": 2
+        },
+        {
+          "change_note": null,
+          "created_at": "2026-10-17T02:45:50.000Z",
+          "id": 1,
+          "kind": "guide",
+          "resource_id": 1,
+          "sha256": "c663b251938ca649283ae83ad1dbd424533bcdb6baac350736e8fd93a43cb22e",
+          "size": 50,
+          "title": "I01合法文档对照",
+          "version": 1
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "effeb308a1884e49a778b87996aed859",
+      "total": 2
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/knowledge-points/1",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "chapter_id": 1,
+        "content": "<p>ALU 算术逻辑单元</p>",
+        "content_revision": 1,
+        "example": "",
+        "id": 1,
+        "is_bookmarked": false,
+        "is_foundational": false,
+        "progress": {
+          "completed": false,
+          "completed_at": null
+        },
+        "published": true,
+        "title": "I01 ALU"
+      },
+      "request_id": "92e47a027c1044a4b5a403ae8ede3aa6"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/resources?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "archived": 0,
+          "chapter_id": null,
+          "course_id": 1,
+          "id": 1,
+          "kind": "guide",
+          "latest_version": 2,
+          "latest_version_id": 2,
+          "sha256": "b4765c2212469d83363a2a5ded125202625ee6004b5f2a205f3cceefe6ae9534",
+          "size": 50,
+          "title": "I01合法文档对照",
+          "visibility": "students"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "510f0b33077c4e1d9e2a31a9c472a601",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "8fe5aca7d6b84a1bb4de7c1510d1ef51"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "PATCH",
+    "path": "/api/v1/knowledge-points/1",
+    "request": {
+      "title": "I01 ALU",
+      "content": "<h2 class=\"x\">I01图文边界</h2><p onclick=\"alert(1)\">A<sup>2</sup><sub>i</sub><img src=\"/api/v1/resource-versions/1/content?intent=view&event_id=11111111-1111-4111-8111-111111111111\"><a href=\"/api/v1/resource-versions/1/content?intent=view&event_id=11111111-1111-4111-8111-111111111111\">原版资源</a></p>",
+      "example": "<p style=\"color:red\"><b>例题</b><a href=\"https://example.com\">链接文本</a></p>",
+      "published": true,
+      "is_foundational": false
+    },
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "chapter_id": 1,
+        "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+        "content_revision": 2,
+        "example": "<p><b>例题</b>链接文本</p>",
+        "id": 1,
+        "is_foundational": false,
+        "published": true,
+        "title": "I01 ALU"
+      },
+      "request_id": "d990405e2a4f4628ac69ac1123c5c63a"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/chapters?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "chapters_revision": 1,
+      "data": [
+        {
+          "id": 1,
+          "position": 0,
+          "title": "I01 ALU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "c85f157e919149929b116e6d662c7311",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/knowledge-points?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+          "content_revision": 2,
+          "example": "<p><b>例题</b>链接文本</p>",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 ALU"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 进位"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 3,
+          "is_foundational": false,
+          "published": false,
+          "title": "I01 草稿"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "5107a44e2b74424387de590e6befdc8a",
+      "total": 3
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/knowledge-points/1",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "chapter_id": 1,
+        "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+        "content_revision": 2,
+        "example": "<p><b>例题</b>链接文本</p>",
+        "id": 1,
+        "is_bookmarked": false,
+        "is_foundational": false,
+        "progress": {
+          "completed": false,
+          "completed_at": null
+        },
+        "published": true,
+        "title": "I01 ALU"
+      },
+      "request_id": "b4bc6a99166740049c9c11960dfa2f2d"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 401,
+    "response": {
+      "error": {
+        "code": "UNAUTHENTICATED",
+        "details": {},
+        "message": "Login required"
+      },
+      "request_id": "b8d1e1247b844102b12b9b890868abdc"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "POST",
+    "path": "/api/v1/auth/login",
+    "request": {
+      "student_no": "I01STUD1",
+      "password": "[REDACTED]"
+    },
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "user": {
+          "active": 1,
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "18833d2499e4412485b55971c4c89401"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "00437331f828434098ee2792b8cefc90",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "e00be772397140aebb2b1f8fe34b95f7"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/notifications?page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "df3a7f6a29434d8ab0c2b4b8bcdcf706",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "fb1dd2fef4414f45813d2a79390b3496"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "99a695b3d685476c9bbb38f9bcae5d45",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "825d86aace16435084d95cde154607bd"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "65e7b886759f4b76a4eab4337e49a0fa",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "4eb3bf7b766a479a94063c32b3dbd502"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "4c8d7288711c4e6fa37f56b5532f7d58",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/chapters?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "chapters_revision": 1,
+      "data": [
+        {
+          "id": 1,
+          "position": 0,
+          "title": "I01 ALU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "981e8f7165b64f46b1e02b9b1aa53b90",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "2c5ef3b7c36c4fa79a27435b3ee025ed"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "f91f08ce91514bae9719e220fcad454b",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/questions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "a20093bbc2f842a3a0bab4c4d3a5e67d",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/knowledge-points?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+          "content_revision": 2,
+          "example": "<p><b>例题</b>链接文本</p>",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 ALU"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 进位"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "4d7aa7ac254f4a3b90a52bfe76d4ec6b",
+      "total": 2
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "913be56ff3994582a6bfab42856117e8"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "530a173d60ed4712800b6853093b4396",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/papers?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "a94f8f2e110b4d8a80f4e7553ec38f27",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "d605361ea8ef4cccbd000e55f74378ac"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "728b47c822d847a5922bb5db7f86b178",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/quizzes?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "91212d879c034c0fb78a2ce6ec4acf77",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "107a9c2376514752a0191a018b314aa6"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "f66b00d32dae4e578c40d19f47502eb1",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/papers?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "f33ba63ecd70448f891686f3becc71c2",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "7f9f9ef532954c85bb746829483a6d9f"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "9de5930870d546e7ad76064beaa11d6d",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/recommendations?limit=5",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "algorithm_version": "recommend-v1",
+        "items": [],
+        "reason": "no_foundational_candidates",
+        "source_until": "2026-10-17T02:45:50.000Z"
+      },
+      "request_id": "8594d1c3a69b4eaeb0fb6d3e004f9949"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/attempts?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "2b123d0c240f42029febf9fb12a9a272",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "2b36082c85114c6da97f31b9d7bb9be2"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "ec38750b2cd749fd9a76a27a78702b8b",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/questions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "1b1dd3e4aa5e4fb184a43b02294bfa10",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "33962e5cb3764966866e98d2ee2259f2"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "d4cd184134314a179a6f1834fbf56c06",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/chapters?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "chapters_revision": 1,
+      "data": [
+        {
+          "id": 1,
+          "position": 0,
+          "title": "I01 ALU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "ad677ed12fff43768105a9be8164cb93",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "e0ec52a4355c4ea3ba361bd754a7fcc8"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "d9540be6b4d74fdd9d0ee5941ecfceeb",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/knowledge-points?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+          "content_revision": 2,
+          "example": "<p><b>例题</b>链接文本</p>",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 ALU"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 进位"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "e3f9f089c4334e4baa4e13039cf42390",
+      "total": 2
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/resources?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "archived": 0,
+          "chapter_id": null,
+          "course_id": 1,
+          "id": 1,
+          "kind": "guide",
+          "latest_version": 2,
+          "latest_version_id": 2,
+          "sha256": "b4765c2212469d83363a2a5ded125202625ee6004b5f2a205f3cceefe6ae9534",
+          "size": 50,
+          "title": "I01合法文档对照",
+          "visibility": "students"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "cffdbaff55544c4e81837398047e4526",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/analytics?dimension=knowledge",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "algorithm_version": "knowledge-objective-v1",
+        "analysis_run_id": 2,
+        "dimension": "knowledge",
+        "filters": {
+          "from": "2026-09-19T02:45:50.000Z",
+          "knowledge_ids": [
+            1,
+            2
+          ],
+          "student_id": 3,
+          "to": "2026-10-17T02:45:50.000Z"
+        },
+        "generated_at": "2026-10-17T02:45:50.000Z",
+        "metrics": {
+          "answered_count": 0,
+          "completed_knowledge_count": 0,
+          "correct_count": 0,
+          "items": [
+            {
+              "answered_count": 0,
+              "correct_count": 0,
+              "knowledge_id": 1,
+              "mastery": null,
+              "title": "I01 ALU",
+              "wrong_count": 0
+            },
+            {
+              "answered_count": 0,
+              "correct_count": 0,
+              "knowledge_id": 2,
+              "mastery": null,
+              "title": "I01 进位",
+              "wrong_count": 0
+            }
+          ],
+          "mastery": null,
+          "progress": 0.0,
+          "published_knowledge_count": 2
+        },
+        "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+        "sample_size": 0,
+        "series": [
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": 0,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": 0.0,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-09-20T16:00:00.000Z",
+            "period_start": "2026-09-19T02:45:50.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": 0,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": 0.0,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-09-27T16:00:00.000Z",
+            "period_start": "2026-09-20T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": 0,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": 0.0,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-04T16:00:00.000Z",
+            "period_start": "2026-09-27T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": 0,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": 0.0,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-11T16:00:00.000Z",
+            "period_start": "2026-10-04T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": 0,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": 0.0,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-17T02:45:50.000Z",
+            "period_start": "2026-10-11T16:00:00.000Z"
+          }
+        ],
+        "source_until": "2026-10-17T02:45:50.000Z",
+        "unit": {
+          "mastery": "ratio",
+          "progress": "ratio"
+        },
+        "warnings": [
+          "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+        ]
+      },
+      "request_id": "7a4f1a86e6694c73a76eaa07a81583c1"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/experiments?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "7715091c10364233bfe32a5f0885ee4c",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/experiment-versions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "2ce8e1f4a9524aa5b184292c2bd03dcf",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/knowledge-points/1",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "chapter_id": 1,
+        "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+        "content_revision": 2,
+        "example": "<p><b>例题</b>链接文本</p>",
+        "id": 1,
+        "is_bookmarked": false,
+        "is_foundational": false,
+        "progress": {
+          "completed": false,
+          "completed_at": null
+        },
+        "published": true,
+        "title": "I01 ALU"
+      },
+      "request_id": "63b24906f95742e9ad68c57cd5d6bb08"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "ecd89ab46e314fc0ba679c6b59cd3886"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "PUT",
+    "path": "/api/v1/knowledge-points/1/progress",
+    "request": {
+      "completed": true
+    },
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "completed": true,
+        "updated_at": "2026-10-17T02:45:55.515224Z"
+      },
+      "request_id": "2fc5d2f80c934fc3913690b2d720dca6"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/knowledge-points/1",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "chapter_id": 1,
+        "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+        "content_revision": 2,
+        "example": "<p><b>例题</b>链接文本</p>",
+        "id": 1,
+        "is_bookmarked": false,
+        "is_foundational": false,
+        "progress": {
+          "completed": true,
+          "completed_at": "2026-10-17T02:45:55.515224Z"
+        },
+        "published": true,
+        "title": "I01 ALU"
+      },
+      "request_id": "26ce9bbe77cf4579bde994e84431d80d"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "e4ddb4cc3c004353b7020933a8294c49"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "ea91b293120e456793a439d45df20a23",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "da7442248e4f4a3f81f6d254a9164b89"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/notifications?page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "2618cb8a9006488fb71eca1490c53657",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "bbc4b43c6e044f928b7b8cf7241e1c3f"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "8aec03e8739e4a4bbb3ee20a6b0c5784",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "364a09350885402cba4463fa86393ac9"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "b3a9f793a00f450daed390c067d6244a",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "9995cf29fec54c229ed7265805edb9ca"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "02bb396db20d4b93b7904d0118cbb5b1",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/chapters?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "chapters_revision": 1,
+      "data": [
+        {
+          "id": 1,
+          "position": 0,
+          "title": "I01 ALU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "0eda6e6ef4fd4299abb7328f96967913",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "1dfa5585b1a94de1aef756ebbd0557de"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "b6d7ed36aab74e41af709de4747e0941",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/questions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "cf6d3e5711e64465bbd46f4303a62305",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/knowledge-points?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+          "content_revision": 2,
+          "example": "<p><b>例题</b>链接文本</p>",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 ALU"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 进位"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "b0ee99230a6145a28c0f4be71df30afe",
+      "total": 2
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "446ee3523eab4be6bdbdaa7bb4c1131a"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "a1427761c927468d899b9b75af450858",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/papers?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "ad0edf34dc114e929d739b3af26abd18",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "0c24cf1e1d614d65b7ce07d027d49fb5"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "5a9c817c68ac45f6855b6c7f39fe3e4d",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/quizzes?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "a8a3cd931f2947c5b190742564b8ff8c",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "07f7ea4f35294ca197dfa5f1efb4a00b"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "c8bbeacc4de84054b2dbac2e182ff2ff",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/papers?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "b7cc851276a640ab8a8845a00b75effe",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "309b83dfa6d54209b9f91ee38124b1bf"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "3e574b97bd474241854b7aa761a11059",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/recommendations?limit=5",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "algorithm_version": "recommend-v1",
+        "items": [],
+        "reason": "no_foundational_candidates",
+        "source_until": "2026-10-17T02:45:50.000Z"
+      },
+      "request_id": "31088768abdc44a6a9b7efe97658e1af"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/attempts?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "7b3c74b15d6045a584488caca1228263",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "6ff291629ca543079e9fb183ae19dbdb"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "ebd273b8512c45c48e38051f0f2af458",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/questions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "b65644556bd6418cbaf6ff270de86b5a",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "ee4d09a3e581428db683e5859ff90863"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "feb63d6658a44c2e95caa4161a94f1d4",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/chapters?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "chapters_revision": 1,
+      "data": [
+        {
+          "id": 1,
+          "position": 0,
+          "title": "I01 ALU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "b11f2604da9741b7819d2d5e7911a412",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "3436d67ba8d7480c9a8f67c49af169d9"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "7887092ba1744174a7beba0bbdea2ea9",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/knowledge-points?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+          "content_revision": 2,
+          "example": "<p><b>例题</b>链接文本</p>",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 ALU"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 进位"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "8d0bc4810a5f4815a3eb8f5798aff606",
+      "total": 2
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/knowledge-points/1",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "chapter_id": 1,
+        "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+        "content_revision": 2,
+        "example": "<p><b>例题</b>链接文本</p>",
+        "id": 1,
+        "is_bookmarked": false,
+        "is_foundational": false,
+        "progress": {
+          "completed": true,
+          "completed_at": "2026-10-17T02:45:55.515224Z"
+        },
+        "published": true,
+        "title": "I01 ALU"
+      },
+      "request_id": "0aacaa27008f472491309ab65589ea92"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/resources?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "archived": 0,
+          "chapter_id": null,
+          "course_id": 1,
+          "id": 1,
+          "kind": "guide",
+          "latest_version": 2,
+          "latest_version_id": 2,
+          "sha256": "b4765c2212469d83363a2a5ded125202625ee6004b5f2a205f3cceefe6ae9534",
+          "size": 50,
+          "title": "I01合法文档对照",
+          "visibility": "students"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "feae7f7e4ca241e5a3b441078db7981b",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/analytics?analysis_run_id=2",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "algorithm_version": "knowledge-objective-v1",
+        "analysis_run_id": 2,
+        "dimension": "knowledge",
+        "filters": {
+          "from": "2026-09-19T02:45:50.000Z",
+          "knowledge_ids": [
+            1,
+            2
+          ],
+          "student_id": 3,
+          "to": "2026-10-17T02:45:50.000Z"
+        },
+        "generated_at": "2026-10-17T02:45:50.000Z",
+        "metrics": {
+          "answered_count": 0,
+          "completed_knowledge_count": 0,
+          "correct_count": 0,
+          "items": [
+            {
+              "answered_count": 0,
+              "correct_count": 0,
+              "knowledge_id": 1,
+              "mastery": null,
+              "title": "I01 ALU",
+              "wrong_count": 0
+            },
+            {
+              "answered_count": 0,
+              "correct_count": 0,
+              "knowledge_id": 2,
+              "mastery": null,
+              "title": "I01 进位",
+              "wrong_count": 0
+            }
+          ],
+          "mastery": null,
+          "progress": 0.0,
+          "published_knowledge_count": 2
+        },
+        "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+        "sample_size": 0,
+        "series": [
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": 0,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": 0.0,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-09-20T16:00:00.000Z",
+            "period_start": "2026-09-19T02:45:50.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": 0,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": 0.0,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-09-27T16:00:00.000Z",
+            "period_start": "2026-09-20T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": 0,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": 0.0,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-04T16:00:00.000Z",
+            "period_start": "2026-09-27T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": 0,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": 0.0,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-11T16:00:00.000Z",
+            "period_start": "2026-10-04T16:00:00.000Z"
+          },
+          {
+            "metrics": {
+              "answered_count": 0,
+              "completed_knowledge_count": 0,
+              "correct_count": 0,
+              "items": [
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 1,
+                  "mastery": null,
+                  "title": "I01 ALU",
+                  "wrong_count": 0
+                },
+                {
+                  "answered_count": 0,
+                  "correct_count": 0,
+                  "knowledge_id": 2,
+                  "mastery": null,
+                  "title": "I01 进位",
+                  "wrong_count": 0
+                }
+              ],
+              "mastery": null,
+              "progress": 0.0,
+              "published_knowledge_count": 2
+            },
+            "period_end": "2026-10-17T02:45:50.000Z",
+            "period_start": "2026-10-11T16:00:00.000Z"
+          }
+        ],
+        "source_until": "2026-10-17T02:45:50.000Z",
+        "unit": {
+          "mastery": "ratio",
+          "progress": "ratio"
+        },
+        "warnings": [
+          "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+        ]
+      },
+      "request_id": "98ac25b69b834a9bafda833f6ea21b7f"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/experiments?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "17f7a8b3e18c4e27814e1df99221ef51",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "3e88dd30d80b4b40a89b111e24d9fb3d"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/experiment-versions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "b44afe5128564b4ab47856d39d94f591",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "POST",
+    "path": "/api/v1/courses/1/experiments",
+    "request": {
+      "code": "EXP-01",
+      "title": "I01浏览器ALU实验",
+      "description": "同课知识引用"
+    },
+    "files": [],
+    "status": 201,
+    "response": {
+      "data": {
+        "id": 1,
+        "title": "I01浏览器ALU实验"
+      },
+      "request_id": "5ca46d25de7b434aaf5d5b817e132559"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "f47c2589c7014fa690f0bb0455b49b6f"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "POST",
+    "path": "/api/v1/experiments/1/versions",
+    "request": {
+      "title": "I01浏览器v1",
+      "objectives": "理解算术和进位",
+      "instructions": "连接并验证ALU",
+      "knowledge_ids": [
+        1,
+        2
+      ],
+      "submission_modes": [
+        "wiring"
+      ],
+      "panel": {
+        "schema_version": 1,
+        "components": [
+          {
+            "id": "sw_a",
+            "type": "SWITCH",
+            "params": {
+              "width": 8,
+              "initial": 0
+            },
+            "ports": {
+              "OUT": "sw_a_out"
+            }
+          },
+          {
+            "id": "sw_b",
+            "type": "SWITCH",
+            "params": {
+              "width": 8,
+              "initial": 0
+            },
+            "ports": {
+              "OUT": "sw_b_out"
+            }
+          },
+          {
+            "id": "sw_op",
+            "type": "SWITCH",
+            "params": {
+              "width": 3,
+              "initial": 0
+            },
+            "ports": {
+              "OUT": "sw_op_out"
+            }
+          },
+          {
+            "id": "alu",
+            "type": "ALU8",
+            "params": {},
+            "ports": {
+              "A": "alu_a",
+              "B": "alu_b",
+              "OP": "alu_op",
+              "Y": "alu_y",
+              "Z": "alu_z",
+              "C": "alu_c"
+            }
+          },
+          {
+            "id": "led_y",
+            "type": "LED",
+            "params": {
+              "width": 8
+            },
+            "ports": {
+              "IN": "led_y_in"
+            }
+          },
+          {
+            "id": "led_z",
+            "type": "LED",
+            "params": {
+              "width": 1
+            },
+            "ports": {
+              "IN": "led_z_in"
+            }
+          },
+          {
+            "id": "led_c",
+            "type": "LED",
+            "params": {
+              "width": 1
+            },
+            "ports": {
+              "IN": "led_c_in"
+            }
+          }
+        ],
+        "terminals": [
+          {
+            "id": "sw_a_out",
+            "component_id": "sw_a",
+            "name": "OUT",
+            "direction": "out",
+            "width": 8,
+            "required": false
+          },
+          {
+            "id": "sw_b_out",
+            "component_id": "sw_b",
+            "name": "OUT",
+            "direction": "out",
+            "width": 8,
+            "required": false
+          },
+          {
+            "id": "sw_op_out",
+            "component_id": "sw_op",
+            "name": "OUT",
+            "direction": "out",
+            "width": 3,
+            "required": false
+          },
+          {
+            "id": "alu_a",
+            "component_id": "alu",
+            "name": "A",
+            "direction": "in",
+            "width": 8,
+            "required": true
+          },
+          {
+            "id": "alu_b",
+            "component_id": "alu",
+            "name": "B",
+            "direction": "in",
+            "width": 8,
+            "required": true
+          },
+          {
+            "id": "alu_op",
+            "component_id": "alu",
+            "name": "OP",
+            "direction": "in",
+            "width": 3,
+            "required": true
+          },
+          {
+            "id": "alu_y",
+            "component_id": "alu",
+            "name": "Y",
+            "direction": "out",
+            "width": 8,
+            "required": false
+          },
+          {
+            "id": "alu_z",
+            "component_id": "alu",
+            "name": "Z",
+            "direction": "out",
+            "width": 1,
+            "required": false
+          },
+          {
+            "id": "alu_c",
+            "component_id": "alu",
+            "name": "C",
+            "direction": "out",
+            "width": 1,
+            "required": false
+          },
+          {
+            "id": "led_y_in",
+            "component_id": "led_y",
+            "name": "IN",
+            "direction": "in",
+            "width": 8,
+            "required": true
+          },
+          {
+            "id": "led_z_in",
+            "component_id": "led_z",
+            "name": "IN",
+            "direction": "in",
+            "width": 1,
+            "required": true
+          },
+          {
+            "id": "led_c_in",
+            "component_id": "led_c",
+            "name": "IN",
+            "direction": "in",
+            "width": 1,
+            "required": true
+          }
+        ],
+        "code": "EXP-01",
+        "layout": {}
+      },
+      "rules": {
+        "require_required_inputs": true
+      }
+    },
+    "files": [],
+    "status": 201,
+    "response": {
+      "data": {
+        "end_at": null,
+        "experiment": {
+          "archived": 0,
+          "code": "EXP-01",
+          "description": "同课知识引用",
+          "id": 1,
+          "title": "I01浏览器ALU实验"
+        },
+        "experiment_id": 1,
+        "id": 1,
+        "instructions": "连接并验证ALU",
+        "judge_profile_id": null,
+        "knowledge_ids": [
+          1,
+          2
+        ],
+        "objectives": "理解算术和进位",
+        "panel": {
+          "code": "EXP-01",
+          "components": [
+            {
+              "id": "sw_a",
+              "params": {
+                "initial": 0,
+                "width": 8
+              },
+              "ports": {
+                "OUT": "sw_a_out"
+              },
+              "type": "SWITCH"
+            },
+            {
+              "id": "sw_b",
+              "params": {
+                "initial": 0,
+                "width": 8
+              },
+              "ports": {
+                "OUT": "sw_b_out"
+              },
+              "type": "SWITCH"
+            },
+            {
+              "id": "sw_op",
+              "params": {
+                "initial": 0,
+                "width": 3
+              },
+              "ports": {
+                "OUT": "sw_op_out"
+              },
+              "type": "SWITCH"
+            },
+            {
+              "id": "alu",
+              "params": {},
+              "ports": {
+                "A": "alu_a",
+                "B": "alu_b",
+                "C": "alu_c",
+                "OP": "alu_op",
+                "Y": "alu_y",
+                "Z": "alu_z"
+              },
+              "type": "ALU8"
+            },
+            {
+              "id": "led_y",
+              "params": {
+                "width": 8
+              },
+              "ports": {
+                "IN": "led_y_in"
+              },
+              "type": "LED"
+            },
+            {
+              "id": "led_z",
+              "params": {
+                "width": 1
+              },
+              "ports": {
+                "IN": "led_z_in"
+              },
+              "type": "LED"
+            },
+            {
+              "id": "led_c",
+              "params": {
+                "width": 1
+              },
+              "ports": {
+                "IN": "led_c_in"
+              },
+              "type": "LED"
+            }
+          ],
+          "layout": {},
+          "schema_version": 1,
+          "terminals": [
+            {
+              "component_id": "sw_a",
+              "direction": "out",
+              "id": "sw_a_out",
+              "name": "OUT",
+              "required": false,
+              "width": 8
+            },
+            {
+              "component_id": "sw_b",
+              "direction": "out",
+              "id": "sw_b_out",
+              "name": "OUT",
+              "required": false,
+              "width": 8
+            },
+            {
+              "component_id": "sw_op",
+              "direction": "out",
+              "id": "sw_op_out",
+              "name": "OUT",
+              "required": false,
+              "width": 3
+            },
+            {
+              "component_id": "alu",
+              "direction": "in",
+              "id": "alu_a",
+              "name": "A",
+              "required": true,
+              "width": 8
+            },
+            {
+              "component_id": "alu",
+              "direction": "in",
+              "id": "alu_b",
+              "name": "B",
+              "required": true,
+              "width": 8
+            },
+            {
+              "component_id": "alu",
+              "direction": "in",
+              "id": "alu_op",
+              "name": "OP",
+              "required": true,
+              "width": 3
+            },
+            {
+              "component_id": "alu",
+              "direction": "out",
+              "id": "alu_y",
+              "name": "Y",
+              "required": false,
+              "width": 8
+            },
+            {
+              "component_id": "alu",
+              "direction": "out",
+              "id": "alu_z",
+              "name": "Z",
+              "required": false,
+              "width": 1
+            },
+            {
+              "component_id": "alu",
+              "direction": "out",
+              "id": "alu_c",
+              "name": "C",
+              "required": false,
+              "width": 1
+            },
+            {
+              "component_id": "led_y",
+              "direction": "in",
+              "id": "led_y_in",
+              "name": "IN",
+              "required": true,
+              "width": 8
+            },
+            {
+              "component_id": "led_z",
+              "direction": "in",
+              "id": "led_z_in",
+              "name": "IN",
+              "required": true,
+              "width": 1
+            },
+            {
+              "component_id": "led_c",
+              "direction": "in",
+              "id": "led_c_in",
+              "name": "IN",
+              "required": true,
+              "width": 1
+            }
+          ]
+        },
+        "published_at": null,
+        "rules": {
+          "require_required_inputs": true
+        },
+        "start_at": null,
+        "status": "draft",
+        "submission_modes": [
+          "wiring"
+        ],
+        "title": "I01浏览器v1",
+        "version": 1
+      },
+      "request_id": "48bf40d79dc1418a9d23aabe91cd090d"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "fc2d2625fdbf4c9b84bdea675a621526"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "POST",
+    "path": "/api/v1/experiment-versions/1/publish",
+    "request": {
+      "start_at": "2026-10-17T02:44:50+00:00",
+      "end_at": "2026-10-17T02:55:50+00:00"
+    },
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "end_at": "2026-10-17T02:55:50.000Z",
+        "experiment": {
+          "archived": 0,
+          "code": "EXP-01",
+          "description": "同课知识引用",
+          "id": 1,
+          "title": "I01浏览器ALU实验"
+        },
+        "experiment_id": 1,
+        "id": 1,
+        "instructions": "连接并验证ALU",
+        "judge_profile_id": null,
+        "knowledge_ids": [],
+        "objectives": "理解算术和进位",
+        "panel": {
+          "code": "EXP-01",
+          "components": [
+            {
+              "id": "sw_a",
+              "params": {
+                "initial": 0,
+                "width": 8
+              },
+              "ports": {
+                "OUT": "sw_a_out"
+              },
+              "type": "SWITCH"
+            },
+            {
+              "id": "sw_b",
+              "params": {
+                "initial": 0,
+                "width": 8
+              },
+              "ports": {
+                "OUT": "sw_b_out"
+              },
+              "type": "SWITCH"
+            },
+            {
+              "id": "sw_op",
+              "params": {
+                "initial": 0,
+                "width": 3
+              },
+              "ports": {
+                "OUT": "sw_op_out"
+              },
+              "type": "SWITCH"
+            },
+            {
+              "id": "alu",
+              "params": {},
+              "ports": {
+                "A": "alu_a",
+                "B": "alu_b",
+                "C": "alu_c",
+                "OP": "alu_op",
+                "Y": "alu_y",
+                "Z": "alu_z"
+              },
+              "type": "ALU8"
+            },
+            {
+              "id": "led_y",
+              "params": {
+                "width": 8
+              },
+              "ports": {
+                "IN": "led_y_in"
+              },
+              "type": "LED"
+            },
+            {
+              "id": "led_z",
+              "params": {
+                "width": 1
+              },
+              "ports": {
+                "IN": "led_z_in"
+              },
+              "type": "LED"
+            },
+            {
+              "id": "led_c",
+              "params": {
+                "width": 1
+              },
+              "ports": {
+                "IN": "led_c_in"
+              },
+              "type": "LED"
+            }
+          ],
+          "layout": {},
+          "schema_version": 1,
+          "terminals": [
+            {
+              "component_id": "sw_a",
+              "direction": "out",
+              "id": "sw_a_out",
+              "name": "OUT",
+              "required": false,
+              "width": 8
+            },
+            {
+              "component_id": "sw_b",
+              "direction": "out",
+              "id": "sw_b_out",
+              "name": "OUT",
+              "required": false,
+              "width": 8
+            },
+            {
+              "component_id": "sw_op",
+              "direction": "out",
+              "id": "sw_op_out",
+              "name": "OUT",
+              "required": false,
+              "width": 3
+            },
+            {
+              "component_id": "alu",
+              "direction": "in",
+              "id": "alu_a",
+              "name": "A",
+              "required": true,
+              "width": 8
+            },
+            {
+              "component_id": "alu",
+              "direction": "in",
+              "id": "alu_b",
+              "name": "B",
+              "required": true,
+              "width": 8
+            },
+            {
+              "component_id": "alu",
+              "direction": "in",
+              "id": "alu_op",
+              "name": "OP",
+              "required": true,
+              "width": 3
+            },
+            {
+              "component_id": "alu",
+              "direction": "out",
+              "id": "alu_y",
+              "name": "Y",
+              "required": false,
+              "width": 8
+            },
+            {
+              "component_id": "alu",
+              "direction": "out",
+              "id": "alu_z",
+              "name": "Z",
+              "required": false,
+              "width": 1
+            },
+            {
+              "component_id": "alu",
+              "direction": "out",
+              "id": "alu_c",
+              "name": "C",
+              "required": false,
+              "width": 1
+            },
+            {
+              "component_id": "led_y",
+              "direction": "in",
+              "id": "led_y_in",
+              "name": "IN",
+              "required": true,
+              "width": 8
+            },
+            {
+              "component_id": "led_z",
+              "direction": "in",
+              "id": "led_z_in",
+              "name": "IN",
+              "required": true,
+              "width": 1
+            },
+            {
+              "component_id": "led_c",
+              "direction": "in",
+              "id": "led_c_in",
+              "name": "IN",
+              "required": true,
+              "width": 1
+            }
+          ]
+        },
+        "participant_count": 4,
+        "published_at": "2026-10-17T02:45:50.000Z",
+        "rules": {
+          "require_required_inputs": true
+        },
+        "start_at": "2026-10-17T02:44:50.000Z",
+        "status": "published",
+        "submission_modes": [
+          "wiring"
+        ],
+        "title": "I01浏览器v1",
+        "version": 1
+      },
+      "request_id": "426e8043f147432c8ab9a9f4f25cc2f8"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "90b9c5ef8a344f84a798e4c30de3c116"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "10c3b944fbc44c93bf7bacc5347fc2bb",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/knowledge-points?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "chapter_id": 1,
+          "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+          "content_revision": 2,
+          "example": "<p><b>例题</b>链接文本</p>",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 ALU"
+        },
+        {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 进位"
+        }
+      ],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "f8f4659f235c482eb3520a1527cabaf5",
+      "total": 2
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/experiments?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "archived": 0,
+          "code": "EXP-01",
+          "created_at": "2026-10-17T02:45:50.000Z",
+          "description": "同课知识引用",
+          "id": 1,
+          "latest_version": {
+            "end_at": "2026-10-17T02:55:50.000Z",
+            "id": 1,
+            "participant_count": 4,
+            "published_at": "2026-10-17T02:45:50.000Z",
+            "start_at": "2026-10-17T02:44:50.000Z",
+            "status": "published",
+            "submission_modes": [
+              "wiring"
+            ],
+            "title": "I01浏览器v1",
+            "version": 1
+          },
+          "title": "I01浏览器ALU实验"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "f6a09d67a0b146fb9c75b8f118ea8f99",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/experiment-versions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "end_at": "2026-10-17T02:55:50.000Z",
+          "experiment": {
+            "archived": 0,
+            "code": "EXP-01",
+            "description": "同课知识引用",
+            "id": 1,
+            "title": "I01浏览器ALU实验"
+          },
+          "experiment_id": 1,
+          "id": 1,
+          "instructions": "连接并验证ALU",
+          "judge_profile_id": null,
+          "knowledge_ids": [
+            1,
+            2
+          ],
+          "objectives": "理解算术和进位",
+          "panel": {
+            "code": "EXP-01",
+            "components": [
+              {
+                "id": "sw_a",
+                "params": {
+                  "initial": 0,
+                  "width": 8
+                },
+                "ports": {
+                  "OUT": "sw_a_out"
+                },
+                "type": "SWITCH"
+              },
+              {
+                "id": "sw_b",
+                "params": {
+                  "initial": 0,
+                  "width": 8
+                },
+                "ports": {
+                  "OUT": "sw_b_out"
+                },
+                "type": "SWITCH"
+              },
+              {
+                "id": "sw_op",
+                "params": {
+                  "initial": 0,
+                  "width": 3
+                },
+                "ports": {
+                  "OUT": "sw_op_out"
+                },
+                "type": "SWITCH"
+              },
+              {
+                "id": "alu",
+                "params": {},
+                "ports": {
+                  "A": "alu_a",
+                  "B": "alu_b",
+                  "C": "alu_c",
+                  "OP": "alu_op",
+                  "Y": "alu_y",
+                  "Z": "alu_z"
+                },
+                "type": "ALU8"
+              },
+              {
+                "id": "led_y",
+                "params": {
+                  "width": 8
+                },
+                "ports": {
+                  "IN": "led_y_in"
+                },
+                "type": "LED"
+              },
+              {
+                "id": "led_z",
+                "params": {
+                  "width": 1
+                },
+                "ports": {
+                  "IN": "led_z_in"
+                },
+                "type": "LED"
+              },
+              {
+                "id": "led_c",
+                "params": {
+                  "width": 1
+                },
+                "ports": {
+                  "IN": "led_c_in"
+                },
+                "type": "LED"
+              }
+            ],
+            "layout": {},
+            "schema_version": 1,
+            "terminals": [
+              {
+                "component_id": "sw_a",
+                "direction": "out",
+                "id": "sw_a_out",
+                "name": "OUT",
+                "required": false,
+                "width": 8
+              },
+              {
+                "component_id": "sw_b",
+                "direction": "out",
+                "id": "sw_b_out",
+                "name": "OUT",
+                "required": false,
+                "width": 8
+              },
+              {
+                "component_id": "sw_op",
+                "direction": "out",
+                "id": "sw_op_out",
+                "name": "OUT",
+                "required": false,
+                "width": 3
+              },
+              {
+                "component_id": "alu",
+                "direction": "in",
+                "id": "alu_a",
+                "name": "A",
+                "required": true,
+                "width": 8
+              },
+              {
+                "component_id": "alu",
+                "direction": "in",
+                "id": "alu_b",
+                "name": "B",
+                "required": true,
+                "width": 8
+              },
+              {
+                "component_id": "alu",
+                "direction": "in",
+                "id": "alu_op",
+                "name": "OP",
+                "required": true,
+                "width": 3
+              },
+              {
+                "component_id": "alu",
+                "direction": "out",
+                "id": "alu_y",
+                "name": "Y",
+                "required": false,
+                "width": 8
+              },
+              {
+                "component_id": "alu",
+                "direction": "out",
+                "id": "alu_z",
+                "name": "Z",
+                "required": false,
+                "width": 1
+              },
+              {
+                "component_id": "alu",
+                "direction": "out",
+                "id": "alu_c",
+                "name": "C",
+                "required": false,
+                "width": 1
+              },
+              {
+                "component_id": "led_y",
+                "direction": "in",
+                "id": "led_y_in",
+                "name": "IN",
+                "required": true,
+                "width": 8
+              },
+              {
+                "component_id": "led_z",
+                "direction": "in",
+                "id": "led_z_in",
+                "name": "IN",
+                "required": true,
+                "width": 1
+              },
+              {
+                "component_id": "led_c",
+                "direction": "in",
+                "id": "led_c_in",
+                "name": "IN",
+                "required": true,
+                "width": 1
+              }
+            ]
+          },
+          "participant_count": 4,
+          "published_at": "2026-10-17T02:45:50.000Z",
+          "rules": {
+            "require_required_inputs": true
+          },
+          "start_at": "2026-10-17T02:44:50.000Z",
+          "status": "published",
+          "submission_modes": [
+            "wiring"
+          ],
+          "title": "I01浏览器v1",
+          "version": 1
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "ff802201a2244af0b03477d598c18bb4",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/experiment-versions/1",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "end_at": "2026-10-17T02:55:50.000Z",
+        "experiment": {
+          "archived": 0,
+          "code": "EXP-01",
+          "description": "同课知识引用",
+          "id": 1,
+          "title": "I01浏览器ALU实验"
+        },
+        "experiment_id": 1,
+        "id": 1,
+        "instructions": "连接并验证ALU",
+        "judge_profile_id": null,
+        "knowledge_ids": [
+          1,
+          2
+        ],
+        "objectives": "理解算术和进位",
+        "panel": {
+          "code": "EXP-01",
+          "components": [
+            {
+              "id": "sw_a",
+              "params": {
+                "initial": 0,
+                "width": 8
+              },
+              "ports": {
+                "OUT": "sw_a_out"
+              },
+              "type": "SWITCH"
+            },
+            {
+              "id": "sw_b",
+              "params": {
+                "initial": 0,
+                "width": 8
+              },
+              "ports": {
+                "OUT": "sw_b_out"
+              },
+              "type": "SWITCH"
+            },
+            {
+              "id": "sw_op",
+              "params": {
+                "initial": 0,
+                "width": 3
+              },
+              "ports": {
+                "OUT": "sw_op_out"
+              },
+              "type": "SWITCH"
+            },
+            {
+              "id": "alu",
+              "params": {},
+              "ports": {
+                "A": "alu_a",
+                "B": "alu_b",
+                "C": "alu_c",
+                "OP": "alu_op",
+                "Y": "alu_y",
+                "Z": "alu_z"
+              },
+              "type": "ALU8"
+            },
+            {
+              "id": "led_y",
+              "params": {
+                "width": 8
+              },
+              "ports": {
+                "IN": "led_y_in"
+              },
+              "type": "LED"
+            },
+            {
+              "id": "led_z",
+              "params": {
+                "width": 1
+              },
+              "ports": {
+                "IN": "led_z_in"
+              },
+              "type": "LED"
+            },
+            {
+              "id": "led_c",
+              "params": {
+                "width": 1
+              },
+              "ports": {
+                "IN": "led_c_in"
+              },
+              "type": "LED"
+            }
+          ],
+          "layout": {},
+          "schema_version": 1,
+          "terminals": [
+            {
+              "component_id": "sw_a",
+              "direction": "out",
+              "id": "sw_a_out",
+              "name": "OUT",
+              "required": false,
+              "width": 8
+            },
+            {
+              "component_id": "sw_b",
+              "direction": "out",
+              "id": "sw_b_out",
+              "name": "OUT",
+              "required": false,
+              "width": 8
+            },
+            {
+              "component_id": "sw_op",
+              "direction": "out",
+              "id": "sw_op_out",
+              "name": "OUT",
+              "required": false,
+              "width": 3
+            },
+            {
+              "component_id": "alu",
+              "direction": "in",
+              "id": "alu_a",
+              "name": "A",
+              "required": true,
+              "width": 8
+            },
+            {
+              "component_id": "alu",
+              "direction": "in",
+              "id": "alu_b",
+              "name": "B",
+              "required": true,
+              "width": 8
+            },
+            {
+              "component_id": "alu",
+              "direction": "in",
+              "id": "alu_op",
+              "name": "OP",
+              "required": true,
+              "width": 3
+            },
+            {
+              "component_id": "alu",
+              "direction": "out",
+              "id": "alu_y",
+              "name": "Y",
+              "required": false,
+              "width": 8
+            },
+            {
+              "component_id": "alu",
+              "direction": "out",
+              "id": "alu_z",
+              "name": "Z",
+              "required": false,
+              "width": 1
+            },
+            {
+              "component_id": "alu",
+              "direction": "out",
+              "id": "alu_c",
+              "name": "C",
+              "required": false,
+              "width": 1
+            },
+            {
+              "component_id": "led_y",
+              "direction": "in",
+              "id": "led_y_in",
+              "name": "IN",
+              "required": true,
+              "width": 8
+            },
+            {
+              "component_id": "led_z",
+              "direction": "in",
+              "id": "led_z_in",
+              "name": "IN",
+              "required": true,
+              "width": 1
+            },
+            {
+              "component_id": "led_c",
+              "direction": "in",
+              "id": "led_c_in",
+              "name": "IN",
+              "required": true,
+              "width": 1
+            }
+          ]
+        },
+        "participant_count": 4,
+        "published_at": "2026-10-17T02:45:50.000Z",
+        "rules": {
+          "require_required_inputs": true
+        },
+        "start_at": "2026-10-17T02:44:50.000Z",
+        "status": "published",
+        "submission_modes": [
+          "wiring"
+        ],
+        "title": "I01浏览器v1",
+        "version": 1
+      },
+      "request_id": "770bbc1668d14d1a9e93f183cff4c224"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/resources?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "archived": 0,
+          "chapter_id": null,
+          "course_id": 1,
+          "id": 1,
+          "kind": "guide",
+          "latest_version": 2,
+          "latest_version_id": 2,
+          "sha256": "b4765c2212469d83363a2a5ded125202625ee6004b5f2a205f3cceefe6ae9534",
+          "size": 50,
+          "title": "I01合法文档对照",
+          "visibility": "students"
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "a06da1fd285f4e588b0cc29fe9402ebf",
+      "total": 1
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/resources/1/versions?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [
+        {
+          "change_note": null,
+          "created_at": "2026-10-17T02:45:50.000Z",
+          "id": 2,
+          "kind": "guide",
+          "resource_id": 1,
+          "sha256": "b4765c2212469d83363a2a5ded125202625ee6004b5f2a205f3cceefe6ae9534",
+          "size": 50,
+          "title": "I01合法文档对照",
+          "version": 2
+        },
+        {
+          "change_note": null,
+          "created_at": "2026-10-17T02:45:50.000Z",
+          "id": 1,
+          "kind": "guide",
+          "resource_id": 1,
+          "sha256": "c663b251938ca649283ae83ad1dbd424533bcdb6baac350736e8fd93a43cb22e",
+          "size": 50,
+          "title": "I01合法文档对照",
+          "version": 1
+        }
+      ],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "0b7ab44aa7164326914f00fb5ac28fc8",
+      "total": 2
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/resource-versions/1/content?intent=download&event_id=e8e9c193-3f8a-4f5a-b175-bd02cd4b4fcc",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "content_type": "application/pdf",
+      "content_length": 50,
+      "disposition": "attachment; filename=control.pdf"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "5cd2f70df27c48b49f113709b34d26ac"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "PATCH",
+    "path": "/api/v1/resources/1",
+    "request": {
+      "visibility": "teacher_only"
+    },
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "archived": 0,
+        "chapter_id": null,
+        "course_id": 1,
+        "id": 1,
+        "kind": "guide",
+        "title": "I01合法文档对照",
+        "visibility": "teacher_only"
+      },
+      "request_id": "c974654bfedc4af8b72689c1bb5a986c"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/resources/1/versions",
+    "request": {},
+    "files": [],
+    "status": 404,
+    "response": {
+      "error": {
+        "code": "NOT_FOUND",
+        "details": {},
+        "message": "Resource not found"
+      },
+      "request_id": "41bcc269d8184a98b70cc805aedbd27e"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses/1/resources?page=1&page_size=20",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 20,
+      "request_id": "3f40f668392c48de9255a833ced065dc",
+      "total": 0
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "6184dc24497b464491704cf711bc257b"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "PATCH",
+    "path": "/api/v1/knowledge-points/1",
+    "request": {
+      "published": false
+    },
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "chapter_id": 1,
+        "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+        "content_revision": 3,
+        "example": "<p><b>例题</b>链接文本</p>",
+        "id": 1,
+        "is_foundational": false,
+        "published": false,
+        "title": "I01 ALU"
+      },
+      "request_id": "6cca22831dcc4fde8ead18851f93898e"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/knowledge-points/1",
+    "request": {},
+    "files": [],
+    "status": 404,
+    "response": {
+      "error": {
+        "code": "NOT_FOUND",
+        "details": {},
+        "message": "知识点不存在或不可见"
+      },
+      "request_id": "c4f14afcc45e47b49e746852e667510a"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "2301a5205d4a418a8ed984106d88087b"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 2,
+          "name": "I01TEACH",
+          "role": "teacher",
+          "student_no": "I01TEACH"
+        }
+      },
+      "request_id": "5524f09743e44002b00147f6868b8515"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "DELETE",
+    "path": "/api/v1/courses/1/members/3",
+    "request": {},
+    "files": [],
+    "status": 204,
+    "response": {
+      "content_type": "text/html; charset=utf-8",
+      "content_length": 0,
+      "disposition": null
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/auth/session",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": {
+        "csrf_token": "[REDACTED]",
+        "expires_at": "2026-10-17T04:45:50.000Z",
+        "user": {
+          "id": 3,
+          "name": "I01STUD1",
+          "role": "student",
+          "student_no": "I01STUD1"
+        }
+      },
+      "request_id": "dd71b2865d6c4cb8a8e1af049e100355"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/experiment-versions/1",
+    "request": {},
+    "files": [],
+    "status": 404,
+    "response": {
+      "error": {
+        "code": "NOT_FOUND",
+        "details": {},
+        "message": "Course not found"
+      },
+      "request_id": "3cb661b350b84eaabba4f650e68db6c9"
+    }
+  },
+  {
+    "layer": "real socket",
+    "method": "GET",
+    "path": "/api/v1/courses?page=1&page_size=100",
+    "request": {},
+    "files": [],
+    "status": 200,
+    "response": {
+      "data": [],
+      "page": 1,
+      "page_size": 100,
+      "request_id": "128af31177ae4861bf382eff6e6bbb29",
+      "total": 0
+    }
+  }
+]

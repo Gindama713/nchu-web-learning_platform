@@ -1,0 +1,170 @@
+{
+  "at_utc": "2026-10-16T13:13:47.048810+00:00",
+  "tested_head": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "dirty_paths": [
+    "?? scripts/verify_r37_browsers.py",
+    "?? scripts/verify_r37_handlers.py",
+    "?? tests/test_preparation_quiz_integration.py"
+  ],
+  "scope": "real socket HTTP + existing 008 UI; preparation UI absent in frontend/js/main.js",
+  "fixtures": "initial admin/teacher bootstrap and TEST_NOW; course/member helper uses actual handlers; business setup uses socket HTTP",
+  "preparation_ui": "blocked: no preparation component or route; no teammate UI written",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.41",
+      "checks": [],
+      "page_errors": [],
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "R37"
+            },
+            "request_id": "e8529f0833af4496854377f02c74de35"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "R37知识"
+            },
+            "request_id": "f078368fe69d4f18aa3c3000a7c410c0"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": true,
+              "difficulty": "easy",
+              "explanation": "R37受保护解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [],
+              "practice_available": false,
+              "stem": "R37 PC保存下一条指令地址？",
+              "tolerance": 0.0,
+              "type": "boolean",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "0102c0b3db6347c89f3eb6d0bc794e57"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": true,
+                  "difficulty": "easy",
+                  "explanation": "R37受保护解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "R37 PC保存下一条指令地址？",
+                  "tolerance": 0.0,
+                  "type": "boolean",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "64386e7a119a4caab34a6bc99f1c1619"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37关联备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "6e8114b2b5b54274bdca06860c2b61ae"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {
+                "ids": [
+                  1
+                ]
+              },
+              "message": "Related paper not found in this course"
+            },
+            "request_id": "d1ed29930a1d4554b0832e3069f7aad1"
+          }
+        }
+      ]
+    }
+  ],
+  "failure": "Traceback (most recent call last):\n  File \"E:\\develop\\code\\IDEA-CODE\\nchu-web-learning_platform\\scripts\\verify_r37_browsers.py\", line 185, in main\n    verify(playwright, channel, args.output, report)\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\develop\\code\\IDEA-CODE\\nchu-web-learning_platform\\scripts\\verify_r37_browsers.py\", line 73, in verify\n    call(teacher, 'POST', f\"/preparations/{prep['id']}/publish\", {}, 404)\n    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"E:\\develop\\code\\IDEA-CODE\\nchu-web-learning_platform\\scripts\\verify_r37_browsers.py\", line 59, in call\n    return request(context, method, path, data, status, trace=entry['http'])\n  File \"E:\\develop\\code\\IDEA-CODE\\nchu-web-learning_platform\\scripts\\verify_r37_browsers.py\", line 25, in request\n    return value['data'] if value else None\n           ~~~~~^^^^^^^^\nKeyError: 'data'\n"
+}

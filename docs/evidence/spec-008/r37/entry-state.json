@@ -1,0 +1,83 @@
+{
+  "date": "2026-10-16 Asia/Shanghai",
+  "remote": "origin",
+  "develop": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "material_branch": "feature/spec-010b-c12c-materials",
+  "material_branch_head": "8111c5395d8b7cf33205065c77490593e07ed045",
+  "workspace_clean_at_entry": true,
+  "new_branch": "feature/spec-008-preparation-integration",
+  "new_branch_preexisted": false,
+  "recorded_actual_merge_ancestry": [
+    {"pr":18,"sha":"53d9a2a4db9aa715c8951a99a25005b497b38024","develop_exit":0},
+    {"pr":19,"sha":"991566cbdb84a036259363d43b89a16dc52cdbed","develop_exit":0},
+    {"pr":20,"sha":"4399cb8138c3f56f23c535f23fe2a5af1d819998","develop_exit":0},
+    {"pr":21,"sha":"d3e0e3325a2892097780b23ca3092140adcccfd3","develop_exit":0},
+    {"pr":22,"sha":"5eea466ec2a9b9f23cc4ccf9f1548d16545b43d1","develop_exit":0},
+    {"pr":23,"sha":"6ec4c53f6130b3ad3f17b52c757afbf2c0e39b66","develop_exit":0},
+    {"pr":24,"sha":"eaaf043f16e1725886a83166b33c13867ef368dc","develop_exit":0},
+    {"pr":26,"sha":"dfb23271b470a93d557a2695fed0e04caf59d0d2","develop_exit":0}
+  ],
+  "pull_requests": [
+    {
+      "number": 27,
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/27",
+      "state": "open",
+      "head": "7096b496504f62181f60987062b1397bdb96a937",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "merged": false,
+      "merged_at": null,
+      "ci_test_ref": "a4ed987609132694c08c59650f92721abc223e0d",
+      "actual_merge": null,
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/27",
+        "title": "Gindama713/nchu-web-learning_platform PR #27 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/27",
+        "display_title": "Gindama713/nchu-web-learning_platform PR #27 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "threads": {
+        "review_threads": []
+      },
+      "fixed_ci_reused": {
+        "run": 38896062651,
+        "tested": "a4ed987609132694c08c59650f92721abc223e0d"
+      }
+    },
+    {
+      "number": 28,
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/28",
+      "state": "open",
+      "head": "8111c5395d8b7cf33205065c77490593e07ed045",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "merged": false,
+      "merged_at": null,
+      "ci_test_ref": "b4a44411a719c490de01942ff5a4d251f007d8a6",
+      "actual_merge": null,
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/28",
+        "title": "Gindama713/nchu-web-learning_platform PR #28 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/28",
+        "display_title": "Gindama713/nchu-web-learning_platform PR #28 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "threads": {
+        "review_threads": []
+      },
+      "fixed_ci_reused": {
+        "run": 38904433916,
+        "tested": "b4a44411a719c490de01942ff5a4d251f007d8a6"
+      }
+    }
+  ],
+  "notes": [
+    "Fetched origin before branching; previous actual merge SHAs from C12c delivery correction each passed git merge-base --is-ancestor against origin/develop (8/8).",
+    "PR27/28 head and state unchanged, previous independently verified CI reused; no Actions reruns.",
+    "Only after actual merged=true and ancestry verification would develop sync occur; neither PR has an actual merge."
+  ]
+}

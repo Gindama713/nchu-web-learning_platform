@@ -1,0 +1,133 @@
+{
+  "checked_at_local": "2026-10-16 20:17:47 Asia/Shanghai",
+  "scope": "C12c materials only; no new business/browser execution",
+  "status": "passed",
+  "six_required_docs": {
+    "command": ".venv/Scripts/python.exe scripts/check_docs.py",
+    "result": "Six documents and local links: OK"
+  },
+  "new_and_navigated_materials": {
+    "read_batch_max_files": 3,
+    "markdown_files": 14,
+    "local_links_checked": 268,
+    "link_errors": [],
+    "conflict_markers": [],
+    "batches": [
+      {
+        "files": [
+          "docs/C12C_DELIVERY_HUANG_JUNCHENG.md",
+          "docs/USER_GUIDE_HUANG_JUNCHENG.md",
+          "docs/checkpoints/HUANG_JUNCHENG_C12C.md"
+        ],
+        "local_links": 43
+      },
+      {
+        "files": [
+          "docs/TEST_REPORT_HUANG_JUNCHENG.md",
+          "docs/reports/24201716_黄俊诚_设计报告.md",
+          "README.md"
+        ],
+        "local_links": 52
+      },
+      {
+        "files": [
+          "docs/SPEC-005_IMPLEMENTATION.md",
+          "docs/SPEC-006_IMPLEMENTATION.md",
+          "docs/SPEC-008_IMPLEMENTATION.md"
+        ],
+        "local_links": 95
+      },
+      {
+        "files": [
+          "docs/SPEC-010B_IMPLEMENTATION.md",
+          "docs/SPEC-011_IMPLEMENTATION.md",
+          "docs/SPEC-012_IMPLEMENTATION.md"
+        ],
+        "local_links": 58
+      },
+      {
+        "files": [
+          "docs/SPEC-013_IMPLEMENTATION.md",
+          "docs/CHG-RB.md"
+        ],
+        "local_links": 20
+      }
+    ],
+    "seven_implementation_bodies_unchanged_after_removing_new_banner": true
+  },
+  "fixed_evidence": {
+    "develop_ref": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+    "pending_pr27_ref": "7096b496504f62181f60987062b1397bdb96a937",
+    "rows": 131,
+    "matrix_normalized_bytes_identical_to_develop": true,
+    "line_endings_note": "Working tree uses CRLF and Git blobs LF; comparison normalizes line endings and git diff confirms no tracked fixed-evidence changes.",
+    "develop_matrix_blob_sha256": "e913c3d44892cba967b4bdd7d0882e9c40a2bdc1cceea00e2b01aa6eb3c4c846",
+    "pending_matrix_blob_sha256": "c9562e471b2c18f9b951cdb64faa913944897326f2d147909646c16114c4a203",
+    "changed_rows_between_fixed_refs": [
+      "SPEC-006/NF-UI",
+      "SPEC-008/NF-UI",
+      "SPEC-012/NF-UI"
+    ],
+    "other_128_rows_equal": true,
+    "old_evidence_delta": [],
+    "source_tests_ci_delta": [],
+    "actual_merge_ancestry_checks": {
+      "prs": [
+        4,
+        7,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "all_exit_codes": 0
+    }
+  },
+  "design_report": {
+    "source": "docs/reports/24201716_黄俊诚_设计报告.md",
+    "docx": "docs/reports/24201716_黄俊诚_设计报告.docx",
+    "source_sha256": "848d9bba6d835a64139c958ee791b37e722002f235dd57be6999fb83cd9c1f0e",
+    "docx_sha256": "20c8d61a5e5323576535676e7de49f055b7dfce03454db6ded0870ae6ec6e4cc",
+    "content_order_equal": true,
+    "nonempty_body_blocks": 100,
+    "body_characters": 5906,
+    "tables": 2,
+    "final_pages": 6,
+    "page_size": "Letter portrait",
+    "builder": "Bundled Python runtime and python-docx 1.2.0",
+    "rendering": "Packaged render_docx.py initially failed because soffice.exe is not installed. Used a newly created hidden Word.Application instance to open read-only and export PDF, closed only this task document/application; packaged render_docx.rasterize consumed that PDF through a task-local adapter. No managed helper modifications.",
+    "visual_qa": "All 6 final page PNGs viewed in batches of at most 3. Black title/headings, no title rule, repeated table headers, readable Chinese/Latin text, no clipping/overlap or sparse trailing page.",
+    "intermediate_policy": "PDF and page PNGs kept in task work/ for QA only, not committed or delivered as final documents.",
+    "preparation_status": "Teacher final-format attachment absent; no final classroom or submission claim."
+  },
+  "failure_history": [
+    {
+      "issue": "Early six-doc and report-link checks referenced the not-yet-generated DOCX/checks artifact; new report also copied a stale tests/knowledge.py path.",
+      "resolution": "Generated the DOCX, corrected new report links to tests/test_knowledge.py and tests/test_knowledge_integration.py, created this checks record and completed link batches. Original matrix rows not changed."
+    },
+    {
+      "issue": "First matrix raw-byte assertion compared working-tree CRLF against LF Git blob.",
+      "resolution": "Corrected checker to normalize line endings, verified git diff has no old-evidence changes; rows/counts and permitted three-row difference assertions passed."
+    },
+    {
+      "issue": "Standard DOCX renderer failed: LibreOffice soffice.exe not found on PATH.",
+      "resolution": "Native read-only Word PDF export plus packaged rasterization adapter succeeded; no software installed or managed renderer edited."
+    },
+    {
+      "issue": "First seven-page visual pass showed a default blue Title border and a sparse final page.",
+      "resolution": "Removed Title style border and shortened redundant reference prose in Markdown source; rebuilt equal-content DOCX, rerendered to six pages and inspected all final pages."
+    },
+    {
+      "issue": "First final-check-record patch used delete/add for the same path and apply_patch rejected it before changing files.",
+      "resolution": "Replaced the preparation record through a normal update patch; no business or evidence files affected."
+    }
+  ],
+  "diff_check": "git diff --check passed; staged diff is checked again before commit",
+  "business_tests_rerun": false,
+  "remote_ci": "PR27 existing run independently re-read, see entry-state.json. Final C12c head CI is separately verified after push and recorded in its PR/excluded handoffs to avoid self-SHA loop."
+}

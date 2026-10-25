@@ -1,0 +1,38 @@
+[
+  {
+    "number": 9,
+    "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/9",
+    "merged": true,
+    "merged_at": "2026-10-14T15:49:35Z",
+    "actual_merge": "b4a376b860e891a969c9507d69b4cefba5c7f290",
+    "head": "fafc69aecf723d06181e807bc1124aed2bd915de",
+    "develop_ancestor_exit": 0
+  },
+  {
+    "number": 14,
+    "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/14",
+    "merged": true,
+    "merged_at": "2026-10-16T05:50:33Z",
+    "actual_merge": "336806072638a4ab0a973b3e7b01b517f73aa9d6",
+    "head": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
+    "develop_ancestor_exit": 0
+  },
+  {
+    "number": 16,
+    "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/16",
+    "merged": true,
+    "merged_at": "2026-10-16T05:50:33Z",
+    "actual_merge": "aa373606f47d4e5c4533e6d48d263c7781bddf26",
+    "head": "16d55979e6f36688e1ef8114577c2ee8e0dc8cd5",
+    "develop_ancestor_exit": 0
+  },
+  {
+    "number": 17,
+    "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/17",
+    "merged": true,
+    "merged_at": "2026-10-16T05:50:33Z",
+    "actual_merge": "32ec16bf3a281d6f4d9be8f1c19410239d73145c",
+    "head": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
+    "develop_ancestor_exit": 0
+  }
+]

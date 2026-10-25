@@ -1,0 +1,167 @@
+{
+  "at": "2026-10-18T02:20:56.539265+00:00",
+  "tested_head": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
+  "dirty_paths": [],
+  "scope": "fixtures via real handlers; existing pages restore, display and download via real socket",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.41",
+      "page_errors": [],
+      "checks": [
+        {
+          "stage": "a-pending-homework",
+          "analysis_run_id": 3,
+          "dimension": "scores",
+          "sample_size": 2
+        },
+        {
+          "stage": "restore",
+          "analysis_run_id": 4,
+          "dimension": "scores",
+          "sample_size": 1
+        },
+        {
+          "stage": "a-new-cross-homework",
+          "analysis_run_id": 7,
+          "dimension": "scores",
+          "sample_size": 3
+        },
+        {
+          "stage": "a-new-exam",
+          "analysis_run_id": 8,
+          "dimension": "scores",
+          "sample_size": 2
+        },
+        {
+          "stage": "restore",
+          "analysis_run_id": 9,
+          "dimension": "scores",
+          "sample_size": 1
+        },
+        {
+          "stage": "a-old-homework",
+          "analysis_run_id": 3,
+          "dimension": "scores",
+          "sample_size": 2
+        },
+        {
+          "stage": "restore",
+          "analysis_run_id": 4,
+          "dimension": "scores",
+          "sample_size": 1
+        },
+        {
+          "stage": "b-first-week",
+          "analysis_run_id": 1,
+          "dimension": "knowledge",
+          "sample_size": 2
+        },
+        {
+          "stage": "b-two-week-knowledge",
+          "analysis_run_id": 4,
+          "dimension": "knowledge",
+          "sample_size": 3
+        },
+        {
+          "stage": "b-old-knowledge",
+          "analysis_run_id": 1,
+          "dimension": "knowledge",
+          "sample_size": 2
+        }
+      ],
+      "screenshots": [
+        "chrome-a-fixed-generated-draft.png",
+        "chrome-a-pending-homework.png",
+        "chrome-a-new-cross-homework.png",
+        "chrome-a-new-exam.png",
+        "chrome-a-old-homework.png",
+        "chrome-b-first-week.png",
+        "chrome-b-two-week-knowledge.png",
+        "chrome-b-mixed-recommendation.png",
+        "chrome-b-old-knowledge.png"
+      ],
+      "result": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.62",
+      "page_errors": [],
+      "checks": [
+        {
+          "stage": "a-pending-homework",
+          "analysis_run_id": 3,
+          "dimension": "scores",
+          "sample_size": 2
+        },
+        {
+          "stage": "restore",
+          "analysis_run_id": 4,
+          "dimension": "scores",
+          "sample_size": 1
+        },
+        {
+          "stage": "a-new-cross-homework",
+          "analysis_run_id": 7,
+          "dimension": "scores",
+          "sample_size": 3
+        },
+        {
+          "stage": "a-new-exam",
+          "analysis_run_id": 8,
+          "dimension": "scores",
+          "sample_size": 2
+        },
+        {
+          "stage": "restore",
+          "analysis_run_id": 9,
+          "dimension": "scores",
+          "sample_size": 1
+        },
+        {
+          "stage": "a-old-homework",
+          "analysis_run_id": 3,
+          "dimension": "scores",
+          "sample_size": 2
+        },
+        {
+          "stage": "restore",
+          "analysis_run_id": 4,
+          "dimension": "scores",
+          "sample_size": 1
+        },
+        {
+          "stage": "b-first-week",
+          "analysis_run_id": 1,
+          "dimension": "knowledge",
+          "sample_size": 2
+        },
+        {
+          "stage": "b-two-week-knowledge",
+          "analysis_run_id": 4,
+          "dimension": "knowledge",
+          "sample_size": 3
+        },
+        {
+          "stage": "b-old-knowledge",
+          "analysis_run_id": 1,
+          "dimension": "knowledge",
+          "sample_size": 2
+        }
+      ],
+      "screenshots": [
+        "msedge-a-fixed-generated-draft.png",
+        "msedge-a-pending-homework.png",
+        "msedge-a-new-cross-homework.png",
+        "msedge-a-new-exam.png",
+        "msedge-a-old-homework.png",
+        "msedge-b-first-week.png",
+        "msedge-b-two-week-knowledge.png",
+        "msedge-b-mixed-recommendation.png",
+        "msedge-b-old-knowledge.png"
+      ],
+      "result": "passed"
+    }
+  ],
+  "result": "passed"
+}

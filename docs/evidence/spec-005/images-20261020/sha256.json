@@ -1,0 +1,17 @@
+{
+  "normalization": "UTF-8 text, CRLF/CR normalized to LF; paths relative to this directory",
+  "files": {
+    "entry-state.json": "e5c6cfd96554c10a275f3c6df9fe7747616f9b972f2ae878a64a8db773cbf77b",
+    "handlers/checks.txt": "4cbe2fd1c676ecb808988a6f955d5fc597e96a19be8c3765fbe02c1f4fa30625",
+    "handlers/report.json": "878b348a59249b73dc9f841330663b4bca97d545277e0551073a51ed592fdb64",
+    "handlers/test_markup_persists_without_images_urls_or_attributes_after_relogin.json": "12acdfeb20ae922e43e5654d0dea79cd7ac8dcee5aafa2e462a906d41b17e888",
+    "handlers/test_pdf_control_fixed_versions_current_permissions_and_revocation.json": "3387c82084720c788b68f2e53a8ec34b9f715e6be69bacf9b10ad017fe9868ec",
+    "handlers/test_pdf_control_missing_file_and_archived_resource_fail_closed.json": "4cba638c57526f8feba96fdc04216022af17b7812492b495029a5c0086e818d0",
+    "handlers/test_pdf_control_retries_range_conflicts_and_non_content_responses.json": "c740825ac02b6fe7f092fdc749d7a0f7a1d53fafbcbb0bf2610763b1b26bb5a9",
+    "handlers/test_png_jpeg_uploads_and_new_versions_are_currently_blocked.json": "3f351bb5d01b8a61461275d63dcfd40744abf40672cb24d70e1a3dfb58b08c77",
+    "handlers/test_unknown_image_fields_fail_atomically_and_roles_remain_enforced.json": "48ab9715085e92881fcf6a48ae8b8bd8a3ab86a1e48686f05de2424c51345b83",
+    "preflight/checks.txt": "937e003ee12f7e662926e373b3caaac3a54c9beba5b664bc9d0c7f988a80e5ca",
+    "preflight/report.json": "9dfc14913a7c82e9bba42148ac74b318115ee5dd631df5832611eebcae234691",
+    "preflight/test_pdf_control_retries_range_conflicts_and_non_content_responses.json": "f6e81ed814719df97614dec7dd2188e5397903b0fe8d6c8b204db47fdcf1403d"
+  }
+}
