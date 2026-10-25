@@ -185,3 +185,68 @@ test('export authorization failure clears old report and requires explicit recov
   assert.doesNotMatch(content(root), /教学标题/)
   assert.equal(button(root, '导出当前快照 CSV'), undefined)
 })
+
+// ---------- SPEC-010A 考勤与学习表现 ----------
+
+const attendance = (id = 31) => ({ analysis_run_id: id, dimension: 'attendance',
+  source_until: '2026-10-14T00:00:00Z', generated_at: 'same', algorithm_version: 'attendance-performance-v1',
+  sample_size: 6, population_basis: 'closed_task_frozen_participants',
+  warnings: ['相关性不代表因果，不自动扣分'],
+  metrics: { expected_count: 9, present_count: 6, late_count: 1, leave_count: 0, absent_count: 2,
+    attendance_rate: 0.666667, performance_mean_percentage: null, performance_correlation: null,
+    correlation_reason: 'insufficient_pairs', candidate_count: 6, paired_count: 0,
+    missing_performance_count: 6, selected_paper_ids: [] },
+  series: [{ period_start: '2026-10-18T16:00:00Z', period_end: '2026-10-25T16:00:00Z',
+    metrics: { expected_count: 9, present_count: 6, late_count: 1, leave_count: 0, absent_count: 2,
+      attendance_rate: 0.666667 } }] })
+
+test('考勤维度按冻结名单算分母，并解释 C02 无相关系数的原因', async t => {
+  const { root, fixture, paths } = await mount(t)
+  change(root, '统计维度', 'attendance'); await flush()
+  fixture.data = attendance()
+  button(root, '查询统计').props.onClick(); await flush()
+  assert.match(paths.at(-1), /dimension=attendance/)
+  assert.match(content(root), /考勤与学习表现（010A）/)
+  assert.match(content(root), /应到人次（冻结名单）9/)
+  assert.match(content(root), /到勤率（出勤\+迟到）66\.67%/)
+  assert.match(content(root), /有效配对人数0/)
+  assert.match(content(root), /缺成绩人数6/)
+  assert.match(content(root), /有效配对不足 3 人，按 C02 返回无相关系数/)
+  assert.doesNotMatch(content(root), /应交人卷次/)
+})
+
+test('零方差时给出 C03 说明，且不把 null 当成 0', async t => {
+  const { root, fixture } = await mount(t)
+  change(root, '统计维度', 'attendance'); await flush()
+  fixture.data = attendance(32)
+  fixture.data.metrics = { ...fixture.data.metrics, correlation_reason: 'zero_variance' }
+  button(root, '查询统计').props.onClick(); await flush()
+  assert.match(content(root), /零方差|方差为零/)
+  assert.match(content(root), /考勤-成绩相关系数：无数据/)
+  assert.doesNotMatch(content(root), /相关系数 r = 0/)
+})
+
+test('考勤快照可恢复，不会退回知识维度', async t => {
+  const { root, fixture, paths } = await mount(t, { course: '3', run: 31 })
+  fixture.data = attendance(31)
+  // 启动时的自动恢复已把编号改成初始快照 id，这里显式填回 31 再恢复。
+  control(root, '原快照编号').props.onInput({ target: { value: '31' } }); await flush()
+  button(root, '恢复原快照').props.onClick(); await flush()
+  assert.match(paths.at(-1), /analysis_run_id=31/)
+  assert.match(content(root), /考勤与学习表现（010A）/)
+  assert.equal(control(root, '统计维度').props.value, 'attendance')
+})
+
+test('个人范围不显示班级配对，只给本人指标', async t => {
+  const { root, fixture } = await mount(t)
+  change(root, '统计维度', 'attendance'); await flush()
+  const personal = attendance(33)
+  fixture.data = { ...personal, sample_size: 1, metrics: { ...personal.metrics,
+    expected_count: 2, present_count: 1, late_count: 0, leave_count: 0, absent_count: 1,
+    attendance_rate: 0.5, performance_correlation: null, correlation_reason: 'personal_scope',
+    candidate_count: null, paired_count: null, missing_performance_count: null } }
+  button(root, '查询统计').props.onClick(); await flush()
+  assert.match(content(root), /当前是个人范围，只输出本人到勤与成绩/)
+  assert.match(content(root), /不计算班级相关性/)
+  assert.doesNotMatch(content(root), /班级 null 名学生/)
+})

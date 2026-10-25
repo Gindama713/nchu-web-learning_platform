@@ -13,3 +13,14 @@
   .question-option { grid-template-columns: 1fr; }
   .question-bank .rows button { max-width: 100%; }
 }
+
+/* 题库分布图 */
+.qb-total { font-weight: 600; color: #173b6c; margin: 14px 0 6px; }
+.qb-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-bottom: 16px; }
+.qb-chart { display: grid; gap: 8px; padding: 14px; border: 1px solid #e1e9f4; border-radius: 12px; background: #fbfdff; }
+.qb-chart-title { margin: 0 0 2px; font-size: .85rem; font-weight: 600; color: #60718a; }
+.qb-bar-row { display: grid; grid-template-columns: 62px minmax(60px, 1fr) 32px; gap: 10px; align-items: center; font-size: .82rem; }
+.qb-bar-label { color: #182436; }
+.qb-bar-track { height: 9px; border-radius: 5px; background: #eef2f8; overflow: hidden; }
+.qb-bar-fill { display: block; height: 100%; border-radius: 5px; background: #173b6c; }
+.qb-bar-value { text-align: right; font-weight: 700; color: #173b6c; font-variant-numeric: tabular-nums; }

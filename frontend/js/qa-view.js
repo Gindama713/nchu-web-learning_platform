@@ -7,6 +7,7 @@ export const QAView = {
     const api = new KnowledgeClient()
     const courses = ref([]), course = ref(''), question = ref(''), topK = ref(3)
     const busy = ref(false), ready = ref(false), error = ref(''), result = ref(null), source = ref(null)
+    const sourceBusy = ref(false)
     let generation = 0
     function invalidate() {
       generation++
@@ -54,19 +55,20 @@ export const QAView = {
       } finally { if (ticket === generation) busy.value = false }
     }
     async function openSource(id) {
-      source.value = null
       const ticket = ++generation
-      busy.value = true
+      sourceBusy.value = true
+      error.value = ''
       try {
         const item = await api.detail(id)
         if (!item.published) throw new Error('该知识已下架，请重新查询。')
+        // 加载完成再替换，避免旧内容先被清空造成闪白
         if (ticket === generation) source.value = item
       } catch (failure) {
         if (ticket === generation) {
           result.value = null
           error.value = failure.message
         }
-      } finally { if (ticket === generation) busy.value = false }
+      } finally { if (ticket === generation) sourceBusy.value = false }
     }
     watch(() => [props.user.id, props.user.role], boot, { immediate: true })
     onBeforeUnmount(invalidate)
@@ -116,6 +118,7 @@ export const QAView = {
         ]))),
         h('p', { class: 'qa-meta' }, `算法 ${result.value.algorithm_version} · 语料版本 ${result.value.index_version}`),
       ]),
+      sourceBusy.value && h('p', { class: 'qa-loading', role: 'status' }, '正在打开知识出处…'),
       source.value && h('article', { class: 'qa-source', 'aria-label': '知识出处正文' }, [
         h('h3', source.value.title),
         h('p', `知识出处 #${source.value.id} · 内容版本 ${source.value.content_revision}`),

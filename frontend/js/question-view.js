@@ -139,6 +139,31 @@ export const QuestionBankView = {
         teacher() && button('编辑为新版本', () => edit(item), { disabled: busy.value || !knowledge.value.length }),
       ])
     }
+    // 题库分布：题型与难度各一行条形图，只统计当前筛选结果
+    function bars(title, labels, counts) {
+      const max = Math.max(1, ...Object.keys(labels).map(code => counts.get(code) ?? 0))
+      return h('div', { class: 'qb-chart' }, [
+        h('p', { class: 'qb-chart-title' }, title),
+        ...Object.entries(labels).map(([code, label]) => h('div', { class: 'qb-bar-row' }, [
+          h('span', { class: 'qb-bar-label' }, label),
+          h('div', { class: 'qb-bar-track' }, [
+            h('i', { class: 'qb-bar-fill', style: `width:${Math.round(((counts.get(code) ?? 0) / max) * 100)}%` }),
+          ]),
+          h('span', { class: 'qb-bar-value' }, String(counts.get(code) ?? 0)),
+        ])),
+      ])
+    }
+    function distribution() {
+      const typeCount = new Map(), diffCount = new Map()
+      rows.value.forEach(item => {
+        typeCount.set(item.type, (typeCount.get(item.type) ?? 0) + 1)
+        diffCount.set(item.difficulty, (diffCount.get(item.difficulty) ?? 0) + 1)
+      })
+      return h('div', { class: 'qb-stats' }, [
+        bars('题型分布', questionTypes, typeCount),
+        bars('难度分布', difficulties, diffCount),
+      ])
+    }
     onMounted(() => run(boot))
     return () => h('section', { class: 'card question-bank', 'aria-busy': busy.value }, [
       h('div', { class: 'actions' }, [h('h2', '课程题库'), button('重新加载题库', () => run(boot))]),
@@ -162,7 +187,8 @@ export const QuestionBankView = {
           teacher() && button('新增题目', () => edit(), { disabled: busy.value || !knowledge.value.length }),
         ]),
         teacher() && !knowledge.value.length && !busy.value && !knowledgeError.value && h('p', '请先在课程中创建知识点，再添加题目。'),
-        h('p', `共 ${total.value} 道题目`),
+        h('p', { class: 'qb-total' }, `共 ${total.value} 道题目`),
+        rows.value.length > 0 && distribution(),
         h('ul', { class: 'rows' }, rows.value.map(item => h('li', { key: item.id }, [
           button(`#${item.id} · v${item.version} · ${item.stem.slice(0, 60)}`, () => { selected.value = item; editing.value = false }),
         ]))),
