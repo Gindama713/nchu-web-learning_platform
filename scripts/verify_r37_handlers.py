@@ -1,4 +1,4 @@
-"""Persist R37 handler responses, DB facts and explicit known contract failures."""
+"""Persist actual R37 results; the preparation UI is a separate acceptance gap."""
 
 import argparse
 import json
@@ -42,7 +42,9 @@ def main():
         'expected_contract_failures': [{'test': test.id(), 'traceback': error} for test, error in result.expectedFailures],
         'failures': [{'test': test.id(), 'traceback': error} for test, error in result.failures+result.errors],
         'unexpected_successes': [test.id() for test in result.unexpectedSuccesses],
-        'acceptance': 'blocked while R37-004-01/02 or preparation UI gaps remain',
+        'acceptance': ('handler contracts passed; full R37 blocked by absent preparation UI'
+                       if result.wasSuccessful() and not result.expectedFailures else
+                       'handler failures remain; see actual results'),
         'records': EvidenceResult.records,
     }
     (args.output/'handlers.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n', encoding='utf-8')

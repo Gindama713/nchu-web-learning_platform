@@ -22,7 +22,6 @@ def main():
               'tested_head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
               'dirty_paths': subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).splitlines(),
               'scope': '007 API authorization observations; 008/006 -> 010B -> 011 bounded subchain; not full I-03',
-              '007_contract_defects': ['future after_revision replaces current revision; owner 罗浩铭'],
               '007_UI': 'blocked, missing registered classroom page', 'fault_injections': []}
     suite = unittest.defaultTestLoader.loadTestsFromNames(['tests.test_i03_entry.I03EntryTest',
                                                          'tests.test_i03_subchain.I03SubchainTest'])
@@ -30,6 +29,11 @@ def main():
     started = time.monotonic()
     result = unittest.TextTestRunner(stream=stream, verbosity=2).run(suite)
     report.update(tests=result.testsRun, expected_failures=len(result.expectedFailures),
+                  passed=result.testsRun-len(result.expectedFailures)-len(result.failures)-len(result.errors)
+                  -len(result.unexpectedSuccesses)-len(result.skipped),
+                  failures=[test.id() for test, _ in result.failures],
+                  errors=[test.id() for test, _ in result.errors],
+                  unexpected_successes=[test.id() for test in result.unexpectedSuccesses],
                   seconds=round(time.monotonic() - started, 3),
                   result=('passed_with_007_expected_failure' if result.expectedFailures else 'passed')
                   if result.wasSuccessful() else 'failed')

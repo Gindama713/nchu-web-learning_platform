@@ -227,6 +227,7 @@ def main():
               'tested_head': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
               'dirty_paths': subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT, text=True).splitlines(),
               'scope': 'local real socket HTTP/UI; synthetic data; explicit calculation fault/delay fixtures; not performance/classroom',
+              'server_fixture': 'TESTING=True disables unrelated grading scanner; single-thread WSGI; no worker/concurrency acceptance',
               'browsers': []}
     try:
         with servers() as password, sync_playwright() as playwright:
@@ -239,6 +240,13 @@ def main():
         report['status'] = 'failed'
         report['failure_type'] = type(error).__name__
         report['failure_locations'] = [f'{Path(f.filename).name}:{f.name}:{f.lineno}' for f in traceback.extract_tb(error.__traceback__)]
+        report['failure_chain'] = []
+        cause = error.__cause__ or error.__context__
+        while cause is not None:
+            report['failure_chain'].append({'type': type(cause).__name__, 'locations': [
+                f'{Path(f.filename).name}:{f.name}:{f.lineno}'
+                for f in traceback.extract_tb(cause.__traceback__)]})
+            cause = cause.__cause__ or cause.__context__
         print(f"FAILED {report['failure_type']}: {report['failure_locations']}", file=sys.stderr)
         return 1
     finally:
