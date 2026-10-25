@@ -1,0 +1,723 @@
+{
+  "layer": "real Flask handlers/SQLite; no browser or successful image integration",
+  "fixtures": "admin/teacher bootstrap; generated 2x3 PNG/JPEG; short PDF type controls",
+  "requests": [
+    {
+      "actor": "T005ADMIN",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005ADMIN",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "T005ADMIN",
+            "role": "admin",
+            "student_no": "T005ADMIN"
+          }
+        },
+        "request_id": "60f3541a8ea74b258b8500c2f4d8ec66"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005TEACH",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "T005TEACH",
+            "role": "teacher",
+            "student_no": "T005TEACH"
+          }
+        },
+        "request_id": "9b1797cf0ced4ff18d044bf6d46dff24"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "bootstrap/anonymous",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T005STUD1",
+        "name": "T005STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T005STUD1",
+            "role": "student",
+            "student_no": "T005STUD1"
+          }
+        },
+        "request_id": "287b6c33a01a458394e99d2ddf2be850"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD1",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T005STUD1",
+            "role": "student",
+            "student_no": "T005STUD1"
+          }
+        },
+        "request_id": "1df8dc84ccaa4349806c7374aa65ce88"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "bootstrap/anonymous",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T005STUD2",
+        "name": "T005STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "3cea1265409e47e0ba9d874dfccbf141"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD2",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "3672603bec534406b8aa043d168e8e74"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005ADMIN",
+      "method": "POST",
+      "path": "/courses",
+      "request": {
+        "title": "T005 controlled CPU",
+        "teacher_id": 2
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "T005 controlled CPU"
+        },
+        "request_id": "d55856377d8e40799e378822bf3ec1c6"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 3,
+        "member_role": "student"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 3
+        },
+        "request_id": "5debac6229054c0597367f0b1e7492d4"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/chapters",
+      "request": {
+        "title": "CPU"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        },
+        "request_id": "9e1de2de528b4e6a83b6d6c68e7bccd3"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "程序计数器",
+        "content": "<p>PC 指向下一条指令</p>",
+        "published": true,
+        "is_foundational": true
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC 指向下一条指令</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": true,
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "7650d6b15b154a33a083f7c9ab952b7a"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-20T04:35:59.910Z",
+          "user": {
+            "id": 2,
+            "name": "T005TEACH",
+            "role": "teacher",
+            "student_no": "T005TEACH"
+          }
+        },
+        "request_id": "f5866740e22245839dd0ad55ce6b3702"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD2",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-20T04:35:59.928Z",
+          "user": {
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "1f11c512f6fe473cb463a82cbf773938"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005ADMIN",
+      "method": "POST",
+      "path": "/courses",
+      "request": {
+        "title": "Other image contract course",
+        "teacher_id": 2
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "description": "",
+          "id": 2,
+          "teacher_id": 2,
+          "title": "Other image contract course"
+        },
+        "request_id": "d610843d04f54fd99e889e8871405ac8"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/2/members",
+      "request": {
+        "user_id": 4,
+        "member_role": "student"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 4
+        },
+        "request_id": "423d375976364539a4d561cecf454181"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/2/chapters",
+      "request": {
+        "title": "Other chapter"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 2,
+          "position": 0,
+          "title": "Other chapter"
+        },
+        "request_id": "913b70b2c06542cea0cbe3a4a6e806eb"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "GET",
+      "path": "/knowledge-points/1",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC 指向下一条指令</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_bookmarked": false,
+          "is_foundational": true,
+          "progress": {
+            "completed": false,
+            "completed_at": null
+          },
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "4f79ac7d47294c2bb166c0cb80f1fa65"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "PATCH",
+      "path": "/knowledge-points/1",
+      "request": {
+        "title": "must not persist",
+        "images": []
+      },
+      "status": 400,
+      "expected_status": 400,
+      "response": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": {},
+          "message": "请求字段或类型不合法"
+        },
+        "request_id": "8bb6a940e12d4baa87e31a9bc6fb9f5c"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "must not create",
+        "content": "text",
+        "published": false,
+        "images": []
+      },
+      "status": 400,
+      "expected_status": 400,
+      "response": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": {},
+          "message": "请求字段或类型不合法"
+        },
+        "request_id": "edad085f57a64e67abf3f7486b4f50a8"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "PATCH",
+      "path": "/knowledge-points/1",
+      "request": {
+        "title": "must not persist",
+        "resource_version_ids": [
+          1
+        ]
+      },
+      "status": 400,
+      "expected_status": 400,
+      "response": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": {},
+          "message": "请求字段或类型不合法"
+        },
+        "request_id": "6d665f0370954042848a8283eb552cba"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "must not create",
+        "content": "text",
+        "published": false,
+        "resource_version_ids": [
+          1
+        ]
+      },
+      "status": 400,
+      "expected_status": 400,
+      "response": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": {},
+          "message": "请求字段或类型不合法"
+        },
+        "request_id": "658da92b1df14f68a9777c9066568845"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "PATCH",
+      "path": "/knowledge-points/1",
+      "request": {
+        "title": "must not persist",
+        "image_url": "https://invalid.example/a.png"
+      },
+      "status": 400,
+      "expected_status": 400,
+      "response": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": {},
+          "message": "请求字段或类型不合法"
+        },
+        "request_id": "80bd3cb07e324319bd6df4dd1f3dc9e8"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "must not create",
+        "content": "text",
+        "published": false,
+        "image_url": "https://invalid.example/a.png"
+      },
+      "status": 400,
+      "expected_status": 400,
+      "response": {
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "details": {},
+          "message": "请求字段或类型不合法"
+        },
+        "request_id": "8f37dd25739d4e7b9ebcd94a948508b7"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "GET",
+      "path": "/knowledge-points/1",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC 指向下一条指令</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_bookmarked": false,
+          "is_foundational": true,
+          "progress": {
+            "completed": false,
+            "completed_at": null
+          },
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "252605d757c14dae9f9fc506dde329cf"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD1",
+      "method": "PATCH",
+      "path": "/knowledge-points/1",
+      "request": {
+        "content": "forbidden"
+      },
+      "status": 403,
+      "expected_status": 403,
+      "response": {
+        "error": {
+          "code": "FORBIDDEN",
+          "details": {},
+          "message": "无此操作权限"
+        },
+        "request_id": "063c4d33cfdf443e9c4dfda1f6e65eb8"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD2",
+      "method": "GET",
+      "path": "/knowledge-points/1",
+      "request": null,
+      "status": 404,
+      "expected_status": 404,
+      "response": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "课程不存在或不可见"
+        },
+        "request_id": "04c4b158edd94f1db6cebb71c26daa39"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD2",
+      "method": "PATCH",
+      "path": "/knowledge-points/1",
+      "request": {
+        "content": "cross course"
+      },
+      "status": 404,
+      "expected_status": 404,
+      "response": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "课程不存在或不可见"
+        },
+        "request_id": "37d2397afa3647b0a917861625ab126b"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "PATCH",
+      "path": "/knowledge-points/1",
+      "request": {
+        "published": false
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC 指向下一条指令</p>",
+          "content_revision": 2,
+          "example": "",
+          "id": 1,
+          "is_foundational": true,
+          "published": false,
+          "title": "程序计数器"
+        },
+        "request_id": "d4eeb772da9e47f5a30616555a6dcd7e"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD1",
+      "method": "GET",
+      "path": "/knowledge-points/1",
+      "request": null,
+      "status": 404,
+      "expected_status": 404,
+      "response": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "知识点不存在或不可见"
+        },
+        "request_id": "e44de95ac886486ba1f118f4e63090d8"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "PATCH",
+      "path": "/knowledge-points/1",
+      "request": {
+        "published": true
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC 指向下一条指令</p>",
+          "content_revision": 3,
+          "example": "",
+          "id": 1,
+          "is_foundational": true,
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "a6fb5558bfe44d08afcb4edb499667cb"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "DELETE",
+      "path": "/courses/1/members/3",
+      "request": null,
+      "status": 204,
+      "expected_status": 204,
+      "response": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD1",
+      "method": "GET",
+      "path": "/knowledge-points/1",
+      "request": null,
+      "status": 404,
+      "expected_status": 404,
+      "response": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "课程不存在或不可见"
+        },
+        "request_id": "72c88dc333be497abe63340ff41048a1"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD1",
+      "method": "PATCH",
+      "path": "/knowledge-points/1",
+      "request": {
+        "title": "revoked"
+      },
+      "status": 404,
+      "expected_status": 404,
+      "response": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "课程不存在或不可见"
+        },
+        "request_id": "466630ac37a14a39ba8a4d00aa4c1733"
+      },
+      "headers": {}
+    }
+  ],
+  "contract_observations": [],
+  "final_facts": {
+    "knowledge_point": [
+      {
+        "id": 1,
+        "chapter_id": 1,
+        "title": "程序计数器",
+        "content": "<p>PC 指向下一条指令</p>",
+        "example": "",
+        "published": 1,
+        "content_revision": 3,
+        "is_foundational": 1
+      }
+    ],
+    "resource": [],
+    "resource_version": [],
+    "resource_event": [],
+    "files": [],
+    "integrity_check": "ok",
+    "foreign_key_check": []
+  }
+}
