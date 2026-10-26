@@ -1,0 +1,26 @@
+/* SPEC-007 classroom demo module styles. */
+.demo-module { display: grid; gap: 14px; }
+.demo-module label.demo-course { min-width: 240px; }
+.demo-create { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 14px; border: 1px solid #dce4ee; border-radius: 10px; }
+.demo-create label { display: grid; gap: 4px; }
+.demo-list { width: 100%; border-collapse: collapse; border: 1px solid #d8e0ea; }
+.demo-list th, .demo-list td { text-align: left; padding: 10px 8px; border: 1px solid #e1e7ee; vertical-align: top; }
+.demo-list thead th { background: #f4f7fb; }
+.demo-detail { display: grid; gap: 12px; padding: 14px; border: 1px solid #dce4ee; border-radius: 10px; }
+.demo-detail h3 { margin: 0; }
+.demo-stage { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+.demo-message { margin: 0; font-weight: 600; }
+.demo-step { margin: 4px 0 0; color: #4a5568; }
+.demo-state { border-collapse: collapse; border: 1px solid #d8e0ea; min-width: 160px; }
+.demo-state th, .demo-state td { text-align: left; padding: 6px 10px; border: 1px solid #e1e7ee; }
+.demo-state th { background: #f4f7fb; font-weight: 600; }
+.demo-signals { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+.demo-signal { padding: 4px 10px; border-radius: 999px; border: 1px solid #c9d4e2; color: #64748b; background: #f8fafc; }
+.demo-signal.on { border-color: #0f6b3a; color: #fff; background: #0f6b3a; }
+.demo-grid { display: grid; grid-template-columns: repeat(16, 1fr); gap: 2px; max-width: 420px; }
+.demo-byte { padding: 3px 0; text-align: center; font-family: Consolas, monospace; font-size: 12px; border: 1px solid #e1e7ee; background: #f8fafc; }
+.demo-byte.on { border-color: #1d4ed8; background: #dbeafe; font-weight: 700; }
+.demo-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+.demo-readonly { color: #1d4ed8; }
+.demo-error { border: 1px solid #b23b3b; background: #fdeeee; border-radius: 10px; padding: 12px; }
+.demo-notice { color: #0f6b3a; }
