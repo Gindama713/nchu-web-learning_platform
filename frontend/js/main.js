@@ -14,6 +14,7 @@ import { RecommendationView } from './recommendation-view.js'
 import { PreparationView } from './preparation-view.js'
 import { DemoView } from './demo-view.js'
 import { WiringView } from './wiring-view.js'
+import { WiringStatsView } from './wiring-stats-view.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
@@ -29,7 +30,7 @@ import '../styles/demo.css'
 import '../styles/wiring.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, PreparationView, DemoView, WiringView },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, PreparationView, DemoView, WiringView, WiringStatsView },
   setup() {
     const user = ref(null)
     const practiceEntry = ref(null)
@@ -482,6 +483,7 @@ createApp({
         <PreparationView v-if="user.role !== 'admin'" :key="'preparations:' + user.id + ':' + user.role" :user="user" />
         <DemoView v-if="user.role !== 'admin'" :key="'demo:' + user.id + ':' + user.role" :user="user" />
         <WiringView v-if="user.role !== 'admin'" :key="'wiring:' + user.id + ':' + user.role" :user="user" />
+        <WiringStatsView v-if="user.role !== 'admin'" :key="'wiring-stats:' + user.id + ':' + user.role" :user="user" />
         <ExperimentView v-if="user.role !== 'admin'" :key="'experiments:' + user.id + ':' + user.role" :user="user" />
         <GradingView v-if="user.role !== 'admin'" :key="'grading:' + user.id + ':' + user.role" :user="user" />
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />
