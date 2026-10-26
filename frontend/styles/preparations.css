@@ -1,0 +1,23 @@
+/* SPEC-004 preparation module styles. */
+.preparation-module { display: grid; gap: 14px; }
+.preparation-course { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.preparation-course label { min-width: 240px; }
+.preparation-create { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 14px; border: 1px solid #dce4ee; border-radius: 10px; }
+.preparation-create h3 { width: 100%; margin: 0 0 4px; }
+.preparation-create label { display: grid; gap: 4px; }
+.preparation-create select[multiple] { min-width: 180px; }
+.preparation-create small { width: 100%; }
+.preparation-table { width: 100%; border-collapse: collapse; border: 1px solid #d8e0ea; }
+.preparation-table th, .preparation-table td { text-align: left; padding: 10px 8px; border: 1px solid #e1e7ee; vertical-align: top; }
+.preparation-table thead th { background: #f4f7fb; }
+.preparation-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.preparation-actions details { display: inline-block; }
+.preparation-edit form { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin: 8px 0; min-width: 260px; }
+.preparation-edit label { display: grid; gap: 4px; }
+.preparation-edit select[multiple] { min-width: 160px; }
+.preparation-publish { display: grid; gap: 8px; margin: 8px 0; min-width: 240px; }
+.preparation-quiz { margin: 0; padding-left: 16px; }
+.preparation-error { border: 1px solid #b23b3b; background: #fdeeee; border-radius: 10px; padding: 12px; }
+.preparation-error p { margin: 4px 0 0; }
+.preparation-notice { color: #0f6b3a; }
+.preparation-pager { display: flex; align-items: center; gap: 12px; }

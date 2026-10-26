@@ -11,6 +11,7 @@ import { ExperimentView } from './experiment-view.js'
 import { GradingView } from './grading-view.js'
 import { QAView } from './qa-view.js'
 import { RecommendationView } from './recommendation-view.js'
+import { PreparationView } from './preparation-view.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
@@ -21,9 +22,10 @@ import '../styles/resources.css'
 import '../styles/experiments.css'
 import '../styles/grading.css'
 import '../styles/qa.css'
+import '../styles/preparations.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, PreparationView },
   setup() {
     const user = ref(null)
     const practiceEntry = ref(null)
@@ -473,6 +475,7 @@ createApp({
         <RecommendationView v-if="user.role === 'student'" :key="'recommendation:' + user.id + ':' + user.role" :user="user" @practice="openRecommendedPractice" />
         <PracticeView v-if="user.role === 'student'" :key="'practice:' + user.id + ':' + user.role" :user="user" :entry="practiceEntry" />
         <ResourceView v-if="user.role !== 'admin'" :key="'resources:' + user.id + ':' + user.role" />
+        <PreparationView v-if="user.role !== 'admin'" :key="'preparations:' + user.id + ':' + user.role" :user="user" />
         <ExperimentView v-if="user.role !== 'admin'" :key="'experiments:' + user.id + ':' + user.role" :user="user" />
         <GradingView v-if="user.role !== 'admin'" :key="'grading:' + user.id + ':' + user.role" :user="user" />
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />
