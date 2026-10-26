@@ -1,0 +1,22 @@
+/* SPEC-017 wiring lab module styles. */
+.wiring-module { display: grid; gap: 14px; }
+.wiring-module label.wiring-course, .wiring-module label.wiring-version { min-width: 220px; }
+.wiring-attempts, .wiring-parts, .wiring-wires, .wiring-history, .wiring-results, .wiring-errors, .wiring-io-table, .wiring-head { width: 100%; border-collapse: collapse; border: 1px solid #d8e0ea; }
+.wiring-attempts th, .wiring-attempts td, .wiring-parts th, .wiring-parts td, .wiring-wires th, .wiring-wires td, .wiring-history th, .wiring-history td, .wiring-results th, .wiring-results td, .wiring-errors th, .wiring-errors td, .wiring-io-table th, .wiring-io-table td, .wiring-head th, .wiring-head td { text-align: left; padding: 8px; border: 1px solid #e1e7ee; vertical-align: top; }
+.wiring-attempts thead th, .wiring-parts thead th, .wiring-wires thead th, .wiring-history thead th, .wiring-results thead th, .wiring-errors thead th, .wiring-io-table thead th { background: #f4f7fb; }
+.wiring-detail { display: grid; gap: 12px; padding: 14px; border: 1px solid #dce4ee; border-radius: 10px; }
+.wiring-detail h3 { margin: 0; }
+.wiring-signals { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+.wiring-signals h4 { width: 100%; margin: 0; }
+.wiring-signals table { max-width: 260px; }
+.wiring-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 14px; }
+.wiring-block { display: grid; gap: 10px; align-content: start; padding: 12px; border: 1px solid #dce4ee; border-radius: 10px; background: #fbfcfe; }
+.wiring-block h4 { margin: 0; }
+.wiring-connect, .wiring-input { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; }
+.wiring-connect label, .wiring-input label { display: grid; gap: 4px; }
+.wiring-clock { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.wiring-clock table { max-width: 260px; }
+.wiring-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.wiring-error { border: 1px solid #b23b3b; background: #fdeeee; border-radius: 10px; padding: 12px; }
+.wiring-notice { color: #0f6b3a; }
+.wiring-submitted p { margin: 4px 0; }
