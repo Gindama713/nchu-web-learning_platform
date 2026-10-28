@@ -8,7 +8,6 @@ const REASONS = {
   RELATIVE_WEAK_CLUSTER: { title: '班级相对偏弱（KMeans 聚类）', level: 'low' },
 }
 const ATTENDANCE_TEXT = { late: '迟到', absent: '缺勤', present: '出勤', leave: '请假' }
-const LEVEL_TEXT = { high: '高', mid: '中', low: '参考' }
 const MODEL_TEXT = {
   clustered: { text: '已聚类', tone: 'ok' },
   insufficient_data: { text: '样本不足，仅规则提示', tone: 'warn' },
@@ -32,6 +31,15 @@ function reasonText(reason) {
   }
   default:
     return JSON.stringify(reason)
+  }
+}
+
+const briefReason = reason => {
+  switch (reason.code) {
+  case 'LOW_OBJECTIVE_RATE': return percent(reason.value)
+  case 'RECENT_ATTENDANCE': return (reason.statuses ?? []).map(s => ATTENDANCE_TEXT[s] ?? s).join('、')
+  case 'RELATIVE_WEAK_CLUSTER': return `聚类 #${reason.cluster}`
+  default: return ''
   }
 }
 
@@ -130,42 +138,40 @@ export const WarningView = {
       return { rows, max: Math.max(1, ...rows.map(row => row.count)) }
     }
 
+    // 单行紧凑布局：头像 + 姓名 + 状态 + 原因 chips + 样本 + 操作
     function card(item) {
       const open = item.status === 'open'
       const student = nameOf(item.student_id)
       const isEditing = editing.value === item.id
-      return h('li', { key: item.id, class: ['warn-item', open ? 'open' : 'handled'] }, [
-        h('div', { class: 'warn-head' }, [
-          h('span', { class: 'warn-avatar' }, (noOf(item.student_id) || String(item.student_id)).slice(-2)),
-          h('div', { class: 'warn-who' }, [
-            h('strong', {}, student),
-            h('small', {}, noOf(item.student_id) || '—'),
-          ]),
-          h('span', { class: ['warn-badge', open ? 'open' : 'handled'] }, open ? '未处理' : '已处理'),
-          h('span', { class: 'warn-sample' }, `最大样本 ${item.sample_size ?? 0}`),
+      const row = h('div', { class: 'warn-row-main' }, [
+        h('span', { class: 'warn-avatar' }, (noOf(item.student_id) || String(item.student_id)).slice(-2)),
+        h('div', { class: 'warn-who' }, [
+          h('strong', {}, student),
+          h('small', {}, noOf(item.student_id) || '—'),
         ]),
-        h('ul', { class: 'warn-reasons' }, item.reasons.map(reason => {
+        h('span', { class: ['warn-badge', open ? 'open' : 'handled'] }, open ? '未处理' : '已处理'),
+        h('div', { class: 'warn-chips' }, item.reasons.map(reason => {
           const meta = REASONS[reason.code] ?? { title: reason.code, level: 'low' }
-          return h('li', { class: `warn-reason ${meta.level}` }, [
-            h('span', { class: 'warn-level' }, LEVEL_TEXT[meta.level]),
-            h('span', {}, meta.title),
-            h('em', {}, reasonText(reason)),
-          ])
+          return h('span', {
+            class: `warn-chip ${meta.level}`,
+            title: `${meta.title}：${reasonText(reason)}`,
+          }, briefReason(reason) ? `${meta.title} · ${briefReason(reason)}` : meta.title)
         })),
-        isEditing
-          ? h('div', { class: 'warn-editor' }, [
-            h('label', {}, ['处理记录', h('input', {
-              value: note.value, 'aria-label': '处理记录', maxlength: 500,
-              placeholder: '例如：已单独联系，安排补练（1—500 字）',
-              onInput: event => { note.value = event.target.value },
-            })]),
-            h('button', { type: 'button', disabled: busy.value, onClick: () => run(() => confirmHandle(item.id), '已记录处理') }, '确认'),
-            h('button', { type: 'button', class: 'secondary', onClick: () => { editing.value = null } }, '取消'),
-          ])
-          : open && h('div', { class: 'warn-actions' }, [
-            h('button', { type: 'button', class: 'secondary', onClick: () => begin(item.id) }, '标记处理'),
-          ]),
+        h('span', { class: 'warn-sample' }, `样本 ${item.sample_size ?? 0}`),
+        open && !isEditing && h('button', {
+          type: 'button', class: 'secondary warn-act', onClick: () => begin(item.id),
+        }, '标记处理'),
       ])
+      const editor = isEditing && h('div', { class: 'warn-editor' }, [
+        h('label', {}, ['处理记录', h('input', {
+          value: note.value, 'aria-label': '处理记录', maxlength: 500,
+          placeholder: '例如：已单独联系，安排补练（1—500 字）',
+          onInput: event => { note.value = event.target.value },
+        })]),
+        h('button', { type: 'button', disabled: busy.value, onClick: () => run(() => confirmHandle(item.id), '已记录处理') }, '确认'),
+        h('button', { type: 'button', class: 'secondary', onClick: () => { editing.value = null } }, '取消'),
+      ])
+      return h('li', { key: item.id, class: ['warn-row', open ? 'open' : 'handled'] }, [row, editor])
     }
 
     return () => {

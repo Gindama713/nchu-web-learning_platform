@@ -54,3 +54,8 @@
   .recog-item { grid-template-columns: 24px 1fr; }
   .recog-remove { grid-column: 2; justify-self: start; }
 }
+
+/* 识别范围说明收进折叠，避免一屏都是文字 */
+.recog-scope { border: 1px solid #e1e7ee; border-radius: 10px; padding: 10px 14px; background: #fbfdff; margin: 0 0 6px; }
+.recog-scope summary { cursor: pointer; font-weight: 600; color: #173b6c; font-size: .88rem; }
+.recog-scope p { margin: 8px 0 0; font-size: .84rem; color: #60718a; }

@@ -190,9 +190,12 @@ export const RecognitionView = {
       const confirmed = result.value?.status === 'confirmed'
       return h('section', { class: 'card recog-card' }, [
         h('h2', {}, '实验图辅助识别'),
-        h('p', {}, '只识别白底黑色的正向标准门符号（NOT / AND / OR / XOR）与固定字典标签；'
-          + '不识别连线拓扑、旋转手绘、卡诺图、任意字体或完整 CPU。相似度是模板 IoU，不是正确概率。'
-          + '确认只保存结构草稿，不自动判分、不写成绩。'),
+        h('p', {}, '只识别白底黑色的正向标准门符号（NOT / AND / OR / XOR）与固定字典标签，所有结果必须人工确认。'),
+        h('details', { class: 'recog-scope' }, [
+          h('summary', {}, '识别范围与限制'),
+          h('p', {}, '不识别连线拓扑、旋转手绘、卡诺图、任意字体或完整 CPU。相似度是模板 IoU，不是正确概率。'
+            + '确认只保存结构草稿，不自动判分、不写成绩。'),
+        ]),
 
         h('div', { class: 'inline-form' }, [
           h('label', {}, ['课程', h('select', {

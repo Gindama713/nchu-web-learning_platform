@@ -65,3 +65,17 @@
 .warn-bar-fill.mid { background: #d18700; }
 .warn-bar-fill.low { background: #7d8ea6; }
 .warn-bar-value { text-align: right; font-weight: 700; color: #173b6c; font-variant-numeric: tabular-nums; }
+
+/* 紧凑单行预警卡 */
+.warn-row { display: grid; gap: 8px; padding: 10px 14px; border: 1px solid #e1e7ee; border-left: 4px solid #c0392b; border-radius: 10px; background: #fff; }
+.warn-row.handled { border-left-color: #b9c4d4; background: #fbfcfe; }
+.warn-row-main { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.warn-chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 240px; min-width: 0; }
+.warn-chip { padding: 2px 9px; border-radius: 20px; font-size: .75rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px; }
+.warn-chip.high { background: #fdecea; color: #8c2b20; }
+.warn-chip.mid { background: #fff4d6; color: #8c5a00; }
+.warn-chip.low { background: #eef2f8; color: #4a5a70; }
+.warn-act { padding: 5px 10px; font-size: .82rem; }
+.warn-row .warn-avatar { width: 30px; height: 30px; font-size: .74rem; }
+.warn-row .warn-who strong { font-size: .9rem; }
+.warn-row .warn-editor { margin-top: 4px; }
