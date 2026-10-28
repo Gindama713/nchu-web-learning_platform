@@ -1,0 +1,105 @@
+{
+  "checked_at_local": "2026-10-28 18:03:56 +0800",
+  "scope": "C12c materials/matrix only; no business, migration, auth, CI, shared-contract or teammate-module change; no merge/force-push/publication/archive/message.",
+  "status": "passed",
+  "six_required_docs": {
+    "command": "python scripts/check_docs.py",
+    "result": "Required documents, teacher layout and local links: OK"
+  },
+  "matrix": {
+    "path": "docs/evidence/c12a/acceptance-matrix.json",
+    "markdown": "docs/evidence/c12a/acceptance-matrix.md",
+    "rows": 131,
+    "local": {
+      "pass": 81,
+      "fail": 0,
+      "blocked": 50,
+      "pending": 0
+    },
+    "integration": {
+      "pass": 81,
+      "fail": 0,
+      "blocked": 50,
+      "pending": 0
+    },
+    "md_json_consistent": true,
+    "changed_rows": 16,
+    "changed_row_ids": [
+      "SPEC-005/R20",
+      "SPEC-011/AC-02",
+      "SPEC-011/R20",
+      "SPEC-011/R35",
+      "SPEC-011/R46",
+      "SPEC-011/NF-SEC",
+      "SPEC-011/NF-UI",
+      "SPEC-012/AC-01",
+      "SPEC-012/AC-02",
+      "SPEC-012/AC-03",
+      "SPEC-012/AC-04",
+      "SPEC-012/R20",
+      "SPEC-012/R34",
+      "SPEC-012/R35",
+      "SPEC-012/R46",
+      "SPEC-012/NF-SEC"
+    ],
+    "history_fields": "C12c_重算/C12c_历史记录 present on changed rows; C12c_008补证 on 13 SPEC-008 rows",
+    "not_merged_basis": "PR46/PR45/PR40 not merged and not used as merged fact"
+  },
+  "local_links": {
+    "files": [
+      "docs/C12C_DELIVERY_HUANG_JUNCHENG.md",
+      "docs/checkpoints/HUANG_JUNCHENG_C12C.md",
+      "docs/TEST_REPORT_HUANG_JUNCHENG.md",
+      "docs/USER_GUIDE_HUANG_JUNCHENG.md",
+      "docs/reports/24201716_黄俊诚_设计报告.md",
+      "docs/C12A_ACCEPTANCE_AUDIT.md",
+      "docs/evidence/c12a/acceptance-matrix.md",
+      "docs/evidence/c12c/spec-008-20261028-reference.md"
+    ],
+    "checked": 171,
+    "errors": []
+  },
+  "design_report": {
+    "source": "docs/reports/24201716_黄俊诚_设计报告.md",
+    "docx": "docs/reports/24201716_黄俊诚_设计报告.docx",
+    "paragraphs": 51,
+    "tables": 2,
+    "table1_rows": 12,
+    "md_docx_text_mismatches": 0,
+    "docx_zip_test": "ok",
+    "media_files": 0,
+    "note": "原文及本轮均无嵌入图片；表格行/单元格与Markdown一致，docx可被python-docx重新打开。"
+  },
+  "source_scope": {
+    "modified": 9,
+    "new": 2,
+    "non_docs_changes": false,
+    "files": [
+      "docs/C12A_ACCEPTANCE_AUDIT.md",
+      "docs/C12C_DELIVERY_HUANG_JUNCHENG.md",
+      "docs/TEST_REPORT_HUANG_JUNCHENG.md",
+      "docs/USER_GUIDE_HUANG_JUNCHENG.md",
+      "docs/checkpoints/HUANG_JUNCHENG_C12C.md",
+      "docs/evidence/c12a/acceptance-matrix.json",
+      "docs/evidence/c12a/acceptance-matrix.md",
+      "docs/reports/24201716_黄俊诚_设计报告.md",
+      "docs/reports/24201716_黄俊诚_设计报告.docx",
+      "docs/evidence/c12c/entry-state-20261028.json",
+      "docs/evidence/c12c/spec-008-20261028-reference.md"
+    ]
+  },
+  "business_tests_rerun": false,
+  "ruff": {
+    "command": ".venv/Scripts/python.exe -m ruff check backend tests scripts",
+    "result": "All checks passed!"
+  },
+  "diff_check": "git diff --check passed",
+  "remote_ci": {
+    "PR46_head": "9a8343c7a475271f338c5e82a03456b2e8a9d441",
+    "PR46_run": 40647967505,
+    "PR46_conclusion": "success",
+    "PR46_merged": false,
+    "note": "PR46 CI success is not a merge or teacher acceptance."
+  },
+  "new_failures": []
+}
