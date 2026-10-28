@@ -77,7 +77,7 @@ export const AnalyticsView = {
   setup(props) {
     let api = new AnalyticsClient(props.user), epoch = 0
     const courses = ref([]), course = ref(''), data = ref(null), runId = ref(''), busy = ref(false), error = ref('')
-    const filters = reactive({ dimension: 'knowledge', kind: 'homework', from: '', to: '', student_id: '', paper_id: '' })
+    const filters = reactive({ dimension: 'knowledge', kind: 'homework', from: '', to: '', student_id: '', paper_id: '', paper_ids: '' })
     const storageKey = () => `010b-snapshot:${props.user.id}:${props.user.role}`
     function forget() { epoch++; data.value = null; busy.value = false; error.value = '' }
     function saved() {
@@ -283,6 +283,8 @@ export const AnalyticsView = {
         props.user.role === 'teacher' && input('学生编号（留空全班）', filters.student_id, v => { filters.student_id = v }, 'number'),
         filters.dimension === 'scores' && select('成绩类别', filters.kind, v => { filters.kind = v; filters.paper_id = '' }, [['homework', '作业'], ['exam', '考试'], ['quiz', '随堂测']]),
         filters.dimension === 'scores' && input('试卷编号（留空本类别全部）', filters.paper_id, v => { filters.paper_id = v }, 'number'),
+        filters.dimension === 'attendance' && input('参与计算的测评卷 ID（可选，逗号分隔）', filters.paper_ids, v => { filters.paper_ids = v }),
+        filters.dimension === 'attendance' && input('参与计算的测评卷 ID（可选，逗号分隔）', filters.paper_ids, v => { filters.paper_ids = v }),
       ]), button('查询统计', () => run(query), !course.value),
       h('div', { class: 'analytics-restore' }, [input('原快照编号', runId.value, v => { runId.value = v }, 'number'), button('恢复原快照', () => run(restore), !course.value || !runId.value)]),
       busy.value && h('p', { role: 'status' }, '正在读取统计…'), error.value && h('p', { role: 'alert' }, error.value),

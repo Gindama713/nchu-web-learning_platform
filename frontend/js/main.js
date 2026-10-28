@@ -79,6 +79,38 @@ createApp({
       return total ? Math.round((attendedOf(id) / total) * 100) : 0
     }
     const myStatusOf = id => records.value.find(record => record.task_id === id)?.status ?? '未记录'
+    const account = reactive({ name: '', old_password: '', new_password: '', confirm: '' })
+    const accountSaving = ref(false)
+    const resubmitTarget = ref(null)
+    const resubmitReason = ref('')
+    const correctTarget = ref(null)
+    const correctStatus = ref('present')
+    const correctReason = ref('')
+    async function saveName() {
+      if (accountSaving.value) return
+      accountSaving.value = true
+      await act(async () => {
+        const updated = await write('/api/v1/users/me', 'PATCH', { name: account.name })
+        if (user.value) user.value = { ...user.value, name: updated.name }
+      }, '姓名已更新。')
+      accountSaving.value = false
+    }
+    async function savePassword() {
+      if (accountSaving.value) return
+      if (account.new_password !== account.confirm) {
+        message.value = '两次输入的新密码不一致。'
+        return
+      }
+      accountSaving.value = true
+      await act(async () => {
+        await write('/api/v1/users/me', 'PATCH',
+          { old_password: account.old_password, new_password: account.new_password })
+        account.old_password = ''
+        account.new_password = ''
+        account.confirm = ''
+      }, '密码已修改，其他设备的登录已失效；当前会话保持。')
+      accountSaving.value = false
+    }
     const timeFormat = new globalThis.Intl.DateTimeFormat('zh-CN', {
       timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit',
       hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
@@ -182,6 +214,7 @@ createApp({
         const data = await readApi('/api/v1/auth/session')
         clearCourse()
         user.value = data.user
+        account.name = data.user.name
         csrf.value = data.csrf_token
         await refreshCourses()
         // 登录后自动选中第一门课，否则考勤/预警/识别三块要手动点课程才出现。
@@ -345,22 +378,48 @@ createApp({
       }, '批准已撤销，考勤状态已更正。')
     }
     async function resubmit(id) {
-      const reason = window.prompt('重新填写请假理由（必填）')
-      if (!reason) return
+      const reason = resubmitReason.value.trim()
+      if (!reason) {
+        message.value = '请填写请假理由后再提交。'
+        return
+      }
       await act(async () => {
         await write(`/api/v1/leave-requests/${id}`, 'PUT', { reason })
+        resubmitTarget.value = null
+        resubmitReason.value = ''
         await refreshCourse()
       }, '请假已重新提交。')
     }
+    function cancelResubmit() {
+      resubmitTarget.value = null
+      resubmitReason.value = ''
+    }
+    function beginResubmit(id) {
+      resubmitTarget.value = id
+      resubmitReason.value = ''
+    }
     async function correct(record) {
-      const status = window.prompt('更正状态：present / late / leave / absent')
-      if (!status) return
-      const reason = window.prompt('更正理由（必填）')
-      if (!reason) return
+      const reason = correctReason.value.trim()
+      if (!reason) {
+        message.value = '更正理由必填（会通知学生）。'
+        return
+      }
       await act(async () => {
-        await write(`/api/v1/attendance-records/${record.id}`, 'PATCH', { status, reason })
+        await write(`/api/v1/attendance-records/${record.id}`, 'PATCH',
+          { status: correctStatus.value, reason })
+        correctTarget.value = null
+        correctReason.value = ''
         await refreshCourse()
       }, '考勤更正已记录并通知学生。')
+    }
+    function beginCorrect(id, status) {
+      correctTarget.value = id
+      correctStatus.value = status
+      correctReason.value = ''
+    }
+    function cancelCorrect() {
+      correctTarget.value = null
+      correctReason.value = ''
     }
     async function markRead(id) {
       await act(async () => {
@@ -428,7 +487,7 @@ createApp({
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
-      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf }
+      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect }
   },
   template: `
     <main class="page">
@@ -498,6 +557,22 @@ createApp({
         <button v-if="person.role !== 'admin' && person.active" type="button" class="secondary" @click="deactivate(person)">停用</button></li></ul></section>
         <section class="card"><h2>通知</h2><ul class="rows"><li v-for="item in notifications" :key="item.id">{{ item.title }} · {{ item.read_at ? '已读' : '未读' }}
         <button v-if="!item.read_at" type="button" class="secondary" @click="markRead(item.id)">标记已读</button></li></ul></section>
+        <section class="card"><h2>账号设置</h2>
+        <p class="account-hint">姓名会显示在成员列表与统计里；改密码需要先验证当前密码，修改后其他设备会被退出登录。</p>
+        <div class="account-grid">
+        <form class="account-form" @submit.prevent="saveName">
+        <h3>修改姓名</h3>
+        <label>姓名 <input v-model.trim="account.name" maxlength="50" required></label>
+        <div class="actions"><button type="submit" :disabled="accountSaving">保存姓名</button></div>
+        </form>
+        <form class="account-form" @submit.prevent="savePassword">
+        <h3>修改密码</h3>
+        <label>当前密码 <input v-model="account.old_password" type="password" autocomplete="current-password" required></label>
+        <label>新密码 <input v-model="account.new_password" type="password" minlength="12" autocomplete="new-password" required></label>
+        <label>确认新密码 <input v-model="account.confirm" type="password" minlength="12" autocomplete="new-password" required></label>
+        <div class="actions"><button type="submit" :disabled="accountSaving">修改密码</button></div>
+        </form>
+        </div></section>
         </template>
 
         <template v-if="tab === 'content' && user.role !== 'admin'">
@@ -579,7 +654,12 @@ createApp({
         <button v-if="user.role === 'teacher' && item.status === 'pending'" type="button" @click="review(item.id, 'approved')">批准</button>
         <button v-if="user.role === 'teacher' && item.status === 'pending'" type="button" class="secondary" @click="review(item.id, 'rejected')">驳回</button>
         <button v-if="user.role === 'teacher' && item.status === 'approved'" type="button" class="secondary" @click="revokeLeave(item.id)">撤销批准</button>
-        <button v-if="user.role === 'student' && item.status === 'rejected'" type="button" class="secondary" @click="resubmit(item.id)">修改重提</button>
+        <button v-if="user.role === 'student' && item.status === 'rejected'" type="button" class="secondary" @click="beginResubmit(item.id)">修改重提</button>
+        </span>
+        <span v-if="resubmitTarget === item.id" class="resubmit-box">
+        <input v-model.trim="resubmitReason" maxlength="500" placeholder="重新填写请假理由（必填）" aria-label="请假理由">
+        <button type="button" @click="resubmit(item.id)">提交</button>
+        <button type="button" class="secondary" @click="cancelResubmit">取消</button>
         </span>
         </li>
         </ul>
@@ -598,7 +678,15 @@ createApp({
         <details v-if="user.role === 'teacher'" class="att-panel">
         <summary>有效考勤明细（{{ records.length }} 条）</summary>
         <ul class="rows"><li v-for="item in records" :key="item.id">任务 #{{ item.task_id }} · 学生 #{{ item.student_id }} · {{ item.status }}
-        <button type="button" class="secondary" @click="correct(item)">更正</button></li></ul>
+        <button type="button" class="secondary" @click="beginCorrect(item.id, item.status)">更正</button>
+        <span v-if="correctTarget === item.id" class="resubmit-box">
+        <select v-model="correctStatus" aria-label="更正后的状态">
+        <option value="present">出勤</option><option value="late">迟到</option>
+        <option value="leave">请假</option><option value="absent">缺勤</option></select>
+        <input v-model.trim="correctReason" maxlength="500" placeholder="更正理由（必填，会通知学生）" aria-label="更正理由">
+        <button type="button" @click="correct(item)">提交更正</button>
+        <button type="button" class="secondary" @click="cancelCorrect">取消</button>
+        </span></li></ul>
         </details>
         </section>
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />

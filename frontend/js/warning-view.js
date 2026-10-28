@@ -8,6 +8,15 @@ const REASONS = {
   RELATIVE_WEAK_CLUSTER: { title: '班级相对偏弱（KMeans 聚类）', level: 'low' },
 }
 const ATTENDANCE_TEXT = { late: '迟到', absent: '缺勤', present: '出勤', leave: '请假' }
+const runTimeFormat = new globalThis.Intl.DateTimeFormat('zh-CN', {
+  timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit',
+  hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+})
+const shortTime = value => {
+  const date = new Date(value)
+  return value && Number.isFinite(date.getTime()) ? runTimeFormat.format(date) : '—'
+}
+
 const MODEL_TEXT = {
   clustered: { text: '已聚类', tone: 'ok' },
   insufficient_data: { text: '样本不足，仅规则提示', tone: 'warn' },
@@ -50,6 +59,7 @@ export const WarningView = {
     const courses = ref([])
     const courseId = ref('')
     const items = ref([])
+    const runs = ref([])
     const total = ref(0)
     const runId = ref(null)
     const modelStatus = ref('no_run')
@@ -90,10 +100,17 @@ export const WarningView = {
       modelStatus.value = content.model_status ?? 'no_run'
     }
 
+    async function loadRuns() {
+      runs.value = []
+      if (!courseId.value) return
+      try { runs.value = await api.listRuns(courseId.value) } catch { runs.value = [] }
+    }
+
     async function bindCourse() {
       editing.value = null; note.value = ''
       await loadPeople()
       await loadWarnings()
+      await loadRuns()
     }
 
     async function generate() {
@@ -113,6 +130,7 @@ export const WarningView = {
       await api.handle(id, text)
       editing.value = null
       await loadWarnings()
+      await loadRuns()
     }
 
     async function boot() {
@@ -228,6 +246,16 @@ export const WarningView = {
               h('ul', { class: 'warn-list' }, items.value.map(card)),
             ])
             : h('p', { class: 'warn-empty' }, '当前筛选下没有预警记录。'),
+        runs.value.length > 0 && h('details', { class: 'warn-runs' }, [
+          h('summary', {}, `历史批次（最近 ${runs.value.length} 次）`),
+          h('ul', { class: 'warn-run-list' }, runs.value.map(item => h('li', { key: item.analysis_run_id }, [
+            h('b', {}, `#${item.analysis_run_id}`),
+            h('span', { class: `warn-run-model ${item.model_status}` }, MODEL_TEXT[item.model_status] ?? item.model_status),
+            h('span', {}, `样本 ${item.sample_size ?? 0}`),
+            h('span', {}, `预警 ${item.warning_count ?? 0} 条`),
+            h('small', {}, shortTime(item.source_until)),
+          ]))),
+        ]),
       ])
     }
   },

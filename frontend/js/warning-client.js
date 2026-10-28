@@ -26,6 +26,12 @@ export class WarningClient {
     return session
   }
 
+  // 历史批次：只读，用于展示历次运行的模型状态与预警条数
+  async listRuns(courseId, size = 8) {
+    const content = await this.request(`/courses/${courseId}/warning-runs?page=1&page_size=${size}`)
+    return content.data ?? []
+  }
+
   async write(path, method, values, extraHeaders = {}) {
     const session = await this.verifySession()
     return (await this.request(path, { method,

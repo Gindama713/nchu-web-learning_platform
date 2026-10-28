@@ -344,3 +344,19 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
 .course-card { grid-template-rows: 104px auto; }
 .course-initial { font-size: 2rem; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
 .course-initial { font-size: 2rem; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+
+/* 账号设置 */
+.account-hint { color: #7b8aa0; font-size: .86rem; margin: 0 0 14px; }
+.account-grid { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+.account-form {
+  display: grid; gap: 12px; padding: 16px 18px; border: 1px solid #e6ecf5;
+  border-radius: 14px; background: #fbfdff;
+}
+.account-form h3 { margin: 0; font-size: .96rem; color: #12325f; }
+.account-form .actions { margin: 4px 0 0; }
+.account-form button { width: auto; justify-self: start; }
+
+/* 请假重新提交：内联输入，替换 window.prompt */
+.resubmit-box { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 100%; margin-top: 2px; }
+.resubmit-box input { flex: 1 1 260px; min-width: 0; }
+.resubmit-box button { padding: 8px 14px; }

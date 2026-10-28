@@ -79,3 +79,14 @@
 .warn-row .warn-avatar { width: 30px; height: 30px; font-size: .74rem; }
 .warn-row .warn-who strong { font-size: .9rem; }
 .warn-row .warn-editor { margin-top: 4px; }
+
+/* 历史批次：折叠列表 */
+.warn-runs { margin-top: 14px; border: 1px solid #e6ecf5; border-radius: 12px; padding: 12px 16px; background: #fbfdff; }
+.warn-runs summary { cursor: pointer; font-weight: 600; color: #12325f; font-size: .9rem; }
+.warn-run-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+.warn-run-list li { display: flex; flex-wrap: wrap; gap: 10px; align-items: baseline; font-size: .84rem; color: #55657c; padding: 7px 10px; border-radius: 8px; background: #fff; border: 1px solid #eef2f8; }
+.warn-run-list b { color: #173b6c; font-variant-numeric: tabular-nums; }
+.warn-run-list small { margin-left: auto; color: #9aa8bb; }
+.warn-run-model { padding: 1px 8px; border-radius: 20px; font-size: .74rem; background: #eef2f8; color: #55657c; }
+.warn-run-model.insufficient_data { background: #fff4d6; color: #8c5a00; }
+.warn-run-model.ok { background: #e6f6ea; color: #1c5c2e; }
