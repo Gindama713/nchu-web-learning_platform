@@ -1,5 +1,9 @@
 # 变更日志与发布回滚手册
 
+## 2026-10-22 姜苏豪个人材料补证
+
+补充个人交付索引、使用说明、阶段检查材料与测试映射；在实施记录和个人设计报告中登记 PR #39 的实际 head、merge SHA、最终 develop CI，并纠正“首页可恢复旧快照”的表述（原 ID 恢复走 API）。README 更新材料入口及 SPEC-016 固定样例当前状态。本次只改文档，不更改接口、数据库或业务代码；回退时撤销本次文档提交即可，历史考勤、统计、预警与识别事实不受影响。Gitea、课堂、目标环境和 main 发布仍按实际证据判定。
+
 ## 2026-10-20 SPEC-005图文契约核实与独立准备
 
 黄俊诚从已fetch核验的develop 2973bef建立`feature/spec-005-knowledge-images`；PR40 head7a99ca2仍open/未合入/reviews=[]，其CI39280808424实际completed/success，不沿用旧queued。读取PRD/APIC/DBD与005/003实际代码，补PNG/JPEG创建/新版本探针、005安全HTML保存/重登/新app持久读取及非法字段原子拒绝，使用PDF只对照当前权限/跨课/固定版本/Range/重试和失效行为。实际非法UUID事件被003接受并入库，作为真实contract_failure保留，不改成通过、不代修003。测试与证据入口见[SPEC-005图文准备](SPEC-005_IMAGE_CONTRACT.md)。
