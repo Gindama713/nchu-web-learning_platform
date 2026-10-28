@@ -113,8 +113,8 @@ test('graph renders nodes with real mastery state and edge list', async t => {
   assert.match(content(view.root), /已掌握/)
   assert.match(content(view.root), /未掌握/)
   assert.match(content(view.root), /寄存器/)
-  assert.match(content(view.root), /先修指令ALU/)
-  assert.match(content(view.root), /包含ALU寄存器/)
+  assert.match(content(view.root), /先修指令 → ALU/)
+  assert.match(content(view.root), /包含ALU → 寄存器/)
   assert.doesNotMatch(content(view.root), /添加关系/)
 })
 
@@ -144,7 +144,7 @@ test('root focus refetches with root_id and shows the subgraph hint', async t =>
 test('teacher adds a prerequisite edge and the path list follows (AC-04)', async t => {
   const view = await mount(t, 'teacher')
   assert.match(content(view.root), /添加关系/)
-  const form = find(view.root, item => item.type === 'form' && item.props?.class === 'graph-edge-form')
+  const form = find(view.root, item => item.type === 'form' && item.props?.class === 'inline-form graph-edge-form')
   const selects = []
   const walk = item => {
     if (item.type === 'select') selects.push(item)
@@ -156,13 +156,13 @@ test('teacher adds a prerequisite edge and the path list follows (AC-04)', async
   form.props.onSubmit({ preventDefault() {} })
   await flush()
   assert.deepEqual(view.fixture.writes, [{ source_id: 2, target_id: 4, type: 'prerequisite' }])
-  assert.match(content(view.root), /先修寄存器指令/)
+  assert.match(content(view.root), /先修寄存器 → 指令/)
   assert.match(content(view.root), /关系已保存/)
 })
 
 test('cycle edge is rejected with the server message (AC-02)', async t => {
   const view = await mount(t, 'teacher', { cycle: true })
-  const form = find(view.root, item => item.type === 'form' && item.props?.class === 'graph-edge-form')
+  const form = find(view.root, item => item.type === 'form' && item.props?.class === 'inline-form graph-edge-form')
   const selects = []
   const walk = item => {
     if (item.type === 'select') selects.push(item)

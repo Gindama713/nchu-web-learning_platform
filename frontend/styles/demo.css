@@ -1,11 +1,9 @@
 /* SPEC-007 classroom demo module styles (shared .card shell from main.css). */
 .demo-module { min-width: 0; display: grid; gap: 14px; }
+.demo-module .actions h2 { margin: 0 auto 0 0; }
 .demo-module [role="alert"] { color: #922f25; }
 .demo-module button:disabled { opacity: .55; cursor: wait; }
-.demo-create { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; margin: 14px 0; }
 .demo-create label { min-width: 0; }
-.demo-list { border-collapse: collapse; width: 100%; }
-.demo-list th, .demo-list td { padding: 10px; text-align: left; border-bottom: 1px solid #dce4ee; vertical-align: top; }
 .demo-detail { display: grid; gap: 12px; border-top: 1px solid #dce4ee; padding-top: 16px; }
 .demo-detail h3 { margin: 0; }
 .demo-stage { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
@@ -20,5 +18,4 @@
 .demo-grid { display: grid; grid-template-columns: repeat(16, 1fr); gap: 2px; max-width: 420px; }
 .demo-byte { padding: 3px 0; text-align: center; font-family: ui-monospace, monospace; font-size: .8rem; border-bottom: 1px solid #dce4ee; background: #f8fafc; }
 .demo-byte.on { border-bottom-color: #15508e; background: #e8f2ff; font-weight: 700; }
-.demo-controls { display: flex; flex-wrap: wrap; gap: 8px; }
 .demo-readonly { color: #15508e; }

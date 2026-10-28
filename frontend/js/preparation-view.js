@@ -199,7 +199,7 @@ export const PreparationView = {
     }
 
     function teacherActions(item) {
-      return h('td', { class: 'preparation-actions' }, [
+      return h('div', { class: 'preparation-actions' }, [
         item.status === 'draft' && h('details', { class: 'preparation-edit' }, [
           h('summary', { onClick: () => openEdit(item) }, '编辑'),
           edit[item.id] && h('form', { onSubmit: event => {
@@ -256,7 +256,10 @@ export const PreparationView = {
     }
 
     return () => h('section', { class: 'preparation-module card', 'aria-labelledby': 'preparation-title', 'aria-busy': busy.value }, [
-      h('h2', { id: 'preparation-title' }, '备课单元'),
+      h('div', { class: 'actions' }, [
+        h('h2', { id: 'preparation-title' }, '备课单元'),
+        session.value && button('重新加载', () => run(boot)),
+      ]),
       busy.value && h('p', { role: 'status' }, '正在加载或保存…'),
       error.value && h('div', { class: 'preparation-error', role: 'alert' }, [h('strong', '暂时无法完成操作'), h('p', error.value)]),
       notice.value && h('p', { class: 'preparation-notice', role: 'status' }, notice.value),
@@ -269,7 +272,7 @@ export const PreparationView = {
         }, courses.value.map(course => h('option', { value: String(course.id) }, course.title)))]),
         h('span', `${session.value.user.name} · ${teacher() ? '教师' : student() ? '学生' : '管理员只读'}`),
       ]),
-      courseId.value && teacher() && h('form', { class: 'preparation-create', onSubmit: event => {
+      courseId.value && teacher() && h('form', { class: 'inline-form preparation-create', onSubmit: event => {
         event.preventDefault()
         run(create, '备课草稿已创建，发布前学生不可见')
       } }, [
@@ -286,20 +289,19 @@ export const PreparationView = {
         h('small', '知识/资源/题目/测验仅限本课程；关联随堂测须先发布才能发布备课。'),
         h('button', { type: 'submit', disabled: busy.value }, '创建草稿'),
       ]),
-      courseId.value && h('table', { class: 'preparation-table' }, [
-        h('thead', h('tr', teacher()
-          ? [h('th', '标题'), h('th', '状态'), h('th', '排期'), h('th', '关联'), h('th', '操作')]
-          : [h('th', '标题'), h('th', '状态'), h('th', '排期'), h('th', '随堂测')])),
-        h('tbody', items.value.length ? items.value.map(item => h('tr', { key: item.id }, [
-          h('td', item.title),
-          h('td', statusText(item)),
-          h('td', item.scheduled_at?.slice(0, 16).replace('T', ' ') ?? '—'),
-          teacher() ? h('td', linkCount(item)) : h('td', quizCell(item)),
-          ...(teacher() ? [teacherActions(item)] : []),
-        ])) : [h('tr', h('td', { colspan: teacher() ? 5 : 4 },
-          teacher() ? '暂无备课，先创建草稿。' : '老师还没有发布预习内容。'))]),
-      ]),
-      courseId.value && total.value > 20 && h('div', { class: 'preparation-pager' }, [
+      courseId.value && (items.value.length
+        ? h('ul', { class: 'rows' }, items.value.map(item => h('li', { key: item.id }, [
+          h('div', [
+            h('strong', item.title),
+            h('span', ` · ${statusText(item)} · ${
+              item.scheduled_at?.slice(0, 16).replace('T', ' ') ?? '无排期'}`),
+            teacher() && h('span', ` · 关联 ${linkCount(item)}`),
+          ]),
+          !teacher() && quizCell(item),
+          teacher() && teacherActions(item),
+        ])))
+        : h('p', teacher() ? '暂无备课，先创建草稿。' : '老师还没有发布预习内容。')),
+      courseId.value && total.value > 20 && h('div', { class: 'actions preparation-pager' }, [
         button('上一页', () => { page.value--; run(loadList) }, { disabled: busy.value || page.value <= 1 }),
         h('span', `第 ${page.value} 页 / 共 ${Math.ceil(total.value / 20)} 页`),
         button('下一页', () => { page.value++; run(loadList) }, { disabled: busy.value || page.value >= Math.ceil(total.value / 20) }),

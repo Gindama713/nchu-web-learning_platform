@@ -129,7 +129,7 @@ export const WiringStatsView = {
       onInput: event => { forget(); update(event.target.value) },
     })])
     const table = (caption, headings, rows) => h('div', {
-      class: 'analytics-scroll', tabindex: 0, role: 'region', 'aria-label': caption,
+      class: 'wiring-stats-scroll', tabindex: 0, role: 'region', 'aria-label': caption,
     }, [h('table', [h('caption', caption),
       h('thead', [h('tr', headings.map(label => h('th', { scope: 'col' }, label)))]),
       h('tbody', rows.map(row => h('tr', row.map(text => h('td', String(text))))))])])
@@ -138,13 +138,13 @@ export const WiringStatsView = {
       const value = data.value
       const m = value.metrics
       const errors = Object.entries(m.error_counts ?? {})
-      return h('article', { class: 'analytics-report' }, [
+      return h('article', { class: 'wiring-stats-report' }, [
         h('h3', `原快照 #${value.analysis_run_id} · 连线统计`),
         h('p', `数据截止 ${shanghaiTime(value.source_until)} · 生成 ${shanghaiTime(value.generated_at)}（Asia/Shanghai） · 算法 ${value.algorithm_version}`),
         h('p', `有效样本 ${value.sample_size} · 统计口径：已发布连线实验的参与学生（按人与实验版本去重）`),
         ...(value.warnings ?? []).map(warning => h('p', warning)),
         value.sample_size === 0 && h('p', { role: 'status' }, '无有效样本，完成率显示无数据。'),
-        h('dl', { class: 'analytics-metrics' },
+        h('dl', { class: 'wiring-stats-metrics' },
           METRICS.flatMap(([key, label]) => [h('dt', label), h('dd', shown(key, m[key]))])),
         errors.length
           ? table('连线校验错误分布（同一提交同版本同错误码只计一次）', ['错误码', '次数'],
@@ -159,11 +159,14 @@ export const WiringStatsView = {
       ])
     }
 
-    return () => h('section', { class: 'card analytics-bank wiring-stats', 'aria-busy': busy.value }, [
-      h('h2', '连线统计'),
+    return () => h('section', { class: 'card wiring-stats', 'aria-busy': busy.value }, [
+      h('div', { class: 'actions' }, [
+        h('h2', '连线统计'),
+        teacher() && button('重新加载', () => run(boot)),
+      ]),
       !teacher() && h('p', '连线统计仅对教师开放。'),
       teacher() && h('p', '统计已发布连线实验的应做人数、完成率、提交次数与校验错误分布。查询保存本次结果；刷新页面恢复上次快照。日期留空为最近28天，最多366天。'),
-      teacher() && h('div', { class: 'analytics-filters' }, [
+      teacher() && h('div', { class: 'wiring-stats-filters' }, [
         h('label', ['统计课程 ', h('select', {
           'aria-label': '统计课程', value: course.value, disabled: !courses.value.length,
           onChange: event => { forget(); course.value = event.target.value },
@@ -172,7 +175,7 @@ export const WiringStatsView = {
         input('统计结束时间', filters.to, value => { filters.to = value }, 'datetime-local'),
       ]),
       teacher() && button('查询统计', () => run(query), !course.value),
-      teacher() && h('div', { class: 'analytics-restore' }, [
+      teacher() && h('div', { class: 'wiring-stats-restore' }, [
         input('原快照编号', runId.value, value => { runId.value = value }, 'number'),
         button('恢复原快照', () => run(restore), !course.value || !runId.value),
       ]),

@@ -127,17 +127,17 @@ export const GraphView = {
       ...entries.map(([key, label]) => h('option', { value: key, key }, label)),
     ])
 
-    function nodeTable() {
-      return h('table', { class: 'graph-nodes' }, [
-        h('thead', h('tr', ['编号', '名称', '基础', '掌握', '操作'].map(text => h('th', text)))),
-        h('tbody', nodes().map(node => h('tr', { key: node.id, class: focusId.value === node.id ? 'graph-focus' : '' }, [
-          h('td', `#${node.id}`),
-          h('td', node.title),
-          h('td', node.is_foundational ? '是' : '否'),
-          h('td', node.mastery >= 1 ? '已掌握' : '未掌握'),
-          h('td', button('查看', () => { focusId.value = String(node.id) }, { class: 'secondary' })),
-        ]))),
-      ])
+    function nodeRows() {
+      return h('ul', { class: 'rows' }, nodes().map(node => h('li', {
+        key: node.id, class: focusId.value === node.id ? 'graph-focus' : '',
+      }, [
+        h('div', [
+          h('strong', `#${node.id} ${node.title}`),
+          h('span', node.is_foundational ? ' · 基础节点' : ''),
+        ]),
+        h('span', { class: 'tag' }, node.mastery >= 1 ? '已掌握' : '未掌握'),
+        button('查看', () => { focusId.value = String(node.id) }, { class: 'secondary' }),
+      ])))
     }
 
     function focusPanel() {
@@ -150,11 +150,11 @@ export const GraphView = {
         h('p', `掌握状态：${node.mastery >= 1 ? '已掌握' : '未掌握'}${node.is_foundational ? ' · 基础节点' : ''}`),
         h('h4', '直接关联'),
         related.length
-          ? h('ul', related.map(item => h('li', { key: item.key }, item.text)))
+          ? h('ul', { class: 'rows' }, related.map(item => h('li', { key: item.key }, item.text)))
           : h('p', '暂无直接关联。'),
         h('h4', '可达路径'),
         reachable.length
-          ? h('ul', reachable.map(item => h('li', { key: item.key }, item.text)))
+          ? h('ul', { class: 'rows' }, reachable.map(item => h('li', { key: item.key }, item.text)))
           : h('p', '暂无先修可达路径。'),
         button('收起', () => { focusId.value = '' }, { class: 'secondary' }),
       ])
@@ -162,7 +162,7 @@ export const GraphView = {
 
     function edgeFormView() {
       return h('form', {
-        class: 'graph-edge-form',
+        class: 'inline-form graph-edge-form',
         onSubmit: event => { event.preventDefault(); run(addEdge, '关系已保存') },
       }, [
         h('label', ['起点 ', picker(nodeOptions(), edgeForm.source_id,
@@ -176,19 +176,15 @@ export const GraphView = {
       ])
     }
 
-    function edgeTable() {
-      return h('table', { class: 'graph-edges' }, [
-        h('thead', h('tr', ['类型', '起点', '终点'].map(text => h('th', text)))),
-        h('tbody', edges().map((edge, index) => h('tr', { key: index }, [
-          h('td', EDGE[edge.type] ?? edge.type),
-          h('td', titleOf(edge.source)),
-          h('td', titleOf(edge.target)),
-        ]))),
-      ])
+    function edgeRows() {
+      return h('ul', { class: 'rows' }, edges().map((edge, index) => h('li', { key: index }, [
+        h('span', { class: 'tag' }, EDGE[edge.type] ?? edge.type),
+        h('span', `${titleOf(edge.source)} → ${titleOf(edge.target)}`),
+      ])))
     }
 
-    return () => h('section', { class: 'card graph-module' }, [
-      h('h2', '知识图谱'),
+    return () => h('section', { class: 'card graph-module', 'aria-busy': busy.value }, [
+      h('div', { class: 'actions' }, [h('h2', '知识图谱'), button('重新加载', () => run(boot))]),
       error.value && h('p', { class: 'graph-error', role: 'alert' }, error.value),
       notice.value && h('p', { class: 'graph-notice' }, notice.value),
       !session.value && h('p', '正在加载…'),
@@ -211,8 +207,8 @@ export const GraphView = {
       session.value && teacher() && nodes().length > 1 && edgeFormView(),
       session.value && (!nodes().length
         ? h('p', '课程暂无知识点，请先在知识库中创建。')
-        : nodeTable()),
-      graph.value && edges().length ? edgeTable() : null,
+        : nodeRows()),
+      graph.value && edges().length ? edgeRows() : null,
       focusId.value && focusPanel(),
     ])
   },
