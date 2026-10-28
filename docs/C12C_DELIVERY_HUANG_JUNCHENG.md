@@ -87,6 +87,8 @@
 
 本轮只做文档/材料、矩阵重算、已有证据一致性检查和远程读取；没有重新执行完整业务/浏览器测试，没有更改源码、迁移、数据库、API、鉴权、CI或队友模块，没有合并、强推、发布、归档或发送协作消息。PR #45保持open并忽略；PR #46保持open、未等待/未合并；PR #41保持draft；PR #40保持open。
 
+PR #47首次CI的ci-test在既有SPEC-011 QA并发测试`test_parallel_queries_and_restart_backup_rebuild_from_facts`上偶发`DB_BUSY`失败（1/376），同一head rerun后ci-required success；本地重复14次为1次失败/13次通过。该失败不是本材料包引入，本轮不改业务，列入SPEC-011待办（负责人黄俊诚）；首次失败与rerun结果分别保留，不写成首次通过。
+
 材料检查结果见[material-checks-20261028.json](evidence/c12c/material-checks-20261028.json)。历史业务/辅助检查失败继续保存在原实施说明和报告中；本轮出现的新文档检查失败应修正后保留检查记录。
 
 ## 本人剩余工作清点与下一步（2026-10-28）

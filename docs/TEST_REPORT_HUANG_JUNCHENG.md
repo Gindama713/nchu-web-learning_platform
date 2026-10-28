@@ -44,6 +44,12 @@
 
 本轮新增验证限六文档检查、新材料本地链接、131行矩阵/JSON一致性、合入祖先、Word内容与结构检查。实际检查输出保存在[2026-10-28材料检查记录](evidence/c12c/material-checks-20261028.json)。C12c最终head的远程CI结果独立写对应PR及本地交接，未产生前不预填通过。
 
+## 2026-10-28 PR #47 CI 偶发失败留痕
+
+PR #47 head `7fb7b56` 的首次 CI run 40669449969 attempt 1 中，ci-test 在 376 项全量后端测试的 `tests.test_qa.QAIntegrationTest.test_parallel_queries_and_restart_backup_rebuild_from_facts`（`tests/test_qa.py:279`）失败：三个并发查询之一返回 503 `DB_BUSY`（期望 200），共 1 failure/376 tests，耗时 349.677 秒。该提交只改 docs/evidence，未改 backend/tests；本地同一测试重复 14 次，1 次失败、13 次通过，失败现象与 CI 相同。
+
+该失败是 SPEC-011 QA 并发/数据库 busy 重试的既有偶发稳定性问题，不是本材料包引入；本轮不改业务，列入 SPEC-011 后续待办（负责人黄俊诚），在独立 SPEC-011 feature 修复后重跑。同一 head 的 attempt 2 已由 GitHub rerun 成功（ci-required success）；首次失败和 rerun 结果分别保留，不能把 rerun 成功写成首次通过或教师验收。
+
 ## 未完成验收与失败留痕
 
 完整SPEC、跨模块I-01/02/03、R22/R45全组证据、R47完整复核、目标性能、生产同点恢复/90天保留、Gitea/课堂仍未凭材料整理关闭。其余115行结果及所有固定head/tested、编号、附件保持；50条阻断行中的待执行条件写在矩阵缺口列。

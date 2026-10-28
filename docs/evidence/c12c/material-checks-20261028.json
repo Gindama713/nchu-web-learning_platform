@@ -1,5 +1,5 @@
 {
-  "checked_at_local": "2026-10-28 18:03:56 +0800",
+  "checked_at_local": "2026-10-28 18:26:15 +0800",
   "scope": "C12c materials/matrix only; no business, migration, auth, CI, shared-contract or teammate-module change; no merge/force-push/publication/archive/message.",
   "status": "passed",
   "six_required_docs": {
@@ -100,7 +100,22 @@
     "PR46_run": 40647967505,
     "PR46_conclusion": "success",
     "PR46_merged": false,
-    "note": "PR46 CI success is not a merge or teacher acceptance."
+    "PR47_head": "7fb7b56ef2ed9d911a54ca7c1523780f027abbba",
+    "PR47_run": 40669449969,
+    "PR47_attempt1": "ci-test failure: test_parallel_queries_and_restart_backup_rebuild_from_facts 503 DB_BUSY (1/376); ci-required failure",
+    "PR47_attempt2": "rerun success; ci-test and ci-required success",
+    "PR47_merged": false,
+    "note": "PR46/PR47 CI results are not merges or teacher acceptance; PR47 first failure retained."
   },
-  "new_failures": []
+  "new_failures": [
+    "PR47 attempt1 ci-test flake: SPEC-011 QA parallel queries DB_BUSY; local repeat 1/14 fail; docs-only diff; rerun success; owner Huang Juncheng, fix in a separate SPEC-011 feature"
+  ],
+  "targeted_repeat": {
+    "test": "tests.test_qa.QAIntegrationTest.test_parallel_queries_and_restart_backup_rebuild_from_facts",
+    "runs": 14,
+    "pass": 13,
+    "fail": 1,
+    "failure": "concurrent query returned 503 DB_BUSY instead of 200",
+    "scope": "targeted concurrency test only; full backend suite not rerun"
+  }
 }
