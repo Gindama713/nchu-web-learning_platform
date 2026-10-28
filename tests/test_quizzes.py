@@ -124,10 +124,31 @@ class QuizApiTest(AttemptApiBase):
         self.assertEqual(detail['window_state'], 'closed')
         self.assertIsNone(detail['review_at'])
         self.assertNotIn('answer', detail['items'][0])
-        self.assertNotIn('answer', self.call(self.student, 'GET', f"/attempts/{response.json['data']['id']}").json['data']['answers'][0])
+        self.assertNotIn('explanation', detail['items'][0])
+        latest = self.call(self.student, 'GET', f"/attempts/{response.json['data']['id']}").json['data']
+        self.assertNotIn('answer', latest['answers'][0])
+        self.assertNotIn('explanation', latest['answers'][0])
         wrong = self.call(self.student, 'GET', '/users/me/wrong-questions').json['data'][0]
         self.assertFalse(wrong['answer_visible'])
         self.assertNotIn('answer', wrong)
+        self.assertNotIn('explanation', wrong)
+        for version in (self.q, v2):
+            practice = self.student.post(
+                f"/api/v1/questions/{self.q['id']}/practice-attempts",
+                json={'question_version_id': version['version_id'], 'answer': 'B'},
+                headers={'Origin': ORIGIN, 'X-CSRF-Token': self.student.csrf, 'Idempotency-Key': str(uuid4())})
+            self.assertEqual((practice.status_code, practice.json['error']['code']),
+                             (409, 'PRACTICE_UNAVAILABLE'))
+        with closing(connect(self.path)) as db:
+            db.execute('DROP TRIGGER question_version_no_update')
+            db.execute('UPDATE question_version SET practice_available=1 WHERE question_id=?', (self.q['id'],))
+        for version in (self.q, v2):
+            practice = self.student.post(
+                f"/api/v1/questions/{self.q['id']}/practice-attempts",
+                json={'question_version_id': version['version_id'], 'answer': 'B'},
+                headers={'Origin': ORIGIN, 'X-CSRF-Token': self.student.csrf, 'Idempotency-Key': str(uuid4())})
+            self.assertEqual((practice.status_code, practice.json['error']['code']),
+                             (409, 'QUESTION_RESERVED'))
         self.call(self.teacher, 'PATCH', f"/questions/{self.q['id']}", {'practice_available': True}, 409)
         other = self.draft([v2], confidential=False)
         self.assertEqual(self.publish(other, 409).json['error']['code'], 'QUESTION_RESERVED')
@@ -303,7 +324,10 @@ class QuizApiTest(AttemptApiBase):
             self.call(self.teacher, method, path+'?x=1', {} if method == 'POST' else None, 400)
             self.call(self.teacher, method, f'/quizzes/999/{endpoint}', {} if method == 'POST' else None, 404)
         path = f"/quizzes/{row['id']}/review"
-        self.assertEqual(self.teacher.post('/api/v1'+path, json={}).status_code, 403)
+        self.at(14)
+        for headers in ({}, {'Origin': ORIGIN}, {'X-CSRF-Token': self.teacher.csrf},
+                        {'Origin': 'https://foreign.example', 'X-CSRF-Token': self.teacher.csrf}):
+            self.assertEqual(self.teacher.post('/api/v1'+path, json={}, headers=headers).status_code, 403)
         for body in ([], {'review_at': END}, {'confirmed': True}):
             self.call(self.teacher, 'POST', path, body, 400)
         other = self.draft([self.new_question()], kind='homework')
@@ -316,6 +340,9 @@ class QuizApiTest(AttemptApiBase):
         self.at(14)
         self.assertEqual(self.call(self.teacher, 'POST', f"/quizzes/{ordinary['id']}/review", {}).json['data']['review_published_at'], scheduled)
         self.assertNotIn('answer', self.call(self.student, 'GET', f"/papers/{ordinary['id']}").json['data']['items'][0])
+        self.at(16)
+        self.assertEqual(self.call(self.teacher, 'GET', f"/papers/{ordinary['id']}").json['data']['review_at'], scheduled)
+        self.assertEqual(self.call(self.student, 'GET', f"/papers/{ordinary['id']}").json['data']['items'][0]['answer'], 'A')
         self.call(self.teacher, 'POST', '/auth/logout', status=204)
         self.call(self.teacher, 'GET', f"/quizzes/{row['id']}/statistics", status=401)
 
