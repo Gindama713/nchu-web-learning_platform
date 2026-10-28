@@ -1,6 +1,6 @@
 import { h, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { AnalyticsClient } from './analytics-client.js'
-import { barChart } from './charts.js'
+import { barChart, chartColors, donutChart } from './charts.js'
 
 const labels = { expected_count: '应交人卷次', submitted_count: '已交人卷次', missing_count: '缺交人卷次',
   graded_count: '已批人卷次', partial_count: '待批人卷次', mean_score: '同卷平均分', mean_percentage: '平均百分比',
@@ -44,7 +44,22 @@ const chartNode = node => {
   if (node.kind === 'path') return h('path', {
     d: node.d, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width ?? 1,
     'stroke-linejoin': node['stroke-linejoin'],
+    class: node.draw ? 'chart-line' : undefined,
+    pathLength: node.draw ? 1 : undefined,
   })
+  if (node.kind === 'bar') return h('rect', {
+    x: node.x, y: node.y, width: node.width, height: node.height, fill: node.fill, rx: 3,
+    class: 'chart-bar', style: `animation-delay:${(node.delay ?? 0) * 70}ms`,
+  })
+  if (node.kind === 'dot') return h('circle', {
+    cx: node.cx, cy: node.cy, r: node.r, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width,
+    class: 'chart-dot', style: `animation-delay:${560 + (node.delay ?? 0) * 70}ms`,
+  })
+  if (node.kind === 'arc') return h('circle', {
+    cx: node.cx, cy: node.cy, r: node.r, fill: 'none', stroke: node.color,
+    'stroke-width': node.thickness, 'stroke-dasharray': node.dash, 'stroke-dashoffset': node.offset,
+    transform: `rotate(-90 ${node.cx} ${node.cy})`, class: 'chart-arc',
+  }, [h('title', {}, node.title)])
   if (node.kind === 'rect') return h('rect', {
     x: node.x, y: node.y, width: node.width, height: node.height, fill: node.fill,
   })
@@ -158,6 +173,12 @@ export const AnalyticsView = {
     }
     function attendanceReport(m, value) {
       const reason = correlationNotes[m.correlation_reason] ?? ''
+      const donut = donutChart([
+        { label: '出勤', value: m.present_count, color: chartColors.present },
+        { label: '迟到', value: m.late_count, color: chartColors.late },
+        { label: '请假', value: m.leave_count, color: chartColors.leave },
+        { label: '缺勤', value: m.absent_count, color: chartColors.absent },
+      ], { size: 176, thickness: 22 })
       const chart = barChart((value.series ?? []).map(period => ({
         label: shanghaiTime(period.period_start).slice(5, 10),
         expected: period.metrics?.expected_count ?? 0,
@@ -175,6 +196,26 @@ export const AnalyticsView = {
           ? '考勤-成绩相关系数：无数据'
           : `考勤-成绩相关系数 r = ${Number(m.performance_correlation).toFixed(6)}（仅描述关联，不代表因果，不自动扣分）`),
         reason && h('p', { class: 'analytics-note' }, reason),
+        h('div', { class: 'chart-box chart-donut-wrap' }, donut.empty
+          ? h('p', { class: 'chart-empty' }, '本区间没有考勤记录，无法统计状态构成。')
+          : [
+            h('figure', {}, [
+              h('svg', {
+                viewBox: `0 0 ${donut.size} ${donut.size}`,
+                width: donut.size, height: donut.size,
+                role: 'img', 'aria-label': '考勤状态构成环形图',
+              }, [h('g', { class: 'chart-donut' }, donut.nodes.map(chartNode))]),
+              h('div', { class: 'chart-center' }, [
+                h('strong', {}, String(donut.total)),
+                h('span', {}, '人次'),
+              ]),
+            ]),
+            h('ul', { class: 'chart-legend' }, donut.rows.map(row => h('li', {}, [
+              h('i', { style: `background:${row.color}` }),
+              h('b', {}, String(row.value)),
+              h('small', {}, `${row.label} · ${row.percent}%`),
+            ]))),
+          ]),
         h('div', { class: 'chart-box' }, chart.empty
           ? h('p', { class: 'chart-empty' }, '本区间内没有已关闭的考勤任务，趋势图暂无数据。')
           : h('figure', { class: 'chart-figure' }, [
