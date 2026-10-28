@@ -2,7 +2,53 @@
 
 > 2026-10-16 C12c材料导航：当前合入、真实评审、两个矩阵版本及交付状态见[个人交付索引](C12C_DELIVERY_HUANG_JUNCHENG.md)和[本轮远程快照](evidence/c12c/entry-state.json)。下文各节保留原日期、SHA及当时事实；旧“未合入/待实现/最新”措辞按其历史范围阅读，不覆盖索引中的当前状态。完整SPEC仍未凭材料整理关闭。
 
-## 2026-10-28 C02/C03页面验收补证（最新）
+## 2026-10-28 C04公开练习/错题与答案保护新基线补证（最新）
+
+黄俊诚（24201716）任务下执行；分支`feature/spec-006-acceptance-evidence`，起点为fetch核验的`origin/develop` `8e32fb41ab9453f8b4b4f8e7be86153a183b88dc`。本包只补C04已有实现的真实双浏览器证据及脚本过时定位，不改006业务、迁移、共享鉴权、CI或队友模块，覆盖AC-03及AC-02/R36的练习、错题入口子集。003题库资源/004备课接缝、C05专用quiz、目标环境及两名真实非作者复核仍保留。
+
+### 验证工具修正（非产品缺陷）
+
+在`7697be3`新基线首次运行原C04脚本时，`full:116`失败：008合入后学生页面同时渲染“课程试卷”和“随堂测”两个`.paper-bank`，Playwright严格模式命中两个面板。按C02/C03脚本同样写法用heading“课程试卷”限定作用域；另补两项只读断言：
+
+1. 简答题设置`practice_available=true`返回400，公开单题练习只允许四类客观题。
+2. 受保护question身份即使数据库存在异常已开放标记，全部版本练习均返回409 QUESTION_RESERVED；错题列表及答卷详情不返回`answer/explanation`，`can_practice=false`。
+
+以上只修改本人验证脚本（提交`2e61297632b97dde13ec1aafefb2f3f851530369`），未改产品DOM、评分或保护规则；首跑失败报告保留在本地`logs/spec006-c04-baseline`，正式报告只记录修正后的passed结果。
+
+### 本轮执行与结果
+
+执行环境：Windows 10.0.26200、Python 3.13.12、Node 24.18.0、Chrome 155.0.8059.86、Edge 156.0.4314.50；账号仅bootstrap管理员/教师，课程/学生/成员/知识/题目/试卷/答卷均经真实001/005/006 API与真实SQLite准备，无题目/试卷/答卷替身。试卷时间窗口由服务端`TEST_NOW`受控，登录、HTTP、数据库、评分与保护判断仍为真实实现；这不等于生产时钟或教师验收。
+
+| 命令 | 实际结果 |
+|---|---|
+| `.venv/Scripts/python.exe -m unittest tests.test_practices tests.test_questions tests.test_question_validation tests.test_papers tests.test_attempts tests.test_manual_scores -v` | 67项通过，153.814秒 |
+| `cd frontend && npm test` | 135项通过，0失败 |
+| `npm run lint` / `npm run build` | 通过；build 46模块，dist约330.43kB |
+| `.venv/Scripts/python.exe -m ruff check backend tests scripts` | All checks passed |
+| `.venv/Scripts/python.exe scripts/check_docs.py` | 六主文档、教师布局及本地链接OK |
+| `python -m scripts.verify_spec006_practices --knowledge-fixture` | Chrome/Edge各11项通过，`page_errors=[]` |
+| `python -m scripts.verify_spec006_practices` | Chrome/Edge各2项空依赖通过，`page_errors=[]` |
+
+正式报告`tested_head`均为`2e61297632b97dde13ec1aafefb2f3f851530369`，时段2026-10-28 14:27:12—14:27:36及14:27:39—14:27:50（Asia/Shanghai，仅测试执行时间）：
+
+- [练习/错题/重练/保护](evidence/spec-006/acceptance-20261028/practices/browser-results.json)，截图[错题重练](evidence/spec-006/acceptance-20261028/practices/chrome-wrong-repractice.png)、[保护状态](evidence/spec-006/acceptance-20261028/practices/chrome-protected-wrong.png)、[Edge错题重练](evidence/spec-006/acceptance-20261028/practices/msedge-wrong-repractice.png)、[Edge保护状态](evidence/spec-006/acceptance-20261028/practices/msedge-protected-wrong.png)。
+- [空依赖练习/错题](evidence/spec-006/acceptance-20261028/practices-empty/browser-results.json)，截图[Chrome空列表](evidence/spec-006/acceptance-20261028/practices-empty/chrome-empty.png)、[Edge空列表](evidence/spec-006/acceptance-20261028/practices-empty/msedge-empty.png)。
+
+### 本轮覆盖与未关闭项
+
+| 有效编号 | 本轮真实浏览器/定向证据 | 仍未关闭 |
+|---|---|---|
+| AC-03 | 四类客观题固定版本练习；单题B错、A对；多选全集合、判断false、数值0.2±0.1容差边界；客观错答入错题、同题去重、知识标签筛选、正确重练resolved=true、新错恢复false；实际试卷UI错答入错题；重登后2个错题/错答次数/来源及6份练习事实/审计保留 | 完整UC-02跨003/004；教师验收 |
+| AC-02、R25、R36 | 受保护考试截止后未讲评时，来源版本及新v2均不能练习，练习返回409 QUESTION_RESERVED，错题与答卷不返回答案/解析；服务器时刻到review_at后释放解析；异常已开放数据不能旁路 | C05专用quiz真实review、003/004入口 |
+| AC-05、R18 | 练习提交故意丢响应后锁定作答，原Idempotency-Key重试返回原201字节；后端覆盖异内容409、独立作用域、24小时过期与并发 | C05 quiz UI本轮未重跑 |
+| R01、R44 | 阻断（006内部标准答案保护通过） | 003题库资源/旧版下载/导入及004备课接缝 |
+| R22、R45、R47 | 未执行/阻断；无两名真实非作者复核 | 团队检查点与PR评审 |
+| NF-UI | Chrome/Edge 390px无横向溢出，截图已目视 | 目标浏览器矩阵仍有限 |
+| NF-PERF、NF-DATA | 阻断/未执行（未测4核8GB Linux/50会话/worker、生产迁移/完整恢复） | 目标环境与完整恢复演练 |
+
+本轮未重跑papers-empty、attempts-empty、C05专用quiz、010B消费及全仓`unittest discover`；旧报告保持原tested_head。未改README/APIC/DBD契约；PR、CI及真实评审结果在推送后按实际head另行核验，不把本地通过写成CI成功或教师验收。
+
+## 2026-10-28 C02/C03页面验收补证（同日）
 
 黄俊诚（24201716）任务下执行；分支`feature/spec-006-acceptance-evidence`，从fetch核验的`origin/develop` `8e32fb41ab9453f8b4b4f8e7be86153a183b88dc`建立。三个旧006分支（exercises、010b-mixed-consumption、resource-integration）查询均无未合入develop提交，故未复用或强推旧分支，也未从005/008 feature带代码。本包只补C02/C03已有实现的真实浏览器证据与验证缺口，不改006业务、迁移、共享鉴权、CI或队友模块。
 
