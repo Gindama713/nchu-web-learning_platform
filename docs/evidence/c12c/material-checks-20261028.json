@@ -72,7 +72,7 @@
   },
   "source_scope": {
     "modified": 9,
-    "new": 2,
+    "new": 3,
     "non_docs_changes": false,
     "files": [
       "docs/C12A_ACCEPTANCE_AUDIT.md",
@@ -85,7 +85,8 @@
       "docs/reports/24201716_黄俊诚_设计报告.md",
       "docs/reports/24201716_黄俊诚_设计报告.docx",
       "docs/evidence/c12c/entry-state-20261028.json",
-      "docs/evidence/c12c/spec-008-20261028-reference.md"
+      "docs/evidence/c12c/spec-008-20261028-reference.md",
+      "docs/evidence/c12c/material-checks-20261028.json"
     ]
   },
   "business_tests_rerun": false,
