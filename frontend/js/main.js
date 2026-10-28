@@ -65,6 +65,14 @@ createApp({
       return total ? Math.round((attendedOf(id) / total) * 100) : 0
     }
     const myStatusOf = id => records.value.find(record => record.task_id === id)?.status ?? '未记录'
+    const timeFormat = new globalThis.Intl.DateTimeFormat('zh-CN', {
+      timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+    })
+    const shortTime = value => {
+      const date = new Date(value)
+      return value && Number.isFinite(date.getTime()) ? timeFormat.format(date) : '时间未知'
+    }
     function openRecommendedPractice(entry) {
       practiceEntry.value = entry
       document.querySelector('.practice-bank')?.scrollIntoView({ behavior: 'smooth' })
@@ -406,11 +414,11 @@ createApp({
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
-      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf }
+      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime }
   },
   template: `
     <main class="page">
-      <header class="hero"><p class="eyebrow">g24201710 · 计算机组成原理</p>
+      <header :class="['hero', user && 'compact']"><p class="eyebrow">g24201710 · 计算机组成原理</p>
         <h1>中央处理器课程学习系统</h1><p role="status" aria-live="polite">{{ message }}</p>
         <button v-if="user" type="button" @click="logout">退出</button></header>
       <section v-if="!user" class="card"><h2>登录 / 学生注册</h2>
@@ -505,11 +513,11 @@ createApp({
         <div class="att-task-head">
         <strong>{{ item.title }}</strong>
         <span :class="['att-badge', item.status]">{{ item.status === 'open' ? '进行中' : '已结算' }}</span>
-        <span class="att-time">{{ item.end_at }}</span>
+        <span class="att-time">截止 {{ shortTime(item.end_at) }}</span>
         </div>
         <template v-if="user.role === 'teacher'">
-        <div class="att-bar"><i :style="'width:' + rateOf(item.id) + '%'"></i></div>
-        <p class="att-meta">到勤 {{ attendedOf(item.id) }} / {{ totalOf(item.id) }} 人次 · {{ rateOf(item.id) }}%</p>
+        <div class="att-bar"><i :class="rateOf(item.id) >= 80 ? 'good' : rateOf(item.id) > 0 ? 'mid' : 'low'" :style="'width:' + rateOf(item.id) + '%'"></i></div>
+        <p class="att-meta">到勤 {{ attendedOf(item.id) }} / {{ totalOf(item.id) }} 人次<b>{{ rateOf(item.id) }}%</b></p>
         </template>
         <p v-else class="att-meta">我的状态：{{ myStatusOf(item.id) }}</p>
         <div v-if="user.role === 'teacher' && item.status === 'open'" class="att-actions">

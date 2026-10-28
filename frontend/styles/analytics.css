@@ -4,10 +4,11 @@
 .analytics-bank label { min-width: 0; }
 .analytics-bank input, .analytics-bank select { width: 100%; min-width: 0; }
 .analytics-restore { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
-.analytics-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 10px; margin: 12px 0 18px; }
-.metric-tile { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid #e1e9f4; border-radius: 10px; background: #fbfdff; }
+.analytics-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 14px 0 20px; }
+@media (max-width: 860px) { .analytics-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.metric-tile { display: grid; gap: 3px; padding: 14px 18px; border: 1px solid #e1e9f4; border-radius: 12px; background: #fbfdff; }
 .metric-label { font-size: .78rem; color: #60718a; line-height: 1.3; }
-.metric-value { font-size: 1.32rem; color: #173b6c; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.metric-value { font-size: 1.7rem; color: #173b6c; font-variant-numeric: tabular-nums; line-height: 1.15; }
 .metric-value.empty { font-size: .95rem; color: #9aa8bb; font-weight: 500; }
 .analytics-scroll { overflow-x: auto; margin: 24px 0; }
 .analytics-scroll table { border-collapse: collapse; width: 100%; }
