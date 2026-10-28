@@ -1,16 +1,13 @@
 /* SPEC-015 knowledge graph module styles (shared .card shell from main.css). */
 .graph-module { min-width: 0; display: grid; gap: 14px; }
+.graph-module .actions h2 { margin: 0 auto 0 0; }
 .graph-module [role="alert"] { color: #922f25; }
 .graph-module button:disabled { opacity: .55; cursor: wait; }
 .graph-course, .graph-root { min-width: 0; }
-.graph-nodes, .graph-edges { border-collapse: collapse; width: 100%; }
-.graph-nodes th, .graph-nodes td, .graph-edges th, .graph-edges td { padding: 10px; text-align: left; border-bottom: 1px solid #dce4ee; vertical-align: top; overflow-wrap: anywhere; }
-.graph-focus { background: #e8f2ff; }
+.graph-focus { background: #e8f2ff; border-radius: 7px; }
 .graph-focus-panel { display: grid; gap: 8px; padding: 16px; border: 1px solid #dce4ee; border-radius: 7px; }
 .graph-focus-panel h3, .graph-focus-panel h4 { margin: 0; }
-.graph-focus-panel ul { margin: 0; padding-left: 20px; }
 .graph-focus-panel p { margin: 0; }
-.graph-edge-form { display: flex; flex-wrap: wrap; align-items: end; gap: 10px; margin: 14px 0; }
 .graph-edge-form label { min-width: 0; }
 .graph-edge-form small { flex-basis: 100%; color: #60718a; }
 .graph-root-hint { color: #15508e; }

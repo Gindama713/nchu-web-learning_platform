@@ -340,7 +340,7 @@ export const WiringView = {
       return h('div', { class: 'wiring-block' }, [
         h('h4', '连线画布'),
         !readOnly() && h('form', {
-          class: 'wiring-connect',
+          class: 'inline-form wiring-connect',
           onSubmit: event => { event.preventDefault(); run(doConnect, '导线已连接') },
         }, [
           h('label', ['从 ', select(outs, connectForm.from, value => { connectForm.from = value }, '请选择')]),
@@ -372,7 +372,7 @@ export const WiringView = {
       return h('div', { class: 'wiring-block' }, [
         h('h4', '输入时钟'),
         !readOnly() && h('form', {
-          class: 'wiring-input',
+          class: 'inline-form wiring-input',
           onSubmit: event => {
             event.preventDefault()
             run(() => doSetInput(inputForm.terminal_id, inputForm.value), '输入已写入')
@@ -430,7 +430,7 @@ export const WiringView = {
       const errors = feedback.value?.errors ?? []
       return h('div', { class: 'wiring-block' }, [
         h('h4', '校验提交'),
-        !readOnly() && h('div', { class: 'wiring-actions' }, [
+        !readOnly() && h('div', { class: 'actions' }, [
           button('保存', () => run(() => persist(), '已保存'), { class: 'secondary' }),
           button('校验', () => run(doValidate, '校验完成')),
           button('提交', () => run(doSubmit, '已提交')),
@@ -472,22 +472,19 @@ export const WiringView = {
       ])
     }
 
-    function attemptsTable() {
-      return h('table', { class: 'wiring-attempts' }, [
-        h('thead', h('tr', ['编号', '状态', '版本', '动作', '保存', '操作'].map(text => h('th', text)))),
-        h('tbody', items.value.map(row => h('tr', { key: row.id }, [
-          h('td', `#${row.id}`),
-          h('td', STATUS[row.status] ?? row.status),
-          h('td', String(row.experiment_version_id)),
-          h('td', String(row.action_count ?? 0)),
-          h('td', when(row.saved_at)),
-          h('td', button('打开', () => run(() => openAttempt(row)))),
-        ]))),
-      ])
+    function attemptsRows() {
+      return h('ul', { class: 'rows' }, items.value.map(row => h('li', { key: row.id }, [
+        h('div', [
+          h('strong', `#${row.id}`),
+          h('span', ` · 版本 ${row.experiment_version_id} · 动作 ${row.action_count ?? 0} · ${when(row.saved_at)}`),
+        ]),
+        h('span', { class: 'tag' }, STATUS[row.status] ?? row.status),
+        button('打开', () => run(() => openAttempt(row))),
+      ])))
     }
 
-    return () => h('section', { class: 'card wiring-module' }, [
-      h('h2', '实验箱连线'),
+    return () => h('section', { class: 'card wiring-module', 'aria-busy': busy.value }, [
+      h('div', { class: 'actions' }, [h('h2', '实验箱连线'), button('重新加载', () => run(boot))]),
       error.value && h('p', { class: 'wiring-error', role: 'alert' }, error.value),
       notice.value && h('p', { class: 'wiring-notice' }, notice.value),
       !session.value && h('p', '正在加载…'),
@@ -505,7 +502,7 @@ export const WiringView = {
       session.value && !versions.value.length && h('p', '当前课程暂无支持连线的已发布实验。'),
       session.value && versionId.value && h('h3', `连线记录（${total.value}）`),
       session.value && versionId.value && (items.value.length
-        ? attemptsTable()
+        ? attemptsRows()
         : h('p', teacher() ? '该实验还没有学生的连线记录。' : '还没有连线记录，可发起新连线。')),
       session.value && !teacher() && versionId.value
         && button('发起连线', () => run(createAttempt, '连线已创建'), { class: 'secondary' }),

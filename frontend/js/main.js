@@ -29,6 +29,7 @@ import '../styles/qa.css'
 import '../styles/preparations.css'
 import '../styles/demo.css'
 import '../styles/wiring.css'
+import '../styles/wiring-stats.css'
 import '../styles/graph.css'
 
 createApp({

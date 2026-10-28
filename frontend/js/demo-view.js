@@ -189,7 +189,7 @@ export const DemoView = {
       return h('section', { class: 'demo-detail' }, [
         h('h3', `演示 #${demo.id} · ${PRESETS[demo.preset] ?? demo.preset} · ${demo.active ? '进行中' : '已关闭'}`),
         stage(demo),
-        teacher() && demo.active && h('div', { class: 'demo-controls' }, [
+        teacher() && demo.active && h('div', { class: 'actions' }, [
           button('单步', () => run(() => advance('step'), '已单步')),
           button('复位', () => run(() => advance('reset'), '已复位')),
           button('暂停', () => run(() => advance('pause'), '已暂停')),
@@ -201,22 +201,19 @@ export const DemoView = {
       ])
     }
 
-    function listTable() {
-      return h('table', { class: 'demo-list' }, [
-        h('thead', h('tr', ['编号', '预设', '版本', '状态', '更新', '操作'].map(text => h('th', text)))),
-        h('tbody', items.value.map(item => h('tr', { key: item.id }, [
-          h('td', `#${item.id}`),
-          h('td', PRESETS[item.preset] ?? item.preset),
-          h('td', String(item.revision)),
-          h('td', item.active ? '进行中' : '已关闭'),
-          h('td', when(item.updated_at)),
-          h('td', button('打开', () => run(() => open(item)))),
-        ]))),
-      ])
+    function listRows() {
+      return h('ul', { class: 'rows' }, items.value.map(item => h('li', { key: item.id }, [
+        h('div', [
+          h('strong', `#${item.id} ${PRESETS[item.preset] ?? item.preset}`),
+          h('span', ` · 版本 ${item.revision} · ${when(item.updated_at)}`),
+        ]),
+        h('span', { class: 'tag' }, item.active ? '进行中' : '已关闭'),
+        button('打开', () => run(() => open(item))),
+      ])))
     }
 
-    return () => h('section', { class: 'card demo-module' }, [
-      h('h2', '课堂演示'),
+    return () => h('section', { class: 'card demo-module', 'aria-busy': busy.value }, [
+      h('div', { class: 'actions' }, [h('h2', '课堂演示'), button('重新加载', () => run(boot))]),
       error.value && h('p', { class: 'demo-error', role: 'alert' }, error.value),
       notice.value && h('p', { class: 'demo-notice' }, notice.value),
       !session.value && h('p', '正在加载…'),
@@ -228,7 +225,7 @@ export const DemoView = {
           value: String(course.id), key: course.id,
         }, course.title)))]),
       session.value && teacher() && h('form', {
-        class: 'demo-create',
+        class: 'inline-form demo-create',
         onSubmit: event => { event.preventDefault(); run(create, '演示已创建，投屏可打开详情') },
       }, [
         h('label', ['预设 ', h('select', {
@@ -239,7 +236,7 @@ export const DemoView = {
       ]),
       session.value && h('h3', `演示列表（${total.value}）`),
       session.value && (items.value.length
-        ? listTable()
+        ? listRows()
         : h('p', teacher() ? '还没有课堂演示，先发起一个。' : '老师还没有发起课堂演示。')),
       current.value && detail(),
     ])
