@@ -187,7 +187,7 @@ export const GraphView = {
       ])
     }
 
-    return () => h('section', { class: 'graph-module' }, [
+    return () => h('section', { class: 'card graph-module' }, [
       h('h2', '知识图谱'),
       error.value && h('p', { class: 'graph-error', role: 'alert' }, error.value),
       notice.value && h('p', { class: 'graph-notice' }, notice.value),

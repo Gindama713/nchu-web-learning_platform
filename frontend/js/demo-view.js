@@ -215,7 +215,7 @@ export const DemoView = {
       ])
     }
 
-    return () => h('section', { class: 'demo-module' }, [
+    return () => h('section', { class: 'card demo-module' }, [
       h('h2', '课堂演示'),
       error.value && h('p', { class: 'demo-error', role: 'alert' }, error.value),
       notice.value && h('p', { class: 'demo-notice' }, notice.value),
