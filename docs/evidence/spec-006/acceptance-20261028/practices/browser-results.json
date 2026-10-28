@@ -1,0 +1,45 @@
+{
+  "started_at": "2026-10-28T06:27:12.815168+00:00",
+  "tested_head": "2e61297632b97dde13ec1aafefb2f3f851530369",
+  "knowledge_fixture": true,
+  "scope": "actual 001/005/006 knowledge, identity, practice and wrong-question HTTP/UI",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.86",
+      "checks": [
+        "teacher_has_no_student_practice_or_personal_wrong_controls",
+        "short_question_cannot_be_opened_for_single_practice",
+        "student_public_list_has_no_reference_or_private_exam_question",
+        "real_commit_lost_response_locks_form_and_retries_exact_201_bytes_and_key",
+        "source_tag_filter_old_public_version_remains_exact_after_private_latest_edit_and_resolves",
+        "new_actual_error_reopens_same_wrong_identity_without_deleting_history",
+        "multiple_full_set_boolean_false_numeric_exact_tolerance_actual_ui_grading",
+        "protected_identity_all_versions_and_wrong_attempt_reads_409_or_redacted_even_if_legacy_open",
+        "actual_paper_objective_error_enters_wrong_list_without_pre_review_answers_or_practice",
+        "server_exact_timed_review_boundary_reveals_exam_wrong_reference",
+        "relogin_retains_real_wrong_count_sources_and_six_practice_facts_audits"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "156.0.4314.50",
+      "checks": [
+        "teacher_has_no_student_practice_or_personal_wrong_controls",
+        "short_question_cannot_be_opened_for_single_practice",
+        "student_public_list_has_no_reference_or_private_exam_question",
+        "real_commit_lost_response_locks_form_and_retries_exact_201_bytes_and_key",
+        "source_tag_filter_old_public_version_remains_exact_after_private_latest_edit_and_resolves",
+        "new_actual_error_reopens_same_wrong_identity_without_deleting_history",
+        "multiple_full_set_boolean_false_numeric_exact_tolerance_actual_ui_grading",
+        "protected_identity_all_versions_and_wrong_attempt_reads_409_or_redacted_even_if_legacy_open",
+        "actual_paper_objective_error_enters_wrong_list_without_pre_review_answers_or_practice",
+        "server_exact_timed_review_boundary_reveals_exam_wrong_reference",
+        "relogin_retains_real_wrong_count_sources_and_six_practice_facts_audits"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "status": "passed",
+  "finished_at": "2026-10-28T06:27:36.700867+00:00"
+}
