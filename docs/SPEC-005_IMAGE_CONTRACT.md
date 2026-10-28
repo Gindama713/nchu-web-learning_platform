@@ -1,6 +1,25 @@
 # SPEC-005 图文知识：资源契约与独立准备
 
-黄俊诚（24201716，Nelpine），2026-10-20，Asia/Shanghai。状态：**契约提案及现有边界验证，图文实现仍有003依赖**。本包不修改003业务、共享鉴权、生产迁移或HTML白名单，不发送协作消息，不代合并/发布。
+黄俊诚（24201716，Nelpine），2026-10-20初稿，2026-10-28复核。状态：**契约提案及现有边界验证，003依赖门禁未满足，图文实现继续停止**。本包不修改003业务、共享鉴权、生产迁移或HTML白名单，不发送协作消息，不代合并/发布。
+
+## 2026-10-28 门禁复核（本轮）
+
+结论：**003依赖门禁未满足，005图片业务继续停止**。本轮没有修改003、共享鉴权、CI、迁移或队友业务，没有新增`knowledge_image`、图片保存/取图接口或前端图片代码，没有插入image行或用PDF冒充图片验收。APIC§3.2、DBD§3.1、PRD§4和ADR-011仍标注“待复核/实施”，不是生效契约。
+
+基线：入口`feature/spec-005-knowledge-images` head `8730b1f7ec8388e51219d32b7700bc00bbc34c23`、工作区干净。fetch后`origin/develop=8e32fb41ab9453f8b4b4f8e7be86153a183b88dc`；`git merge origin/develop`生成`50fa13b`，`docs/CHG-RB.md`冲突按日期保留双方条目（2026-10-22在前、2026-10-20在后）。合并把develop已跟踪的`docs/reports/24201716_黄俊诚_设计报告.docx`误删，按原blob `bc66d3e965be62cf85268a89c0e41be49a65abab` 在`24790a6`恢复；未rebase、未强推。
+
+### 003逐项门禁
+
+| # | 检查项 | 结论 | 代码/证据 |
+|---|---|---|---|
+| 1 | `KIND_MEDIA`的guide允许`image/png`、`image/jpeg` | **无** | `backend/apis/resources.py:38-44`的`guide`仅`application/pdf`；`save_file`在`:59-61`对非允许MIME返回415；`:37`的`VIEWABLE_PREFIXES`只是预览前缀，不能产生合法图片上传。 |
+| 2 | `resource_version`存储并返回`media_type`、`width`、`height` | **无** | `backend/migrations/003_resources.sql:20-28`无这些列；`backend/apis/resources.py:96-102`的`version_json`只返回id/resource_id/version/change_note/created_at/size/sha256/title/kind；`backend/migrations/001_identity_attendance.sql:94-99`的`file_object`只有media_type/size/sha，无宽高；`resources.py:241-249`列表最新版本也只带size/sha。 |
+| 3 | 同一调用方connection内的内容/事件服务，覆盖当前权限、归档、UUID、顺序/并发去重、409、private no-store | **无** | `resources.py:263`用`get_db()`读连接，`:303`另起`write()`写事件；`:258-262`只检查event_id非空，不校验UUID；`:293-300`仅顺序先查后插，未见并发串行或唯一冲突重放；`:285-288`的`send_file`响应未设置`Cache-Control: private, no-store`；归档只在本轮测试用SQL状态注入，无归档HTTP动作。 |
+| 4 | 合法PNG/JPEG v1/v2真实上传，v1字节和SHA在v2后不变 | **无** | `tests/test_knowledge_image_contract.py:114-132`对slides/guide/video/question_bank×PNG/JPEG创建及guide新版本共10次均断言415；没有图片v1/v2成功上传，故无字节/SHA保持证据；同文件`:176-201`只用PDF对照固定版本/权限。 |
+| 5 | 非法event_id（如`not-a-uuid`）返回400，而不是200入库 | **失败** | 本轮干净重跑`logs/knowledge-images/20261028-gate-recheck-clean/report.json`记录expected 400/actual 200；代码无UUID解析；旧失败证据未改预期、未删除。 |
+| 6 | 003迁移、真实测试、CI、两名非作者复核已合入develop | **部分，门禁不通过** | `003_resources.sql`与`tests/test_resources.py`已在develop；PR19（head`93aa214`）`merged=true`、`merged_at=2026-10-16T05:50:33Z`，六项check runs（ci-required/test/policy/lint/build success，ci-grader skipped）；但GitHub reviews=`[]`，没有两名真实非作者复核。 |
+
+第1—6项均未形成完整“有”证据；任一项不满足即停止005图片实现。本轮保持005文本编辑、保存、展示和安全HTML边界，不写任意`img`/外部URL/HTML属性，不插fake image行，不用PDF代替图片，不改003业务。
 
 ## 当前核验
 
@@ -61,7 +80,15 @@
 
 解除依赖的可判定条件：合法PNG和JPEG各能上传v1/v2并返回真实固定ID/MIME/尺寸，v1字节与SHA在v2后不变；错误MIME/伪装/空截断/超限被拒且无部分资源；本课学生无上传权、跨课及teacher_only/归档/撤权旧URL404，失败零事件；UUID非法400，同逻辑访问及Range顺序/并发只1事件、异对象/intent409，HEAD/304/416不新增，权限改变后旧ID不可重放。共享服务、缓存与撤权串行的测试证据一并给出，黄俊诚再接入005双重权限，不把PDF对照替代图片证据。
 
-## 本轮验证和证据层次
+## 2026-10-28 门禁复核验证
+
+命令：`./.venv/Scripts/python.exe -m scripts.verify_knowledge_image_contract --output logs/knowledge-images/20261028-gate-recheck-clean`
+
+结果：tested_head=`24790a6fba2947e0fdd96700df3cbf2e120adeff`，dirty_paths=[]，6项测试、0 failures/errors，耗时8.489秒；observations仍为`event_id UUID validation expected 400/actual 200`（contract_failure）和`real PNG/JPEG create and version upload blocked`；`image_readiness=blocked`。同head的首次重跑`logs/knowledge-images/20261028-gate-recheck`记录了4个`docs/reports`暂存删除（外部索引变化，非本轮业务改动），该目录保留但不作为干净证据；随后已恢复工作区。
+
+本轮另外执行：`python -m ruff check backend tests scripts`通过；`python -m unittest tests.test_resources tests.test_knowledge_integration tests.test_knowledge_image_contract`共33项通过（仅ResourceWarning）；`cd frontend && npm test` 135项通过、`npm run lint`和`npm run build`通过；`python scripts/check_docs.py`通过。未运行全仓`unittest discover`、浏览器图文正向、目标环境性能或生产恢复；本地通过不等于CI或教师验收。
+
+## 2026-10-20 准备轮验证和证据层次
 
 专用命令（必须使用新的输出目录，执行器拒绝覆盖旧证据）：
 
@@ -81,6 +108,6 @@ Ruff检查仅新增测试/执行器通过；16份变更Markdown按最多3份一�
 
 ## 交接及回退
 
-下一步先由真实复核确认PRD/APIC/DBD提案及003最小能力；取得含003增量的最新develop后，在本人SPEC feature实现并定向验证上述清单。两名非作者复核是共享API/数据库/权限变更的合入条件，不阻止本轮准备、验证及feature保存。
+2026-10-28复核结论：003未满足，本轮不进入005实现。下一步仍由石佰合在其003 feature提供合法PNG/JPEG v1/v2、MIME/宽高元数据、同一connection内容/事件服务、UUID 400、顺序/并发去重与private no-store证据，并取得两名真实非作者复核后合入develop；黄俊诚再按“黄俊诚的改动清单”实现005。PR41保持draft，不代合并、发布、归档或发送协作消息。原有“先由真实复核确认PRD/APIC/DBD提案及003最小能力；取得含003增量的最新develop后，在本人SPEC feature实现并定向验证”的约束继续有效。
 
 本包回退仅撤新增探针/执行器、提案和导航；没有生产schema或业务数据变更。未来关系迁移回退须保留新关系/旧版本/事件/学习事实并部署兼容代码，不能清表或改旧迁移。仍未授权共享直推、强推、代合并、发布、归档或协作消息。

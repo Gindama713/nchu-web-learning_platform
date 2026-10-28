@@ -1,27 +1,146 @@
 {
-  "checked_date": "2026-10-20 Asia/Shanghai",
-  "source": "GitHub connector GET PR40, list reviews and pull_request workflow runs for exact head",
-  "pull_request": {
+  "checked_date": "2026-10-28 Asia/Shanghai",
+  "source": "local git/fetch; GitHub connector PR reads/reviews; GitHub REST check-runs",
+  "baseline": {
+    "feature_branch": "feature/spec-005-knowledge-images",
+    "head_before_merge": "8730b1f7ec8388e51219d32b7700bc00bbc34c23",
+    "worktree_clean_before_merge": true,
+    "origin_develop": "8e32fb41ab9453f8b4b4f8e7be86153a183b88dc",
+    "merge_commit": "50fa13b",
+    "restore_commit": "24790a6",
+    "merge_conflict": "docs/CHG-RB.md",
+    "merge_conflict_resolution": "kept both dated entries: 2026-10-22 then 2026-10-20",
+    "restored_path": "docs/reports/24201716_黄俊诚_设计报告.docx",
+    "restored_blob": "bc66d3e965be62cf85268a89c0e41be49a65abab",
+    "rebase": false,
+    "force_push": false
+  },
+  "pull_request_41": {
+    "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/41",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "head_at_query": "8730b1f7ec8388e51219d32b7700bc00bbc34c23",
+    "base": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a",
+    "reviews": [],
+    "mergeable_state": "dirty",
+    "check_runs": {
+      "total_count": 6,
+      "ci-required": "success",
+      "ci-grader": "skipped",
+      "ci-test": "success",
+      "ci-policy": "success",
+      "ci-lint": "success",
+      "ci-build": "success"
+    }
+  },
+  "pull_request_40": {
     "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/40",
     "state": "open",
     "draft": false,
     "merged": false,
     "merged_at": null,
     "head": "7a99ca215595411b8b25b669283dd412cb82e595",
-    "base": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a"
-  },
-  "reviews": [],
-  "workflow_runs": [
-    {
+    "base": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a",
+    "reviews": [],
+    "workflow_run": {
       "id": 39280808424,
       "name": "CI",
       "status": "completed",
       "conclusion": "success",
-      "run_number": 105,
-      "jobs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/39280808424/jobs",
-      "logs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/39280808424/logs",
-      "workflow_id": 382199978
+      "run_number": 105
+    }
+  },
+  "spec_003_gate": {
+    "pull_request": 19,
+    "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/19",
+    "head": "93aa2143e48750c80cc993443d0910c1d27415c0",
+    "base": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+    "merged": true,
+    "merged_at": "2026-10-16T05:50:33Z",
+    "reviews": [],
+    "check_runs": {
+      "total_count": 6,
+      "ci-required": "success",
+      "ci-grader": "skipped",
+      "ci-test": "success",
+      "ci-policy": "success",
+      "ci-lint": "success",
+      "ci-build": "success"
+    },
+    "gate_status": "failed",
+    "gate_reason": "no two non-author reviews; image dependencies also missing in code",
+    "items": {
+      "1_guide_png_jpeg": {
+        "status": "missing",
+        "evidence": "backend/apis/resources.py:38-44 guide only application/pdf; :59-61 returns 415; :37 VIEWABLE_PREFIXES is preview-only"
+      },
+      "2_version_media_dimensions": {
+        "status": "missing",
+        "evidence": "backend/migrations/003_resources.sql:20-28 no media_type/width/height; backend/apis/resources.py:96-102 version_json lacks them; backend/migrations/001_identity_attendance.sql:94-99 file_object lacks width/height; resources.py:241-249 returns size/sha only"
+      },
+      "3_same_connection_service": {
+        "status": "missing",
+        "evidence": "resources.py:263 uses get_db read connection; :303 opens a separate write(); :258-262 checks only non-empty event_id; :293-300 sequential check only; :285-288 no private no-store; archive only SQL state injection"
+      },
+      "4_real_png_jpeg_v1_v2": {
+        "status": "missing",
+        "evidence": "tests/test_knowledge_image_contract.py:114-132 asserts 415 for four kinds x PNG/JPEG and guide new version; no image v1/v2 bytes or SHA"
+      },
+      "5_invalid_event_id_400": {
+        "status": "failed",
+        "evidence": "clean rerun report records expected 400 / actual 200; no UUID parsing in resources.py:258-262"
+      },
+      "6_migration_tests_ci_reviews": {
+        "status": "partial_failed",
+        "evidence": "003 migration and tests are in develop; PR19 merged with six green checks but reviews=[]"
+      }
+    }
+  },
+  "verification_runs": [
+    {
+      "path": "logs/knowledge-images/20261028-gate-recheck",
+      "tested_head": "24790a6fba2947e0fdd96700df3cbf2e120adeff",
+      "dirty_paths": [
+        "D  docs/reports/24201716_黄俊诚_设计报告.docx",
+        "D  docs/reports/24201716_黄俊诚_设计报告.md",
+        "D  docs/reports/24201718_姜苏豪_设计报告.docx",
+        "D  docs/reports/24201718_姜苏豪_设计报告.md"
+      ],
+      "note": "dirty from external staged deletions, retained but not used as clean evidence; docs/reports was restored afterwards"
+    },
+    {
+      "path": "logs/knowledge-images/20261028-gate-recheck-clean",
+      "tested_head": "24790a6fba2947e0fdd96700df3cbf2e120adeff",
+      "dirty_paths": [],
+      "tests": 6,
+      "failures": [],
+      "errors": [],
+      "elapsed_seconds": 8.489,
+      "observations": [
+        {
+          "capability": "APIC event_id UUID validation",
+          "expected_status": 400,
+          "actual_status": 200,
+          "status": "contract_failure"
+        },
+        {
+          "capability": "real PNG/JPEG create and version upload",
+          "status": "blocked",
+          "reason": "no allowed image MIME in any current kind"
+        }
+      ],
+      "boundary_checks": "passed",
+      "image_readiness": "blocked",
+      "status": "checks_passed_with_open_gaps"
     }
   ],
-  "latest_fetched_develop": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a"
+  "old_evidence_retained": [
+    "docs/evidence/spec-005/images-20261020/preflight",
+    "docs/evidence/spec-005/images-20261020/handlers",
+    "logs/knowledge-images/final-3505978",
+    "logs/knowledge-images/preflight-01",
+    "logs/knowledge-images/preflight-02"
+  ],
+  "latest_fetched_develop": "8e32fb41ab9453f8b4b4f8e7be86153a183b88dc"
 }
