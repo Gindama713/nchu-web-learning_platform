@@ -50,3 +50,29 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
 .sum-tile span { font-size: .78rem; color: #60718a; }
 .sum-tile strong { font-size: 1.4rem; color: #173b6c; font-variant-numeric: tabular-nums; }
 .course-hint { color: #60718a; font-size: .88rem; margin: 4px 0 8px; }
+
+/* 考勤卡片 */
+.att-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 10px 0 14px; }
+.att-tasks { list-style: none; padding: 0; margin: 0 0 14px; display: grid; gap: 10px; }
+.att-task { border: 1px solid #e1e7ee; border-left: 4px solid #2e7d4f; border-radius: 10px; padding: 12px 14px; background: #fff; display: grid; gap: 8px; }
+.att-task.closed { border-left-color: #b9c4d4; background: #fbfcfe; }
+.att-task-head { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.att-task-head strong { color: #182436; }
+.att-badge { padding: 2px 10px; border-radius: 20px; font-size: .76rem; font-weight: 600; background: #eef1f6; color: #60718a; }
+.att-badge.open { background: #e6f6ea; color: #1c5c2e; }
+.att-badge.pending { background: #fff4d6; color: #8c5a00; }
+.att-badge.approved { background: #e6f6ea; color: #1c5c2e; }
+.att-badge.rejected { background: #fdecea; color: #8c2b20; }
+.att-time { margin-left: auto; color: #9aa8bb; font-size: .78rem; font-variant-numeric: tabular-nums; }
+.att-bar { height: 9px; border-radius: 5px; background: #eef2f8; overflow: hidden; }
+.att-bar i { display: block; height: 100%; background: #173b6c; border-radius: 5px; }
+.att-meta { margin: 0; color: #60718a; font-size: .84rem; }
+.att-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.att-code { padding: 12px 16px; border-radius: 10px; background: #173b6c; color: #fff; display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; }
+.att-code strong { font-size: 1.6rem; letter-spacing: .18em; font-variant-numeric: tabular-nums; }
+.att-code small { color: #c8d8ef; font-size: .8rem; }
+.att-panel { border: 1px solid #e1e7ee; border-radius: 10px; padding: 10px 14px; margin-bottom: 10px; background: #fbfdff; }
+.att-panel summary { cursor: pointer; font-weight: 600; color: #173b6c; }
+.att-leaves { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.att-leave { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid #e1e7ee; border-radius: 10px; background: #fff; }
+.att-leave-reason { flex: 1 1 220px; color: #182436; }

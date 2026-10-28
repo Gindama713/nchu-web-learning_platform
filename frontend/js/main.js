@@ -1,4 +1,4 @@
-import { createApp, onMounted, reactive, ref } from 'vue'
+import { computed, createApp, onMounted, reactive, ref } from 'vue'
 import { apiRequest, readApi } from './api.js'
 import { QuestionBankView } from './question-view.js'
 import { PaperView } from './paper-view.js'
@@ -44,6 +44,27 @@ createApp({
       { id: 'stats', label: '考勤与学情' },
     ]
     const tab = ref('course')
+    // 按任务聚合考勤记录，用于任务卡片的到勤进度条
+    const taskStats = computed(() => {
+      const map = new Map()
+      records.value.forEach(record => {
+        if (!map.has(record.task_id)) map.set(record.task_id, { present: 0, late: 0, leave: 0, absent: 0, total: 0 })
+        const slot = map.get(record.task_id)
+        slot[record.status] = (slot[record.status] ?? 0) + 1
+        slot.total += 1
+      })
+      return map
+    })
+    const attendedOf = id => {
+      const slot = taskStats.value.get(id)
+      return slot ? slot.present + slot.late : 0
+    }
+    const totalOf = id => taskStats.value.get(id)?.total ?? 0
+    const rateOf = id => {
+      const total = totalOf(id)
+      return total ? Math.round((attendedOf(id) / total) * 100) : 0
+    }
+    const myStatusOf = id => records.value.find(record => record.task_id === id)?.status ?? '未记录'
     function openRecommendedPractice(entry) {
       practiceEntry.value = entry
       document.querySelector('.practice-bank')?.scrollIntoView({ behavior: 'smooth' })
@@ -385,7 +406,7 @@ createApp({
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
-      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs }
+      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf }
   },
   template: `
     <main class="page">
@@ -470,35 +491,81 @@ createApp({
         <template v-if="tab === 'stats' && user.role !== 'admin' && courseId">
         <template v-if="courseId && user.role !== 'admin'">
         <section class="card"><h2>考勤与请假</h2>
-        <form v-if="user.role === 'teacher'" class="inline-form" @submit.prevent="addMember">
-        <label>学生完整学号 <input v-model.trim="memberNo" required></label><button>加入课程</button></form>
-        <template v-if="user.role === 'teacher'"><h3>课程成员</h3>
-        <p v-if="!members.length">暂无成员。</p>
-        <ul class="rows"><li v-for="member in members" :key="member.user_id">
-        {{ member.name }} · {{ member.student_no }} · {{ member.member_role }} · {{ member.active ? '在课' : '已移出' }}
-        <button v-if="member.member_role === 'student' && member.active" type="button" class="secondary"
-        @click="removeMember(member.user_id)">移出课程</button></li></ul></template>
-        <form v-if="user.role === 'teacher'" class="inline-form" @submit.prevent="createTask">
+        <div class="att-summary">
+        <div class="sum-tile"><span>考勤任务</span><strong>{{ tasks.length }}</strong></div>
+        <div class="sum-tile"><span>进行中</span><strong>{{ tasks.filter(item => item.status === 'open').length }}</strong></div>
+        <div class="sum-tile"><span>待批请假</span><strong>{{ leaves.filter(item => item.status === 'pending').length }}</strong></div>
+        <div class="sum-tile"><span>考勤记录</span><strong>{{ records.length }}</strong></div>
+        </div>
+
+        <p v-if="secretCode" class="att-code">本次签到码 <strong>{{ secretCode }}</strong><small>刷新后不可找回，可轮换</small></p>
+
+        <ul class="att-tasks">
+        <li v-for="item in tasks" :key="item.id" :class="['att-task', item.status]">
+        <div class="att-task-head">
+        <strong>{{ item.title }}</strong>
+        <span :class="['att-badge', item.status]">{{ item.status === 'open' ? '进行中' : '已结算' }}</span>
+        <span class="att-time">{{ item.end_at }}</span>
+        </div>
+        <template v-if="user.role === 'teacher'">
+        <div class="att-bar"><i :style="'width:' + rateOf(item.id) + '%'"></i></div>
+        <p class="att-meta">到勤 {{ attendedOf(item.id) }} / {{ totalOf(item.id) }} 人次 · {{ rateOf(item.id) }}%</p>
+        </template>
+        <p v-else class="att-meta">我的状态：{{ myStatusOf(item.id) }}</p>
+        <div v-if="user.role === 'teacher' && item.status === 'open'" class="att-actions">
+        <button type="button" class="secondary" @click="rotate(item.id)">轮换码</button>
+        <button type="button" @click="close(item.id)">结算</button>
+        </div>
+        </li>
+        </ul>
+        <p v-if="!tasks.length">还没有考勤任务。</p>
+
+        <details v-if="user.role === 'teacher'" class="att-panel">
+        <summary>发布考勤任务</summary>
+        <form class="inline-form" @submit.prevent="createTask">
         <label>任务 <input v-model.trim="taskForm.title" required></label>
         <label>开始 <input v-model="taskForm.start_at" type="datetime-local" required></label>
         <label>迟到起点 <input v-model="taskForm.late_at" type="datetime-local" required></label>
         <label>结束 <input v-model="taskForm.end_at" type="datetime-local" required></label><button>创建</button></form>
-        <p v-if="secretCode" class="secret">本次签到码：<strong>{{ secretCode }}</strong>（刷新后不可找回，可轮换）</p>
-        <ul class="rows"><li v-for="item in tasks" :key="item.id">{{ item.title }} · {{ item.status }} · {{ item.end_at }}
-        <button v-if="user.role === 'teacher' && item.status === 'open'" type="button" class="secondary" @click="rotate(item.id)">轮换码</button>
-        <button v-if="user.role === 'teacher' && item.status === 'open'" type="button" class="secondary" @click="close(item.id)">结算</button></li></ul>
-        <form v-if="user.role === 'student' && tasks.length" class="inline-form" @submit.prevent="checkIn">
+        </details>
+
+        <form v-if="user.role === 'student' && tasks.length" class="inline-form att-checkin" @submit.prevent="checkIn">
         <label>任务 <select v-model="check.task_id" required><option value="">请选择</option><option v-for="item in tasks" :key="item.id" :value="item.id">{{ item.title }}</option></select></label>
         <label>签到码 <input v-model.trim="check.code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required></label><button>签到</button></form>
         <form v-if="user.role === 'student' && check.task_id" class="inline-form" @submit.prevent="leave">
         <label>请假理由 <input v-model.trim="check.reason" maxlength="500" required></label><button class="secondary">申请请假</button></form>
-        <h3>请假记录</h3><ul class="rows"><li v-for="item in leaves" :key="item.id">#{{ item.id }} · {{ item.reason }} · {{ item.status }}
+
+        <h3>请假记录</h3>
+        <ul class="att-leaves">
+        <li v-for="item in leaves" :key="item.id" :class="['att-leave', item.status]">
+        <span class="att-leave-reason">{{ item.reason }}</span>
+        <span :class="['att-badge', item.status]">{{ item.status }}</span>
+        <span class="att-actions">
         <button v-if="user.role === 'teacher' && item.status === 'pending'" type="button" @click="review(item.id, 'approved')">批准</button>
         <button v-if="user.role === 'teacher' && item.status === 'pending'" type="button" class="secondary" @click="review(item.id, 'rejected')">驳回</button>
         <button v-if="user.role === 'teacher' && item.status === 'approved'" type="button" class="secondary" @click="revokeLeave(item.id)">撤销批准</button>
-        <button v-if="user.role === 'student' && item.status === 'rejected'" type="button" class="secondary" @click="resubmit(item.id)">修改重提</button></li></ul>
-        <h3>有效考勤</h3><ul class="rows"><li v-for="item in records" :key="item.id">任务 #{{ item.task_id }} · 学生 #{{ item.student_id }} · {{ item.status }}
-        <button v-if="user.role === 'teacher'" type="button" class="secondary" @click="correct(item)">更正</button></li></ul></section>
+        <button v-if="user.role === 'student' && item.status === 'rejected'" type="button" class="secondary" @click="resubmit(item.id)">修改重提</button>
+        </span>
+        </li>
+        </ul>
+        <p v-if="!leaves.length">暂无请假记录。</p>
+
+        <details v-if="user.role === 'teacher'" class="att-panel">
+        <summary>课程成员（{{ members.length }}）与加入</summary>
+        <form class="inline-form" @submit.prevent="addMember">
+        <label>学生完整学号 <input v-model.trim="memberNo" required></label><button>加入课程</button></form>
+        <ul class="rows"><li v-for="member in members" :key="member.user_id">
+        {{ member.name }} · {{ member.student_no }} · {{ member.member_role }} · {{ member.active ? '在课' : '已移出' }}
+        <button v-if="member.member_role === 'student' && member.active" type="button" class="secondary"
+        @click="removeMember(member.user_id)">移出课程</button></li></ul>
+        </details>
+
+        <details v-if="user.role === 'teacher'" class="att-panel">
+        <summary>有效考勤明细（{{ records.length }} 条）</summary>
+        <ul class="rows"><li v-for="item in records" :key="item.id">任务 #{{ item.task_id }} · 学生 #{{ item.student_id }} · {{ item.status }}
+        <button type="button" class="secondary" @click="correct(item)">更正</button></li></ul>
+        </details>
+        </section>
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />
         <WarningView :key="'warning:' + user.id" :user="user" />
         </template>
