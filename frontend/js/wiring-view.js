@@ -486,7 +486,7 @@ export const WiringView = {
       ])
     }
 
-    return () => h('section', { class: 'wiring-module' }, [
+    return () => h('section', { class: 'card wiring-module' }, [
       h('h2', '实验箱连线'),
       error.value && h('p', { class: 'wiring-error', role: 'alert' }, error.value),
       notice.value && h('p', { class: 'wiring-notice' }, notice.value),
