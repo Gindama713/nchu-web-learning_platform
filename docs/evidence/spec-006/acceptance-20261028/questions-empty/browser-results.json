@@ -1,0 +1,25 @@
+{
+  "started_at": "2026-10-28T04:53:02.426265+00:00",
+  "tested_head": "4b83786d118c8c5b48ddf7cf3005d662f040313c",
+  "with_knowledge": false,
+  "scope": "real SPEC-001/006 HTTP/UI; missing knowledge/paper remain blocked; no dependency fixtures",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.86",
+      "checks": [
+        "teacher_real_login_empty_list_missing_tag_disables_creation",
+        "real_http_missing_knowledge_rejects_without_partial_question",
+        "390px_teacher_bank_no_horizontal_overflow",
+        "student_real_login_empty_bank_without_teacher_controls"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "browser": {
+    "channel": "chrome",
+    "version": "155.0.8059.86"
+  },
+  "status": "passed",
+  "finished_at": "2026-10-28T04:53:06.516855+00:00"
+}

@@ -1,0 +1,41 @@
+{
+  "started_at": "2026-10-28T04:52:49.357347+00:00",
+  "tested_head": "4b83786d118c8c5b48ddf7cf3005d662f040313c",
+  "with_knowledge": true,
+  "scope": "real 001/005/006 knowledge, question versions and fixed-version paper HTTP/UI",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.86",
+      "checks": [
+        "teacher_ui_creates_public_boolean_question_with_real_knowledge_tag",
+        "teacher_ui_creates_private_single_choice_with_default_off_practice",
+        "teacher_ui_edit_appends_version_two_and_keeps_teacher_answer",
+        "paper_created_after_edit_keeps_fixed_old_version_and_answer",
+        "390px_teacher_question_detail_without_horizontal_overflow",
+        "student_real_login_sees_only_latest_public_version_without_answers",
+        "database_keeps_two_identities_three_versions_and_public_history"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "156.0.4314.50",
+      "checks": [
+        "teacher_ui_creates_public_boolean_question_with_real_knowledge_tag",
+        "teacher_ui_creates_private_single_choice_with_default_off_practice",
+        "teacher_ui_edit_appends_version_two_and_keeps_teacher_answer",
+        "paper_created_after_edit_keeps_fixed_old_version_and_answer",
+        "390px_teacher_question_detail_without_horizontal_overflow",
+        "student_real_login_sees_only_latest_public_version_without_answers",
+        "database_keeps_two_identities_three_versions_and_public_history"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "browser": {
+    "channel": "chrome",
+    "version": "155.0.8059.86"
+  },
+  "status": "passed",
+  "finished_at": "2026-10-28T04:53:00.371538+00:00"
+}

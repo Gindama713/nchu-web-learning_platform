@@ -2,6 +2,69 @@
 
 > 2026-10-16 C12c材料导航：当前合入、真实评审、两个矩阵版本及交付状态见[个人交付索引](C12C_DELIVERY_HUANG_JUNCHENG.md)和[本轮远程快照](evidence/c12c/entry-state.json)。下文各节保留原日期、SHA及当时事实；旧“未合入/待实现/最新”措辞按其历史范围阅读，不覆盖索引中的当前状态。完整SPEC仍未凭材料整理关闭。
 
+## 2026-10-28 C02/C03页面验收补证（最新）
+
+黄俊诚（24201716）任务下执行；分支`feature/spec-006-acceptance-evidence`，从fetch核验的`origin/develop` `8e32fb41ab9453f8b4b4f8e7be86153a183b88dc`建立。三个旧006分支（exercises、010b-mixed-consumption、resource-integration）查询均无未合入develop提交，故未复用或强推旧分支，也未从005/008 feature带代码。本包只补C02/C03已有实现的真实浏览器证据与验证缺口，不改006业务、迁移、共享鉴权、CI或队友模块。
+
+### 验证工具修正（非产品缺陷）
+
+首次在新基线运行原有脚本时两处失败，均定位为脚本对新布局/标签的过时假设，不是006业务回归：
+
+1. `verify_spec006_papers.py`在“编排新试卷”处等待超时：008合入后页面同时渲染“课程试卷”和“随堂测”两个`.paper-bank`，原选择器命中两个面板。按C12b已用写法改为`filter(has=heading '课程试卷')`；`verify_spec006_attempts.py`的同类学生试卷选择器一并限定。
+2. 新题库用例在`题型`下拉处超时：Playwright的`get_by_label(exact=True)`对包含`<select>`的label会把选项文字计入文本，故`题型/难度/正确答案`无法精确匹配。改为`label:has(> span:text-is(...)) select`精确定位；产品DOM与可访问名称未改。
+
+以上只修改本人验证脚本（提交`4b83786d118c8c5b48ddf7cf3005d662f040313c`），未删除失败记录、降低断言或改评分/保护规则。
+
+### 新增题库真实知识模式
+
+`verify_spec006_questions.py`新增`--with-knowledge`：章节/知识点经真实005 API创建，随后全部走真实HTTP/SQLite/浏览器：
+
+- 教师在UI用五题型表单建公开判断题与私有单选题，知识标签来自真实005接口；编辑判断题生成v2，教师仍见参考答案，旧v1内容不被覆盖。
+- 编辑后通过实际006 API把v1加入草稿卷，试卷详情仍为v1题干与答案（固定版本，不因新版本漂移）。
+- 学生真实登录只看到最新公开版本（v2），看不到私有题，且响应与页面均无`answer/explanation`；无教师控件。
+- 数据库核对：2个question身份、3个版本、公开历史`ever_public`为`[1,0]`。
+- 390px无横向溢出；Chrome/Edge各7项，`page_errors=[]`。
+
+### 本轮执行与结果
+
+执行环境：Windows 10.0.26200、Python 3.13.12、Node 24.18.0、Chrome 155.0.8059.86、Edge 156.0.4314.50；账号仅bootstrap管理员/教师，课程/学生/成员/知识/题目/试卷/答卷均经真实API与真实SQLite准备，无题目/试卷/答卷替身。试卷/答卷时间窗口由服务端`TEST_NOW`受控，登录、HTTP、数据库、评分与保密判断仍为真实实现；这不等于生产时钟或教师验收。
+
+| 命令 | 实际结果 |
+|---|---|
+| `.venv/Scripts/python.exe -m unittest tests.test_questions tests.test_question_validation tests.test_papers tests.test_attempts tests.test_manual_scores -v` | 53项通过，79.844秒 |
+| `cd frontend && npm test` | 135项通过，0失败 |
+| `npm run lint` / `npm run build` | 通过；build 46模块，dist约330.43kB |
+| `.venv/Scripts/python.exe -m ruff check backend tests scripts` | All checks passed |
+| `.venv/Scripts/python.exe scripts/check_docs.py` | 六主文档、教师布局及本地链接OK |
+| `python -m scripts.verify_spec006_questions --with-knowledge` | Chrome/Edge各7项通过，`page_errors=[]` |
+| `python -m scripts.verify_spec006_questions` | Chrome 4项空依赖阻断仍通过 |
+| `python -m scripts.verify_spec006_papers --knowledge-fixture` | Chrome/Edge各7项通过，`page_errors=[]` |
+| `python -m scripts.verify_spec006_attempts --knowledge-fixture` | Chrome/Edge各10项通过，`page_errors=[]` |
+
+正式报告`tested_head`均为`4b83786d118c8c5b48ddf7cf3005d662f040313c`，时段2026-10-28 12:52:49—12:53:43（Asia/Shanghai，仅测试执行时间）：
+
+- [题库版本/学生可见性](evidence/spec-006/acceptance-20261028/question-bank/browser-results.json)，截图[教师版本详情](evidence/spec-006/acceptance-20261028/question-bank/chrome-teacher-versions.png)、[学生公开版](evidence/spec-006/acceptance-20261028/question-bank/chrome-student-public.png)。
+- [题库空依赖](evidence/spec-006/acceptance-20261028/questions-empty/browser-results.json)。
+- [编卷/发布冻结/保密](evidence/spec-006/acceptance-20261028/papers/browser-results.json)，截图[教师发布](evidence/spec-006/acceptance-20261028/papers/chrome-teacher-published.png)、[学生保护](evidence/spec-006/acceptance-20261028/papers/chrome-student-protected.png)。
+- [作答/判分/人工批阅](evidence/spec-006/acceptance-20261028/attempts/browser-results.json)，截图[学生作答](evidence/spec-006/acceptance-20261028/attempts/chrome-student-answer.png)、[教师更正](evidence/spec-006/acceptance-20261028/attempts/msedge-teacher-correction.png)、[讲评后结果](evidence/spec-006/acceptance-20261028/attempts/chrome-student-reviewed.png)。
+
+### 本轮覆盖与未关闭项
+
+| 有效编号 | 本轮真实浏览器/定向证据 | 仍未关闭 |
+|---|---|---|
+| AC-01、R12、R27 | 五题型固定旧版作答、精确整数分、漏答0、简答pending/null、部分/全批/更正、revision冲突 | 完整UC-02跨003/004；目标环境 |
+| AC-02、R25、R36 | 开始前元数据、截止前后无答案、实际讲评释放；公开/私有题学生可见性；保密发布与冻结名单UI；全版本保护/并发由后端测试覆盖 | 003资源/004备课入口、C05实际review回归（本轮未重跑） |
+| AC-04 | 简答待批显示、人工评分与更正 | 无（本AC本轮页面覆盖） |
+| AC-05、R18 | 丢响应后原键201字节重放、修正后仍一份答卷/三条审计、截止后最新GET | quiz同作用域真实UI本轮未重跑（008记录保留） |
+| AC-03 | 不在本包范围（C04练习/错题已另行记录） | C04本轮未重跑 |
+| R02、R16 | 题库/试卷/答卷/批阅列表进入，冻结人数1与真实名单 | 演示等他人模块 |
+| R01、R44 | 阻断（003题库资源/004备课未接齐） | 原负责人及C12 |
+| R22、R45、R47 | 未执行/阻断；无两名真实非作者复核 | 团队检查点与PR评审 |
+| NF-UI | Chrome/Edge 390px无横向溢出，实际截图已目视 | 目标浏览器矩阵仍有限 |
+| NF-PERF、NF-DATA | 阻断/未执行（未测4核8GB Linux/50会话/worker、生产迁移/完整恢复） | 目标环境与完整恢复演练 |
+
+本轮未重跑papers-empty、attempts-empty、C04练习、C05专用quiz、010B消费及全仓`unittest discover`；旧报告保持原tested_head。未改README/APIC/DBD契约；PR、CI及真实评审结果在推送后按实际head另行核验，不把本地通过写成CI成功或教师验收。
+
 ## 2026-10-15 C12b：共用时间显示修复（最新）
 
 黄俊诚（24201716）授权下Codex执行。C12a-UI-02由SPEC-006主修，影响SPEC-008共用PaperView/AttemptView；008分支不重复修复，只经负责人合入develop后消费。既有006 feature快进至最新已合入develop `f9c49b19c59053be2b171e0b7f2a35d1e050e57e`，未复制open #14/15/16实现。接入时三个PR均open/非draft，实际reviews/threads/comments为空；各当前head必需CI重新读取成功，grader按develop跳过，详见[远端快照](evidence/spec-006/c12b-time/start-remote.json)。#7已合入，不重开，使用006后续PR。
