@@ -11,6 +11,7 @@ import traceback
 from contextlib import closing
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from uuid import uuid4
 
 from playwright.sync_api import Error as PlaywrightError
 from playwright.sync_api import expect, sync_playwright
@@ -27,6 +28,14 @@ def mobile(page, bank, path):
     bank.screenshot(path=str(path))
 
 
+def practice(context, question_id, version_id, answer):
+    session = context.request.get(ORIGIN+'/api/v1/auth/session').json()['data']
+    return context.request.fetch(
+        ORIGIN+f'/api/v1/questions/{question_id}/practice-attempts', method='POST',
+        data={'question_version_id': version_id, 'answer': answer},
+        headers={'Origin': ORIGIN, 'X-CSRF-Token': session['csrf_token'], 'Idempotency-Key': str(uuid4())})
+
+
 def full(app, password, page, context, course_id, at, output, channel, checks):
     questions = []
     for kind, expected in (('single', 'A'), ('multiple', ['A', 'B']), ('boolean', False), ('numeric', 0.2)):
@@ -38,6 +47,12 @@ def full(app, password, page, context, course_id, at, output, channel, checks):
     secret = write(context, 'POST', f'/courses/{course_id}/questions', {
         'type': 'boolean', 'stem': 'C04保密题', 'answer': True, 'options': [], 'difficulty': 'easy',
         'knowledge_ids': [1], 'explanation': '保密卷的讲评解析'}, 201)['data']
+    short = write(context, 'POST', f'/courses/{course_id}/questions', {
+        'type': 'short', 'stem': 'C04简答题', 'answer': '参考文本', 'options': [], 'difficulty': 'easy',
+        'knowledge_ids': [1], 'explanation': '简答不开放单题练习'}, 201)['data']
+    rejected = write(context, 'PATCH', f"/questions/{short['id']}", {'practice_available': True}, 400)
+    assert rejected['error']['code'] == 'VALIDATION_ERROR'
+    checks.append('short_question_cannot_be_opened_for_single_practice')
     paper = write(context, 'POST', f'/courses/{course_id}/papers', {'title': 'C04保护回归考试', 'kind': 'exam',
                   'items': [{'question_version_id': secret['version_id'], 'points': 10}]}, 201)['data']
     times = {'start_at': at, 'end_at': at+timedelta(minutes=1), 'review_at': at+timedelta(minutes=2)}
@@ -112,7 +127,7 @@ def full(app, password, page, context, course_id, at, output, channel, checks):
         expect(bank.get_by_text('正在加载或保存练习…', exact=True)).to_have_count(0)
     checks.append('multiple_full_set_boolean_false_numeric_exact_tolerance_actual_ui_grading')
     # Actual exam submission via the existing paper UI creates a second wrong question.
-    paper_bank = page.locator('.paper-bank')
+    paper_bank = page.locator('.paper-bank').filter(has=page.get_by_role('heading', name='课程试卷', exact=True))
     paper_bank.get_by_role('button', name='重新加载试卷', exact=True).click()
     paper_bank.get_by_role('button', name=f"#{paper['id']} · C04保护回归考试 · 进行中", exact=True).click()
     form = paper_bank.locator('.attempt-answer-form')
@@ -120,6 +135,25 @@ def full(app, password, page, context, course_id, at, output, channel, checks):
     form.get_by_label('确认交卷，接受漏答0分且提交后不可修改', exact=True).check()
     form.get_by_role('button', name='提交整份答卷', exact=True).click()
     expect(paper_bank.locator('.attempt-result')).to_be_visible()
+    secret_new = teacher.patch(f"/api/v1/questions/{secret['id']}", json={'stem': 'C04保密题新版'},
+                               headers={'Origin': ORIGIN, 'X-CSRF-Token': token})
+    assert secret_new.status_code == 200 and secret_new.json['data']['version'] == 2
+    secret_new = secret_new.json['data']
+    # Explicitly anomalous legacy-open flags, not a successful business opening.
+    with closing(connect(app.config['DATABASE_PATH'])) as db:
+        db.execute('DROP TRIGGER question_version_no_update')
+        db.execute('UPDATE question_version SET practice_available=1 WHERE question_id=?', (secret['id'],))
+    for version in (secret, secret_new):
+        blocked = practice(context, secret['id'], version['version_id'], True)
+        assert blocked.status == 409 and blocked.json()['error']['code'] == 'QUESTION_RESERVED'
+    wrong_row = next(row for row in context.request.get(ORIGIN+'/api/v1/users/me/wrong-questions').json()['data']
+                     if row['id'] == secret['id'])
+    assert (wrong_row['answer_visible'], wrong_row['can_practice']) == (False, False)
+    assert 'answer' not in wrong_row and 'explanation' not in wrong_row
+    submitted = context.request.get(ORIGIN+f"/api/v1/attempts/{wrong_row['last_attempt_id']}").json()['data']
+    secret_answer = next(a for a in submitted['answers'] if a['question_version_id'] == secret['version_id'])
+    assert 'answer' not in secret_answer and 'explanation' not in secret_answer
+    checks.append('protected_identity_all_versions_and_wrong_attempt_reads_409_or_redacted_even_if_legacy_open')
     app.config['TEST_NOW'] = times['end_at']
     bank.get_by_role('button', name='我的错题', exact=True).click()
     expect(bank.get_by_text('共 2 道错题', exact=True)).to_be_visible()
