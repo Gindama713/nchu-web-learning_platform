@@ -360,3 +360,11 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
 .resubmit-box { display: flex; flex-wrap: wrap; gap: 8px; flex: 1 1 100%; margin-top: 2px; }
 .resubmit-box input { flex: 1 1 260px; min-width: 0; }
 .resubmit-box button { padding: 8px 14px; }
+
+/* 两个账号表单高度不同时，内容靠上，不要被 grid 拉伸拉开 */
+.account-form { align-content: start; }
+.account-grid { align-items: start; }
+
+/* 两个账号表单高度不同时，内容靠上，不要被 grid 拉伸拉开 */
+.account-form { align-content: start; }
+.account-grid { align-items: start; }

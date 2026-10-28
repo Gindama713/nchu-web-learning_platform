@@ -540,8 +540,7 @@ createApp({
         <button type="button" class="secondary" @click="tab = 'lab'">实验与演示</button>
         <button type="button" class="secondary" @click="tab = 'stats'">考勤与学情</button>
         </div>
-        </template></section>
-        <section v-if="user.role === 'admin'" class="card"><h2>课程与账号管理</h2>
+        </section>
         <section v-if="user.role === 'admin'" class="card"><h2>课程与账号管理</h2>
         <form class="inline-form" @submit.prevent="createCourse">
         <label>课程名称 <input v-model.trim="courseForm.title" required></label>
