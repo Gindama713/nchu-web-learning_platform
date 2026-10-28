@@ -24,6 +24,10 @@
 | 讲评前paper/attempt/错题及同question全部版本无答案/解析、不能练习；实际review_at后释放；普通定时quiz不提前/延后 | `test_closed_unreviewed_quiz_protects_all_versions_and_wrong_question_entry`、`test_review_exact_end_durable_repeat_and_all_answer_entries_release`、`test_review_permissions_strict_payload_and_ordinary_schedule_retained`；浏览器讲评前后API字段断言及页面答案/解析显示 |
 | 390px无横向溢出、Chrome+Edge、TEST_NOW仅控窗口 | 双浏览器各10组、`page_errors=[]`、元数据/作答/统计/待批/讲评截图及`documentElement.scrollWidth<=innerWidth`断言；报告记录服务器窗口06:57—06:58 UTC，实际运行06:56:03—06:56:33 UTC |
 
+### 提交与PR
+
+代码/测试提交`55167f6f1b04c91606e6e53fa5e7ca339b9cfcbe`，证据/记录提交`e5b1041502407d46423905844f392c040c9be122`，分支`feature/spec-008-acceptance-evidence`，base develop`8e32fb41ab9453f8b4b4f8e7be86153a183b88dc`。[PR #46](https://github.com/Gindama713/nchu-web-learning_platform/pull/46)为open/非draft/merged=false/reviews=[]；head`e5b1041`的CI [run40647129726](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/40647129726)已completed/success（ci-policy/ci-lint/ci-test/ci-build/ci-required全部success，ci-grader按develop规则skipped）。未实际合并、未发布；后续记录提交不改变浏览器tested_head`55167f6`。
+
 ### 保留未关闭
 
 两名真实非作者复核（判分/答案保护/讲评属敏感改动）；R01（003题库资源/004备课）与R44跨模块仍阻断；003/004实际接缝、007演示/实验/电路完整UC-02、NF-PERF目标Linux4核8GB/50会话/真实worker、生产迁移/恢复及课堂教师验收均未执行；未取得教师验收结论，不把本地通过写成课程通过。
