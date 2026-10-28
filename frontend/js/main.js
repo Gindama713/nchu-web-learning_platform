@@ -45,6 +45,19 @@ createApp({
     ]
     const tab = ref('course')
     // 按任务聚合考勤记录，用于任务卡片的到勤进度条
+    // 课程封面：按 id 取渐变，同一门课颜色固定，避免每次刷新变来变去
+    const COVERS = [
+      'linear-gradient(135deg, #2f6fd0, #17408a)',
+      'linear-gradient(135deg, #16a394, #0d7368)',
+      'linear-gradient(135deg, #f2994a, #c96f22)',
+      'linear-gradient(135deg, #9b6dd6, #67409f)',
+      'linear-gradient(135deg, #eb5757, #b13434)',
+      'linear-gradient(135deg, #4a90d9, #2b64a8)',
+      'linear-gradient(135deg, #56b98a, #35805e)',
+      'linear-gradient(135deg, #7f8fa6, #55647a)',
+    ]
+    const coverOf = id => COVERS[Number(id) % COVERS.length]
+
     const taskStats = computed(() => {
       const map = new Map()
       records.value.forEach(record => {
@@ -414,7 +427,7 @@ createApp({
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
-      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime }
+      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf }
   },
   template: `
     <main class="page">
@@ -436,11 +449,22 @@ createApp({
 
         <template v-if="tab === 'course'">
         <section class="card"><h2>课程概览</h2><p>{{ user.name }} · {{ user.role }}</p>
-        <label class="course-pick">当前课程（共 {{ courses.length }} 门）
-        <select :value="String(courseId || '')" @change="selectCourse($event.target.value)">
-        <option v-for="course in courses" :key="course.id" :value="String(course.id)">
-        {{ course.title }} · #{{ course.id }}</option>
-        </select></label>
+        <p class="course-count">共 {{ courses.length }} 门课程，点击卡片切换</p>
+        <div class="course-grid">
+        <button v-for="course in courses" :key="course.id" type="button"
+        :class="['course-card', { active: courseId === course.id }]"
+        :style="'--cover:' + coverOf(course.id)"
+        @click="selectCourse(course.id)">
+        <span class="course-cover">
+        <span class="course-initial">{{ String(course.id).padStart(2, '0') }}</span>
+        <span v-if="courseId === course.id" class="course-check">当前</span>
+        </span>
+        <span class="course-body">
+        <strong class="course-title">{{ course.title }}</strong>
+        <small class="course-meta">{{ course.description || ('课程 #' + course.id) }}</small>
+        </span>
+        </button>
+        </div>
         <p v-if="!courses.length">暂无课程。</p>
         <template v-if="courseId">
         <div class="course-summary">
