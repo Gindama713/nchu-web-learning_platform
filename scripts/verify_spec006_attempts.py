@@ -69,7 +69,7 @@ def full(app, password, browser, page, context, course_id, at, output, channel, 
     paper_id, times = create_paper(context, course_id, at)
     page.get_by_role('button', name='退出', exact=True).click()
     login(page, 'B006STUD1', password)
-    bank = page.locator('.paper-bank')
+    bank = page.locator('.paper-bank').filter(has=page.get_by_role('heading', name='课程试卷', exact=True))
     bank.get_by_role('button', name=f'#{paper_id} · C03b受控考试 · 未开始', exact=True).click()
     expect(bank.get_by_text('试卷尚未开始，开始后可查看题目。')).to_be_visible()
     expect(bank.get_by_role('button', name='提交整份答卷')).to_have_count(0)
