@@ -190,7 +190,15 @@ export const QuestionBankView = {
         h('p', { class: 'qb-total' }, `共 ${total.value} 道题目`),
         rows.value.length > 0 && distribution(),
         h('ul', { class: 'rows' }, rows.value.map(item => h('li', { key: item.id }, [
-          button(`#${item.id} · v${item.version} · ${item.stem.slice(0, 60)}`, () => { selected.value = item; editing.value = false }),
+          h('button', {
+            type: 'button',
+            class: 'qb-item',
+            onClick: () => { selected.value = item; editing.value = false },
+          }, [
+            h('span', { class: 'qb-item-id' }, `#${item.id} · v${item.version}`),
+            h('span', { class: 'qb-item-stem' }, item.stem.slice(0, 60)),
+            h('span', { class: `qb-item-tag ${item.difficulty}` }, difficulties[item.difficulty] ?? item.difficulty),
+          ]),
         ]))),
         !rows.value.length && !busy.value && !error.value && h('p', '暂无符合条件的题目。'),
         h('div', { class: 'actions' }, [

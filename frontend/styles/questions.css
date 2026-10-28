@@ -24,3 +24,35 @@
 .qb-bar-track { height: 9px; border-radius: 5px; background: #eef2f8; overflow: hidden; }
 .qb-bar-fill { display: block; height: 100%; border-radius: 5px; background: #173b6c; }
 .qb-bar-value { text-align: right; font-weight: 700; color: #173b6c; font-variant-numeric: tabular-nums; }
+
+/* 题目列表：浅色行，避免十几个深蓝按钮堆在一起 */
+.qb-item {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px;
+  width: 100%; text-align: left; background: #fff; color: #182436;
+  border: 1px solid #e1e7ee; border-radius: 10px; padding: 11px 14px;
+  font: inherit; font-size: .92rem; cursor: pointer;
+}
+.qb-item:hover { border-color: #173b6c; background: #f7faff; filter: none; }
+.qb-item-id { color: #9aa8bb; font-size: .8rem; font-variant-numeric: tabular-nums; flex: none; }
+.qb-item-stem { flex: 1 1 320px; min-width: 0; }
+.qb-item-tag { flex: none; padding: 2px 9px; border-radius: 20px; font-size: .72rem; font-weight: 600; }
+.qb-item-tag.easy { background: #e6f6ea; color: #1c5c2e; }
+.qb-item-tag.medium { background: #fff4d6; color: #8c5a00; }
+.qb-item-tag.hard { background: #fdecea; color: #8c2b20; }
+.qb-item + .qb-item { margin-top: -4px; }
+
+/* 题目列表：浅色行，避免十几个深蓝按钮堆在一起 */
+.qb-item {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px;
+  width: 100%; text-align: left; background: #fff; color: #182436;
+  border: 1px solid #e1e7ee; border-radius: 10px; padding: 11px 14px;
+  font: inherit; font-size: .92rem; cursor: pointer;
+}
+.qb-item:hover { border-color: #173b6c; background: #f7faff; filter: none; }
+.qb-item-id { color: #9aa8bb; font-size: .8rem; font-variant-numeric: tabular-nums; flex: none; }
+.qb-item-stem { flex: 1 1 320px; min-width: 0; }
+.qb-item-tag { flex: none; padding: 2px 9px; border-radius: 20px; font-size: .72rem; font-weight: 600; }
+.qb-item-tag.easy { background: #e6f6ea; color: #1c5c2e; }
+.qb-item-tag.medium { background: #fff4d6; color: #8c5a00; }
+.qb-item-tag.hard { background: #fdecea; color: #8c2b20; }
+.qb-item + .qb-item { margin-top: -4px; }

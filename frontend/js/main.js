@@ -436,9 +436,11 @@ createApp({
 
         <template v-if="tab === 'course'">
         <section class="card"><h2>课程概览</h2><p>{{ user.name }} · {{ user.role }}</p>
-        <div class="course-list"><button v-for="course in courses" :key="course.id" type="button"
-        :class="['course-chip', { active: courseId === course.id }]"
-        @click="selectCourse(course.id)">{{ course.title }}</button></div>
+        <label class="course-pick">当前课程（共 {{ courses.length }} 门）
+        <select :value="String(courseId || '')" @change="selectCourse($event.target.value)">
+        <option v-for="course in courses" :key="course.id" :value="String(course.id)">
+        {{ course.title }} · #{{ course.id }}</option>
+        </select></label>
         <p v-if="!courses.length">暂无课程。</p>
         <template v-if="courseId">
         <div class="course-summary">

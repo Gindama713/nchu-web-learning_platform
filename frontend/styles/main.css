@@ -116,3 +116,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   .sum-tile { padding: 12px 14px; }
   .sum-tile strong { font-size: 1.6rem; }
 }
+
+/* 课程选择：课程多时用下拉，避免一堆按钮铺满 */
+.course-pick { max-width: 420px; margin-bottom: 12px; }
+.course-pick select { font-weight: 600; }
