@@ -72,6 +72,8 @@ SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数�
 
 黄俊诚（24201716）的C12c正式材料见[个人交付索引](docs/C12C_DELIVERY_HUANG_JUNCHENG.md)，含[测试报告](docs/TEST_REPORT_HUANG_JUNCHENG.md)、[阶段检查报告](docs/checkpoints/HUANG_JUNCHENG_C12C.md)、[本人模块用户说明](docs/USER_GUIDE_HUANG_JUNCHENG.md)和[个人设计报告准备稿](docs/reports/24201716_黄俊诚_设计报告.docx)。材料形成时 #27 尚待合入；本轮 #27—#35 的审计与集成见[检查点记录](docs/checkpoints/2026-10-19_PR_INTEGRATION.md)。个人材料不代表完整SPEC、Gitea或课堂通过；原课程最终格式附件仍未提供。
 
+姜苏豪（24201718）的[个人交付索引](docs/JIANG_SUHAO_DELIVERY.md)汇总 SPEC-001/002/010A/014/016/019 的[实施与验收记录](docs/JIANG_SUHAO_IMPLEMENTATION.md)、[测试报告](docs/TEST_REPORT_JIANG_SUHAO.md)、[阶段检查材料](docs/checkpoints/JIANG_SUHAO_2026-10-22.md)、[模块使用说明](docs/USER_GUIDE_JIANG_SUHAO.md)和[个人设计报告 Word 准备稿](docs/reports/24201718_姜苏豪_设计报告.docx)。本人成果已通过 PR #39 合入 develop；真实课堂、Gitea 和全组发布结论仍按对应证据判定。
+
 第二次课堂提交的组员分批操作见 [docs/SECOND_SUBMISSION_TEAM_PROMPT.md](docs/SECOND_SUBMISSION_TEAM_PROMPT.md)。
 
 六份需求设计文档仍保留；本开发分支增加前后端框架、测试和 CI。README 在仓库根、其余五份在 docs，课程检查仍按 Gitea 要求归档。班级242017、组号g24201710及GitHub开发地址已登记。实验模型与引擎已设计选定，运行兼容性尚未实测。
@@ -128,10 +130,10 @@ npm run build
 | SPEC-001/002 | SQLite 持久身份与课程成员授权、CSRF/审计、冻结名单签到、请假审批及更正 | 章节/知识点由负责组员的教学内容模块接入；浏览器端到端验收 |
 | SPEC-010A | Pandas 考勤成绩配对、C01—C04 测试、不可变快照与同快照 CSV | 组员测评的 `paper/paper_item/attempt` 真实迁移和数据；缺表时 503 |
 | SPEC-014 | 规则与固定参数 KMeans、批次保存、处理记录和合成测试 | 组员题库、实验、评测事实表；缺表时 503，不伪造预警 |
-| SPEC-016 | PNG/JPEG 边界校验、固定字典模板、人工确认及成绩隔离；合成图测试 | PRD 固定 SHA 的 F01—F05 原图未在当前资料中找到，TV-03 尚不能宣称通过；模板 SHA/定位版本仍为 provisional |
+| SPEC-016 | PNG/JPEG 边界校验、固定字典模板、人工确认及成绩隔离；F01—F05 固定 PNG 和 SHA 已入库并经本地/CI 回归 | 一般照片、手绘、旋转图与目标设备泛化尚未验证；不能把固定样例通过扩大为任意电路图可用 |
 | SPEC-019 | GitHub PR 门禁、依赖锁定及 main/develop 分支保护已落地 | SPEC-017/018 真实 Logisim 冒烟、目标环境检查、release 保护及远端拒绝场景演练仍为发布阻断项 |
 
-2026-10-19 当前进展：SPEC-016 的固定输入已改为仓库内可核验的 `recognition-fixtures-v2` F01—F05，模板/预处理哈希见[PRD第4.5节](docs/PRD.md#recognition-acceptance)，原计划v1图片未交付的历史状态仅保留在上表。姜苏豪负责模块的最新验收记录见[个人实施与验收记录](docs/JIANG_SUHAO_IMPLEMENTATION.md)；目标环境、课堂和全组发布结论仍以实际证据为准。
+2026-10-19 当前进展：SPEC-016 的固定输入已改为仓库内可核验的 `recognition-fixtures-v2` F01—F05，模板/预处理哈希见[PRD第4.5节](docs/PRD.md#recognition-acceptance)；原计划 v1 图片未交付，不能视为已测。姜苏豪负责模块的最新验收记录见[个人实施与验收记录](docs/JIANG_SUHAO_IMPLEMENTATION.md)；目标环境、课堂和全组发布结论仍以实际证据为准。
 
 
 ### 8.2 完整系统实施契约（待实现）
