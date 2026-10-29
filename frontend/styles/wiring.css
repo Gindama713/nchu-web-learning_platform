@@ -1,0 +1,20 @@
+/* SPEC-017 wiring lab module styles (shared .card shell from main.css). */
+.wiring-module { min-width: 0; display: grid; gap: 14px; }
+.wiring-module .actions h2 { margin: 0 auto 0 0; }
+.wiring-module [role="alert"] { color: #922f25; }
+.wiring-module button:disabled { opacity: .55; cursor: wait; }
+.wiring-course, .wiring-version { min-width: 0; }
+.wiring-parts, .wiring-wires, .wiring-history, .wiring-results, .wiring-errors, .wiring-io-table, .wiring-head { border-collapse: collapse; width: 100%; }
+.wiring-parts th, .wiring-parts td, .wiring-wires th, .wiring-wires td, .wiring-history th, .wiring-history td, .wiring-results th, .wiring-results td, .wiring-errors th, .wiring-errors td, .wiring-io-table th, .wiring-io-table td, .wiring-head th, .wiring-head td { padding: 10px; text-align: left; border-bottom: 1px solid #dce4ee; vertical-align: top; overflow-wrap: anywhere; }
+.wiring-detail { display: grid; gap: 16px; border-top: 1px solid #dce4ee; padding-top: 16px; }
+.wiring-detail h3 { margin: 0; }
+.wiring-signals { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+.wiring-signals h4 { width: 100%; margin: 0; }
+.wiring-signals table { max-width: 280px; }
+.wiring-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 16px; }
+.wiring-block { display: grid; gap: 10px; align-content: start; padding: 16px; border: 1px solid #dce4ee; border-radius: 7px; }
+.wiring-block h4 { margin: 0; }
+.wiring-connect label, .wiring-input label { min-width: 0; }
+.wiring-clock { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.wiring-clock table { max-width: 280px; }
+.wiring-submitted p { margin: 4px 0; }

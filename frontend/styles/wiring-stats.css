@@ -1,0 +1,19 @@
+/* SPEC-010C wiring statistics module styles (shared .card shell from main.css). */
+.wiring-stats { min-width: 0; }
+.wiring-stats .actions h2 { margin: 0 auto 0 0; }
+.wiring-stats p, .wiring-stats td { overflow-wrap: anywhere; white-space: pre-wrap; }
+.wiring-stats label { min-width: 0; }
+.wiring-stats input, .wiring-stats select { width: 100%; min-width: 0; }
+.wiring-stats [role="alert"] { color: #922f25; }
+.wiring-stats button:disabled { opacity: .55; cursor: wait; }
+.wiring-stats-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 16px; margin: 20px 0; }
+.wiring-stats-restore { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+.wiring-stats-report { display: grid; gap: 8px; }
+.wiring-stats-metrics { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(100px, 1fr); max-width: 650px; margin: 0; }
+.wiring-stats-metrics dt, .wiring-stats-metrics dd { padding: 10px; margin: 0; border-bottom: 1px solid #dce4ee; }
+.wiring-stats-metrics dd { font-variant-numeric: tabular-nums; font-weight: 600; }
+.wiring-stats-scroll { overflow-x: auto; margin: 24px 0; }
+.wiring-stats-scroll table { border-collapse: collapse; width: 100%; }
+.wiring-stats-scroll caption { text-align: left; font-weight: 600; margin-bottom: 12px; }
+.wiring-stats-scroll th, .wiring-stats-scroll td { padding: 10px; text-align: left; border-bottom: 1px solid #dce4ee; min-width: 90px; }
+.wiring-stats-scroll th:first-child, .wiring-stats-scroll td:first-child { min-width: 240px; }
