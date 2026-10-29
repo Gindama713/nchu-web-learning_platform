@@ -1,0 +1,26 @@
+.demo-card { display: grid; gap: 6px; }
+.demo-stage { border: 1px solid #dce4ee; border-radius: 12px; padding: 16px; background: #fbfdff; margin-top: 10px; }
+.demo-stage-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; }
+.demo-stage-head strong { font-size: 1.05rem; color: #173b6c; }
+.demo-meta { color: #60718a; font-size: .85rem; margin-left: 10px; }
+.demo-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.demo-canvas {
+  background: #fff;
+  border: 1px solid #e6edf6;
+  border-radius: 8px;
+  padding: 14px;
+  margin-top: 14px;
+  overflow-x: auto;
+}
+.demo-message { margin: 12px 0 0; font-family: ui-monospace, monospace; color: #173b6c; font-size: .92rem; }
+.demo-hint { color: #60718a; font-size: .85rem; margin: 6px 0 0; }
+.demo-placeholder { color: #60718a; }
+.demo-alert {
+  color: #8c2b20; background: #fdecea; border: 1px solid #f0b8b0;
+  padding: 10px 12px; border-radius: 8px; margin: 0;
+}
+.demo-notice {
+  color: #1c5c2e; background: #eaf7ee; border: 1px solid #b7ddc2;
+  padding: 10px 12px; border-radius: 8px; margin: 0;
+}
+.demo-card button.secondary { border-color: #9cabc0; }

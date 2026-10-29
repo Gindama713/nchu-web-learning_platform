@@ -68,6 +68,14 @@ SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数�
 
 运行手册后续还须补充评测 worker 的启动/停止、备份位置、日志位置及故障定位步骤；不得将尚未实现的业务命令当成已验证操作。
 
+### 6.1 发布流程（当前实际状态）
+
+- **分支保护**：`develop` 与 `main` 均受保护。实测直推返回 `remote: error: GH006: Protected branch update failed`，并提示 `Changes must be made through a pull request` 与 `5 of 5 required status checks are expected`。
+- **合并路径**：`feature/*` → PR → `develop`；发布由 `develop` → `main` 的 PR 完成，不绕行。
+- **CI**：PR 上运行 `ci-policy`、`ci-lint`、`ci-test`、`ci-build` 四个作业，配置见 `.github/workflows/`。
+- **部署**：仓库内**没有**自动化部署脚本或容器镜像。课堂验收与演示使用本地 `npm run dev`（前端）加 Flask（后端），步骤见第 8 节；如需正式发布，按第 6 节手动生成不可变产物并记录提交 SHA、依赖锁文件、数据库版本与 JAR 哈希。
+- **未完成**：评测 worker 的独立启停脚本、备份与日志位置说明，仍按第 6 节标注为待补。
+
 ## 7 检查与提交
 
 黄俊诚（24201716）的C12c正式材料见[个人交付索引](docs/C12C_DELIVERY_HUANG_JUNCHENG.md)，含[测试报告](docs/TEST_REPORT_HUANG_JUNCHENG.md)、[阶段检查报告](docs/checkpoints/HUANG_JUNCHENG_C12C.md)、[本人模块用户说明](docs/USER_GUIDE_HUANG_JUNCHENG.md)和[个人设计报告准备稿](docs/reports/24201716_黄俊诚_设计报告.docx)。材料形成时 #27 尚待合入；本轮 #27—#35 的审计与集成见[检查点记录](docs/checkpoints/2026-10-19_PR_INTEGRATION.md)。个人材料不代表完整SPEC、Gitea或课堂通过；原课程最终格式附件仍未提供。

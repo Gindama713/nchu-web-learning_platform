@@ -39,7 +39,7 @@ def public_user(row):
 
 def student_no(value):
     if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9]{8,20}", value):
-        raise ApiError(400, "VALIDATION_ERROR", "student_no must be 8–20 alphanumeric characters")
+        raise ApiError(400, "VALIDATION_ERROR", "学号必须是 8–20 位字母或数字")
     return value
 
 
@@ -65,7 +65,7 @@ def register():
             user = db.execute("SELECT * FROM user WHERE id=?", (cursor.lastrowid,)).fetchone()
             audit("user.register", "user", user["id"], after={"role": "student"}, actor_id=user["id"])
     except sqlite3.IntegrityError as exc:
-        raise ApiError(409, "DUPLICATE", "Account already exists") from exc
+        raise ApiError(409, "DUPLICATE", "该学号已注册") from exc
     return result({"user": public_user(user)}, 201)
 
 
@@ -80,7 +80,7 @@ def login():
     user = get_db().execute("SELECT * FROM user WHERE student_no=?", (number,)).fetchone()
     valid = check_password_hash(user["password_hash"] if user else DUMMY_HASH, supplied)
     if not user or not user["active"] or not valid:
-        raise ApiError(401, "UNAUTHENTICATED", "Invalid credentials")
+        raise ApiError(401, "UNAUTHENTICATED", "学号或密码不正确")
     with write() as db:
         token = secrets.token_urlsafe(32)
         csrf = csrf_for(token)
