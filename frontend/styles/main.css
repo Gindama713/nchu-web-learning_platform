@@ -368,3 +368,11 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
 /* 两个账号表单高度不同时，内容靠上，不要被 grid 拉伸拉开 */
 .account-form { align-content: start; }
 .account-grid { align-items: start; }
+
+/* 登录页演示账号提示 */
+.login-hint {
+  margin: 0 0 16px; padding: 12px 16px; border-radius: 12px;
+  background: linear-gradient(90deg, #eff6ff, #f7fbff); border: 1px solid #cfe2ff;
+  color: #1b4f96; font-size: .88rem; line-height: 1.7;
+}
+.login-hint b { font-family: ui-monospace, monospace; font-size: .95rem; color: #12325f; }

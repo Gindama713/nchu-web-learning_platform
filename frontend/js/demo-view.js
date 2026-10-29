@@ -287,7 +287,7 @@ function sceneSvg(state, preset) {
   return h('svg', {
     viewBox: `0 0 ${scene.width} ${scene.height}`,
     width: '100%',
-    style: `max-width:${scene.width}px;height:auto;display:block`,
+    style: 'width:100%;height:auto;display:block',
     role: 'img',
     'aria-label': `${demoPresets[preset]} 状态图`,
   }, [

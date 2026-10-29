@@ -24,3 +24,13 @@
   padding: 10px 12px; border-radius: 8px; margin: 0;
 }
 .demo-card button.secondary { border-color: #9cabc0; }
+
+/* 演示舞台：标题与画布纵向排列，画布占满宽度（此前被 flex 压到 330px） */
+.demo-stage { display: grid; gap: 12px; }
+.demo-canvas { width: 100%; min-width: 0; }
+.demo-canvas > svg { width: 100%; height: auto; }
+
+/* 演示舞台：标题与画布纵向排列，画布占满宽度（此前被 flex 压到 330px） */
+.demo-stage { display: grid; gap: 12px; }
+.demo-canvas { width: 100%; min-width: 0; }
+.demo-canvas > svg { width: 100%; height: auto; }

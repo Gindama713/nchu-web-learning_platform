@@ -35,7 +35,7 @@ import '../styles/graph.css'
 import '../styles/recognition.css'
 import '../styles/warnings.css'
 import '../styles/preparations.css'
-import '../styles/demo.css'
+// demo.css（罗浩铭版）不加载：其 .demo-stage 为 flex，与当前 demo-view 结构冲突
 import '../styles/wiring.css'
 import '../styles/wiring-stats.css'
 
@@ -503,6 +503,8 @@ createApp({
         <h1>中央处理器课程学习系统</h1><p role="status" aria-live="polite">{{ message }}</p>
         <button v-if="user" type="button" @click="logout">退出</button></header>
       <section v-if="!user" class="card"><h2>登录 / 学生注册</h2>
+        <p class="login-hint">演示账号（教师）：学号 <b>90000011</b>　密码 <b>Demo#2026Pass</b><br>
+        管理员：学号 <b>90000001</b>，密码在部署时由 admin-create 设置。</p>
         <label>学号 <input v-model.trim="auth.student_no" minlength="8" maxlength="20" autocomplete="username"></label>
         <label>姓名（注册填写） <input v-model.trim="auth.name" maxlength="50" autocomplete="name"></label>
         <label>密码 <input v-model="auth.password" type="password" minlength="12" autocomplete="current-password"></label>
