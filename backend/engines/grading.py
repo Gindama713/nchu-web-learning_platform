@@ -8,6 +8,7 @@ status/token/now<lease_until（R29）。真实引擎 CLI 适配格式在 TV-01 �
 import json
 import os
 import re
+import sqlite3
 import subprocess
 import tempfile
 from datetime import timedelta
@@ -99,8 +100,28 @@ def run_in_sandbox(run_row, submission_path, cases, execute):
 
     execute(argv, cwd, timeout, max_output) 注入执行器：生产环境为受限子进程，
     单元测试注入受控替身验证平台管道（超时终止、输出上限、退出码路径）。
+
+    沙箱限额优先采用教师在 judge_profile.limits_json 中配置的值（经
+    validate_limits 校验且 ≤ MAX_LIMITS），仅在 run_row 缺少 profile 快照时
+    才回落到平台最大限额。这样教师设置的更紧约束（如 cpu_seconds=5）才能真正
+    生效，避免被 MAX_LIMITS 静默覆盖。
     """
-    limits = MAX_LIMITS
+    limits = dict(MAX_LIMITS)
+    snapshot_json = None
+    if run_row:
+        try:
+            snapshot_json = run_row["profile_snapshot_json"]
+        except (KeyError, TypeError, IndexError):
+            if hasattr(run_row, "get"):
+                snapshot_json = run_row.get("profile_snapshot_json")
+    if snapshot_json:
+        try:
+            profile_limits = (json.loads(snapshot_json) or {}).get("limits") or {}
+            for key in MAX_LIMITS:
+                if key in profile_limits:
+                    limits[key] = profile_limits[key]
+        except (ValueError, TypeError):
+            pass
     with tempfile.TemporaryDirectory(prefix="grading-") as directory:
         workspace = Path(directory)
         (workspace / "submission.circ").write_bytes(Path(submission_path).read_bytes())
@@ -114,7 +135,7 @@ def run_in_sandbox(run_row, submission_path, cases, execute):
                 return {"error_code": "TIME_LIMIT", "results": results, "executed": executed}
             except SandboxOutputLimit:
                 return {"error_code": "OUTPUT_LIMIT", "results": results, "executed": executed}
-            if code == 127 or stdout is None and code != 0:
+            if code == 127 or stdout is None:
                 return {"error_code": "ENGINE_UNAVAILABLE", "results": results, "executed": executed}
             parsed = parse_engine_output(stdout, [case])
             if parsed is None:
@@ -142,11 +163,24 @@ class SandboxOutputLimit(Exception):
 
 def real_executor(argv, cwd, timeout, max_output):
     """受限子进程执行器：无 shell、显式 argv、进程组超时终止、输出上限。"""
+    # Windows 上 Java/JVM 启动需要 SYSTEMROOT 才能定位 ntdll 等系统 DLL，
+    # 且需要 TEMP/TMP 才能创建临时文件；缺失会直接报 MissingResource /
+    # Unable to load DLL，学生提交被误判 system_error。其他平台保持最小环境。
+    env = {
+        "PATH": os.environ.get("PATH", ""),
+        "JAVA_HOME": os.environ.get("JAVA_HOME", ""),
+    }
+    if os.name == "nt":
+        env.update({
+            "SYSTEMROOT": os.environ.get("SYSTEMROOT", r"C:\Windows"),
+            "TEMP": os.environ.get("TEMP", ""),
+            "TMP": os.environ.get("TMP", ""),
+        })
     try:
         process = subprocess.Popen(
             argv, cwd=str(cwd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL, text=True, encoding="utf-8", errors="replace",
-            env={"PATH": os.environ.get("PATH", ""), "JAVA_HOME": os.environ.get("JAVA_HOME", "")},
+            env=env,
         )
     except OSError:
         return None, 127
@@ -350,7 +384,10 @@ def start_scanner(app):
                 scan_once(app.config["DATABASE_PATH"])
             except RuntimeError:  # app 已停止接受请求
                 return
-            except OSError:
+            except (OSError, sqlite3.Error):
+                # OSError 覆盖磁盘 IO/文件锁；sqlite3.Error 覆盖数据库锁定、
+                # 损坏等。两者都应让扫描继续下一轮，而不是让回收线程静默退出
+                # 否则过期 running 任务永不被回收，最终全部 WORKER_LOST 堆积。
                 continue
 
     thread = threading.Thread(target=loop, daemon=True, name="grading-reclaim")
