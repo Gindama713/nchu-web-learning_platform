@@ -1,0 +1,11 @@
+test_contract_017_closed_window_rejects_submit (tests.test_knowledge_i01_seams.KnowledgeI01SeamsTest.test_contract_017_closed_window_rejects_submit) ... ok
+test_contract_017_future_window_rejects_new_attempt (tests.test_knowledge_i01_seams.KnowledgeI01SeamsTest.test_contract_017_future_window_rejects_new_attempt) ... ok
+test_contract_017_redo_creates_new_attempt_after_submission (tests.test_knowledge_i01_seams.KnowledgeI01SeamsTest.test_contract_017_redo_creates_new_attempt_after_submission) ... ok
+test_contract_017_revoked_member_rejects_old_mutations (tests.test_knowledge_i01_seams.KnowledgeI01SeamsTest.test_contract_017_revoked_member_rejects_old_mutations) ... ok
+test_markup_resource_upload_policy_and_current_permissions (tests.test_knowledge_i01_seams.KnowledgeI01SeamsTest.test_markup_resource_upload_policy_and_current_permissions) ... ok
+test_published_knowledge_fixed_experiment_facts_and_teacher_consumption (tests.test_knowledge_i01_seams.KnowledgeI01SeamsTest.test_published_knowledge_fixed_experiment_facts_and_teacher_consumption) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 22.191s
+
+OK

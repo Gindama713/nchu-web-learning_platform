@@ -42,7 +42,8 @@ def main():
                   failures=[test.id() for test, _ in result.failures], errors=[test.id() for test, _ in result.errors],
                   unexpected_successes=[test.id() for test in result.unexpectedSuccesses],
                   elapsed_seconds=round(time.monotonic() - started, 3),
-                  status="passed_with_known_contract_failures" if result.wasSuccessful() else "failed")
+                  status=("passed_with_known_contract_failures" if result.expectedFailures else "passed")
+                  if result.wasSuccessful() else "failed")
     (args.output / "handlers.txt").write_text(stream.getvalue(), encoding="utf-8")
     (args.output / "report.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(stream.getvalue())

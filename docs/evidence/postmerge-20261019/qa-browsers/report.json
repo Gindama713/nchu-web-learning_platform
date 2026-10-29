@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-19T15:35:04.892179+00:00",
+  "executor": "Codex, user-authorized automatic verification",
+  "tested_head": "90a69c49ea24677c0bea26f5a8f3825a91066922",
+  "dirty_paths": [],
+  "scope": "controlled real 001/005/011 handlers plus socket HTTP/SQLite/Vue; only index-build faults injected; no production/target performance",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.80",
+      "checks": [
+        "real_001_login_005_publish_PC_alias_six_decimals_source_and_draft_excluded",
+        "real_zero_vector_and_no_match_response_page",
+        "real_005_update_on_demand_revision_rebuild_without_old_excerpt",
+        "injected_build_failure_real_HTTP503_clears_UI_real_progress_and_practice_submit201_work_retry_recovers",
+        "real_unpublish_failed_rebuild_never_leaks_then_empty_corpus_revision",
+        "delayed_real_HTTP_response_discarded_after_question_change",
+        "390px_mobile_no_document_overflow",
+        "real_001_membership_revocation_HTTP404_clears_and_disables_query",
+        "SQLite_query_owner_raw_similarity_revision_algorithm_records_and_FK_integrity"
+      ],
+      "page_errors": [],
+      "result": "passed"
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.62",
+      "checks": [
+        "real_001_login_005_publish_PC_alias_six_decimals_source_and_draft_excluded",
+        "real_zero_vector_and_no_match_response_page",
+        "real_005_update_on_demand_revision_rebuild_without_old_excerpt",
+        "injected_build_failure_real_HTTP503_clears_UI_real_progress_and_practice_submit201_work_retry_recovers",
+        "real_unpublish_failed_rebuild_never_leaks_then_empty_corpus_revision",
+        "delayed_real_HTTP_response_discarded_after_question_change",
+        "390px_mobile_no_document_overflow",
+        "real_001_membership_revocation_HTTP404_clears_and_disables_query",
+        "SQLite_query_owner_raw_similarity_revision_algorithm_records_and_FK_integrity"
+      ],
+      "page_errors": [],
+      "result": "passed"
+    }
+  ],
+  "result": "passed"
+}

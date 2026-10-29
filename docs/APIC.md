@@ -125,6 +125,26 @@ Knowledge列表、创建、更新和详情共享字段：`id,chapter_id,title,co
 
 如组长选择显式注册`app.extensions['course_security']`，需实现`current_user_id()`、`verify_write_request()`及`verify_transaction(connection,user)`三个方法；缺少事务内会话复核拒绝503。此内部适配点已按develop f242d2b接入并通过受控真实API测试；不能把测试替身注册到运行应用。已接入但未登录401，模块迁移不存在/校验失败503。005不改001业务逻辑。
 
+### 3.2 SPEC-005图文增量提案（2026-10-20，待复核/实施）
+
+本节是黄俊诚提出的具体对接方案，**尚未生效或实现**；当前写字段仍为§3.1，未知`images`仍400，HTML仍删除img/链接/全部属性。PRD§4的图文增量和DBD§3的拟议关系须配套复核。003仍缺PNG/JPEG上传，不能凭content支持image MIME就宣称依赖已满足。实际探针与分工见[SPEC-005图文准备](SPEC-005_IMAGE_CONTRACT.md)。涉及API/数据库/权限的合入须按README取得两名真实非作者复核，不伪造已协商结论。
+
+**003提供的最小增量（石佰合）**：沿用`kind=guide`，增加精确MIME `image/png`、`image/jpeg`，不新增资源kind或借用016上传。图片最多5 MiB、宽高各1—4096、单帧；校验签名、声明MIME和完整解码结果一致，拒绝空/截断、伪装HTML/SVG/GIF/WebP及动画，不只信文件名/请求MIME。超大小413，格式/解码/尺寸不符415；原有PDF/PPT/视频/JSON限制保持。新图片资源默认`teacher_only`，教师经现有PATCH显式设为`students`；添加图片新版本不得改变资源当前visibility。固定版本保留原上传字节，返回sha256对应实际保存字节，不静默转码。该策略须由003确认其解码安全性及限额验证，不以本轮2×3合成探针代替恶意文件测试。
+
+ResourceVersion及资源列表的最新版本元数据拟增加`media_type`；图片另含`width,height`，非图片为null。不得返回storage_key/物理路径/永久文件URL。仍通过原`POST /courses/{id}/resources`、`POST /resources/{id}/versions`及当前权限的版本列表获取固定ID；005编辑器仅选本课guide图片，不能只保存latest或file_id。003还需提供下述同事务的内部内容服务及PATCH资源的`archived:bool`（不删版本；归档后任何角色内容404；恢复须显式取消归档）。现有已发布备课对权限收紧的409保护保持，不把knowledge引用纳入阻止紧急撤权的列表。
+
+**005保存模型（黄俊诚，依赖上项）**：创建/更新追加`images`，有序数组最多20项，每项严格为`{resource_version_id:正JSON整数,placement:"content"|"example",alt:1—200字符,caption?:0—500字符}`。ID拒绝bool/字符串/浮点/越界；alt/caption去首尾空白后按Unicode字符数校验，以纯文本显示，任何标签都不能成为DOM属性。同一知识不重复引用同版本；数组整体替换，创建缺省[]，PATCH省略保留、[]清空。`content`/`example`继续为§3.1的安全HTML，正文仍必填；各图片组依数组顺序接在对应正文/例题之后，不支持任意文中URL或img属性。非法形状/重复/超限400，整批拒绝，不写部分知识或关系。
+
+保存前在005已有短写事务内复核当前教师/课程权限；新增或整体替换引用须每项为本课、未归档guide的PNG/JPEG固定版本。草稿允许本课teacher_only图片；发布或修改已发布项的images时全部图片必须当前`students`且可用，否则409 `KNOWLEDGE_IMAGE_UNAVAILABLE`。跨课/不存在/不可引用版本统一404，不回显他课元数据。已存在失效引用不阻止只改标题、正文、例题或下架；显式`published=true`始终重新检查全部引用。不得自动公开资源或自动换版本来使发布成功。权限不足的在课学生写已知字段403，非成员404；缺迁移/必要服务503，不返回伪成功。
+
+知识列表保持现行文本字段；创建/PATCH和详情在原字段外返回`images:[{position,placement,alt,caption,available,resource_version_id?}]`。position为保存数组的零基索引。详情按当前资源状态投影；学生不可访问时available=false且省略resource_version_id，显示通用“图片暂不可用”，不泄露teacher_only资源标题/文件信息。教师仅在当前有资源权限时取得版本ID。失败不丢正文和学习状态；新版本上传不改变旧引用。images/顺序/文字元数据的实际变化与其他持久字段一起使content_revision只增1；相同数组和值重试不递增、不重复插入。新增知识POST尚无幂等键，本提案不承诺其网络重试去重；客户端失败保留草稿并核对列表后再新建，不自动重发POST。
+
+**005图片内容入口**：拟新增`GET /knowledge-points/{id}/images/{position}/content?intent=view&event_id=UUID`，HEAD同路径但不记事件。只接受这两个查询字段，intent必须view，拒绝外部URL、客户端file_id/version替换及未知参数400。先校验知识当前可见性、位置关系及资源同课/未归档/当前可见性，再复用003内部服务读取固定版本；下架/移除引用/成员撤权/资源权限收紧/归档/缺文件均404，登录失效401；解码策略拒绝的历史内容415。不重定向到裸存储。005不另写resource_event或复制003下载业务，003提供接收同一connection、当前user、固定version及intent/event_id的服务，由调用方控制事务提交；两层授权及事件去重检查在同一短事务完成，发流不持锁。文件打开失败不提交事件，写事件失败不返回内容；关闭文件句柄的所有异常路径须验证。
+
+两入口共用`resource_event`：UUID采用带连字符格式、大小写归一；同(user,event_id)同版本/intent顺序重试或并发Range只留1条，同ID异版本/intent409 `EVENT_CONFLICT`（并发亦一致，不能漏成500/泛化DATA_CONFLICT）。先复核当前权限再查重，撤权后的旧ID也404；新事件只在准备发送非空200/206时入库，HEAD/304/416/错误不新增。返回受保护内容`Cache-Control: private, no-store`及nosniff；005入口不因缓存协商跳过授权。事件代表提供内容，不代表阅读完成；多图各有逻辑UUID，同次失败重试保留UUID，重新打开详情生成新UUID，不把重渲染自动算成新访问。
+
+005前端通过同源受保护请求取得Blob，检查实际Content-Type仅PNG/JPEG，再生成短期object URL供固定img节点使用；alt/caption为Vue文本绑定，禁止写入innerHTML。切知识/切课/关闭/401/404/卸载释放object URL、清除旧图；权限错误不给自动重试，网络/503显式重试复用原UUID。重新打开/恢复页面/重新登录必须重读知识及图片权限。已经交付到浏览器或下载到本机的字节无法追回；撤回知识关闭的是知识入口，独立公开的003资源仍按自己的当前visibility提供访问，不能承诺同时私有化该资源。
+
 ## 4 习题课堂接口 SPEC-006—008
 
 Question写模型：type枚举single/multiple/boolean/numeric/short，stem非空，options为有序{key,text}数组（选择题2—8项），answer与学生value的类型按下表严格区分，tolerance为数值题非负容差默认0，explanation为文本，difficulty取easy/medium/hard，knowledge_ids非空ID数组，practice_available为布尔且默认false。学生读取版本始终删除answer/explanation，允许讲评后才返回。题目编辑产生版本，已发布试卷引用旧版本。
