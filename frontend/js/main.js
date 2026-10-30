@@ -15,6 +15,9 @@ import { DemoView } from './demo-view.js'
 import { KnowledgeGraphView } from './knowledge-graph-view.js'
 import { RecognitionView } from './recognition-view.js'
 import { WarningView } from './warning-view.js'
+import { PreparationView } from './preparation-view.js'
+import { WiringView } from './wiring-view.js'
+import { WiringStatsView } from './wiring-stats-view.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
@@ -30,9 +33,12 @@ import '../styles/demos.css'
 import '../styles/graph.css'
 import '../styles/recognition.css'
 import '../styles/warnings.css'
+import '../styles/preparations.css'
+import '../styles/wiring.css'
+import '../styles/wiring-stats.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, KnowledgeGraphView, RecognitionView, WarningView },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView },
   setup() {
     const user = ref(null)
     const practiceEntry = ref(null)
@@ -579,6 +585,7 @@ createApp({
         <knowledge-graph-view v-if="user.role !== 'admin'" :key="'graph:' + user.id + ':' + user.role" :user="user" />
         <QAView :key="'qa:' + user.id + ':' + user.role" :user="user" />
         <ResourceView v-if="user.role !== 'admin'" :key="'resources:' + user.id + ':' + user.role" />
+        <PreparationView v-if="user.role !== 'admin'" :key="'preparations:' + user.id + ':' + user.role" :user="user" />
         </template>
 
         <template v-if="tab === 'exam' && user.role !== 'admin'">
@@ -595,6 +602,7 @@ createApp({
         <ExperimentView v-if="user.role !== 'admin'" :key="'experiments:' + user.id + ':' + user.role" :user="user" />
         <GradingView v-if="user.role !== 'admin'" :key="'grading:' + user.id + ':' + user.role" :user="user" />
         <RecognitionView :key="'recog:' + user.id" :user="user" />
+        <WiringView v-if="user.role !== 'admin'" :key="'wiring:' + user.id + ':' + user.role" :user="user" />
         </template>
 
         <template v-if="tab === 'stats' && user.role !== 'admin' && courseId">
@@ -690,6 +698,7 @@ createApp({
         </section>
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />
         <WarningView :key="'warning:' + user.id" :user="user" />
+        <WiringStatsView v-if="user.role !== 'admin'" :key="'wiring-stats:' + user.id + ':' + user.role" :user="user" />
         </template>
       </template>
     </main>`,
