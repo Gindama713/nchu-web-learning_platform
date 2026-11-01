@@ -90,6 +90,12 @@ def create_task(course_id):
         task_id = cursor.lastrowid
         db.executemany("INSERT INTO attendance_participant(task_id,student_id) VALUES(?,?)",
                        [(task_id, row["user_id"]) for row in students])
+        # 座位随任务冻结：之后调整课程座位表不影响已发布任务的历史布局。
+        # 课程还没排座时这里为空，界面退回按名单列表显示。
+        db.execute("INSERT INTO attendance_seat(task_id,student_id,group_no,seat_no) "
+                   "SELECT ?,cs.student_id,cs.group_no,cs.seat_no FROM class_seat cs "
+                   "JOIN attendance_participant p ON p.task_id=? AND p.student_id=cs.student_id "
+                   "WHERE cs.course_id=?", (task_id, task_id, course_id))
         for row in students:
             notify(row["user_id"], course_id, title, "attendance_task", task_id, f"attendance.created:{task_id}")
         audit("attendance.create", "attendance_task", task_id, after={"course_id": course_id, "participants": len(students)})
@@ -152,6 +158,33 @@ def check_in(task_id):
     if invalid:
         raise ApiError(422, "INVALID_ATTENDANCE_CODE", "Invalid attendance code")
     return result(record_json(record), 201)
+
+
+@bp.get("/attendance-tasks/<int:task_id>/seats")
+def task_seats(task_id):
+    """课堂点到座位图：按班级分组返回每个座位的学生与实时状态。"""
+    task = task_for_user(task_id)
+    db = get_db()
+    rows = db.execute(
+        "SELECT s.student_id,s.group_no,s.seat_no,u.student_no,u.name,u.class_name,"
+        "r.status,r.checked_at FROM attendance_seat s "
+        "JOIN user u ON u.id=s.student_id "
+        "LEFT JOIN attendance_record r ON r.task_id=s.task_id AND r.student_id=s.student_id "
+        "WHERE s.task_id=? ORDER BY u.class_name,s.group_no,s.seat_no", (task_id,)).fetchall()
+    classes = {}
+    for row in rows:
+        bucket = classes.setdefault(row["class_name"] or "未分班", [])
+        bucket.append({"student_id": row["student_id"], "student_no": row["student_no"],
+                       "name": row["name"], "group_no": row["group_no"],
+                       "seat_no": row["seat_no"], "status": row["status"] or "pending",
+                       "checked_at": row["checked_at"]})
+    return result({
+        "task": task_json(task),
+        "classes": [{"class_name": name, "seats": seats} for name, seats in sorted(classes.items())],
+        "unseated": db.execute(
+            "SELECT COUNT(*) FROM attendance_participant p WHERE p.task_id=? AND p.student_id NOT IN "
+            "(SELECT student_id FROM attendance_seat WHERE task_id=?)", (task_id, task_id)).fetchone()[0],
+    })
 
 
 @bp.post("/attendance-tasks/<int:task_id>/close")

@@ -8,3 +8,5 @@
 .qa-excerpt { line-height: 1.85; white-space: pre-wrap; overflow-wrap: anywhere; }
 .qa-meta { font: .8rem Consolas, monospace; color: #576e79; overflow-wrap: anywhere; }
 .qa-source { border-left: 4px solid #126b70; padding: 6px 20px; margin-top: 24px; }
+
+.qa-loading { color: #60718a; font-size: .9rem; margin: 10px 0 0; }

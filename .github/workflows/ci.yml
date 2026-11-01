@@ -24,7 +24,7 @@ jobs:
           if [[ "$BASE" == main ]]; then
             [[ "$HEAD" == release/* || "$HEAD" == hotfix/* ]]
           elif [[ "$BASE" == develop ]]; then
-            [[ "$HEAD" == feature/* || "$HEAD" == release/* || "$HEAD" == hotfix/* || "$HEAD" == backport/* ]]
+            [[ "$HEAD" == feature/* || "$HEAD" == docs/* || "$HEAD" == test/* || "$HEAD" == release/* || "$HEAD" == hotfix/* || "$HEAD" == backport/* ]]
           elif [[ "$BASE" == release/* ]]; then
             [[ "$HEAD" == release-fix/* || "$HEAD" == hotfix/* || "$HEAD" == backport/* ]]
           else
