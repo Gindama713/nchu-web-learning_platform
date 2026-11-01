@@ -31,7 +31,8 @@ const correlationNotes = {
 }
 const ratio = value => value === null || value === undefined ? '无数据' : `${(value * 100).toFixed(2)}%`
 const shown = (key, value) => ['mastery', 'progress', 'pass_rate', 'attendance_rate'].includes(key) ? ratio(value) : value === null || value === undefined
-  ? '无数据' : ['mean_score', 'mean_percentage', 'performance_mean_percentage'].includes(key) ? `${Number(value).toFixed(2)}%` : String(value)
+  ? '无数据' : ['mean_score', 'mean_percentage', 'performance_mean_percentage'].includes(key)
+    ? `${Number(value).toFixed(2)}${key === 'mean_score' ? ' 分' : '%'}` : String(value)
 const shanghaiFormat = new globalThis.Intl.DateTimeFormat('zh-CN', { timeZone: 'Asia/Shanghai',
   year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23' })
 const shanghaiTime = value => {
