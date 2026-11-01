@@ -2,6 +2,36 @@
 
 > 2026-10-16 C12c材料导航：当前合入、真实评审、两个矩阵版本及交付状态见[个人交付索引](C12C_DELIVERY_HUANG_JUNCHENG.md)和[本轮远程快照](evidence/c12c/entry-state.json)。下文各节保留原日期、SHA及当时事实；旧“未合入/待实现/最新”措辞按其历史范围阅读，不覆盖索引中的当前状态。完整SPEC仍未凭材料整理关闭。
 
+## 2026-10-28 C05a/C05b新基线验收补证（当前增量）
+
+本节优先于下方历史增量。基线为fetch后origin/develop `8e32fb41ab9453f8b4b4f8e7be86153a183b88dc`，从该提交新建`feature/spec-008-acceptance-evidence`；代码/测试干净tested `55167f6f1b04c91606e6e53fa5e7ca339b9cfcbe`，正式浏览器报告`working_tree_dirty=false`。只补008 C05自有链路的验证脚本、测试和证据，未改业务、迁移、鉴权、CI、001/006共享实现、003/004/005或队友模块；PR45保持open，未合并、未cherry-pick、未把其分支内容带入本包。
+
+### 本轮结论与补强
+
+- 定向后端48项通过（`tests.test_quizzes`15、`tests.test_quiz_analytics_integration`1、`tests.test_attempts`16、`tests.test_papers`16，113.238秒）；前端135项、lint/build通过；全仓ruff及`scripts/check_docs.py`通过。均为本机结果，不是远程CI或教师验收。
+- Chrome 155.0.8059.86与Edge 156.0.4314.50各10组真实HTTP/UI通过（共20组），`page_errors=[]`；使用真实001账号/课程/成员、真实005知识API、真实006题库/编卷/作答、真实008 quiz API和临时SQLite。服务器`TEST_NOW`只控制开始/截止/讲评窗口，网络故障只abort真实已提交响应；没有用替身业务数据冒充联调。[浏览器报告](evidence/spec-008/acceptance-20261028/browser-results.json)记录tested_head、双浏览器版本、各自开始/结束时间及服务器窗口。
+- 新增断言补齐：讲评入口无头/仅Origin/仅CSRF/异源+有效CSRF四组均403，只有同课教师带合法CSRF/Origin及空body或`{}`可成功；普通定时quiz在14:00调用review仍保留16:00`review_at`且答案不提前，16:00实际到点后才释放；截止未讲评时paper/attempt/错题均无`answer`/`explanation`，同question两个版本均不能练习（正常未开放409 `PRACTICE_UNAVAILABLE`，异常已开放数据被409 `QUESTION_RESERVED`拦截）；浏览器侧增加发布/开始前元数据无`items`、讲评前三个读取入口无`answer`/`explanation`、讲评后固定版本答案/解析释放、重复review保留首次时刻，以及元数据和作答态390px无横向溢出。
+- 截图：[Chrome统计](evidence/spec-008/acceptance-20261028/chrome-teacher-statistics.png)、[Chrome待批](evidence/spec-008/acceptance-20261028/chrome-student-pending.png)、[Chrome讲评](evidence/spec-008/acceptance-20261028/chrome-student-reviewed.png)，Edge同名`msedge-`三张；均为390px受控课程页面。
+
+### 覆盖对照
+
+| 核对项 | 本轮真实证据 |
+|---|---|
+| 专用发布仅draft quiz、跨课/非quiz/重复拒绝、review_at初始null、同事务冻结名单与通知去重、并发发布一份 | `test_publication_same_paper_null_review_and_frozen_notification_recipients`、`test_strict_fields_permissions_filters_and_cross_course`、`test_public_identity_rejected_and_notification_failure_rolls_back_publication`、`test_concurrent_publication_keeps_one_event_roster_and_notification`；浏览器发布零统计与名单2/通知原quiz |
+| 开始前仅元数据、start≤服务器now<end、截止拒新提交但成功键原201字节重放、转入不补名单、退出保留历史分母/答卷 | `test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot`、`test_new_submission_at_end_is_rejected_without_consuming_key`、`test_current_access_and_frozen_roster_precede_replay`、`test_window_boundaries_replay_exact_snapshot_after_deadline_and_review`；浏览器prestart无题目/无items、丢响应截止后原键重放 |
+| expected/submitted/missing、answered/unanswered、graded/pending、correct_count/correct_rate、mean_score、零计数选项、零分母null、漏答计错、简答率null、多选比例>1、待批不混已批均分、冻结名单分母 | `test_statistics_five_types_omissions_options_pending_and_frozen_population`、`test_statistics_only_short_no_objective_denominator_and_empty_roster`、`test_statistics_read_snapshot_survives_concurrent_manual_score`、`test_statistics_mean_does_not_overflow_for_valid_large_scores`、`test_real_dedicated_quiz_partial_missing_omitted_review_grade_old_ids_and_backup`；浏览器应交2/已交1/缺交1、漏答计入、简答null、多选200%、零计数与7.01批分 |
+| 显式讲评仅截止后、同课教师、CSRF/Origin、空body或`{}`、仅null设服务器now、重复/并发保留首次时刻且一次审计 | `test_review_exact_end_durable_repeat_and_all_answer_entries_release`、`test_review_permissions_strict_payload_and_ordinary_schedule_retained`、`test_review_failure_rolls_back_and_parallel_retries_audit_once`；浏览器UI讲评+直接API重复同时间、审计1条 |
+| 讲评前paper/attempt/错题及同question全部版本无答案/解析、不能练习；实际review_at后释放；普通定时quiz不提前/延后 | `test_closed_unreviewed_quiz_protects_all_versions_and_wrong_question_entry`、`test_review_exact_end_durable_repeat_and_all_answer_entries_release`、`test_review_permissions_strict_payload_and_ordinary_schedule_retained`；浏览器讲评前后API字段断言及页面答案/解析显示 |
+| 390px无横向溢出、Chrome+Edge、TEST_NOW仅控窗口 | 双浏览器各10组、`page_errors=[]`、元数据/作答/统计/待批/讲评截图及`documentElement.scrollWidth<=innerWidth`断言；报告记录服务器窗口06:57—06:58 UTC，实际运行06:56:03—06:56:33 UTC |
+
+### 提交与PR
+
+代码/测试提交`55167f6f1b04c91606e6e53fa5e7ca339b9cfcbe`，证据/记录提交`e5b1041502407d46423905844f392c040c9be122`，分支`feature/spec-008-acceptance-evidence`，base develop`8e32fb41ab9453f8b4b4f8e7be86153a183b88dc`。[PR #46](https://github.com/Gindama713/nchu-web-learning_platform/pull/46)为open/非draft/merged=false/reviews=[]；head`e5b1041`的CI [run40647129726](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/40647129726)已completed/success（ci-policy/ci-lint/ci-test/ci-build/ci-required全部success，ci-grader按develop规则skipped）。未实际合并、未发布；后续记录提交不改变浏览器tested_head`55167f6`。
+
+### 保留未关闭
+
+两名真实非作者复核（判分/答案保护/讲评属敏感改动）；R01（003题库资源/004备课）与R44跨模块仍阻断；003/004实际接缝、007演示/实验/电路完整UC-02、NF-PERF目标Linux4核8GB/50会话/真实worker、生产迁移/恢复及课堂教师验收均未执行；未取得教师验收结论，不把本地通过写成课程通过。
+
 ## 2026-10-16 R37定向接缝（当前增量）
 
 004/#20、003/#19、007/#21已合入develop，不再沿用下方C05历史的“004未就绪”作为当前判断。详见[004→008正式联调报告](SPEC-008_R37_INTEGRATION.md)。从核验后的develop dfb23271建立本人008后续feature，干净tested `7204a14054611ab6b68f4ebfae3fd1c6115d575d`；真实handler 8项中6通过、2项004契约预期失败（17.525秒），Chrome155.0.8059.41/Edge155.0.4283.45各5组通过、page_errors=[]、6图目视。

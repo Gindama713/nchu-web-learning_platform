@@ -191,7 +191,8 @@ def main():
                         page = context.new_page()
                         page.on('pageerror', lambda error: report['page_errors'].append(type(error).__name__))
                         login(page, 'B006TEACH', password)
-                        bank = page.locator('.paper-bank')
+                        bank = page.locator('.paper-bank').filter(
+                            has=page.get_by_role('heading', name='课程试卷', exact=True))
                         expect(bank.get_by_text('正在加载或保存试卷…')).to_have_count(0)
                         if args.knowledge_fixture:
                             check_publication(app, password, page, context, bank, course_id, at, entry['checks'], args.output, channel)
