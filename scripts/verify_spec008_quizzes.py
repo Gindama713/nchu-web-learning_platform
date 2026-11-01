@@ -39,7 +39,13 @@ def screenshot(page, locator, output, name):
     page.set_viewport_size({'width': 1440, 'height': 1000})
 
 
-def full(app, password, browser, page, context, course_id, at, output, channel, checks):
+def assert_no_overflow(page):
+    page.set_viewport_size({'width': 390, 'height': 844})
+    assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
+    page.set_viewport_size({'width': 1440, 'height': 1000})
+
+
+def full(app, password, browser, page, context, course_id, at, output, channel, checks, entry):
     extra = browser.new_context()
     try:
         response = extra.request.post(ORIGIN+'/api/v1/auth/register', data={
@@ -68,6 +74,7 @@ def full(app, password, browser, page, context, course_id, at, output, channel, 
     expect(bank.get_by_role('heading', name='设置窗口并发布')).to_be_visible()
     paper_id = context.request.get(ORIGIN+f'/api/v1/courses/{course_id}/quizzes').json()['data'][0]['id']
     start, end = at+timedelta(minutes=1), at+timedelta(minutes=2)
+    entry['server_window'] = {'start_at': start.isoformat(), 'end_at': end.isoformat()}
     for value, label in ((start, '试卷开始'), (end, '试卷截止')):
         bank.get_by_label(label, exact=True).fill(value.astimezone(timezone(timedelta(hours=8))).strftime('%Y-%m-%dT%H:%M'))
     expect(bank.get_by_label('试卷讲评', exact=True)).to_have_count(0)
@@ -80,6 +87,8 @@ def full(app, password, browser, page, context, course_id, at, output, channel, 
     expect(stats.get_by_role('button', name='发布讲评并开放答案')).to_be_disabled()
     expect(stats.get_by_text('A · 选项甲：0 人 · —', exact=True)).to_have_count(2)
     checks.append('real_knowledge_five_type_ui_draft_publication_zero_statistics_and_null_rates')
+    metadata = context.request.get(ORIGIN+f'/api/v1/courses/{course_id}/quizzes').json()['data'][0]
+    assert (metadata['id'], metadata['review_at'], 'items' in metadata) == (paper_id, None, False)
     write(context, 'PATCH', f"/questions/{questions[0]['id']}", {'stem': '后续题目新版', 'answer': 'B'})
     page.get_by_role('button', name='退出', exact=True).click()
     login(page, 'B006STUD1', password)
@@ -88,6 +97,9 @@ def full(app, password, browser, page, context, course_id, at, output, channel, 
     expect(bank.get_by_text('试卷尚未开始，开始后可查看题目。')).to_be_visible()
     expect(bank.locator('.attempt-answer-form')).to_have_count(0)
     expect(bank.locator('.quiz-statistics')).to_have_count(0)
+    prestart = context.request.get(ORIGIN+f'/api/v1/papers/{paper_id}').json()['data']
+    assert prestart['window_state'] == 'upcoming' and 'items' not in prestart
+    assert_no_overflow(page)
     checks.append('real_notification_original_quiz_prestart_metadata_no_questions_or_teacher_controls')
     app.config['TEST_NOW'] = start
     bank = open_quiz(page, paper_id, '进行中')
@@ -95,6 +107,7 @@ def full(app, password, browser, page, context, course_id, at, output, channel, 
     expect(form).to_be_visible()
     expect(form.get_by_text('C05第1题', exact=True)).to_be_visible()
     expect(bank.get_by_text('后续题目新版', exact=True)).to_have_count(0)
+    assert_no_overflow(page)
     form.get_by_label('第 1 题作答 选项乙', exact=True).check()
     for option in ('选项甲', '选项乙'):
         form.get_by_label('第 2 题作答 '+option, exact=True).check()
@@ -123,8 +136,15 @@ def full(app, password, browser, page, context, course_id, at, output, channel, 
     expect(bank.get_by_text('讲评后解析', exact=True)).to_have_count(0)
     screenshot(page, bank.locator('.attempt-result'), output, f'{channel}-student-pending.png')
     checks.append('fixed_versions_false_multiple_omitted_numeric_pending_short_and_deadline_original_key_byte_replay')
+    attempt_id = json.loads(lost['bytes'])['data']['id']
+    paper_detail = context.request.get(ORIGIN+f'/api/v1/papers/{paper_id}').json()['data']
+    assert all('answer' not in item and 'explanation' not in item for item in paper_detail['items'])
+    attempt_detail = context.request.get(ORIGIN+f'/api/v1/attempts/{attempt_id}').json()['data']
+    assert all('answer' not in answer and 'explanation' not in answer for answer in attempt_detail['answers'])
+    assert_no_overflow(page)
     wrong = context.request.get(ORIGIN+'/api/v1/users/me/wrong-questions').json()['data'][0]
-    assert wrong['answer_visible'] is False and 'answer' not in wrong
+    assert wrong['answer_visible'] is False and 'answer' not in wrong and 'explanation' not in wrong
+    checks.append('pre_review_paper_attempt_wrong_without_answer_or_explanation_and_390px')
     page.get_by_role('button', name='退出', exact=True).click()
     login(page, 'B006TEACH', password)
     bank = open_quiz(page, paper_id, '已截止')
@@ -158,6 +178,7 @@ def full(app, password, browser, page, context, course_id, at, output, channel, 
     expect(bank.get_by_role('button', name='发布讲评并开放答案')).to_have_count(0)
     review_at = write(context, 'POST', f'/quizzes/{paper_id}/review', {})['data']['review_published_at']
     assert review_at == end.isoformat(timespec='milliseconds').replace('+00:00', 'Z')
+    assert write(context, 'POST', f'/quizzes/{paper_id}/review', {})['data']['review_published_at'] == review_at
     with closing(connect(app.config['DATABASE_PATH'])) as db:
         assert db.execute('SELECT count(*) FROM attempt').fetchone()[0] == 1
         assert db.execute("SELECT count(*) FROM audit_event WHERE action='quiz.review'").fetchone()[0] == 1
@@ -171,11 +192,14 @@ def full(app, password, browser, page, context, course_id, at, output, channel, 
     expect(bank.locator('.attempt-result').get_by_text('解析：讲评后解析', exact=True)).to_have_count(5)
     expect(bank.locator('.quiz-statistics')).to_have_count(0)
     screenshot(page, bank.locator('.attempt-result'), output, f'{channel}-student-reviewed.png')
+    reviewed_paper = context.request.get(ORIGIN+f'/api/v1/papers/{paper_id}').json()['data']
+    assert all('answer' in item and 'explanation' in item for item in reviewed_paper['items'])
+    checks.append('reviewed_paper_exposes_fixed_answer_and_explanation')
     page.reload()
     bank = open_quiz(page, paper_id, '已截止')
     expect(bank.locator('.attempt-result').get_by_text('参考答案：教师参考', exact=True)).to_be_visible()
     wrong = context.request.get(ORIGIN+'/api/v1/users/me/wrong-questions').json()['data'][0]
-    assert wrong['answer_visible'] and wrong['answer'] == 'A'
+    assert wrong['answer_visible'] and wrong['answer'] == 'A' and wrong['explanation'] == '讲评后解析'
     checks.append('student_relogin_refresh_latest_score_fixed_answers_and_wrong_entry_release_390px')
 
 
@@ -198,10 +222,12 @@ def main():
                         context = browser.new_context(viewport={'width': 1440, 'height': 1000}, timezone_id='Asia/Shanghai')
                         page = context.new_page()
                         page.on('pageerror', lambda error: report['page_errors'].append(type(error).__name__))
-                        entry = {'channel': channel, 'version': browser.version, 'checks': []}
+                        entry = {'channel': channel, 'version': browser.version,
+                                 'started_at': datetime.now(UTC).isoformat(), 'checks': []}
                         report['browsers'].append(entry)
                         login(page, 'B006TEACH', password)
-                        full(app, password, browser, page, context, course_id, at, args.output, channel, entry['checks'])
+                        full(app, password, browser, page, context, course_id, at, args.output, channel, entry['checks'], entry)
+                        entry['finished_at'] = datetime.now(UTC).isoformat()
                         assert not report['page_errors']
                         context.close()
                     finally:
