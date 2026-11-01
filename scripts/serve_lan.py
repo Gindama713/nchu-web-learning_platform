@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+# ruff: noqa: UP031  — 报表行以 % 拼接更直观，无需转 f-string
 import argparse
 import json
 import os
@@ -61,7 +62,7 @@ def fetch(url, timeout=5):
             return response.status, body, (time.perf_counter() - started) * 1000
     except urllib.error.HTTPError as failure:
         return failure.code, failure.read().decode("utf-8", "replace"), (time.perf_counter() - started) * 1000
-    except Exception as failure:
+    except Exception as failure:  # noqa: BLE001 — 连接失败/超时都要在自检里显示出来
         return 0, str(failure), (time.perf_counter() - started) * 1000
 
 
@@ -76,7 +77,7 @@ def wait_ready(url, seconds=40):
 
 
 def run_checks(base):
-    print("\n自检 %s" % base)
+    print(f"\n自检 {base}")
     print("-" * 68)
     ok = True
     for label, path in CHECKS:
@@ -86,12 +87,12 @@ def run_checks(base):
             try:
                 data = json.loads(body).get("data")
                 if path == "/who" and isinstance(data, dict):
-                    detail = "%s %s" % (data.get("class_name"), data.get("group_no"))
+                    detail = "{} {}".format(data.get("class_name"), data.get("group_no"))
                 elif path == "/help" and isinstance(data, dict):
-                    detail = "%s 模块 / %s 接口" % (data.get("counts", {}).get("modules"),
+                    detail = "{} 模块 / {} 接口".format(data.get("counts", {}).get("modules"),
                                                 data.get("counts", {}).get("endpoints"))
                 elif isinstance(data, dict):
-                    detail = "%s = %s" % (data.get("expression"), data.get("decimal_result"))
+                    detail = "{} = {}".format(data.get("expression"), data.get("decimal_result"))
             except json.JSONDecodeError:
                 detail = "返回不是 JSON"
         else:
@@ -162,8 +163,8 @@ def main(argv=None):
     ip = lan_ip()
     base = args.base or ("http://%s:%d" % (ip, WEB_PORT))
 
-    print("本机局域网地址：%s" % ip)
-    print("互测方填这个：%s" % base)
+    print(f"本机局域网地址：{ip}")
+    print(f"互测方填这个：{base}")
     print("后端：http://%s:%d  前端：http://%s:%d" % (ip, API_PORT, ip, WEB_PORT))
 
     if args.check:
@@ -177,7 +178,7 @@ def main(argv=None):
         if not wait_ready(base + "/"):
             print("前端 40 秒内没有起来，检查 frontend/node_modules 是否存在")
             return 1
-        ok = run_checks(base)
+        run_checks(base)
         print("\nCtrl+C 结束服务。互测期间不要关这个窗口。")
         while True:
             time.sleep(1)

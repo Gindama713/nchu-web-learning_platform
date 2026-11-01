@@ -17,6 +17,7 @@
 
 from __future__ import annotations
 
+# ruff: noqa: UP031  — 报表行以 % 拼接更直观，无需转 f-string
 import argparse
 import http.cookiejar
 import json
@@ -92,7 +93,7 @@ class Peer:
         except urllib.error.HTTPError as failure:
             status = failure.code
             raw = failure.read().decode("utf-8", "replace")
-        except Exception as failure:  # 连不上、超时、DNS
+        except Exception as failure:  # noqa: BLE001 — 连不上、超时、DNS 都要收成一条测试记录
             raw = json.dumps({"transport": str(failure)}, ensure_ascii=False)
         elapsed = (time.perf_counter() - started) * 1000
 
@@ -214,9 +215,9 @@ def run_scenario(base, teacher, student, want_checkin=True):
         problems.append("关闭任务失败")
     if want_checkin and "checkin" in steps and not steps["checkin"]["result"].ok:
         problems.append("学生签到失败")
-    if want_checkin and steps.get("checkin_bad_code", {}).get("result") is not None:
-        if steps["checkin_bad_code"]["result"].status not in (422,):
-            problems.append("错误点到码未按 422 拒绝")
+    bad_code = steps.get("checkin_bad_code", {}).get("result")
+    if want_checkin and bad_code is not None and bad_code.status not in (422,):
+        problems.append("错误点到码未按 422 拒绝")
 
     return {"base": base, "steps": steps, "trace": peer.trace,
             "verdict": "通过" if not problems else "；".join(problems)}
@@ -233,8 +234,8 @@ def to_markdown(scenarios, started):
     lines = [
         "# 第10周 大作业互测报告",
         "",
-        "- 测试方：%s（计算机组成原理组）" % GROUP,
-        "- 测试时间：%s" % started,
+        f"- 测试方：{GROUP}（计算机组成原理组）",
+        f"- 测试时间：{started}",
         "- 被测组数量：%d" % len(scenarios),
         "",
         "## 1 汇总",
@@ -244,7 +245,7 @@ def to_markdown(scenarios, started):
     ]
     for index, item in enumerate(scenarios, 1):
         counts = item["steps"].get("close_task", {}).get("detail", {}).get("counts") or {}
-        stat = "/".join("%s=%s" % (key, counts.get(key, "?"))
+        stat = "/".join("{}={}".format(key, counts.get(key, "?"))
                         for key in ("present", "late", "leave", "absent")) if counts else "—"
         lines.append("| %d | %s | %s | %s | %s | %s | %s | %s | %s |" % (
             index, item["base"],
@@ -260,31 +261,31 @@ def to_markdown(scenarios, started):
         lines.append("")
         who = item["steps"].get("who", {}).get("detail")
         if isinstance(who, dict):
-            lines.append("- 小组信息：%s %s，组长 %s，成员 %s 人" % (
+            lines.append("- 小组信息：{} {}，组长 {}，成员 {} 人".format(
                 who.get("class_name", "?"), who.get("group_no", "?"),
                 (who.get("leader") or {}).get("name", "?"), who.get("member_count", "?")))
         else:
             lines.append("- 小组信息：无法解析 /who 响应")
         help_detail = item["steps"].get("help", {}).get("detail") or {}
-        lines.append("- 接口清单：%s 个模块，%s 条接口" % (
+        lines.append("- 接口清单：{} 个模块，{} 条接口".format(
             help_detail.get("modules", "?"), help_detail.get("endpoints", "?")))
         task = item["steps"].get("create_task", {}).get("detail") or {}
         if task.get("task_id"):
-            lines.append("- 点到任务：#%s，码 %s，状态 %s" % (
+            lines.append("- 点到任务：#{}，码 {}，状态 {}".format(
                 task.get("task_id"), task.get("code"), task.get("status")))
         repeat = item["steps"].get("checkin_repeat", {}).get("detail")
         if repeat:
-            lines.append("- 重复点到：%s" % json.dumps(repeat.get("实际"), ensure_ascii=False))
+            lines.append("- 重复点到：{}".format(json.dumps(repeat.get("实际"), ensure_ascii=False)))
         bad = item["steps"].get("checkin_bad_code", {}).get("detail")
         if bad:
-            lines.append("- 错误码：期望 %s，实际 %s" % (bad.get("期望"), bad.get("实际")))
+            lines.append("- 错误码：期望 {}，实际 {}".format(bad.get("期望"), bad.get("实际")))
         lines.append("")
         lines.append("访问过程：")
         lines.append("")
         lines.append("| 时间 | 账号 | 方法 | 路径 | 状态 | 耗时(ms) |")
         lines.append("|---|---|---|---|---|---|")
         for row in sorted(item["trace"], key=lambda entry: entry["at"]):
-            lines.append("| %s | %s | %s | %s | %s | %s |" % (
+            lines.append("| {} | {} | {} | {} | {} | {} |".format(
                 row["at"], row.get("actor", "—"), row["method"], row["path"],
                 row["status"], row["ms"]))
     lines.append("")
@@ -294,7 +295,7 @@ def to_markdown(scenarios, started):
     lines.append("- 通过 %d / %d 组。" % (len(passed), len(scenarios)))
     failed = [item for item in scenarios if item["verdict"] != "通过"]
     for item in failed:
-        lines.append("- %s：%s" % (item["base"], item["verdict"]))
+        lines.append("- {}：{}".format(item["base"], item["verdict"]))
     return "\n".join(lines) + "\n"
 
 
@@ -324,7 +325,7 @@ def main(argv=None):
 
     scenarios = []
     for base in targets:
-        print("→ 正在测试 %s" % base, flush=True)
+        print(f"→ 正在测试 {base}", flush=True)
         scenarios.append(run_scenario(base, teacher, student, want_checkin=bool(args.student)))
 
     report = to_markdown(scenarios, started)
@@ -344,10 +345,10 @@ def main(argv=None):
                                    for item in scenarios]},
                               ensure_ascii=False, indent=2), encoding="utf-8")
 
-    print("报告已写入 %s" % out)
-    print("原始日志已写入 %s" % raw)
+    print(f"报告已写入 {out}")
+    print(f"原始日志已写入 {raw}")
     for item in scenarios:
-        print("  %s -> %s" % (item["base"], item["verdict"]))
+        print("  {} -> {}".format(item["base"], item["verdict"]))
     return 0 if all(item["verdict"] == "通过" for item in scenarios) else 1
 
 

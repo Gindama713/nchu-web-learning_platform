@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+# ruff: noqa: UP031  — 报表行以 % 拼接更直观，无需转 f-string
 import argparse
 import sqlite3
 import sys
@@ -29,7 +30,7 @@ def local_time(value):
     if not value:
         return "—"
     try:
-        moment = datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone()
+        moment = datetime.fromisoformat(value).astimezone()
         return moment.strftime("%Y-%m-%d %H:%M:%S")
     except ValueError:
         return value
@@ -49,10 +50,10 @@ def build_log(path):
             "# 第10周 用户访问日志记录",
             "",
             "- 小组：g24201710（计算机组成原理组，242017 班）",
-            "- 导出时间：%s" % local_time(stamp()),
-            "- 日志区间：%s — %s" % (local_time(first), local_time(last)),
-            "- 统计口径：`access_log` 表按每次 HTTP 请求记一条，含登录前的匿名请求；"
-            "导出脚本为 `scripts/export_week10_docs.py`，可用 `python scripts/export_week10_docs.py` 复现。",
+            f"- 导出时间：{local_time(stamp())}",
+            f"- 日志区间：{local_time(first)} — {local_time(last)}",
+            ("- 统计口径：`access_log` 表按每次 HTTP 请求记一条，含登录前的匿名请求；"
+            "导出脚本为 `scripts/export_week10_docs.py`，可用 `python scripts/export_week10_docs.py` 复现。"),
             "",
             "## 1 概览",
             "",
@@ -113,7 +114,7 @@ def build_report(path, course_title=None):
         if course_title:
             course = db.execute("SELECT id FROM course WHERE title=?", (course_title,)).fetchone()
             if course is None:
-                raise SystemExit("找不到课程：%s" % course_title)
+                raise SystemExit(f"找不到课程：{course_title}")
             tasks = db.execute("SELECT * FROM attendance_task WHERE course_id=? ORDER BY id DESC",
                                (course["id"],)).fetchall()
         else:
@@ -122,9 +123,9 @@ def build_report(path, course_title=None):
             "# 第10周 本组系统生成的点到结果",
             "",
             "- 小组：g24201710（计算机组成原理组，242017 班）",
-            "- 导出时间：%s" % local_time(stamp()),
-            "- 统计口径：按点到任务统计冻结参与人的四种状态；关闭任务时未签到者自动记缺勤。"
-            "座位按课程座位表的「班级-组号-座号」冻结进任务。",
+            f"- 导出时间：{local_time(stamp())}",
+            ("- 统计口径：按点到任务统计冻结参与人的四种状态；关闭任务时未签到者自动记缺勤。"
+            "座位按课程座位表的「班级-组号-座号」冻结进任务。"),
             "- 数据源：`attendance_task` / `attendance_participant` / `attendance_record` / `attendance_seat`。",
             "",
             "## 1 任务汇总",
@@ -172,8 +173,8 @@ def build_report(path, course_title=None):
                 lines += ["异常名单（非“已到”）：", "",
                           "| 班级 | 座位 | 学号 | 姓名 | 状态 | 签到时间 |", "|---|---|---|---|---|---|"]
                 for row in abnormal[:60]:
-                    seat = "%s-%s" % (row["group_no"], row["seat_no"]) if row["group_no"] else "未排座"
-                    lines.append("| %s | %s | %s | %s | %s | %s |" % (
+                    seat = "{}-{}".format(row["group_no"], row["seat_no"]) if row["group_no"] else "未排座"
+                    lines.append("| {} | {} | {} | {} | {} | {} |".format(
                         row["class_name"] or "未分班", seat, row["student_no"], row["name"],
                         STATUS_LABEL.get(row["status"] or "pending", row["status"]),
                         local_time(row["checked_at"])))
@@ -198,7 +199,7 @@ def main(argv=None):
 
     path = Path(args.db)
     if not path.exists():
-        print("数据库不存在：%s" % path, file=sys.stderr)
+        print(f"数据库不存在：{path}", file=sys.stderr)
         return 2
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -207,7 +208,7 @@ def main(argv=None):
     report_text = build_report(path, args.course or None)
     (out / "week10-server-log.md").write_text(log_text, encoding="utf-8", newline="\n")
     (out / "week10-server-report.md").write_text(report_text, encoding="utf-8", newline="\n")
-    print("已写入 %s 与 %s" % (out / "week10-server-log.md", out / "week10-server-report.md"))
+    print("已写入 {} 与 {}".format(out / "week10-server-log.md", out / "week10-server-report.md"))
     print("日志 %d 字，报告 %d 字" % (len(log_text), len(report_text)))
     return 0
 

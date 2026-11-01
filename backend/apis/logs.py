@@ -8,7 +8,7 @@
 import csv
 import io
 
-from flask import Blueprint, Response, g, request
+from flask import Blueprint, Response, current_app, g, request
 
 from backend.shared.api import ApiError, date_range, page_args, paged, result, stamp
 from backend.shared.auth import require_user
@@ -41,8 +41,8 @@ def write_access(status, duration_ms):
              request.method, path, status, request.headers.get("X-Forwarded-For", request.remote_addr),
              round(duration_ms, 1), stamp()))
         db.commit()
-    except Exception:  # 日志失败不能把业务请求带崩
-        pass
+    except Exception as failure:  # noqa: BLE001 — 日志失败绝不能把业务请求带崩
+        current_app.logger.debug("access log write failed: %s", failure)
 
 
 def _filtered():

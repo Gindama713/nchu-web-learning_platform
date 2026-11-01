@@ -75,11 +75,11 @@ GUIDES = [
     {
         "name": "登录与 CSRF",
         "points": [
-            "POST /api/v1/auth/login body={\"student_no\":\"teacher\",\"password\":\"teacher\"}，"
-            "成功后 Set-Cookie: cpu_session",
+            ("POST /api/v1/auth/login body={\"student_no\":\"teacher\",\"password\":\"teacher\"}，"
+            "成功后 Set-Cookie: cpu_session"),
             "响应 data.csrf_token 供后续写请求使用",
-            "POST/PATCH/PUT/DELETE 必须同时带上与站点来源完全一致的 Origin 头"
-            "（默认 http://127.0.0.1:5173）和 X-CSRF-Token 头，否则 403 CSRF_FAILED",
+            ("POST/PATCH/PUT/DELETE 必须同时带上与站点来源完全一致的 Origin 头"
+            "（默认 http://127.0.0.1:5173）和 X-CSRF-Token 头，否则 403 CSRF_FAILED"),
             "GET /api/v1/auth/session 读取当前用户；POST /api/v1/auth/logout 注销并返回 204",
             "登录限流：同一账号每分钟最多 5 次，超过返回 429",
         ],
@@ -88,14 +88,14 @@ GUIDES = [
         "name": "课堂点到（互测主流程）",
         "points": [
             "1. 教师登录后 GET /api/v1/courses 取课程 id",
-            "2. POST /api/v1/courses/{course_id}/attendance-tasks "
-            "body={title,start_at,late_at,end_at}，时间需带时区且 start_at<=late_at<=end_at，返回 201",
+            ("2. POST /api/v1/courses/{course_id}/attendance-tasks "
+            "body={title,start_at,late_at,end_at}，时间需带时区且 start_at<=late_at<=end_at，返回 201"),
             "3. 创建响应 data.code 为 6 位点到码；服务端只存哈希，仅在创建与轮换时各返回一次",
-            "4. 学生登录后 POST /api/v1/attendance-tasks/{task_id}/check-ins body={\"code\":\"123456\"} 返回 201；"
-            "start_at~late_at 记为 present，late_at~end_at 记为 late",
+            ("4. 学生登录后 POST /api/v1/attendance-tasks/{task_id}/check-ins body={\"code\":\"123456\"} 返回 201；"
+            "start_at~late_at 记为 present，late_at~end_at 记为 late"),
             "5. 重复点到不重复插记录，直接返回已有记录；码错误 422 INVALID_ATTENDANCE_CODE，窗口外 409 STATE_CONFLICT",
-            "6. POST /api/v1/attendance-tasks/{task_id}/close 返回 counts{present,late,leave,absent}，"
-            "未签到者自动补记 absent",
+            ("6. POST /api/v1/attendance-tasks/{task_id}/close 返回 counts{present,late,leave,absent}，"
+            "未签到者自动补记 absent"),
             "7. POST /api/v1/attendance-tasks/{task_id}/rotate-code 换新码，旧码立即失效，便于连续打多轮",
             "8. 明细统计：GET /api/v1/courses/{course_id}/attendance-records?task_id= 分页读取",
         ],

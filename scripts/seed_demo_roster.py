@@ -17,6 +17,7 @@
 
 from __future__ import annotations
 
+# ruff: noqa: UP031  — 报表行以 % 拼接更直观，无需转 f-string
 import argparse
 import random
 import sqlite3
@@ -192,7 +193,7 @@ def main(argv=None):
                 placed += 1
         print("座位：%d 个（课程 #%s）" % (placed, course_id))
         db.commit()
-        print("已写库：%s" % path)
+        print(f"已写库：{path}")
         return 0
     finally:
         db.close()

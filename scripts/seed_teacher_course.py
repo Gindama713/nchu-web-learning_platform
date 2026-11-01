@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+# ruff: noqa: UP031  — 报表行以 % 拼接更直观，无需转 f-string
 import argparse
 import sqlite3
 import sys
@@ -38,7 +39,7 @@ def main(argv=None):
 
     path = Path(args.db)
     if not path.exists():
-        print("数据库不存在：%s" % path, file=sys.stderr)
+        print(f"数据库不存在：{path}", file=sys.stderr)
         return 2
 
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -55,12 +56,12 @@ def main(argv=None):
                 "VALUES(?,?,?,'teacher',1,?,?)",
                 (TEACHER_NO, "任课教师", generate_password_hash(TEACHER_PASSWORD), timestamp, timestamp))
             teacher_id = cursor.lastrowid
-            print("已创建教师账号 %s / %s" % (TEACHER_NO, TEACHER_PASSWORD))
+            print(f"已创建教师账号 {TEACHER_NO} / {TEACHER_PASSWORD}")
         else:
             teacher_id = teacher["id"]
             db.execute("UPDATE user SET password_hash=?,role='teacher',active=1,updated_at=? WHERE id=?",
                        (generate_password_hash(TEACHER_PASSWORD), timestamp, teacher_id))
-            print("已确保教师账号 %s 可用，密码为 %s，角色 teacher" % (TEACHER_NO, TEACHER_PASSWORD))
+            print(f"已确保教师账号 {TEACHER_NO} 可用，密码为 {TEACHER_PASSWORD}，角色 teacher")
 
         course = db.execute("SELECT id,title FROM course WHERE teacher_id=? AND title=?",
                             (teacher_id, args.title)).fetchone()
@@ -69,10 +70,10 @@ def main(argv=None):
                 "INSERT INTO course(title,description,teacher_id,created_at,updated_at) VALUES(?,?,?,?,?)",
                 (args.title, args.description, teacher_id, timestamp, timestamp))
             course_id = cursor.lastrowid
-            print("已创建课程 #%s %s" % (course_id, args.title))
+            print(f"已创建课程 #{course_id} {args.title}")
         else:
             course_id = course["id"]
-            print("复用已有课程 #%s %s" % (course_id, args.title))
+            print(f"复用已有课程 #{course_id} {args.title}")
 
         db.execute("INSERT OR IGNORE INTO course_member(course_id,user_id,member_role,active,created_at,updated_at) "
                    "VALUES(?,?,'teacher',1,?,?)", (course_id, teacher_id, timestamp, timestamp))
@@ -96,7 +97,7 @@ def main(argv=None):
             print("--dry-run：已回滚，未写库")
         else:
             db.commit()
-            print("已写库：%s" % path)
+            print(f"已写库：{path}")
         return 0
     finally:
         db.close()

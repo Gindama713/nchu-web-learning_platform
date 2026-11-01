@@ -25,7 +25,7 @@ def course_json(row):
 
 def member_json(row):
     return {key: row[key] for key in ("user_id", "name", "student_no", "member_role", "active")} | {
-        "class_name": row["class_name"] if "class_name" in row.keys() else None}
+        "class_name": row.get("class_name", None)}
 
 
 @bp.get("/courses")
