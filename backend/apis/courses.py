@@ -24,7 +24,8 @@ def course_json(row):
 
 
 def member_json(row):
-    return {key: row[key] for key in ("user_id", "name", "student_no", "member_role", "active")}
+    return {key: row[key] for key in ("user_id", "name", "student_no", "member_role", "active")} | {
+        "class_name": row["class_name"] if "class_name" in row.keys() else None}
 
 
 @bp.get("/courses")
@@ -88,8 +89,8 @@ def list_members(course_id):
     source = " FROM course_member m JOIN user u ON u.id=m.user_id" + where
     db = get_db()
     total = db.execute("SELECT COUNT(*)" + source, params).fetchone()[0]
-    rows = db.execute("SELECT m.user_id,u.name,u.student_no,m.member_role,m.active" + source +
-                      " ORDER BY m.user_id LIMIT ? OFFSET ?", (*params, size, (page - 1) * size)).fetchall()
+    rows = db.execute("SELECT m.user_id,u.name,u.student_no,u.class_name,m.member_role,m.active" + source +
+                      " ORDER BY u.class_name,m.user_id LIMIT ? OFFSET ?", (*params, size, (page - 1) * size)).fetchall()
     return paged([member_json(row) for row in rows], total, page, size)
 
 
