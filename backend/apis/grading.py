@@ -7,6 +7,7 @@
 import hashlib
 import json
 from pathlib import Path
+from uuid import uuid4
 
 from flask import Blueprint, current_app, jsonify, request, send_file
 
@@ -101,13 +102,25 @@ def _save_circ(file_storage):
 
 
 def _persist_file(content, owner_id, purpose, filename):
-    """安全落盘（随机存储键，不使用上传文件名）；返回 file_object 字段。"""
-    from uuid import uuid4
+    """安全落盘（随机存储键，不使用上传文件名）；返回 file_object 字段。
+
+    使用 tmp → replace 原子写入：先写到临时文件，再 os.replace 切换到目标名，
+    避免崩溃时留下截断文件导致后续读取失败（resources.save_file 同此模式）。
+    """
     root = Path(current_app.config["UPLOAD_ROOT"])
     root.mkdir(parents=True, exist_ok=True)
     storage_key = uuid4().hex
     target = root / storage_key
-    target.write_bytes(content)
+    tmp = root / f".{storage_key}.tmp-{uuid4().hex[:8]}"
+    try:
+        tmp.write_bytes(content)
+        tmp.replace(target)
+    except BaseException:
+        try:
+            tmp.unlink()
+        except OSError:
+            pass
+        raise
     return {"storage_key": storage_key, "original_name": filename or storage_key,
             "media_type": "application/xml", "size_bytes": len(content),
             "sha256": hashlib.sha256(content).hexdigest(), "purpose": purpose}, target
@@ -695,6 +708,10 @@ def regrade_submission(submission_id):
         if active:
             raise ApiError(409, "STATE_CONFLICT", "A run is already active for this submission")
         profile = _profile_of(db, row["experiment_version_id"])
+        if profile is None:
+            raise ApiError(409, "STATE_CONFLICT",
+                           "Judge profile missing for this experiment version; "
+                           "cannot regrade without sandbox limits and engine identity")
         run_id = db.execute(
             "INSERT INTO grading_run(submission_id,suite_id,engine_version,jar_sha256,status,"
             "total_count,reason,profile_snapshot_json,profile_sha256,suite_sha256,created_at) "

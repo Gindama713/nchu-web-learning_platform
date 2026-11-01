@@ -1,0 +1,39 @@
+.graph-card { display: grid; gap: 6px; }
+.graph-canvas {
+  background: #ffffff;
+  border: 1px solid #e6edf6;
+  border-radius: 10px;
+  padding: 14px;
+  margin: 6px 0 10px;
+  overflow-x: auto;
+}
+.graph-stats { color: #60718a; font-size: .9rem; margin: 2px 0 6px; }
+.graph-node rect { transition: filter .12s ease; }
+.graph-node:hover rect { filter: brightness(.95); }
+.graph-node.root:hover rect { filter: brightness(1.1); }
+.graph-legend {
+  display: flex; flex-wrap: wrap; gap: 18px; align-items: center;
+  font-size: .85rem; color: #60718a; margin-bottom: 4px;
+}
+.graph-legend .sw {
+  display: inline-block; width: 14px; height: 10px; border-radius: 3px;
+  margin-right: 6px; vertical-align: middle;
+}
+.graph-legend .sw.found { background: #fff4d6; border: 1px solid #d18700; }
+.graph-legend .sw.done { background: #e6f6ea; border: 1px solid #2e7d4f; }
+.graph-legend .sw.line { height: 0; width: 20px; border-top: 2px solid #3a5f8f; border-radius: 0; }
+.graph-legend .sw.line.dashed { border-top-style: dashed; border-color: #9cabc0; }
+.graph-legend .sw.line.closure { border-top-style: dotted; border-color: #d7b26a; }
+.graph-warn { color: #8c5a00; }
+.graph-empty, .graph-hint { color: #60718a; font-size: .88rem; }
+.graph-hint { margin: 6px 0 0; }
+.graph-alert {
+  color: #8c2b20; background: #fdecea; border: 1px solid #f0b8b0;
+  padding: 10px 12px; border-radius: 8px; margin: 0;
+}
+.graph-notice {
+  color: #1c5c2e; background: #eaf7ee; border: 1px solid #b7ddc2;
+  padding: 10px 12px; border-radius: 8px; margin: 0;
+}
+.graph-editor { border-top: 1px solid #e1e7ee; margin-top: 12px; padding-top: 12px; }
+.graph-editor h3 { margin: 0 0 8px; font-size: 1rem; color: #173b6c; }

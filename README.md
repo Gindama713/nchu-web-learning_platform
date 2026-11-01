@@ -50,7 +50,7 @@ README 置于仓库根；docs/ 保留五份需求设计文档与实施证据；s
 
 配置项：APP_ENV、SECRET_KEY、DATABASE_PATH、UPLOAD_ROOT、GRADER_WORK_ROOT、LOGISIM_JAR_PATH、JAVA_PATH、GRADER_TIMEOUT_SECONDS（初始 10 秒）、GRADER_MEMORY_MB（初始 512 MiB）。SECRET_KEY 不得有公开生产默认值；示例配置只能放占位符。数据库及文件路径必须是服务端配置，不能取自用户请求。对外部署关闭调试模式，HTTPS 同源服务前端和 API。
 
-初始化必须使用迁移创建空库，再用 `admin-create` 交互命令创建首位管理员；随后由管理员授权教师、创建课程，学生自行注册并由教师加入课程。课程知识、实验与题库的可重复演示数据装载仍由相应模块实现；不在文档或源码写死真实密码，也不以假数据替代评分事实。
+初始化必须使用迁移创建空库，再用 `admin-create` 交互命令创建首位管理员；随后由管理员授权教师、创建课程，学生自行注册（默认密码为学号）并由教师加入课程。真实班级名单用 `scripts/seed_rosters.py` 幂等导入，CSV 放 `instance/rosters/` 且不进 Git；重复执行只更新姓名，不重复插入。课堂演示账号 `teacher/teacher` 与 `24200000/24200000` 由该脚本按需创建，只用于本地演示，正式部署前应改密码或停用；不在文档或源码写死任何真实用户密码，也不以假数据替代评分事实。
 
 ## 5 测试与质量门禁
 
@@ -67,6 +67,14 @@ SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数�
 生产发布从 main 的已验收版本生成不可变产物，记录提交 SHA、依赖锁文件、数据库版本、Logisim JAR 哈希和测试结果。Web 服务与 worker 分离启动；先迁移副本演练，再备份、迁移正式库、启动服务并冒烟。部署失败停止开放写入，按 CHG-RB 恢复。前端静态部署成功但评测 worker 不可用，不能判定整体部署成功。
 
 运行手册后续还须补充评测 worker 的启动/停止、备份位置、日志位置及故障定位步骤；不得将尚未实现的业务命令当成已验证操作。
+
+### 6.1 发布流程（当前实际状态）
+
+- **分支保护**：`develop` 与 `main` 均受保护。实测直推返回 `remote: error: GH006: Protected branch update failed`，并提示 `Changes must be made through a pull request` 与 `5 of 5 required status checks are expected`。
+- **合并路径**：`feature/*` → PR → `develop`；发布由 `develop` → `main` 的 PR 完成，不绕行。
+- **CI**：PR 上运行 `ci-policy`、`ci-lint`、`ci-test`、`ci-build` 四个作业，配置见 `.github/workflows/`。
+- **部署**：仓库内**没有**自动化部署脚本或容器镜像。课堂验收与演示使用本地 `npm run dev`（前端）加 Flask（后端），步骤见第 8 节；如需正式发布，按第 6 节手动生成不可变产物并记录提交 SHA、依赖锁文件、数据库版本与 JAR 哈希。
+- **未完成**：评测 worker 的独立启停脚本、备份与日志位置说明，仍按第 6 节标注为待补。
 
 ## 7 检查与提交
 
@@ -94,8 +102,11 @@ python -m venv .venv
 $env:DATABASE_PATH = 'instance/app.db'
 .\.venv\Scripts\python -m flask --app backend.app db-upgrade
 .\.venv\Scripts\python -m flask --app backend.app admin-create
+.\.venv\Scripts\python scripts\seed_rosters.py --database instance\app.db --rosters instance\rosters --reset-passwords roster
 .\.venv\Scripts\python -m flask --app backend.app run --host 127.0.0.1 --port 5000
 ```
+
+名单脚本读取 `class_name`/`班级`、`student_no`/`学号`、`name`/`姓名` 列；先校验全部行，再在单事务中按学号新增或更新。新学生默认密码为学号。已有演示学生首次统一重置时把 `--reset-passwords roster` 改为 `--reset-passwords all`；`--no-demo-accounts` 可跳过 `teacher` 和 `24200000` 演示账号。
 
 另开终端：
 
