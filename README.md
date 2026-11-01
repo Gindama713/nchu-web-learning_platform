@@ -50,7 +50,7 @@ README 置于仓库根；docs/ 保留五份需求设计文档与实施证据；s
 
 配置项：APP_ENV、SECRET_KEY、DATABASE_PATH、UPLOAD_ROOT、GRADER_WORK_ROOT、LOGISIM_JAR_PATH、JAVA_PATH、GRADER_TIMEOUT_SECONDS（初始 10 秒）、GRADER_MEMORY_MB（初始 512 MiB）。SECRET_KEY 不得有公开生产默认值；示例配置只能放占位符。数据库及文件路径必须是服务端配置，不能取自用户请求。对外部署关闭调试模式，HTTPS 同源服务前端和 API。
 
-初始化必须使用迁移创建空库，再用 `admin-create` 交互命令创建首位管理员；随后由管理员授权教师、创建课程，学生自行注册并由教师加入课程。课程知识、实验与题库的可重复演示数据装载仍由相应模块实现；不在文档或源码写死真实密码，也不以假数据替代评分事实。
+初始化必须使用迁移创建空库，再用 `admin-create` 交互命令创建首位管理员；随后由管理员授权教师、创建课程，学生自行注册（默认密码为学号）并由教师加入课程。真实班级名单用 `scripts/seed_rosters.py` 幂等导入，CSV 放 `instance/rosters/` 且不进 Git；重复执行只更新姓名，不重复插入。课堂演示账号 `teacher/teacher` 与 `24200000/24200000` 由该脚本按需创建，只用于本地演示，正式部署前应改密码或停用；不在文档或源码写死任何真实用户密码，也不以假数据替代评分事实。
 
 ## 5 测试与质量门禁
 
@@ -102,8 +102,11 @@ python -m venv .venv
 $env:DATABASE_PATH = 'instance/app.db'
 .\.venv\Scripts\python -m flask --app backend.app db-upgrade
 .\.venv\Scripts\python -m flask --app backend.app admin-create
+.\.venv\Scripts\python scripts\seed_rosters.py --database instance\app.db --rosters instance\rosters --reset-passwords roster
 .\.venv\Scripts\python -m flask --app backend.app run --host 127.0.0.1 --port 5000
 ```
+
+名单脚本读取 `class_name`/`班级`、`student_no`/`学号`、`name`/`姓名` 列；先校验全部行，再在单事务中按学号新增或更新。新学生默认密码为学号。已有演示学生首次统一重置时把 `--reset-passwords roster` 改为 `--reset-passwords all`；`--no-demo-accounts` 可跳过 `teacher` 和 `24200000` 演示账号。
 
 另开终端：
 

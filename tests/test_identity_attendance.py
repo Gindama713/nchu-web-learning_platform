@@ -120,6 +120,31 @@ class FlowTest(TestCase):
         response = self.call(self.admin, "PATCH", f"/api/v1/users/{admin_id}", {"active": False})
         self.assertEqual(response.status_code, 409)
 
+    def test_registration_without_password_uses_student_number(self):
+        response = self.call(self.student, "POST", "/api/v1/auth/register",
+                             {"student_no": "24209999", "name": "默认密码学生"})
+        self.assertEqual(response.status_code, 201, response.json)
+        login = self.call(self.student, "POST", "/api/v1/auth/login",
+                          {"student_no": "24209999", "password": "24209999"})
+        self.assertEqual(login.status_code, 200, login.json)
+        self.assertEqual(login.json["data"]["user"]["student_no"], "24209999")
+        wrong = self.call(self.other, "POST", "/api/v1/auth/login",
+                          {"student_no": "24209999", "password": "wrong-password"})
+        self.assertEqual(wrong.status_code, 401)
+
+    def test_demo_teacher_account_can_login(self):
+        db = connect(self.path)
+        try:
+            db.execute("INSERT INTO user(student_no,name,password_hash,role,active,created_at,updated_at) "
+                       "VALUES('teacher','演示教师',?,'teacher',1,?,?)",
+                       (generate_password_hash("teacher"), self.at.isoformat(), self.at.isoformat()))
+        finally:
+            db.close()
+        login = self.call(self.app.test_client(), "POST", "/api/v1/auth/login",
+                          {"student_no": "teacher", "password": "teacher"})
+        self.assertEqual(login.status_code, 200, login.json)
+        self.assertEqual(login.json["data"]["user"]["role"], "teacher")
+
     def test_uc01_leave_rejection_resubmission_close_and_correction(self):
         students = [self.student, self.other, self.app.test_client()]
         student_ids = [self.register(client, f"STUDENT0{index}")
