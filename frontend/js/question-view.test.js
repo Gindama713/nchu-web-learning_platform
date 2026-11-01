@@ -117,13 +117,13 @@ test('student has no teacher controls or reference answers and failed refresh cl
     answer: 'SECRET', explanation: 'HIDDEN' }]
   await find(root, 'button', '重新加载题库').props.onClick()
   await flush()
-  find(root, 'button', '#1 · v1 · Fixture question').props.onClick()
+  all(root).find(n => n.type === 'button' && content(n).startsWith('#1 · v1')).props.onClick()
   await flush()
   assert.equal(find(root, 'button', '新增题目'), undefined)
   assert.doesNotMatch(content(root), /SECRET|HIDDEN/)
   fixture.unavailable = true
   await find(root, 'button', '重新加载题库').props.onClick()
   await flush()
-  assert.equal(find(root, 'button', '#1 · v1 · Fixture question'), undefined)
+  assert.equal(all(root).find(n => n.type === 'button' && content(n).startsWith('#1 · v1')), undefined)
   assert.ok(find(root, 'button', '重试题库'))
 })

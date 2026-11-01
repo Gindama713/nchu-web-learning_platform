@@ -3,6 +3,8 @@
 import os
 import secrets
 import sqlite3
+import time
+from urllib.parse import urlparse
 
 import click
 from flask import Flask, g, jsonify, request
@@ -10,6 +12,7 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.security import generate_password_hash
 
 from backend.apis import (
+    alu,
     analytics,
     attempts,
     attendance,
@@ -18,6 +21,8 @@ from backend.apis import (
     experiments,
     grading,
     identity,
+    logs,
+    meta,
     papers,
     practices,
     preparations,
@@ -58,7 +63,7 @@ def create_app(config=None):
     app.teardown_appcontext(close_db)
     for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
                       recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp, quizzes.bp,
-                      resources.bp, experiments.bp, preparations.bp, demo.bp, wiring.bp,
+                      resources.bp, experiments.bp, preparations.bp, demo.bp, wiring.bp, alu.bp, logs.bp,
                       recommendations.bp, grading.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
     if not app.config.get("TESTING"):
@@ -66,13 +71,31 @@ def create_app(config=None):
         from backend.engines.grading import start_scanner
         start_scanner(app)
     app.register_blueprint(knowledge_blueprint)
+    # SPEC-019：/help 与 /who 按任务书挂在站点根路径，供互测方公开访问。
+    app.register_blueprint(meta.bp)
     app.extensions["qa_cache"] = IndexCache()
     app.register_blueprint(qa_blueprint)
 
     @app.before_request
+    def mark_start():
+        g.request_started = time.perf_counter()
+
+    def trusted_origin(origin):
+        """课堂部署时 IP 不固定，Origin 除白名单外，与本次请求 Host 同源也放行。
+
+        跨站页面发出的请求带的是它自己的 Origin，不会等于我们的 Host，
+        因此这条放宽不会削弱 CSRF 防护。
+        """
+        if not origin:
+            return False
+        if origin == app.config["APP_ORIGIN"]:
+            return True
+        return urlparse(origin).netloc == request.host
+
+    @app.before_request
     def protect_writes():
         if request.path.startswith("/api/v1/") and request.method in ("POST", "PATCH", "PUT", "DELETE"):
-            if request.headers.get("Origin") != app.config["APP_ORIGIN"]:
+            if not trusted_origin(request.headers.get("Origin")):
                 raise ApiError(403, "CSRF_FAILED", "Untrusted origin")
             if request.path not in ("/api/v1/auth/register", "/api/v1/auth/login"):
                 check_csrf()
@@ -84,6 +107,9 @@ def create_app(config=None):
         if getattr(g, "session_token", None) and not getattr(g, "logged_out", False):
             response.set_cookie(COOKIE, g.session_token, httponly=True,
                                 secure=app.config["COOKIE_SECURE"], samesite="Lax", path="/", max_age=7200)
+        started = getattr(g, "request_started", None)
+        logs.write_access(response.status_code,
+                          (time.perf_counter() - started) * 1000 if started else 0.0)
         return response
 
     @app.errorhandler(ApiError)

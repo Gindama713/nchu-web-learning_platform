@@ -1,0 +1,20 @@
+/* SPEC-004 preparation module styles (shared .card shell from main.css). */
+.preparation-module { min-width: 0; display: grid; gap: 14px; }
+.preparation-module .actions h2 { margin: 0 auto 0 0; }
+.preparation-module [role="alert"] { color: #922f25; }
+.preparation-module button:disabled { opacity: .55; cursor: wait; }
+.preparation-course { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.preparation-course label { min-width: 0; }
+.preparation-create h3 { width: 100%; margin: 0 0 4px; }
+.preparation-create label { min-width: 0; }
+.preparation-create select[multiple] { min-width: 180px; }
+.preparation-create small { width: 100%; }
+.preparation-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.preparation-actions details { display: inline-block; }
+.preparation-edit form { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin: 8px 0; min-width: 260px; }
+.preparation-edit label { min-width: 0; }
+.preparation-edit select[multiple] { min-width: 160px; }
+.preparation-publish { display: grid; gap: 8px; margin: 8px 0; min-width: 240px; }
+.preparation-quiz { margin: 0; padding-left: 16px; }
+.preparation-error p { margin: 4px 0 0; }
+.preparation-notice { color: #0f6b3a; }
