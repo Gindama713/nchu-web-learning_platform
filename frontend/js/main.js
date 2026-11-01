@@ -145,6 +145,7 @@ createApp({
     const draft = ref('[]')
     const secretCode = ref('')
     const auth = reactive({ student_no: '', name: '', password: '' })
+    const demoStudentNo = ref('')
     const courseForm = reactive({ title: '', teacher_id: '', retain_previous_teacher: false })
     const memberNo = ref('')
     const taskForm = reactive({ title: '', start_at: '', late_at: '', end_at: '' })
@@ -249,11 +250,24 @@ createApp({
     async function login() {
       await act(loginRequest, '登录成功。')
     }
+    function fillTeacher() {
+      auth.student_no = 'teacher'
+      auth.password = 'teacher'
+      message.value = '已填入教师账号 teacher，点击“登录”进入。'
+    }
+    function fillStudent() {
+      const number = demoStudentNo.value.trim() || '24200000'
+      auth.student_no = number
+      auth.password = number
+      message.value = `已填入学生账号 ${number}，密码与学号相同。`
+    }
     async function register() {
       await act(async () => {
-        await apiRequest('/api/v1/auth/register', 'POST', { ...auth })
+        const number = auth.student_no
+        await apiRequest('/api/v1/auth/register', 'POST', { student_no: number, name: auth.name })
+        auth.password = number
         await loginRequest()
-      }, '学生账号已注册。')
+      }, '学生账号已注册，默认密码为学号。')
     }
     async function logout() {
       await act(async () => {
@@ -492,6 +506,7 @@ createApp({
     onMounted(session)
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
+      demoStudentNo, fillTeacher, fillStudent,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
       leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect }
   },
@@ -500,12 +515,29 @@ createApp({
       <header :class="['hero', user && 'compact']"><p class="eyebrow">g24201710 · 计算机组成原理</p>
         <h1>中央处理器课程学习系统</h1><p role="status" aria-live="polite">{{ message }}</p>
         <button v-if="user" type="button" @click="logout">退出</button></header>
-      <section v-if="!user" class="card"><h2>登录 / 学生注册</h2>
-        <label>学号 <input v-model.trim="auth.student_no" minlength="8" maxlength="20" autocomplete="username"></label>
+      <section v-if="!user" class="card login-card"><h2>登录 / 学生注册</h2>
+        <label>学号 <input id="username" v-model.trim="auth.student_no" maxlength="20" autocomplete="username"></label>
         <label>姓名（注册填写） <input v-model.trim="auth.name" maxlength="50" autocomplete="name"></label>
-        <label>密码 <input v-model="auth.password" type="password" minlength="12" autocomplete="current-password"></label>
-        <div class="actions"><button type="button" @click="login">登录</button>
-          <button type="button" class="secondary" @click="register">注册学生账号</button></div></section>
+        <label>密码 <input id="password" v-model="auth.password" type="password" autocomplete="current-password"></label>
+        <div class="actions"><button id="login" type="button" @click="login">登录</button>
+          <button type="button" class="secondary" @click="register">注册学生账号</button></div>
+        <div class="login-demo">
+          <label>学生学号（一键填充用） <input id="student-no" v-model.trim="demoStudentNo" maxlength="20"
+            placeholder="留空使用 24200000"></label>
+          <div class="actions">
+            <button id="auto-fill-teacher" type="button" class="secondary" @click="fillTeacher">填入教师账号</button>
+            <button id="auto-fill-student" type="button" class="secondary" @click="fillStudent">填入学生账号</button>
+          </div>
+        </div>
+        <section class="login-guide" aria-labelledby="software-guide-title">
+          <h3 id="software-guide-title">《软件使用说明》</h3>
+          <ol>
+            <li>教师演示：点击“填入教师账号”，使用 teacher / teacher 登录。</li>
+            <li>学生演示：在“学生学号”填入学号（留空按 24200000），点击“填入学生账号”，密码与学号相同。</li>
+            <li>学生注册：填写学号与姓名后点击“注册学生账号”，默认密码就是学号；登录后可在“账号设置”修改。</li>
+            <li>四个班的真实名单由管理员运行名单导入脚本建立，重复导入不会产生重复账号。</li>
+          </ol>
+        </section></section>
       <template v-else>
         <nav class="tabbar" role="tablist" aria-label="功能分区">
           <button v-for="item in (user.role === 'admin' ? tabs.slice(0, 1) : tabs)" :key="item.id" type="button" role="tab"
