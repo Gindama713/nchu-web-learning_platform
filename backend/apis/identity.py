@@ -101,6 +101,9 @@ def login():
                     hashlib.sha256(csrf.encode()).hexdigest(), user["session_version"],
                     expires, timestamp, timestamp))
         audit("auth.login", "user", user["id"], actor_id=user["id"])
+        # 供访问日志记下本次登录的账号，避免登录请求本身在日志里是空用户
+        g.user = {"id": user["id"], "student_no": user["student_no"],
+                  "name": user["name"], "role": user["role"]}
     response = make_response(result({"user": public_user(user), "csrf_token": csrf})[0])
     response.set_cookie(COOKIE, token, httponly=True, secure=current_app.config["COOKIE_SECURE"],
                         samesite="Lax", path="/", max_age=7200)

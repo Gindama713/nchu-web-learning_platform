@@ -1,0 +1,127 @@
+/* SPEC-019 74181 + 7400 在线实验：位开关、LED 结果、16×16 全组合网格 */
+
+.alu-lab { display: grid; gap: 18px; }
+.alu-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: start; justify-content: space-between; }
+.alu-head h2 { margin: 0 0 6px; }
+.alu-lede { margin: 0; color: #60718a; font-size: .9rem; max-width: 70ch; }
+.alu-hint { color: #60718a; font-size: .86rem; margin: 0; }
+.alu-error { color: #b13434; background: #fdeceb; border: 1px solid #f2c0bc; border-radius: 8px; padding: 10px 12px; margin: 0; }
+
+.alu-top { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 14px; }
+@media (max-width: 860px) { .alu-top { grid-template-columns: 1fr; } }
+
+.alu-block { border: 1px solid #dce4ee; border-radius: 12px; padding: 16px; background: #fbfdff; }
+.alu-block h3 { margin: 0 0 12px; font-size: .98rem; }
+.alu-block h4 { margin: 0 0 8px; font-size: .88rem; color: #173b6c; }
+
+/* 位开关 */
+.alu-operand { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.alu-name { font-weight: 700; color: #173b6c; width: 18px; font-size: 1.05rem; }
+.alu-switches { display: flex; gap: 8px; }
+.alu-switch {
+  display: grid; gap: 4px; justify-items: center; width: 52px; padding: 8px 0;
+  border: 1px solid #c9d6e8; border-radius: 9px; background: #fff; color: #60718a;
+  font: inherit; font-size: .72rem; cursor: pointer; transition: background .16s, color .16s, border-color .16s;
+}
+.alu-switch:hover { filter: none; border-color: #2f6fd0; }
+.alu-switch.on { background: #173b6c; border-color: #173b6c; color: #fff; }
+.alu-weight { font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.alu-lamp {
+  width: 9px; height: 9px; border-radius: 50%; background: #cfd9e6;
+  box-shadow: inset 0 0 0 1px rgb(23 59 108 / 12%); transition: background .16s, box-shadow .16s;
+}
+.alu-switch.on .alu-lamp { background: #6ee7a8; box-shadow: 0 0 8px #6ee7a8; }
+.alu-value {
+  margin-left: auto; font-size: 1.7rem; font-weight: 700; color: #173b6c;
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+
+/* 运算选择 */
+.alu-ops { display: flex; gap: 8px; margin-bottom: 10px; }
+.alu-op {
+  flex: 1; padding: 9px 12px; border: 1px solid #c9d6e8; border-radius: 9px;
+  background: #fff; color: #173b6c; font: inherit; font-weight: 600; cursor: pointer;
+}
+.alu-op:hover { filter: none; background: #eef4fd; }
+.alu-op.active { background: #2f6fd0; border-color: #2f6fd0; color: #fff; }
+.alu-presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.alu-preset {
+  padding: 5px 10px; border: 1px dashed #b9c8dc; border-radius: 30px;
+  background: transparent; color: #60718a; font: inherit; font-size: .78rem; cursor: pointer;
+}
+.alu-preset:hover { filter: none; border-style: solid; color: #173b6c; border-color: #2f6fd0; }
+
+/* 控制位表 */
+.alu-kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin: 0 0 10px; font-size: .86rem; }
+.alu-kv dt { color: #60718a; }
+.alu-kv dd { margin: 0; color: #182436; }
+.alu-kv b { color: #173b6c; }
+.alu-mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .06em; }
+.alu-note { margin: 0; font-size: .8rem; color: #9a5b00; }
+
+/* 结果 */
+.alu-readout { display: flex; flex-wrap: wrap; gap: 18px; align-items: center; margin-bottom: 14px; }
+.alu-leds { display: flex; gap: 10px; }
+.alu-led {
+  display: grid; gap: 2px; justify-items: center; width: 56px; padding: 8px 0;
+  border: 1px solid #dce4ee; border-radius: 10px; background: #eef2f8; color: #93a3b8;
+  transition: background .18s, color .18s, box-shadow .18s;
+}
+.alu-led.on { background: #173b6c; border-color: #173b6c; color: #fff; box-shadow: 0 4px 14px rgb(23 59 108 / 28%); }
+.alu-led-bit { font-size: .66rem; letter-spacing: .05em; }
+.alu-led-digit { font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.alu-number { display: grid; gap: 2px; }
+.alu-number strong { font-size: 2.5rem; line-height: 1; color: #173b6c; font-variant-numeric: tabular-nums; }
+.alu-number span { font-size: .82rem; color: #60718a; }
+.alu-expression { color: #182436 !important; font-weight: 600; }
+
+.alu-flags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.alu-flag {
+  padding: 5px 11px; border-radius: 30px; border: 1px solid #dce4ee;
+  background: #fff; color: #8b9bb0; font-size: .78rem; font-variant-numeric: tabular-nums;
+}
+.alu-flag.on { background: #e8f2ff; border-color: #a9c8ee; color: #15508e; font-weight: 600; }
+
+/* 竖式 */
+.alu-columns { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.alu-col { display: flex; align-items: center; gap: 4px; }
+.alu-col-label { width: 22px; font-weight: 700; color: #60718a; font-size: .82rem; }
+.alu-col-cell {
+  width: 26px; height: 30px; display: grid; place-items: center;
+  border: 1px solid #dce4ee; border-radius: 6px; background: #fff;
+  font-family: ui-monospace, Consolas, monospace; font-size: .95rem; color: #182436;
+}
+.alu-col-sum .alu-col-cell { background: #eef4fd; border-color: #a9c8ee; color: #15508e; font-weight: 700; }
+.alu-col-note { flex: 1 1 240px; margin: 0; font-size: .8rem; color: #60718a; min-width: 200px; }
+
+/* 16×16 网格 */
+.alu-grids { display: grid; gap: 14px; }
+.alu-grid-head { display: grid; gap: 4px; }
+.alu-grid-head h3 { margin: 0; }
+.alu-grid-wrap { display: flex; flex-wrap: wrap; gap: 34px; }
+.alu-grid-block { flex: 0 0 auto; max-width: 100%; overflow-x: auto; }
+.alu-grid-block h4 { margin: 0 0 8px; }
+.alu-grid { display: flex; flex-direction: column; gap: 3px; }
+.alu-grid-line { display: flex; gap: 3px; align-items: center; }
+.alu-axis {
+  width: 30px; flex: 0 0 30px; text-align: center; font-size: .7rem; color: #8b9bb0;
+  font-variant-numeric: tabular-nums;
+}
+.alu-corner { font-size: .62rem; }
+/* 表头的列号必须和单元格同宽，否则表头会把整张网格撑宽、列错位 */
+.alu-grid-head-line .alu-axis:not(.alu-corner) { width: 24px; flex: 0 0 24px; }
+.alu-cell {
+  width: 24px; height: 21px; flex: 0 0 24px; padding: 0; border: 1px solid transparent;
+  border-radius: 4px; font: inherit; font-size: .6rem; line-height: 1; color: #182436; letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums; cursor: pointer; transition: transform .1s;
+}
+.alu-cell:hover { filter: brightness(.94); transform: scale(1.08); }
+.alu-cell.picked { outline: 2px solid #f0a500; outline-offset: 1px; z-index: 1; }
+
+.alu-about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.alu-about ul { margin: 0; padding-left: 18px; color: #60718a; font-size: .82rem; display: grid; gap: 4px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .alu-switch, .alu-led, .alu-cell { transition: none; }
+  .alu-cell:hover { transform: none; }
+}
