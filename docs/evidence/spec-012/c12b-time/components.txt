@@ -1,0 +1,16 @@
+✔ reason, six decimals, unknown mastery, source metadata and safe title render (10.4325ms)
+✔ recommendation cutoff crosses UTC Sunday into Shanghai Monday without changing UTC data or week window (3.3759ms)
+✔ recommendation missing or malformed cutoff never shows epoch, local time or Invalid Date (3.3975ms)
+✔ every empty reason keeps metadata, no made up item or exercise (1.9539ms)
+✔ failure clears old results and source; explicit retry recovers (2.3194ms)
+✔ course, limit, and identity changes discard late responses (1.8308ms)
+✔ practice entry revalidates, emits exact version, and changed qualification clears result (1.9954ms)
+✔ revoked membership and invalid limit remove source and never expose other identity input (1.1702ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 90.4628

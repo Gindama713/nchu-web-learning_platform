@@ -1,0 +1,7 @@
+test_real_28day_half_open_boundaries (tests.test_recommendations.RecommendationApiTest.test_real_28day_half_open_boundaries) ... ok
+test_identity_level_protection_excludes_entry_and_failure_does_not_block_submit (tests.test_recommendations.RecommendationApiTest.test_identity_level_protection_excludes_entry_and_failure_does_not_block_submit) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 4.659s
+
+OK

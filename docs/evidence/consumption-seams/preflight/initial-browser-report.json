@@ -1,0 +1,35 @@
+{
+  "started_at": "2026-10-17T03:16:15.898625+00:00",
+  "tested_head": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "dirty_paths": [
+    "?? scripts/verify_consumption_browsers.py",
+    "?? scripts/verify_consumption_handlers.py",
+    "?? tests/test_consumption_seams.py"
+  ],
+  "fixtures": "Only admin/teacher SQL bootstrap, random secrets and TEST_NOW; all business via actual API. Handler setup/changes and browser socket requests saved separately; no response replacement.",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "checks": [
+        "A: recommendation entry -> wrong v1 -> wrong-book correct v1 -> latest v2; same facts n3/c2, per-tag2/1 and3/2; old ID/CSV unchanged"
+      ],
+      "page_errors": [],
+      "browser_timezone": "UTC",
+      "version": "155.0.8059.41"
+    }
+  ],
+  "status": "failed",
+  "failure_type": "TimeoutError",
+  "failure_locations": [
+    "verify_consumption_browsers.py:main:318",
+    "verify_consumption_browsers.py:verify_b:223",
+    "verify_spec013_browsers.py:login:28",
+    "_generated.py:fill:18398",
+    "_sync_base.py:_sync:115",
+    "_locator.py:fill:219",
+    "_frame.py:fill:637",
+    "_frame.py:_fill:649",
+    "_connection.py:send:76",
+    "_connection.py:wrap_api_call:632"
+  ]
+}

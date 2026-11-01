@@ -1,0 +1,57 @@
+{
+  "started_at": "2026-10-16T11:39:12.000158+00:00",
+  "tested_head": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "dirty_paths": [],
+  "scope": "UI-02 only: real 001/005/006/008 HTTP/UI, account bootstrap and TEST_NOW; no successful response mocks",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.41",
+      "browser_timezone": "UTC",
+      "checks": [
+        "exam: real window Sunday-to-Monday Shanghai, explicit zone, null review, UTC HTTP unchanged",
+        "exam: UI submit Shanghai midnight; prestart/deadline 409; review protection/release; byte-exact UTC replay and DB unchanged",
+        "quiz: real window Sunday-to-Monday Shanghai, explicit zone, null review, UTC HTTP unchanged",
+        "quiz: UI submit Shanghai midnight; prestart/deadline 409; review protection/release; byte-exact UTC replay and DB unchanged"
+      ],
+      "utc_facts": [
+        {
+          "kind": "exam",
+          "submitted_at": "2026-10-18T16:00:00.000Z",
+          "success_snapshot_sha256": "c700dbcc6ab0e61de765489523875517f2f9b5fe51eec2739f11a10b09740142"
+        },
+        {
+          "kind": "quiz",
+          "submitted_at": "2026-10-18T16:00:00.000Z",
+          "success_snapshot_sha256": "fa7ea6e2abaad5ea3049f3927339e43c5aef932b8b0c0728f54226d00dc0dcd3"
+        }
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "browser_timezone": "America/Los_Angeles",
+      "checks": [
+        "exam: real window Sunday-to-Monday Shanghai, explicit zone, null review, UTC HTTP unchanged",
+        "exam: UI submit Shanghai midnight; prestart/deadline 409; review protection/release; byte-exact UTC replay and DB unchanged",
+        "quiz: real window Sunday-to-Monday Shanghai, explicit zone, null review, UTC HTTP unchanged",
+        "quiz: UI submit Shanghai midnight; prestart/deadline 409; review protection/release; byte-exact UTC replay and DB unchanged"
+      ],
+      "utc_facts": [
+        {
+          "kind": "exam",
+          "submitted_at": "2026-10-18T16:00:00.000Z",
+          "success_snapshot_sha256": "ad87ff7d0a7e3a57a6cab87926a92954169283f33fa9e4799f60748272f87b8f"
+        },
+        {
+          "kind": "quiz",
+          "submitted_at": "2026-10-18T16:00:00.000Z",
+          "success_snapshot_sha256": "9e03f619f8e25b032181369cf4a63ffe444febfc5a47d3c054e427b1a8919411"
+        }
+      ]
+    }
+  ],
+  "page_errors": [],
+  "status": "passed",
+  "finished_at": "2026-10-16T11:39:59.301690+00:00"
+}

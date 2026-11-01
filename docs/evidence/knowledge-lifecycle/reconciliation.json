@@ -1,0 +1,44 @@
+[
+  {
+    "file": "logs/knowledge-lifecycle/final/handlers/lifecycle.json",
+    "stages": [
+      "original",
+      "renamed",
+      "one-hidden",
+      "all-hidden",
+      "hidden-edit",
+      "one-restored",
+      "both-restored",
+      "excluded-dates"
+    ],
+    "result": "passed"
+  },
+  {
+    "file": "logs/knowledge-lifecycle/final/browsers-serial/chrome/lifecycle.json",
+    "stages": [
+      "original",
+      "renamed",
+      "one-hidden",
+      "all-hidden",
+      "hidden-edit",
+      "one-restored",
+      "both-restored",
+      "excluded-dates"
+    ],
+    "result": "passed"
+  },
+  {
+    "file": "logs/knowledge-lifecycle/final/browsers-serial/msedge/lifecycle.json",
+    "stages": [
+      "original",
+      "renamed",
+      "one-hidden",
+      "all-hidden",
+      "hidden-edit",
+      "one-restored",
+      "both-restored",
+      "excluded-dates"
+    ],
+    "result": "passed"
+  }
+]

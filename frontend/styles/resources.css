@@ -1,0 +1,19 @@
+/* SPEC-003 teaching resources module styles. */
+.resource-module { display: grid; gap: 14px; }
+.resource-course { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.resource-course label { min-width: 240px; }
+.resource-search { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; }
+.resource-search label { min-width: 150px; }
+.resource-upload { display: flex; flex-wrap: wrap; align-items: end; gap: 12px; padding: 14px; border: 1px solid #dce4ee; border-radius: 10px; }
+.resource-upload h3 { width: 100%; margin: 0 0 4px; }
+.resource-upload small { width: 100%; }
+.resource-table { width: 100%; border-collapse: collapse; }
+.resource-table th, .resource-table td { text-align: left; padding: 10px 8px; border-bottom: 1px solid #e1e7ee; vertical-align: top; }
+.resource-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.resource-actions details { display: inline-block; }
+.resource-version-form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+.resource-version-form input[type="file"] { width: auto; }
+.resource-error { border: 1px solid #b23b3b; background: #fdeeee; border-radius: 10px; padding: 12px; }
+.resource-error p { margin: 4px 0 0; }
+.resource-notice { color: #0f6b3a; }
+.resource-pager { display: flex; align-items: center; gap: 12px; }

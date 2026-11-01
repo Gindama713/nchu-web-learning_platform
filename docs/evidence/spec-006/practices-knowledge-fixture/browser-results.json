@@ -1,0 +1,41 @@
+{
+  "started_at": "2026-10-14T10:08:31.362224+00:00",
+  "tested_head": "408c29a8171b3ab86f8eb6f4114f6543aeaf0b0e",
+  "knowledge_fixture": true,
+  "scope": "actual identity/question/paper/attempt/practice/wrong HTTP/UI; only knowledge schema fixture",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.40",
+      "checks": [
+        "teacher_has_no_student_practice_or_personal_wrong_controls",
+        "student_public_list_has_no_reference_or_private_exam_question",
+        "real_commit_lost_response_locks_form_and_retries_exact_201_bytes_and_key",
+        "source_tag_filter_old_public_version_remains_exact_after_private_latest_edit_and_resolves",
+        "new_actual_error_reopens_same_wrong_identity_without_deleting_history",
+        "multiple_full_set_boolean_false_numeric_exact_tolerance_actual_ui_grading",
+        "actual_paper_objective_error_enters_wrong_list_without_pre_review_answers_or_practice",
+        "server_exact_timed_review_boundary_reveals_exam_wrong_reference",
+        "relogin_retains_real_wrong_count_sources_and_six_practice_facts_audits"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "checks": [
+        "teacher_has_no_student_practice_or_personal_wrong_controls",
+        "student_public_list_has_no_reference_or_private_exam_question",
+        "real_commit_lost_response_locks_form_and_retries_exact_201_bytes_and_key",
+        "source_tag_filter_old_public_version_remains_exact_after_private_latest_edit_and_resolves",
+        "new_actual_error_reopens_same_wrong_identity_without_deleting_history",
+        "multiple_full_set_boolean_false_numeric_exact_tolerance_actual_ui_grading",
+        "actual_paper_objective_error_enters_wrong_list_without_pre_review_answers_or_practice",
+        "server_exact_timed_review_boundary_reveals_exam_wrong_reference",
+        "relogin_retains_real_wrong_count_sources_and_six_practice_facts_audits"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "status": "passed",
+  "finished_at": "2026-10-14T10:08:47.546889+00:00"
+}

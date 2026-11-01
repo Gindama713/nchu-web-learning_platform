@@ -1,0 +1,12 @@
+test_actual_runner_replay_backup_restore_and_checksum_rejection (tests.test_knowledge_integration.KnowledgeIntegrationTest.test_actual_runner_replay_backup_restore_and_checksum_rejection) ... ok
+test_real_csrf_origin_course_revocation_and_deactivation (tests.test_knowledge_integration.KnowledgeIntegrationTest.test_real_csrf_origin_course_revocation_and_deactivation) ... ok
+test_real_login_course_publish_bookmark_progress_and_relogin (tests.test_knowledge_integration.KnowledgeIntegrationTest.test_real_login_course_publish_bookmark_progress_and_relogin) ... ok
+test_fixed_version_dedup_resolve_and_new_error (tests.test_practices.KnowledgeFixturePracticeTest.test_fixed_version_dedup_resolve_and_new_error) ... ok
+test_current_access_csrf_revocation_and_other_student_isolation (tests.test_practices.KnowledgeFixturePracticeTest.test_current_access_csrf_revocation_and_other_student_isolation) ... ok
+test_four_answers_three_correct_multitag_fixed_versions_and_zero_sample (tests.test_knowledge_analytics.KnowledgeAnalyticsTest.test_four_answers_three_correct_multitag_fixed_versions_and_zero_sample) ... ok
+test_r38_current_set_dates_unpublish_republish_and_empty (tests.test_knowledge_analytics.KnowledgeAnalyticsTest.test_r38_current_set_dates_unpublish_republish_and_empty) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 8.950s
+
+OK

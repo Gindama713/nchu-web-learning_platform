@@ -1,0 +1,39 @@
+{
+  "started_at": "2026-10-15T03:56:26.185380+00:00",
+  "os": "Windows-11-10.0.26100-SP0",
+  "tested_head": "641d6aeb2cb116478de0b0c5599de7606272b9b3",
+  "dirty_paths": [],
+  "scope": "local real HTTP/UI with synthetic data; initial admin/teacher SQL bootstrap only; not classroom/performance",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "150.0.7871.47",
+      "status": "passed",
+      "checks": [
+        "real UI first generation: draft, exact 334/334/333, signed64 seed, fixed versions/coverage",
+        "new question/version/real practice answer: UI replay exact; student has no generation entry",
+        "390px result and replay form without horizontal overflow",
+        "real 422 failure keeps parameters, gives corrective guidance, removes previous result",
+        "generated quiz uses existing explicit publish flow; frozen roster, no automatic review"
+      ],
+      "page_errors": [],
+      "course_id": 1
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "status": "passed",
+      "checks": [
+        "real UI first generation: draft, exact 334/334/333, signed64 seed, fixed versions/coverage",
+        "new question/version/real practice answer: UI replay exact; student has no generation entry",
+        "390px result and replay form without horizontal overflow",
+        "real 422 failure keeps parameters, gives corrective guidance, removes previous result",
+        "generated quiz uses existing explicit publish flow; frozen roster, no automatic review"
+      ],
+      "page_errors": [],
+      "course_id": 2
+    }
+  ],
+  "status": "passed",
+  "finished_at": "2026-10-15T03:56:45.420655+00:00"
+}

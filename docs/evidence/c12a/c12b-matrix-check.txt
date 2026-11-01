@@ -1,0 +1,22 @@
+131 unique IDs; exact AC/R/NF set retained. 80 local pass / 0 fail / 51 blocked.
+Only SPEC-006/NF-UI, SPEC-008/NF-UI, SPEC-012/NF-UI changed; their integration remains blocked.
+Other 128 row dictionaries unchanged, including all historical evidence and requirements.
+2026-10-16 C12b integration recheck against dcf38ec: only the same three rows gained remote-gate registration/date fields.
+All 131 result/integration-result values and all fixed local tested/head/evidence fields unchanged.
+No merged implementation to consume, no new local business/browser test, no classroom acceptance or real approval.
+
+2026-10-16 C12b follow-up, baseline 76a0deebaf117e8f783f4e19f96edc45f37c973a.
+131 unique IDs, order and exact original set retained; 80 local pass / 0 fail / 51 blocked.
+Only SPEC-006/NF-UI, SPEC-008/NF-UI, SPEC-012/NF-UI integration registration and evidence pointer changed.
+Other 128 row dictionaries identical; all 131 result/integration-result/head/tested/attachment fields unchanged.
+Markdown 131-row IDs/results match JSON. Existing start/c12b_final/integration_recheck snapshots preserved.
+Fresh four-PR snapshots have exact matching run head SHA, six expected jobs, raw test summary excerpts and empty real discussions.
+No actual merge; no new local business/handler/browser test or classroom acceptance. Fixed local evidence reused.
+
+2026-10-16 19:43:33 Asia/Shanghai C12b post-merge integration, baseline dfb23271b470a93d557a2695fed0e04caf59d0d2.
+131 IDs/order and local results retained: 80 pass / 0 fail / 51 blocked.
+Only SPEC-006/NF-UI, SPEC-008/NF-UI, SPEC-012/NF-UI integration registration/blocker text changed; integration now pass.
+Integration totals: 62 pass / 69 blocked (previously 59 / 72). Other 128 row dictionaries identical.
+All original row head_SHA/tested_SHA/evidence attachments preserved; new integrated tested SHA and reports recorded separately.
+Actual merge SHA ancestry verified for PR14/15/16/17; existing C12b scripts passed on clean integrated develop, Chrome/Edge, page_errors=[].
+Original component/handler/full business/CSV/recovery evidence reused, no full-suite rerun. No real non-author approval or classroom acceptance.

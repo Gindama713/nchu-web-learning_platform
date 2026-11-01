@@ -1,0 +1,150 @@
+{
+  "checked_at_utc": "2026-10-17T03:19:30.727Z",
+  "baseline": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "initial_head": "066ff930730606a519d2c094caf7f25443eb9fca",
+  "initial_worktree_clean": true,
+  "new_branch": "feature/spec-012-013-consumption-seams",
+  "prs": [
+    {
+      "number": 27,
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/27",
+      "state": "open",
+      "head": "7096b496504f62181f60987062b1397bdb96a937",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "merge_test_reference": "a4ed987609132694c08c59650f92721abc223e0d",
+      "comments": [],
+      "reviews": [],
+      "review_threads": [],
+      "reused_fixed_ci_run": "38896062651"
+    },
+    {
+      "number": 28,
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/28",
+      "state": "open",
+      "head": "8111c5395d8b7cf33205065c77490593e07ed045",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "merge_test_reference": "b4a44411a719c490de01942ff5a4d251f007d8a6",
+      "comments": [],
+      "reviews": [],
+      "review_threads": [],
+      "reused_fixed_ci_run": "38904433916"
+    },
+    {
+      "number": 29,
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/29",
+      "state": "open",
+      "head": "b56141f2e060d1ec5464d58d52f6f735c445d56c",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "merge_test_reference": "5b67d9bc10a44cce388172a1e79001e2d5f90343",
+      "comments": [],
+      "reviews": [],
+      "review_threads": [],
+      "reused_fixed_ci_run": "38907219999"
+    },
+    {
+      "number": 30,
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/30",
+      "state": "open",
+      "head": "dbd32e65db1d6d371adcfe4b06889a24e7490e24",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "merge_test_reference": "9042da8e688d275abc3366b81e5ecf064e92826c",
+      "comments": [],
+      "reviews": [],
+      "review_threads": [],
+      "reused_fixed_ci_run": "38909993594"
+    },
+    {
+      "number": 31,
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/31",
+      "state": "open",
+      "head": "40bba87e765bc9c52498f8cf7781307172e9c310",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "merge_test_reference": "a736e14d6a25e760643fab99c2d9fc3a89d6eb2b",
+      "comments": [],
+      "reviews": [],
+      "review_threads": [],
+      "reused_fixed_ci_run": "38994482166"
+    },
+    {
+      "number": 32,
+      "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/32",
+      "state": "open",
+      "head": "066ff930730606a519d2c094caf7f25443eb9fca",
+      "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "merge_test_reference": "d0f5af3cef33817fd900e2288f00aa7db28220e4",
+      "comments": [],
+      "reviews": [],
+      "review_threads": [],
+      "reused_fixed_ci_run": "38996421357"
+    }
+  ],
+  "dependencies": [
+    {
+      "pr": 9,
+      "head": "fafc69aecf723d06181e807bc1124aed2bd915de",
+      "actual_merge": "b4a376b860e891a969c9507d69b4cefba5c7f290",
+      "merged": true,
+      "ancestor_of_origin_develop_exit_code": 0
+    },
+    {
+      "pr": 12,
+      "head": "ab91dc1b666c1382d170fba189d1dc3e7654bf26",
+      "actual_merge": "cdbda1e4a6bce19e2a5c4016a528d1d3d8b2aceb",
+      "merged": true,
+      "ancestor_of_origin_develop_exit_code": 0
+    },
+    {
+      "pr": 13,
+      "head": "4710a56399d3c3eaf5a97ceaba142fa403263e07",
+      "actual_merge": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+      "merged": true,
+      "ancestor_of_origin_develop_exit_code": 0
+    },
+    {
+      "pr": 15,
+      "head": "9fefd17d99242efdd53847029d7d7cafbcadf59d",
+      "actual_merge": "0a2b84c7ecf05df9f29c4142cd36c28266b3eb4d",
+      "merged": true,
+      "ancestor_of_origin_develop_exit_code": 0
+    },
+    {
+      "pr": 16,
+      "head": "16d55979e6f36688e1ef8114577c2ee8e0dc8cd5",
+      "actual_merge": "aa373606f47d4e5c4533e6d48d263c7781bddf26",
+      "merged": true,
+      "ancestor_of_origin_develop_exit_code": 0
+    },
+    {
+      "pr": 17,
+      "head": "e1c2bcdbe8e6a21b2eaa2e7fc039e25190c51c85",
+      "actual_merge": "32ec16bf3a281d6f4d9be8f1c19410239d73145c",
+      "merged": true,
+      "ancestor_of_origin_develop_exit_code": 0
+    }
+  ],
+  "policy": "Unchanged heads/state reuse fixed CI. No unmerged implementation/material copied, no old PR mutation. Actual merge is accepted only when merged=true and ancestor check exits 0."
+}

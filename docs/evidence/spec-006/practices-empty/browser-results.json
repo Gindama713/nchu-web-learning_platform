@@ -1,0 +1,27 @@
+{
+  "started_at": "2026-10-14T10:08:20.746882+00:00",
+  "tested_head": "408c29a8171b3ab86f8eb6f4114f6543aeaf0b0e",
+  "knowledge_fixture": false,
+  "scope": "actual empty practice/wrong HTTP/UI without dependency fixtures",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.40",
+      "checks": [
+        "teacher_has_no_student_practice_or_personal_wrong_controls",
+        "student_real_empty_lists_without_dependency_fixtures_390px"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "checks": [
+        "teacher_has_no_student_practice_or_personal_wrong_controls",
+        "student_real_empty_lists_without_dependency_fixtures_390px"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "status": "passed",
+  "finished_at": "2026-10-14T10:08:29.199135+00:00"
+}

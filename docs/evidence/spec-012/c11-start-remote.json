@@ -1,0 +1,50 @@
+{
+  "observed_at": "2026-10-15",
+  "develop": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+  "pr14": {
+    "number": 14,
+    "state": "open",
+    "draft": false,
+    "merged": false,
+    "base": "develop",
+    "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+    "head_sha": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
+    "reviews": [],
+    "review_threads": [],
+    "comments": [],
+    "run_id": 38681339662,
+    "jobs": [
+      {
+        "name": "ci-lint",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "ci-policy",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "ci-build",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "ci-test",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "ci-grader",
+        "status": "completed",
+        "conclusion": "skipped"
+      },
+      {
+        "name": "ci-required",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "boundary": "PR14 unmerged; no SPEC011 code copied; independent develop base"
+}

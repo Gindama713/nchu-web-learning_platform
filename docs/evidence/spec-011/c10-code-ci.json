@@ -1,0 +1,51 @@
+{
+  "head": "36854081b1ba991a89bacbf7d797ab0620619ae3",
+  "base": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+  "tested_merge": "46426f684cf97dbb0f6d535039a5d6be37db9338",
+  "actual_merge": null,
+  "run_id": 38680739233,
+  "url": "https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/38680739233",
+  "jobs": [
+    {
+      "name": "ci-test",
+      "status": "completed",
+      "conclusion": "success",
+      "id": 116244465346
+    },
+    {
+      "name": "ci-policy",
+      "status": "completed",
+      "conclusion": "success",
+      "id": 116244465551
+    },
+    {
+      "name": "ci-lint",
+      "status": "completed",
+      "conclusion": "success",
+      "id": 116244465557
+    },
+    {
+      "name": "ci-build",
+      "status": "completed",
+      "conclusion": "success",
+      "id": 116244465642
+    },
+    {
+      "name": "ci-grader",
+      "status": "completed",
+      "conclusion": "skipped",
+      "id": 116244466559
+    },
+    {
+      "name": "ci-required",
+      "status": "completed",
+      "conclusion": "success",
+      "id": 116245287453
+    }
+  ],
+  "backend_tests": 194,
+  "backend_seconds": 146.416,
+  "frontend_tests": 76,
+  "review_submissions": [],
+  "scope": "Implementation head CI; final documentation head requires a separate check."
+}

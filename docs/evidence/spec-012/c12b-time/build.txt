@@ -1,0 +1,13 @@
+
+> cpu-learning-frontend@0.1.0 build
+> vite build
+
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 34 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.42 kB │ gzip:  0.31 kB
+dist/assets/index-3adFLewc.css   11.84 kB │ gzip:  2.92 kB
+dist/assets/index-D0jjNTFK.js   280.54 kB │ gzip: 99.87 kB
+✓ built in 629ms

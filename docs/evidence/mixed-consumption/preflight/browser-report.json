@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-18T02:18:28.068054+00:00",
+  "tested_head": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "dirty_paths": [
+    "?? scripts/verify_mixed_browsers.py",
+    "?? scripts/verify_mixed_handlers.py",
+    "?? tests/test_mixed_consumption.py"
+  ],
+  "scope": "fixtures via real handlers; existing pages restore, display and download via real socket",
+  "browsers": [],
+  "result": "failed",
+  "error_type": "AssertionError"
+}

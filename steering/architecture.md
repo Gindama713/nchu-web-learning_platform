@@ -1,0 +1,7 @@
+# 架构方向（architecture）
+
+浏览器使用 Vue 3；Flask 提供同源 `/api/v1` REST 接口；SQLite 保存业务事实与迁移状态；受控文件存储保存上传物。耗时的 `.circ` 评测由独立 worker 领取队列任务，在固定 Logisim-evolution 引擎与受限工作目录中执行，再写回报告。实验箱连线由服务端校验并重放动作；课堂演示与评测状态使用轮询。决策理由与限制见 [ADR](../docs/ADR.md)。
+
+授权顺序是会话/CSRF → 当前课程成员 → 发布版本与冻结名单 → 时间窗口 → 业务状态；失败不得泄露跨课资源、答案或隐藏测试。保密卷未到讲评时，同题全部版本均受解析保护。评测服务故障必须记录为系统错误，不当作学生零分；失去租约的 worker 不能写入迟到结果。
+
+开发流为 `feature/*` → `develop`，发布流为 `develop` → `release/*` → 通过完整门禁后 PR 到 `main`；课堂 Gitea 归档对应相同 Git SHA。`main` 不直推，PR 的测试、构建、lint、文档检查和真实评测冒烟全部以当前 head 判定。现有 CI 对 `main/release` 的真实引擎冒烟仍显式失败，故本次集成只进入 `develop`。具体运行与门禁见 [README](../README.md)，发布、维护和回滚见 [CHG-RB](../docs/CHG-RB.md)。

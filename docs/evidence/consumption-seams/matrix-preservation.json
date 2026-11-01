@@ -1,0 +1,33 @@
+{
+  "changed_rows": [
+    "SPEC-006/AC-01",
+    "SPEC-006/AC-03",
+    "SPEC-006/AC-04",
+    "SPEC-006/AC-05",
+    "SPEC-008/AC-03",
+    "SPEC-008/AC-04",
+    "SPEC-010/AC-01",
+    "SPEC-010/AC-04",
+    "SPEC-010/AC-05",
+    "SPEC-010B/R34",
+    "SPEC-012/AC-01",
+    "SPEC-012/AC-02",
+    "SPEC-012/R34",
+    "SPEC-012/NF-UI",
+    "SPEC-013/AC-01",
+    "SPEC-013/R25",
+    "SPEC-013/NF-UI"
+  ],
+  "changed_count": 17,
+  "untouched_count": 114,
+  "local": {
+    "通过": 80,
+    "阻断": 51
+  },
+  "integration": {
+    "通过": 59,
+    "阻断": 72
+  },
+  "original_fields_and_status_preserved": true,
+  "untouched_markdown_lines_preserved": true
+}

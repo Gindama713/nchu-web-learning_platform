@@ -1,0 +1,134 @@
+{
+  "checked_at": "2026-10-18 Asia/Shanghai",
+  "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "prs": [
+    {
+      "number": 27,
+      "head": "7096b496504f62181f60987062b1397bdb96a937",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "comments": [],
+      "reviews": [],
+      "review_threads": []
+    },
+    {
+      "number": 28,
+      "head": "8111c5395d8b7cf33205065c77490593e07ed045",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "comments": [],
+      "reviews": [],
+      "review_threads": []
+    },
+    {
+      "number": 29,
+      "head": "b56141f2e060d1ec5464d58d52f6f735c445d56c",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "comments": [],
+      "reviews": [],
+      "review_threads": []
+    },
+    {
+      "number": 30,
+      "head": "dbd32e65db1d6d371adcfe4b06889a24e7490e24",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "comments": [],
+      "reviews": [],
+      "review_threads": []
+    },
+    {
+      "number": 31,
+      "head": "40bba87e765bc9c52498f8cf7781307172e9c310",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "comments": [],
+      "reviews": [],
+      "review_threads": []
+    },
+    {
+      "number": 32,
+      "head": "066ff930730606a519d2c094caf7f25443eb9fca",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "comments": [],
+      "reviews": [],
+      "review_threads": []
+    },
+    {
+      "number": 33,
+      "head": "789745151a7885ca1e615be4660d6b80e92439b4",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "merged_at": null,
+      "actual_merge": null,
+      "comments": [],
+      "reviews": [],
+      "review_threads": []
+    }
+  ],
+  "merged_dependencies": [
+    {
+      "number": 9,
+      "actual_merge": "b4a376b860e891a969c9507d69b4cefba5c7f290",
+      "ancestor_exit": 0
+    },
+    {
+      "number": 12,
+      "actual_merge": "cdbda1e4a6bce19e2a5c4016a528d1d3d8b2aceb",
+      "ancestor_exit": 0
+    },
+    {
+      "number": 13,
+      "actual_merge": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+      "ancestor_exit": 0
+    },
+    {
+      "number": 15,
+      "actual_merge": "0a2b84c7ecf05df9f29c4142cd36c28266b3eb4d",
+      "ancestor_exit": 0
+    },
+    {
+      "number": 16,
+      "actual_merge": "aa373606f47d4e5c4533e6d48d263c7781bddf26",
+      "ancestor_exit": 0
+    },
+    {
+      "number": 17,
+      "actual_merge": "32ec16bf3a281d6f4d9be8f1c19410239d73145c",
+      "ancestor_exit": 0
+    }
+  ],
+  "fixed_ci": {
+    "27": 38896062651,
+    "28": 38904433916,
+    "29": 38907219999,
+    "30": 38909993594,
+    "31": 38994482166,
+    "32": 38996421357,
+    "33": 38998602097
+  },
+  "branch": "feature/spec-006-010b-mixed-consumption",
+  "initial_head": "789745151a7885ca1e615be4660d6b80e92439b4",
+  "initial_dirty_paths": []
+}

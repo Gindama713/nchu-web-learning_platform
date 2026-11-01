@@ -1,0 +1,111 @@
+{
+  "started_at": "2026-10-15T07:07:53.064861+00:00",
+  "executor": "Codex under Huang Juncheng authorization",
+  "tested_head": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
+  "dirty_paths": [],
+  "scope": "merged 001/005/006 -> 010B gaps; real HTTP/UI; synthetic data; fault fixture explicitly labeled",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "checks": [
+        "Q1_real_005_tags_create_all_five_types_through_006_editor",
+        "Q2_real_editor_appends_private_v2_and_keeps_original_public_version",
+        "Q3_old_public_v1_replay_once_wrong_correct_resolved_new_wrong_ui_uses_original_answer",
+        "Q4_practice_facts_to_knowledge_three_samples_one_correct_half_progress_zero_sample_ui",
+        "Q5_current_published_set_changes_new_statistics_only_republish_restores_real_history",
+        "Q6_revoke_hides_old_data_rejoin_relogin_keeps_personal_history_creator_isolation_export403",
+        "Q7_explicit_database_failure_fixture_real503_ui_clears_old_report_and_explicit_retry_recovers",
+        "Q8_controlled_consistent_sqlite_backup_runner_replay_same_session_snapshot_wrong_history_http",
+        "Q9_dependency_probes_missing_routes_health_grader_false_and_two_390px_screens"
+      ],
+      "page_errors": [],
+      "http_checks": [
+        {
+          "path": "/courses/:id/resources",
+          "status": 404,
+          "code": "NOT_FOUND"
+        },
+        {
+          "path": "/courses/:id/preparations",
+          "status": 404,
+          "code": "NOT_FOUND"
+        },
+        {
+          "path": "/courses/:id/experiments",
+          "status": 404,
+          "code": "NOT_FOUND"
+        },
+        {
+          "path": "/courses/:id/recommendations",
+          "status": 404,
+          "code": "NOT_FOUND"
+        },
+        {
+          "path": "/health",
+          "status": 503,
+          "grader_ready": false
+        }
+      ],
+      "version": "155.0.8059.41",
+      "absent_routes": [
+        "/qa",
+        "/resources",
+        "/preparations",
+        "/experiments"
+      ],
+      "status": "passed"
+    },
+    {
+      "channel": "msedge",
+      "checks": [
+        "Q1_real_005_tags_create_all_five_types_through_006_editor",
+        "Q2_real_editor_appends_private_v2_and_keeps_original_public_version",
+        "Q3_old_public_v1_replay_once_wrong_correct_resolved_new_wrong_ui_uses_original_answer",
+        "Q4_practice_facts_to_knowledge_three_samples_one_correct_half_progress_zero_sample_ui",
+        "Q5_current_published_set_changes_new_statistics_only_republish_restores_real_history",
+        "Q6_revoke_hides_old_data_rejoin_relogin_keeps_personal_history_creator_isolation_export403",
+        "Q7_explicit_database_failure_fixture_real503_ui_clears_old_report_and_explicit_retry_recovers",
+        "Q8_controlled_consistent_sqlite_backup_runner_replay_same_session_snapshot_wrong_history_http",
+        "Q9_dependency_probes_missing_routes_health_grader_false_and_two_390px_screens"
+      ],
+      "page_errors": [],
+      "http_checks": [
+        {
+          "path": "/courses/:id/resources",
+          "status": 404,
+          "code": "NOT_FOUND"
+        },
+        {
+          "path": "/courses/:id/preparations",
+          "status": 404,
+          "code": "NOT_FOUND"
+        },
+        {
+          "path": "/courses/:id/experiments",
+          "status": 404,
+          "code": "NOT_FOUND"
+        },
+        {
+          "path": "/courses/:id/recommendations",
+          "status": 404,
+          "code": "NOT_FOUND"
+        },
+        {
+          "path": "/health",
+          "status": 503,
+          "grader_ready": false
+        }
+      ],
+      "version": "155.0.4283.45",
+      "absent_routes": [
+        "/qa",
+        "/resources",
+        "/preparations",
+        "/experiments"
+      ],
+      "status": "passed"
+    }
+  ],
+  "status": "passed",
+  "finished_at": "2026-10-15T07:08:08.300183+00:00"
+}

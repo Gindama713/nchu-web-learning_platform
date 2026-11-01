@@ -1,0 +1,360 @@
+{
+  "queried_at": "2026-10-15T07:28:31.505Z",
+  "pr": "https://github.com/Gindama713/nchu-web-learning_platform/pull/16",
+  "base": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+  "head": "db83da52b8feeb903c61977f593aad764d34c16c",
+  "tested": "7a5ef3d81747f3db030fad30a6017fb7e1ace73f",
+  "actual_merge": null,
+  "run": 38697994792,
+  "runs": {
+    "workflow_runs": [
+      {
+        "id": 38697994792,
+        "name": "CI",
+        "status": "completed",
+        "conclusion": "success",
+        "run_number": 66,
+        "jobs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/38697994792/jobs",
+        "logs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/38697994792/logs",
+        "workflow_id": 382199978
+      }
+    ]
+  },
+  "jobs": {
+    "jobs": [
+      {
+        "id": 116299048260,
+        "name": "ci-build",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38697994792,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run npm ci",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run npm run build",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      },
+      {
+        "id": 116299048523,
+        "name": "ci-lint",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38697994792,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run python -m pip install -r backend/requirements.lock ruff==0.17.0",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run python -m ruff check backend tests",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run npm ci",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Run npm run lint",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      },
+      {
+        "id": 116299048662,
+        "name": "ci-test",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38697994792,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run python -m pip install -r backend/requirements.lock",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Run python -m unittest discover -s tests -v",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6
+          },
+          {
+            "name": "Run npm ci",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7
+          },
+          {
+            "name": "Run npm test",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8
+          },
+          {
+            "name": "Post Run actions/setup-node@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17
+          }
+        ]
+      },
+      {
+        "id": 116299048715,
+        "name": "ci-policy",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38697994792,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          },
+          {
+            "name": "Check branch flow",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4
+          },
+          {
+            "name": "Run python scripts/check_docs.py",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5
+          },
+          {
+            "name": "Post Run actions/setup-python@v5",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9
+          },
+          {
+            "name": "Post Run actions/checkout@v4",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11
+          }
+        ]
+      },
+      {
+        "id": 116299050770,
+        "name": "ci-grader",
+        "status": "completed",
+        "conclusion": "skipped",
+        "run_id": 38697994792,
+        "logs_url": null,
+        "steps": null
+      },
+      {
+        "id": 116299789526,
+        "name": "ci-required",
+        "status": "completed",
+        "conclusion": "success",
+        "run_id": 38697994792,
+        "logs_url": null,
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1
+          },
+          {
+            "name": "Check required jobs for this target branch",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3
+          }
+        ]
+      }
+    ]
+  },
+  "reviews": {
+    "reviews": []
+  },
+  "threads": {
+    "review_threads": []
+  },
+  "comments": {
+    "comments": [],
+    "url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/16",
+    "title": "Gindama713/nchu-web-learning_platform Issue #16 comments",
+    "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/16",
+    "display_title": "Gindama713/nchu-web-learning_platform Issue #16 comments"
+  },
+  "backend_summary": "Ran 177 tests in 97.469s; OK",
+  "frontend_summary": "tests 70; pass 70; fail 0",
+  "scope": "Fixed evidence head. Later documentation head must be independently checked; it cannot inherit this run."
+}

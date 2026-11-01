@@ -1,0 +1,544 @@
+{
+  "status": "passed",
+  "inputs": [
+    {
+      "path": "handlers\\test_recommendation_practice_wrong_facts_and_saved_knowledge.json",
+      "sha256": "3714b309a00a0779302205817dbb37e1e86fdc94c0091a0ff25b3ccd03c391ba",
+      "phases": {
+        "wrong": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          }
+        ],
+        "after_versions_and_progress": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 4,
+            "kind": "knowledge",
+            "sample_size": 3
+          }
+        ],
+        "revoked": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 4,
+            "kind": "knowledge",
+            "sample_size": 3
+          }
+        ]
+      },
+      "final": [
+        {
+          "id": 1,
+          "kind": "knowledge",
+          "sample_size": 0
+        },
+        {
+          "id": 2,
+          "kind": "knowledge",
+          "sample_size": 1
+        },
+        {
+          "id": 3,
+          "kind": "knowledge",
+          "sample_size": 1
+        },
+        {
+          "id": 4,
+          "kind": "knowledge",
+          "sample_size": 3
+        }
+      ]
+    },
+    {
+      "path": "handlers\\test_generated_quiz_attempts_classified_scores_and_two_immutable_snapshots.json",
+      "sha256": "fcd0dc079dee5f7351ffa0a31822c4c33aeaf1b348cf5988164f9864f88ceae4",
+      "phases": {
+        "generated_pending": [
+          {
+            "id": 1,
+            "kind": "scores",
+            "sample_size": 1
+          },
+          {
+            "id": 2,
+            "kind": "scores",
+            "sample_size": 0
+          },
+          {
+            "id": 3,
+            "kind": "scores",
+            "sample_size": 0
+          }
+        ],
+        "graded_replayed_revoked": [
+          {
+            "id": 1,
+            "kind": "scores",
+            "sample_size": 1
+          },
+          {
+            "id": 2,
+            "kind": "scores",
+            "sample_size": 0
+          },
+          {
+            "id": 3,
+            "kind": "scores",
+            "sample_size": 0
+          },
+          {
+            "id": 4,
+            "kind": "scores",
+            "sample_size": 2
+          },
+          {
+            "id": 5,
+            "kind": "scores",
+            "sample_size": 2
+          },
+          {
+            "id": 6,
+            "kind": "scores",
+            "sample_size": 2
+          }
+        ]
+      },
+      "final": [
+        {
+          "id": 1,
+          "kind": "scores",
+          "sample_size": 1
+        },
+        {
+          "id": 2,
+          "kind": "scores",
+          "sample_size": 0
+        },
+        {
+          "id": 3,
+          "kind": "scores",
+          "sample_size": 0
+        },
+        {
+          "id": 4,
+          "kind": "scores",
+          "sample_size": 2
+        },
+        {
+          "id": 5,
+          "kind": "scores",
+          "sample_size": 2
+        },
+        {
+          "id": 6,
+          "kind": "scores",
+          "sample_size": 2
+        }
+      ]
+    },
+    {
+      "path": "browsers\\chrome-facts.json",
+      "sha256": "c15bd9df1ab3c916d4d976cb6ce666fb7d6c235cfc3ec38b4917dd060312fa44",
+      "phases": {
+        "browser_a_wrong": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 4,
+            "kind": "knowledge",
+            "sample_size": 1
+          }
+        ],
+        "browser_a": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 4,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 5,
+            "kind": "knowledge",
+            "sample_size": 3
+          }
+        ],
+        "browser_b_pending": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 4,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 5,
+            "kind": "knowledge",
+            "sample_size": 3
+          },
+          {
+            "id": 6,
+            "kind": "scores",
+            "sample_size": 1
+          }
+        ],
+        "browser_b": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 4,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 5,
+            "kind": "knowledge",
+            "sample_size": 3
+          },
+          {
+            "id": 6,
+            "kind": "scores",
+            "sample_size": 1
+          },
+          {
+            "id": 7,
+            "kind": "scores",
+            "sample_size": 2
+          },
+          {
+            "id": 8,
+            "kind": "scores",
+            "sample_size": 0
+          },
+          {
+            "id": 9,
+            "kind": "scores",
+            "sample_size": 0
+          }
+        ]
+      },
+      "final": [
+        {
+          "id": 1,
+          "kind": "knowledge",
+          "sample_size": 0
+        },
+        {
+          "id": 2,
+          "kind": "knowledge",
+          "sample_size": 0
+        },
+        {
+          "id": 3,
+          "kind": "knowledge",
+          "sample_size": 1
+        },
+        {
+          "id": 4,
+          "kind": "knowledge",
+          "sample_size": 1
+        },
+        {
+          "id": 5,
+          "kind": "knowledge",
+          "sample_size": 3
+        },
+        {
+          "id": 6,
+          "kind": "scores",
+          "sample_size": 1
+        },
+        {
+          "id": 7,
+          "kind": "scores",
+          "sample_size": 2
+        },
+        {
+          "id": 8,
+          "kind": "scores",
+          "sample_size": 0
+        },
+        {
+          "id": 9,
+          "kind": "scores",
+          "sample_size": 0
+        }
+      ]
+    },
+    {
+      "path": "browsers\\msedge-facts.json",
+      "sha256": "875c771632575debffc62eae260466d7c32e30b54e0ece8c15c1748b88c949a3",
+      "phases": {
+        "browser_a_wrong": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 4,
+            "kind": "knowledge",
+            "sample_size": 1
+          }
+        ],
+        "browser_a": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 4,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 5,
+            "kind": "knowledge",
+            "sample_size": 3
+          }
+        ],
+        "browser_b_pending": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 4,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 5,
+            "kind": "knowledge",
+            "sample_size": 3
+          },
+          {
+            "id": 6,
+            "kind": "scores",
+            "sample_size": 1
+          }
+        ],
+        "browser_b": [
+          {
+            "id": 1,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 2,
+            "kind": "knowledge",
+            "sample_size": 0
+          },
+          {
+            "id": 3,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 4,
+            "kind": "knowledge",
+            "sample_size": 1
+          },
+          {
+            "id": 5,
+            "kind": "knowledge",
+            "sample_size": 3
+          },
+          {
+            "id": 6,
+            "kind": "scores",
+            "sample_size": 1
+          },
+          {
+            "id": 7,
+            "kind": "scores",
+            "sample_size": 2
+          },
+          {
+            "id": 8,
+            "kind": "scores",
+            "sample_size": 0
+          },
+          {
+            "id": 9,
+            "kind": "scores",
+            "sample_size": 0
+          }
+        ]
+      },
+      "final": [
+        {
+          "id": 1,
+          "kind": "knowledge",
+          "sample_size": 0
+        },
+        {
+          "id": 2,
+          "kind": "knowledge",
+          "sample_size": 0
+        },
+        {
+          "id": 3,
+          "kind": "knowledge",
+          "sample_size": 1
+        },
+        {
+          "id": 4,
+          "kind": "knowledge",
+          "sample_size": 1
+        },
+        {
+          "id": 5,
+          "kind": "knowledge",
+          "sample_size": 3
+        },
+        {
+          "id": 6,
+          "kind": "scores",
+          "sample_size": 1
+        },
+        {
+          "id": 7,
+          "kind": "scores",
+          "sample_size": 2
+        },
+        {
+          "id": 8,
+          "kind": "scores",
+          "sample_size": 0
+        },
+        {
+          "id": 9,
+          "kind": "scores",
+          "sample_size": 0
+        }
+      ]
+    }
+  ],
+  "scope": "Independent arithmetic from saved raw facts; no model calculators"
+}
