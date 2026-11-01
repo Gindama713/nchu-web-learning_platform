@@ -1,20 +1,27 @@
 # 黄俊诚个人检查点材料
 
-黄俊诚（24201716），2026-10-16，Asia/Shanghai。按课程任务说明要求保存在 `docs/checkpoints/`。本报告提供基础模块、本人统计和难点候选的可复核材料；没有教师实际检查结论，不填写通过日期或加分。
+黄俊诚（24201716），2026-10-28，Asia/Shanghai。按课程任务说明要求保存在 `docs/checkpoints/`。本报告提供基础模块、本人统计、难点候选和CP-5材料状态；没有教师实际检查结论，不填写通过日期或加分。
 
 ## 检查范围与完整集合
 
-个人职责以[PRD§10](../PRD.md#team-plan)为准：005/006/008基础模块、010B统计、011/012/013智能模块。全部有效编号、输入/预期、实际、执行人、日期、测试入口、PR/SHA及附件见[131行逐项结果](../evidence/c12a/acceptance-matrix.md)和[机器字段JSON](../evidence/c12a/acceptance-matrix.json)。两个版本的登记范围及#27待合入补验见[交付索引](../C12C_DELIVERY_HUANG_JUNCHENG.md#验收数字的两个来源)。本报告与完整集合一同使用，不以“旧AC全部通过”替代。
+个人职责以[PRD§10](../PRD.md#team-plan)为准：005/006/008基础模块、010B统计、011/012/013智能模块。全部有效编号、输入/预期、实际、执行人、日期、测试入口、PR/SHA及附件见[131行逐项结果](../evidence/c12a/acceptance-matrix.md)和[机器字段JSON](../evidence/c12a/acceptance-matrix.json)。2026-10-28按develop `8e32fb4` 已合入代码/测试/证据重算为本地81通过/0失败/50阻断、集成81通过/0失败/50阻断；16行改判依据见[交付索引](../C12C_DELIVERY_HUANG_JUNCHENG.md#验收矩阵重算cp-5核心)。本报告与完整集合一同使用，不以“旧AC全部通过”替代。
 
 ## CP与本人材料对应
 
-| 检查点 | 本人可展示内容 | 证据入口 | 仍需实际检查 |
+| 检查点 | 本人可展示内容 | 证据入口 | 当前状态与仍需实际检查 |
 |---|---|---|---|
-| CP-1需求设计 | 六份主文档、本人分工及完整验收索引 | [README](../../README.md)、[PRD](../PRD.md)、[APIC](../APIC.md)、[DBD](../DBD.md)、[ADR](../ADR.md)、[CHG-RB](../CHG-RB.md) | 非作者规格复核、Gitea归档和教师结论，不由文档存在推断 |
-| CP-2基础模块 | 知识发布/完成、五题型固定版本、限时交卷、人工批阅、错题及专用quiz | [005](../SPEC-005_IMPLEMENTATION.md)、[006](../SPEC-006_IMPLEMENTATION.md)、[008](../SPEC-008_IMPLEMENTATION.md) | 教学账号、003/004等完整接缝；已有实现合入不等于全部验收 |
-| CP-3本人统计 | 真实客观样本分母、空样本null、分类成绩、旧ID/CSV、专用quiz联合 | [010B实施说明](../SPEC-010B_IMPLEMENTATION.md)、[个人测试报告](../TEST_REPORT_HUANG_JUNCHENG.md) | 全组各自统计及M9实验闭环不能由010B代验 |
-| CP-4难点候选 | 013固定候选/整数配分/有限确定性回溯/快照重放；011索引revision及故障失效 | [013](../SPEC-013_IMPLEMENTATION.md)、[C09干净证据](../evidence/spec-013/c09-browsers/REPORT.md)、[011](../SPEC-011_IMPLEMENTATION.md) | 教师决定难点认定与加分，本文不预判 |
-| CP-5系统检查 | 本人七SPEC材料、已知限制和恢复入口 | [交付清单](../C12C_DELIVERY_HUANG_JUNCHENG.md)、[个人报告源](../reports/24201716_黄俊诚_设计报告.md) | 全系统链路、目标性能/生产恢复、真实复核、固定tag/Gitea/超星及课堂 |
+| CP-1需求设计 | 六份主文档、本人分工及完整验收索引 | [README](../../README.md)、[PRD](../PRD.md)、[APIC](../APIC.md)、[DBD](../DBD.md)、[ADR](../ADR.md)、[CHG-RB](../CHG-RB.md) | 文档已备；非作者规格复核、Gitea归档和教师结论未提供，不由文档存在推断 |
+| CP-2基础模块 | 知识发布/完成、五题型固定版本、限时交卷、人工批阅、错题及专用quiz | [005](../SPEC-005_IMPLEMENTATION.md)、[006](../SPEC-006_IMPLEMENTATION.md)、[008](../SPEC-008_IMPLEMENTATION.md) | 005/006/008主体已合入develop；008 C05新基线双浏览器补证在PR #46（open/未合并）；003/004/007完整接缝和课堂未关闭 |
+| CP-3本人统计 | 真实客观样本分母、空样本null、分类成绩、旧ID/CSV、专用quiz联合 | [010B实施说明](../SPEC-010B_IMPLEMENTATION.md)、[个人测试报告](../TEST_REPORT_HUANG_JUNCHENG.md) | 主体及I-03有限子链、混合消费证据已合入；全组各自统计、M9实验闭环和课堂不能由010B代验 |
+| CP-4难点候选 | 013固定候选/整数配分/有限确定性回溯/快照重放；011索引revision及故障失效 | [013](../SPEC-013_IMPLEMENTATION.md)、[C09干净证据](../evidence/spec-013/c09-browsers/REPORT.md)、[011](../SPEC-011_IMPLEMENTATION.md)、[012](../SPEC-012_IMPLEMENTATION.md) | 011/012/#14/#15及消费接缝已合入；教师决定难点认定与加分，本文不预判 |
+| CP-5系统检查 | 七SPEC材料、131行矩阵、测试/用户说明、个人报告和已知限制 | [交付清单](../C12C_DELIVERY_HUANG_JUNCHENG.md)、[个人报告源](../reports/24201716_黄俊诚_设计报告.md)、[2026-10-28接入快照](../evidence/c12c/entry-state-20261028.json) | 材料已按develop `8e32fb4` 更新；PR #46/#45/#41/#40均未合并，全系统链路、目标性能/生产恢复、真实复核、固定tag/Gitea/超星及课堂未完成 |
+
+## 2026-10-28 CP-5材料状态
+
+- 矩阵：131行，本地/集成均81通过/0失败/50阻断/0待执行。16行由旧“待合入”改为通过（005/R20、011六行、012九行），依据#14 actual merge `3368060`、#15 actual merge `0a2b84c`、#27/#29—#35 develop合入提交及固定证据；旧值保存在JSON的`C12c_重算`/`C12c_历史记录`。
+- 008：C05a/C05b补证在PR #46 head `9a8343c`、tested_head `55167f6`，Chrome/Edge各10组、390px、`page_errors=[]`，CI run40647967505 success；PR仍open/未合并/reviews=[]，不写成已合入或教师验收。索引见[008补证引用](../evidence/c12c/spec-008-20261028-reference.md)。
+- 已合入：#4/#7/#9/#10/#11/#12/#13/#14/#15/#16/#17及#27/#28/#29—#35均由Git祖先核验在develop链上；#27/#28不再是“待合入”。未合入：PR #46（008补证）、#45（006补证，忽略）、#41（005图文draft）、#40（010B合入后收口）。
+- 验证：本轮只做文档/矩阵/链接/Word检查，未重跑008双浏览器或完整业务；本地/CI通过不等于教师验收。PR #47首次CI的ci-test在既有SPEC-011 QA并发测试上偶发`DB_BUSY`（1/376），同一head rerun后ci-required success；本地重复14次1次失败/13次通过。该失败列入SPEC-011待办（负责人黄俊诚），首次失败与rerun分别保留。
 
 ## 建议课堂演示步骤
 
@@ -30,6 +37,6 @@
 
 ## 实际合入与复核
 
-[C12c接入快照](../evidence/c12c/entry-state.json)记录本轮读取的PR #4/#7/#9/#10/#11/#12/#13/#14/#15/#16/#17实际merge及祖先核验；#27仍open/非draft、无actual merge且讨论为空。前七PR各有一份真实APPROVED，后四PR和#27没有真实review；不能把批准跨PR继承或将实际merge当作第二名批准。
+[2026-10-28接入快照](../evidence/c12c/entry-state-20261028.json)记录本轮读取的develop基线、已合入PR、未合入PR #46/#45/#41/#40及矩阵口径；[历史快照](../evidence/c12c/entry-state.json)保留2026-10-16的原始状态，其中“#27/#28待合入”已过期。前七PR各有一份真实APPROVED；#14/#15/#16/#17及#27/#29—#35没有新增真实非作者批准。008判分/答案保护/讲评仍按敏感改动要求两名真实非作者复核。
 
 本轮没有课堂、Gitea或超星操作，没有代替组长制作最终小组ZIP，没有软件tag或发布。后续实际结果由对应负责人补入；未完成项保留为阻断/待执行，不为交报告改成“不适用”。

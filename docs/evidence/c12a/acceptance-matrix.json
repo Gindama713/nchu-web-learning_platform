@@ -206,12 +206,12 @@
     "已有有效证据": "E005; H12; B12 Q1/Q5/Q6; I01有限接缝",
     "测试或人工步骤": "tests/knowledge.py#test_r20_revision_and_safe_markup; E011 / R20",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；I01：仅本包正文/例题白名单与版本字段消费；未重跑索引算法/故障包",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；I01：仅本包正文/例题白名单与版本字段消费；未重跑索引算法/故障包；2026-10-28重算：005/R20的011部分已由#14合入develop（actual merge 336806072638a4ab0a973b3e7b01b517f73aa9d6，祖先已核验）；索引失败503、旧内容清除及重建证据见 docs/SPEC-011_IMPLEMENTATION.md；005基础标记/revision见 tests/test_knowledge.py#test_r20_revision_and_safe_markup。",
     "实际": "本人子集已有实现及证据；完整范围仍缺依赖",
-    "结果": "阻断",
+    "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "011尚未合入；基础标记/revision已实现，完整索引接缝待消费develop",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人005/011适用子能力通过；014预警批次与016识别不属本人交付，完整R20跨模块、课堂及目标环境另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#4",
@@ -248,7 +248,23 @@
     "I01_tested_SHA": "96f4f2989765359e01949f4003dde4d32c0c4814",
     "I01_覆盖范围": "仅本包正文/例题白名单与版本字段消费；未重跑索引算法/故障包",
     "I01_证据附件": "docs/SPEC-005_I01_RESOURCE_SEAMS.md; docs/evidence/spec-005/i01/handlers/; docs/evidence/spec-005/i01/browsers/; docs/evidence/spec-005/i01/reconciliation.json",
-    "I01_日期": "2026-10-17 Asia/Shanghai"
+    "I01_日期": "2026-10-17 Asia/Shanghai",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "阻断",
+      "previous_integration_result": "阻断",
+      "previous_gap": "011尚未合入；基础标记/revision已实现，完整索引接缝待消费develop",
+      "basis": "005/R20的011部分已由#14合入develop（actual merge 336806072638a4ab0a973b3e7b01b517f73aa9d6，祖先已核验）；索引失败503、旧内容清除及重建证据见 docs/SPEC-011_IMPLEMENTATION.md；005基础标记/revision见 tests/test_knowledge.py#test_r20_revision_and_safe_markup。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "阻断",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "011尚未合入；基础标记/revision已实现，完整索引接缝待消费develop",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-005",
@@ -1427,7 +1443,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/quizzes.py#test_new_submission_at_end_is_rejected_without_consuming_key",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：双浏览器各10组，真实开始/截止窗口、截止拒新提交、成功键原201字节重放；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1439,7 +1455,8 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -1450,7 +1467,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：同键截止后原响应重放、异内容拒绝，双浏览器各10组；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1462,7 +1479,8 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -1473,7 +1491,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/quizzes.py#test_statistics_five_types_omissions_options_pending_and_frozen_population",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：应交2/已交1/缺交1、漏答计错、简答null、多选200%、待批不混已批均分；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1547,7 +1565,8 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
-    }
+    },
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -1558,7 +1577,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/quizzes.py#test_review_exact_end_durable_repeat_and_all_answer_entries_release; tests/score_analytics.py#test_dedicated_quiz_statistics_grading_review_and_saved_scores",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：讲评CSRF/Origin四组403、仅截止后同课教师可讲评、重复保留首次时刻、讲评前全版本无答案/解析、review后释放；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1632,7 +1651,8 @@
       "evidence": "../consumption-seams/",
       "report": "../../SPEC-012_013_CONSUMPTION_SEAMS.md",
       "decision": "仅增加本轮消费接缝证据；原本地/集成判定不变，不关闭完整模块/跨链"
-    }
+    },
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -1752,7 +1772,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：开始前仅元数据、窗口边界、漏答/待批规则及390px；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1764,7 +1784,8 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -1775,7 +1796,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/quizzes.py#test_publication_same_paper_null_review_and_frozen_notification_recipients; tests/quizzes.py#test_statistics_five_types_omissions_options_pending_and_frozen_population",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：发布冻结名单、转入不补/退出保留分母、通知去重；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1787,7 +1808,8 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -1798,7 +1820,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：截止后成功键原201字节重放、不同内容409；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1810,7 +1832,8 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -1821,7 +1844,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/quizzes.py#test_public_identity_rejected_and_notification_failure_rolls_back_publication; tests/quizzes.py#test_quiz_publication_and_practice_opening_share_identity_lock",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：专用发布身份保护、全版本占用及公开历史拒绝；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1833,7 +1856,8 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -1844,7 +1868,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/manual_scores.py#test_partial_full_correction_exact_sum_and_audit; tests/manual_scores.py#test_stale_revision_no_overwrite_or_audit",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：人工批改后均值/待批更新、原成功快照不变；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1856,7 +1880,8 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -1867,7 +1892,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/quizzes.py#test_statistics_five_types_omissions_options_pending_and_frozen_population; tests/quizzes.py#test_statistics_only_short_no_objective_denominator_and_empty_roster",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：逐题统计零分母null、多选>1、漏答分母、待批不混均分；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1879,7 +1904,8 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -1890,7 +1916,7 @@
     "已有有效证据": "E008; EQB",
     "测试或人工步骤": "tests/quizzes.py#test_closed_unreviewed_quiz_protects_all_versions_and_wrong_question_entry; tests/quizzes.py#test_review_exact_end_durable_repeat_and_all_answer_entries_release",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：截止未讲评paper/attempt/错题无答案/解析、同question两版本练习拒绝；review后释放；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -1902,7 +1928,8 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -2114,7 +2141,7 @@
     "已有有效证据": "E008; EQB; REMOTE",
     "测试或人工步骤": "tests/quizzes.py#test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot; 对应实施记录共通/NF行",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "复用本人适用证据；外部目标保持未完成",
+    "本轮补验": "复用本人适用证据；外部目标保持未完成；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：讲评无头/仅Origin/仅CSRF/异源+有效CSRF均403，同课教师合法CSRF/Origin可成功；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "本人适用子集见证据，完整判定如下；未将AI、组件、handler或浏览器替代真实人工/课堂",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
@@ -2126,7 +2153,8 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -2160,7 +2188,7 @@
     "已有有效证据": "E008; EQB; REMOTE; C12b-UI02",
     "测试或人工步骤": "frontend/js/paper-time.test.js; frontend/js/paper-view.test.js; frontend/js/attempt-view.test.js; scripts/verify_c12b_paper_time.py",
     "证据层次": "组件/HTTP替身；既有真实handler/SQLite；真实socket HTTP/Chrome/Edge；账号bootstrap/TEST_NOW夹具；课堂/真实非作者未执行",
-    "本轮补验": "26项组件、5项真实handler14.788秒、Chrome/Edge各4组及8张390px截图",
+    "本轮补验": "26项组件、5项真实handler14.788秒、Chrome/Edge各4组及8张390px截图；2026-10-28 C05补证（PR46 head 9a8343c，open/未合并）：Chrome155.0.8059.86/Edge156.0.4314.50各10组、page_errors=[]、390px无横向溢出；仅补证引用，不改变本行基于已合入#9的判定",
     "实际": "006主修/影响008共用窗口、截止/提交Asia/Shanghai，UTC周日跨上海周一/午夜00；原UTC对象/GET data/数据库/成功快照不变；开始前/截止409、原键201字节重放、讲评前保护/讲评后开放；空/异常/无时区只在组件层验证；Chrome155.0.8059.41(UTC)/Edge155.0.4283.45(America/Los_Angeles)，dirty_paths=[]/page_errors=[]；非课堂证据",
     "结果": "通过",
     "本人阻断缺陷": "C12a-UI-02已在所属feature修复并实际合入develop；本轮受影响显示/提交集成补验通过，完整SPEC另计",
@@ -2179,7 +2207,8 @@
     "集成后补验": "干净dfb2327：既有paper脚本在Chrome155.0.8059.41(UTC)/Edge155.0.4283.45(America/Los_Angeles)各4组通过，8张390px截图；006考试/008专用发布、跨日/午夜00、开始前/截止409、原键201字节重放、讲评前保护/讲评后开放、DB submitted_at及GET data保持UTC。dirty_paths=[]/page_errors=[]；仅受影响HTTP/UI集成，原组件/handler及其余完整业务证据按固定SHA复用，未重跑整套；非课堂或真实非作者批准。",
     "集成核验证据": "docs/evidence/c12a/c12b-code-head-ci.json#integration_recheck_followups[2]",
     "集成tested_SHA": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
-    "集成证据附件": "docs/evidence/c12a/c12b-integration-dfb2327/paper/report.json；同目录截图"
+    "集成证据附件": "docs/evidence/c12a/c12b-integration-dfb2327/paper/report.json；同目录截图",
+    "C12c_008补证": "2026-10-28 PR46 head 9a8343c（open/未合并）C05补证；详见 docs/evidence/c12c/spec-008-20261028-reference.md"
   },
   {
     "spec": "SPEC-008",
@@ -3115,19 +3144,35 @@
     "已有有效证据": "E011",
     "测试或人工步骤": "tests/qa.py#test_zero_vector_empty_corpus_and_empty_vocabulary",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28重算：#14合入develop（actual merge 3368060，祖先已核验）；no_match/empty_corpus真实HTTP/UI证据见 docs/SPEC-011_IMPLEMENTATION.md 与 docs/evidence/spec-011/browsers/REPORT.md。",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收；仅该SPEC独立feature已验证，未集成develop",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "待合入develop再验证完整跨链",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人检索子链通过；完整I-03、R47、目标环境/生产恢复/课堂另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#14",
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "待合入develop再验证完整跨链",
+      "basis": "#14合入develop（actual merge 3368060，祖先已核验）；no_match/empty_corpus真实HTTP/UI证据见 docs/SPEC-011_IMPLEMENTATION.md 与 docs/evidence/spec-011/browsers/REPORT.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "待合入develop再验证完整跨链",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-011",
@@ -3244,19 +3289,35 @@
     "已有有效证据": "E011",
     "测试或人工步骤": "tests/qa.py#test_build_failure_after_real_update_never_serves_old_and_recovers; tests/qa.py#test_unpublish_with_failed_rebuild_cannot_return_obsolete_excerpt",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28重算：#14合入develop；INDEX_UNAVAILABLE、旧缓存清除、qa_index/qa_query事务回滚证据见 docs/SPEC-011_IMPLEMENTATION.md。",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收；仅该SPEC独立feature已验证，未集成develop",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "待合入develop再验证完整跨链",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人011适用子能力通过；014预警/016识别不属本人交付，完整R20跨模块、课堂及目标环境另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#14",
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "待合入develop再验证完整跨链",
+      "basis": "#14合入develop；INDEX_UNAVAILABLE、旧缓存清除、qa_index/qa_query事务回滚证据见 docs/SPEC-011_IMPLEMENTATION.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "待合入develop再验证完整跨链",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-011",
@@ -3267,19 +3328,35 @@
     "已有有效证据": "E011",
     "测试或人工步骤": "tests/qa.py#test_all_fixed_aliases_english_boundaries_and_chinese_adjacency; tests/qa.py#test_raw_threshold_sort_before_rounding_top_k_excerpt_200; tests/qa.py#test_failed_qa_does_not_block_real_objective_practice_submission; tests/qa.py#test_continuous_real_updates_exhaust_bounded_retry_without_old_result",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28重算：#14合入develop；17项专题日志、双浏览器各9组及固定算法夹具见 docs/SPEC-011_IMPLEMENTATION.md 与 evidence/spec-011。",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收；仅该SPEC独立feature已验证，未集成develop",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "待合入develop再验证完整跨链",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人检索子链通过；完整I-03、R47、目标环境/生产恢复/课堂另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#14",
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "待合入develop再验证完整跨链",
+      "basis": "#14合入develop；17项专题日志、双浏览器各9组及固定算法夹具见 docs/SPEC-011_IMPLEMENTATION.md 与 evidence/spec-011。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "待合入develop再验证完整跨链",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-011",
@@ -3336,19 +3413,35 @@
     "已有有效证据": "E011; REMOTE",
     "测试或人工步骤": "tests/qa.py#test_zero_vector_empty_corpus_and_empty_vocabulary; 对应实施记录共通/NF行",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "复用本人适用证据；外部目标保持未完成",
+    "本轮补验": "复用本人适用证据；外部目标保持未完成；2026-10-28重算：#14合入develop；QA接口/算法/DBD单一有效定义见 docs/SPEC-011_IMPLEMENTATION.md 与 APIC§5/PRD§4.3。",
     "实际": "本人适用子集见证据，完整判定如下；未将AI、组件、handler或浏览器替代真实人工/课堂",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "无本行本人阻断；完整验收仍看共通/NF行。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#14",
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "",
+      "basis": "#14合入develop；QA接口/算法/DBD单一有效定义见 docs/SPEC-011_IMPLEMENTATION.md 与 APIC§5/PRD§4.3。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-011",
@@ -3405,19 +3498,35 @@
     "已有有效证据": "E011; REMOTE",
     "测试或人工步骤": "tests/qa.py#test_zero_vector_empty_corpus_and_empty_vocabulary; 对应实施记录共通/NF行",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "复用本人适用证据；外部目标保持未完成",
+    "本轮补验": "复用本人适用证据；外部目标保持未完成；2026-10-28重算：#14合入develop；会话/CSRF/Origin/撤权/跨课/输入及纯文本片段证据见 docs/SPEC-011_IMPLEMENTATION.md。",
     "实际": "本人适用子集见证据，完整判定如下；未将AI、组件、handler或浏览器替代真实人工/课堂",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "无本行本人阻断；完整验收仍看共通/NF行。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#14",
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "",
+      "basis": "#14合入develop；会话/CSRF/Origin/撤权/跨课/输入及纯文本片段证据见 docs/SPEC-011_IMPLEMENTATION.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-011",
@@ -3451,19 +3560,35 @@
     "已有有效证据": "E011; REMOTE",
     "测试或人工步骤": "tests/qa.py#test_zero_vector_empty_corpus_and_empty_vocabulary; 对应实施记录共通/NF行",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "REMOTE当前状态核验；B12本人接缝；UI12上海时间跨日显示",
+    "本轮补验": "REMOTE当前状态核验；B12本人接缝；UI12上海时间跨日显示；2026-10-28重算：#14合入develop；Chrome/Edge各9组、page_errors=[]、6图目视见 docs/evidence/spec-011/browsers/REPORT.md。",
     "实际": "本人适用子集见证据，完整判定如下；未将AI、组件、handler或浏览器替代真实人工/课堂",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本行双浏览器/390px通过；真实非作者复核、目标性能/生产恢复/课堂等原缺口保留。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#14",
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "",
+      "basis": "#14合入develop；Chrome/Edge各9组、page_errors=[]、6图目视见 docs/evidence/spec-011/browsers/REPORT.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-011",
@@ -3497,12 +3622,12 @@
     "已有有效证据": "E012",
     "测试或人工步骤": "tests/recommendations.py#test_real_practice_multitag_fixed_version_replay_blank_and_own_identity",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28重算：#15合入develop（actual merge 0a2b84c7ecf05df9f29c4142cd36c28266b3eb4d，祖先已核验）；错题/多标签/真实作答证据见 docs/SPEC-012_IMPLEMENTATION.md。",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收；仅该SPEC独立feature已验证，未集成develop",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "待合入develop再验证完整跨链",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人推荐子链通过；完整I-02、R47、目标环境/生产恢复/课堂另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#15",
@@ -3547,7 +3672,23 @@
       "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
       "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
       "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
-    }
+    },
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "待合入develop再验证完整跨链",
+      "basis": "#15合入develop（actual merge 0a2b84c7ecf05df9f29c4142cd36c28266b3eb4d，祖先已核验）；错题/多标签/真实作答证据见 docs/SPEC-012_IMPLEMENTATION.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "待合入develop再验证完整跨链",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-012",
@@ -3558,12 +3699,12 @@
     "已有有效证据": "E012",
     "测试或人工步骤": "tests/recommendations.py#test_formula_reason_and_completed_mastery_combinations",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28重算：#15合入develop；reason优先级、样本/掌握度/6位分数及双浏览器见 docs/SPEC-012_IMPLEMENTATION.md。",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收；仅该SPEC独立feature已验证，未集成develop",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "待合入develop再验证完整跨链",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人推荐子链通过；完整I-02、R47、目标环境/生产恢复/课堂另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#15",
@@ -3608,7 +3749,23 @@
       "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
       "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
       "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
-    }
+    },
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "待合入develop再验证完整跨链",
+      "basis": "#15合入develop；reason优先级、样本/掌握度/6位分数及双浏览器见 docs/SPEC-012_IMPLEMENTATION.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "待合入develop再验证完整跨链",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-012",
@@ -3619,19 +3776,35 @@
     "已有有效证据": "E012",
     "测试或人工步骤": "tests/recommendations.py#test_real_cold_foundations_progress_unpublish_empty",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28重算：#15合入develop；冷启动/基础标记/空课程证据见 docs/SPEC-012_IMPLEMENTATION.md。",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收；仅该SPEC独立feature已验证，未集成develop",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "待合入develop再验证完整跨链",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人推荐子链通过；完整I-02、R47、目标环境/生产恢复/课堂另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#15",
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "待合入develop再验证完整跨链",
+      "basis": "#15合入develop；冷启动/基础标记/空课程证据见 docs/SPEC-012_IMPLEMENTATION.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "待合入develop再验证完整跨链",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-012",
@@ -3642,19 +3815,35 @@
     "已有有效证据": "E012",
     "测试或人工步骤": "tests/recommendations.py#test_real_n5_mastery_boundary_filter_and_uncompleted_mastered; tests/recommendations.py#test_raw_score_before_rounding_tie_id_and_limit",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28重算：#15合入develop；n=5/m=.8、完成与掌握过滤、未舍入排序/ID/limit证据见 docs/SPEC-012_IMPLEMENTATION.md。",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收；仅该SPEC独立feature已验证，未集成develop",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "待合入develop再验证完整跨链",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人推荐子链通过；完整I-02、R47、目标环境/生产恢复/课堂另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#15",
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "待合入develop再验证完整跨链",
+      "basis": "#15合入develop；n=5/m=.8、完成与掌握过滤、未舍入排序/ID/limit证据见 docs/SPEC-012_IMPLEMENTATION.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "待合入develop再验证完整跨链",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-012",
@@ -3665,19 +3854,35 @@
     "已有有效证据": "E012",
     "测试或人工步骤": "tests/recommendations.py#test_real_cold_foundations_progress_unpublish_empty",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28重算：#15合入develop；推荐只消费已发布知识/基础标记，未扩展预警/识别；证据见 docs/SPEC-012_IMPLEMENTATION.md。",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收；仅该SPEC独立feature已验证，未集成develop",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "待合入develop再验证完整跨链",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人012适用子能力通过；014预警/016识别不属本人交付，完整R20跨模块、课堂及目标环境另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#15",
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "待合入develop再验证完整跨链",
+      "basis": "#15合入develop；推荐只消费已发布知识/基础标记，未扩展预警/识别；证据见 docs/SPEC-012_IMPLEMENTATION.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "待合入develop再验证完整跨链",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-012",
@@ -3688,12 +3893,12 @@
     "已有有效证据": "E012",
     "测试或人工步骤": "tests/recommendations.py#test_real_practice_multitag_fixed_version_replay_blank_and_own_identity; tests/recommendations.py#test_real_008_partial_objective_omission_short_and_manual_grade",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28重算：#15合入develop；空items元信息、多标签不重复计总、样本去重见 docs/SPEC-012_IMPLEMENTATION.md。",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收；仅该SPEC独立feature已验证，未集成develop",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "待合入develop再验证完整跨链",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人推荐子链通过；完整I-02、R47、目标环境/生产恢复/课堂另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#15",
@@ -3738,7 +3943,23 @@
       "tested_SHA": "938a45c0b169cf0bbbe335c92ae4ec6841d20929",
       "证据": "docs/SPEC-006_010B_MIXED_CONSUMPTION.md；docs/evidence/mixed-consumption/",
       "范围": "仅生成作业/考试到分类与跨卷成绩、混合练习/quiz到推荐及知识周序列的实际消费；不提升完整模块或原行判定"
-    }
+    },
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "待合入develop再验证完整跨链",
+      "basis": "#15合入develop；空items元信息、多标签不重复计总、样本去重见 docs/SPEC-012_IMPLEMENTATION.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "待合入develop再验证完整跨链",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-012",
@@ -3749,19 +3970,35 @@
     "已有有效证据": "E012",
     "测试或人工步骤": "tests/recommendations.py#test_cold_start_flags_completed_and_empty_priority; tests/recommendations.py#test_real_28day_half_open_boundaries; tests/recommendations.py#test_identity_level_protection_excludes_entry_and_failure_does_not_block_submit; tests/recommendations.py#test_current_entry_change_deactivation_continuous_change_dependency_and_backup",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
+    "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单；2026-10-28重算：#15合入develop；28天半开边界、原始分数排序/同分ID、冷启动/样本不足/已掌握过滤见 docs/SPEC-012_IMPLEMENTATION.md 与 evidence/spec-012。",
     "实际": "已有实现；指定测试断言和证据组覆盖本人适用规则；本轮复核有效证据，不冒充课堂验收；仅该SPEC独立feature已验证，未集成develop",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "待合入develop再验证完整跨链",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "本人推荐子链通过；完整I-02、R47、目标环境/生产恢复/课堂另行判定。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#15",
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "待合入develop再验证完整跨链",
+      "basis": "#15合入develop；28天半开边界、原始分数排序/同分ID、冷启动/样本不足/已掌握过滤见 docs/SPEC-012_IMPLEMENTATION.md 与 evidence/spec-012。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "待合入develop再验证完整跨链",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-012",
@@ -3818,19 +4055,35 @@
     "已有有效证据": "E012; REMOTE",
     "测试或人工步骤": "tests/recommendations.py#test_formula_reason_and_completed_mastery_combinations; 对应实施记录共通/NF行",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "复用本人适用证据；外部目标保持未完成",
+    "本轮补验": "复用本人适用证据；外部目标保持未完成；2026-10-28重算：#15合入develop；PRD算法/reason、APIC§5接入口及DBD不新增表见 docs/SPEC-012_IMPLEMENTATION.md。",
     "实际": "本人适用子集见证据，完整判定如下；未将AI、组件、handler或浏览器替代真实人工/课堂",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "无本行本人阻断；完整验收仍看共通/NF行。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#15",
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "",
+      "basis": "#15合入develop；PRD算法/reason、APIC§5接入口及DBD不新增表见 docs/SPEC-012_IMPLEMENTATION.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-012",
@@ -3887,19 +4140,35 @@
     "已有有效证据": "E012; REMOTE",
     "测试或人工步骤": "tests/recommendations.py#test_formula_reason_and_completed_mastery_combinations; 对应实施记录共通/NF行",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
-    "本轮补验": "复用本人适用证据；外部目标保持未完成",
+    "本轮补验": "复用本人适用证据；外部目标保持未完成；2026-10-28重算：#15合入develop；会话本人/跨课/他人参数/撤权/停用及来源净化见 docs/SPEC-012_IMPLEMENTATION.md。",
     "实际": "本人适用子集见证据，完整判定如下；未将AI、组件、handler或浏览器替代真实人工/课堂",
     "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "",
-    "集成结果": "阻断",
+    "队友环境或剩余缺口": "无本行本人阻断；完整验收仍看共通/NF行。",
+    "集成结果": "通过",
     "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
     "核对日期": "2026-10-15 Asia/Shanghai",
     "PR": "#15",
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_重算": {
+      "date": "2026-10-28 Asia/Shanghai",
+      "previous_result": "通过",
+      "previous_integration_result": "阻断",
+      "previous_gap": "",
+      "basis": "#15合入develop；会话本人/跨课/他人参数/撤权/停用及来源净化见 docs/SPEC-012_IMPLEMENTATION.md。",
+      "not_merged_note": "PR46/PR45/PR40均未合入，不作为本行通过依据。"
+    },
+    "C12c_历史记录": [
+      {
+        "结果": "通过",
+        "集成结果": "阻断",
+        "队友环境或剩余缺口": "",
+        "核对日期": "2026-10-15 Asia/Shanghai"
+      }
+    ]
   },
   {
     "spec": "SPEC-012",
