@@ -49,12 +49,20 @@ def password(value):
     return value
 
 
+def login_id(value):
+    # 演示教师账号 teacher 只有 7 位，登录兼容既有教师账号；注册仍走 student_no。
+    if not isinstance(value, str) or not re.fullmatch(r"[A-Za-z0-9]{4,20}", value):
+        raise ApiError(400, "VALIDATION_ERROR", "账号必须是 4–20 位字母或数字")
+    return value
+
+
 @bp.post("/auth/register")
 def register():
-    data = body(("student_no", "name", "password"))
+    data = body(("student_no", "name"), allowed=("password",))
     number = student_no(data["student_no"])
     name = text_field(data["name"], "name", maximum=50)
-    hashed = generate_password_hash(password(data["password"]))
+    default_password = "password" not in data
+    hashed = generate_password_hash(number if default_password else password(data["password"]))
     timestamp = stamp()
     try:
         with write() as db:
@@ -63,7 +71,8 @@ def register():
                 "VALUES(?,?,?,'student',1,?,?)", (number, name, hashed, timestamp, timestamp),
             )
             user = db.execute("SELECT * FROM user WHERE id=?", (cursor.lastrowid,)).fetchone()
-            audit("user.register", "user", user["id"], after={"role": "student"}, actor_id=user["id"])
+            audit("user.register", "user", user["id"],
+                  after={"role": "student", "default_password": default_password}, actor_id=user["id"])
     except sqlite3.IntegrityError as exc:
         raise ApiError(409, "DUPLICATE", "该学号已注册") from exc
     return result({"user": public_user(user)}, 201)
@@ -72,7 +81,7 @@ def register():
 @bp.post("/auth/login")
 def login():
     data = body(("student_no", "password"))
-    number = student_no(data["student_no"])
+    number = login_id(data["student_no"])
     supplied = data["password"] if isinstance(data["password"], str) else ""
     with write():
         rate_limit(f"login:ip:{request.remote_addr}", 20)
@@ -92,6 +101,9 @@ def login():
                     hashlib.sha256(csrf.encode()).hexdigest(), user["session_version"],
                     expires, timestamp, timestamp))
         audit("auth.login", "user", user["id"], actor_id=user["id"])
+        # 供访问日志记下本次登录的账号，避免登录请求本身在日志里是空用户
+        g.user = {"id": user["id"], "student_no": user["student_no"],
+                  "name": user["name"], "role": user["role"]}
     response = make_response(result({"user": public_user(user), "csrf_token": csrf})[0])
     response.set_cookie(COOKIE, token, httponly=True, secure=current_app.config["COOKIE_SECURE"],
                         samesite="Lax", path="/", max_age=7200)

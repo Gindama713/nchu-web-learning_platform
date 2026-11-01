@@ -12,6 +12,7 @@ import { GradingView } from './grading-view.js'
 import { QAView } from './qa-view.js'
 import { RecommendationView } from './recommendation-view.js'
 import { DemoView } from './demo-view.js'
+import { AluView } from './alu-view.js'
 import { KnowledgeGraphView } from './knowledge-graph-view.js'
 import { RecognitionView } from './recognition-view.js'
 import { WarningView } from './warning-view.js'
@@ -30,6 +31,7 @@ import '../styles/experiments.css'
 import '../styles/grading.css'
 import '../styles/qa.css'
 import '../styles/demos.css'
+import '../styles/alu.css'
 import '../styles/graph.css'
 import '../styles/recognition.css'
 import '../styles/warnings.css'
@@ -38,7 +40,7 @@ import '../styles/wiring.css'
 import '../styles/wiring-stats.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView },
   setup() {
     const user = ref(null)
     const practiceEntry = ref(null)
@@ -145,11 +147,16 @@ createApp({
     const draft = ref('[]')
     const secretCode = ref('')
     const auth = reactive({ student_no: '', name: '', password: '' })
+    const demoStudentNo = ref('')
     const courseForm = reactive({ title: '', teacher_id: '', retain_previous_teacher: false })
     const memberNo = ref('')
     const taskForm = reactive({ title: '', start_at: '', late_at: '', end_at: '' })
     const check = reactive({ task_id: '', code: '', reason: '' })
     const analysisFilter = reactive({ from: '', to: '', paper_ids: '' })
+    // 课堂点到座位图：按班级分页展示教室布局与每个座位的实时状态
+    const seatData = ref(null)
+    const seatClass = ref('')
+    const seatDetail = ref(null)
     let courseEpoch = 0
 
     function clearCourse() {
@@ -164,6 +171,9 @@ createApp({
       recognition.value = null
       draft.value = '[]'
       secretCode.value = ''
+      seatData.value = null
+      seatClass.value = ''
+      seatDetail.value = null
       check.task_id = ''
       check.code = ''
       check.reason = ''
@@ -245,16 +255,70 @@ createApp({
       csrf.value = data.csrf_token
       auth.password = ''
       await refreshCourses()
+      // 登录后同样自动选中第一门课，否则直接切到「考勤与学情」会是一片空白。
+      if (user.value.role !== 'admin' && !courseId.value && courses.value.length) {
+        await selectCourse(courses.value[0].id)
+      }
     }
     async function login() {
       await act(loginRequest, '登录成功。')
     }
+    function fillTeacher() {
+      auth.student_no = 'teacher'
+      auth.password = 'teacher'
+      message.value = '已填入教师账号 teacher，点击“登录”进入。'
+    }
+    function fillStudent() {
+      const number = demoStudentNo.value.trim() || '24200000'
+      auth.student_no = number
+      auth.password = number
+      message.value = `已填入学生账号 ${number}，密码与学号相同。`
+    }
     async function register() {
       await act(async () => {
-        await apiRequest('/api/v1/auth/register', 'POST', { ...auth })
+        const number = auth.student_no
+        await apiRequest('/api/v1/auth/register', 'POST', { student_no: number, name: auth.name })
+        auth.password = number
         await loginRequest()
-      }, '学生账号已注册。')
+      }, '学生账号已注册，默认密码为学号。')
     }
+    async function loadSeats(taskId) {
+      await act(async () => {
+        const data = await readApi('/api/v1/attendance-tasks/' + taskId + '/seats')
+        seatData.value = data
+        seatClass.value = data.classes.length ? data.classes[0].class_name : ''
+        seatDetail.value = null
+      })
+    }
+    const seatCurrent = computed(() => {
+      if (!seatData.value) return []
+      const hit = seatData.value.classes.find(item => item.class_name === seatClass.value)
+      return hit ? hit.seats : []
+    })
+    const seatStats = computed(() => {
+      const counts = { present: 0, late: 0, leave: 0, absent: 0, pending: 0 }
+      seatCurrent.value.forEach(seat => { counts[seat.status] = (counts[seat.status] ?? 0) + 1 })
+      return counts
+    })
+    const seatGroups = computed(() => {
+      const map = new Map()
+      seatCurrent.value.forEach(seat => {
+        if (!map.has(seat.group_no)) map.set(seat.group_no, [])
+        map.get(seat.group_no).push(seat)
+      })
+      return [...map.entries()]
+        .sort((left, right) => left[0] - right[0])
+        .map(([no, seats]) => ({ no, seats: seats.slice().sort((left, right) => left.seat_no - right.seat_no) }))
+    })
+    // 教室分左中右三块：把组按顺序切成三列，中间列组数少时自然留白
+    const seatColumns = computed(() => {
+      const groups = seatGroups.value
+      const size = Math.ceil(groups.length / 3) || 1
+      return [groups.slice(0, size), groups.slice(size, size * 2), groups.slice(size * 2)]
+    })
+    const seatText = status => ({
+      present: '已到', late: '迟到', leave: '请假', absent: '缺勤', pending: '未签到',
+    }[status] ?? status)
     async function logout() {
       await act(async () => {
         await write('/api/v1/auth/logout', 'POST')
@@ -492,6 +556,8 @@ createApp({
     onMounted(session)
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
+      demoStudentNo, fillTeacher, fillStudent,
+      seatData, seatClass, seatDetail, loadSeats, seatCurrent, seatStats, seatColumns, seatText,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
       leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect }
   },
@@ -500,12 +566,29 @@ createApp({
       <header :class="['hero', user && 'compact']"><p class="eyebrow">g24201710 · 计算机组成原理</p>
         <h1>中央处理器课程学习系统</h1><p role="status" aria-live="polite">{{ message }}</p>
         <button v-if="user" type="button" @click="logout">退出</button></header>
-      <section v-if="!user" class="card"><h2>登录 / 学生注册</h2>
-        <label>学号 <input v-model.trim="auth.student_no" minlength="8" maxlength="20" autocomplete="username"></label>
+      <section v-if="!user" class="card login-card"><h2>登录 / 学生注册</h2>
+        <label>学号 <input id="username" v-model.trim="auth.student_no" maxlength="20" autocomplete="username"></label>
         <label>姓名（注册填写） <input v-model.trim="auth.name" maxlength="50" autocomplete="name"></label>
-        <label>密码 <input v-model="auth.password" type="password" minlength="12" autocomplete="current-password"></label>
-        <div class="actions"><button type="button" @click="login">登录</button>
-          <button type="button" class="secondary" @click="register">注册学生账号</button></div></section>
+        <label>密码 <input id="password" v-model="auth.password" type="password" autocomplete="current-password"></label>
+        <div class="actions"><button id="login" type="button" @click="login">登录</button>
+          <button type="button" class="secondary" @click="register">注册学生账号</button></div>
+        <div class="login-demo">
+          <label>学生学号（一键填充用） <input id="student-no" v-model.trim="demoStudentNo" maxlength="20"
+            placeholder="留空使用 24200000"></label>
+          <div class="actions">
+            <button id="auto-fill-teacher" type="button" class="secondary" @click="fillTeacher">填入教师账号</button>
+            <button id="auto-fill-student" type="button" class="secondary" @click="fillStudent">填入学生账号</button>
+          </div>
+        </div>
+        <section class="login-guide" aria-labelledby="software-guide-title">
+          <h3 id="software-guide-title">《软件使用说明》</h3>
+          <ol>
+            <li>教师演示：点击“填入教师账号”，使用 teacher / teacher 登录。</li>
+            <li>学生演示：在“学生学号”填入学号（留空按 24200000），点击“填入学生账号”，密码与学号相同。</li>
+            <li>学生注册：填写学号与姓名后点击“注册学生账号”，默认密码就是学号；登录后可在“账号设置”修改。</li>
+            <li>四个班的真实名单由管理员运行名单导入脚本建立，重复导入不会产生重复账号。</li>
+          </ol>
+        </section></section>
       <template v-else>
         <nav class="tabbar" role="tablist" aria-label="功能分区">
           <button v-for="item in (user.role === 'admin' ? tabs.slice(0, 1) : tabs)" :key="item.id" type="button" role="tab"
@@ -546,6 +629,7 @@ createApp({
         <button type="button" class="secondary" @click="tab = 'lab'">实验与演示</button>
         <button type="button" class="secondary" @click="tab = 'stats'">考勤与学情</button>
         </div>
+        </template>
         </section>
         <section v-if="user.role === 'admin'" class="card"><h2>课程与账号管理</h2>
         <form class="inline-form" @submit.prevent="createCourse">
@@ -598,6 +682,7 @@ createApp({
         </template>
 
         <template v-if="tab === 'lab' && user.role !== 'admin'">
+        <AluView :key="'alu:' + user.id" :user="user" />
         <DemoView v-if="user.role !== 'admin'" :key="'demo:' + user.id + ':' + user.role" :user="user" />
         <ExperimentView v-if="user.role !== 'admin'" :key="'experiments:' + user.id + ':' + user.role" :user="user" />
         <GradingView v-if="user.role !== 'admin'" :key="'grading:' + user.id + ':' + user.role" :user="user" />
@@ -615,6 +700,7 @@ createApp({
         <div class="sum-tile"><span>考勤记录</span><strong>{{ records.length }}</strong></div>
         </div>
 
+        <p v-if="user.role === 'teacher'" class="att-meta">访问日志：<a href="/api/v1/logs/access.csv" target="_blank" rel="noopener">导出 CSV</a>　<a href="/api/v1/logs/audit.csv" target="_blank" rel="noopener">关键操作审计 CSV</a>　<a href="/api/v1/logs/access" target="_blank" rel="noopener">JSON</a></p>
         <p v-if="secretCode" class="att-code">本次签到码 <strong>{{ secretCode }}</strong><small>刷新后不可找回，可轮换</small></p>
 
         <ul class="att-tasks">
@@ -629,13 +715,54 @@ createApp({
         <p class="att-meta">到勤 {{ attendedOf(item.id) }} / {{ totalOf(item.id) }} 人次<b>{{ rateOf(item.id) }}%</b></p>
         </template>
         <p v-else class="att-meta">我的状态：{{ myStatusOf(item.id) }}</p>
-        <div v-if="user.role === 'teacher' && item.status === 'open'" class="att-actions">
-        <button type="button" class="secondary" @click="rotate(item.id)">轮换码</button>
-        <button type="button" @click="close(item.id)">结算</button>
+        <div v-if="user.role === 'teacher'" class="att-actions">
+        <button type="button" class="secondary" @click="loadSeats(item.id)">教室座位图</button>
+        <button v-if="item.status === 'open'" type="button" class="secondary" @click="rotate(item.id)">轮换码</button>
+        <button v-if="item.status === 'open'" type="button" @click="close(item.id)">结算</button>
         </div>
         </li>
         </ul>
         <p v-if="!tasks.length">还没有考勤任务。</p>
+
+        <div v-if="seatData" class="seatmap">
+        <div class="seatmap-head">
+        <strong>教室座位图 · {{ seatData.task.title }}</strong>
+        <span>应到 {{ seatCurrent.length }}　已到 {{ seatStats.present + seatStats.late }}　迟到 {{ seatStats.late }}　请假 {{ seatStats.leave }}　缺勤 {{ seatStats.absent }}　未签到 {{ seatStats.pending }}</span>
+        </div>
+        <div class="seatmap-podium">讲 台 / 屏 幕</div>
+        <div v-if="seatData.classes.length > 1" class="seatmap-classes">
+        <button v-for="item in seatData.classes" :key="item.class_name" type="button"
+          :class="{ active: seatClass === item.class_name }" @click="seatClass = item.class_name; seatDetail = null">{{ item.class_name }}</button>
+        </div>
+        <div class="seatmap-floor">
+        <div v-for="(column, index) in seatColumns" :key="index" class="seat-col">
+        <div v-for="group in column" :key="group.no" class="seat-group">
+        <span class="seat-group-label">第 {{ group.no }} 组</span>
+        <div class="seat-group-seats">
+        <button v-for="seat in group.seats" :key="seat.student_id" type="button"
+          :class="['seat', seat.status]"
+          :title="seat.student_no + ' ' + seat.name + ' · ' + seatText(seat.status)"
+          @click="seatDetail = seat">
+        <b>{{ group.no }}-{{ seat.seat_no }}</b>
+        <span>{{ seat.name }}</span>
+        </button>
+        </div>
+        </div>
+        </div>
+        </div>
+        <div class="seatmap-legend">
+        <span><i style="background:#e6f7ee;border:1px solid #8fd3ae"></i>已到</span>
+        <span><i style="background:#fff4d6;border:1px solid #e8c46a"></i>迟到</span>
+        <span><i style="background:#e8f2ff;border:1px solid #a9c8ee"></i>请假</span>
+        <span><i style="background:#fdeceb;border:1px solid #f2c0bc"></i>缺勤</span>
+        <span><i style="background:#f3f6fb;border:1px dashed #c9d6e8"></i>未签到</span>
+        </div>
+        <p v-if="seatDetail" class="seatmap-detail">
+        座位 {{ seatDetail.group_no }}-{{ seatDetail.seat_no }}　{{ seatDetail.student_no }} {{ seatDetail.name }}　状态：{{ seatText(seatDetail.status) }}　签到时间：{{ seatDetail.checked_at ? shortTime(seatDetail.checked_at) : '—' }}
+        <button type="button" class="secondary" @click="seatDetail = null">关闭</button>
+        </p>
+        <p v-if="seatData.unseated" class="seatmap-detail">另有 {{ seatData.unseated }} 名应到学生没有排座，请先在课程座位表里安排。</p>
+        </div>
 
         <details v-if="user.role === 'teacher'" class="att-panel">
         <summary>发布考勤任务</summary>
@@ -700,6 +827,7 @@ createApp({
         <WarningView :key="'warning:' + user.id" :user="user" />
         <WiringStatsView v-if="user.role !== 'admin'" :key="'wiring-stats:' + user.id + ':' + user.role" :user="user" />
         </template>
+      </template>
       </template>
     </main>`,
 }).mount('#app')

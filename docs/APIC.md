@@ -39,8 +39,8 @@
 
 | 方法与路径 | 入参 | data返回 | 权限与特例 |
 |---|---|---|---|
-| POST /auth/register | student_no:8—20位字母数字，name:1—50，password:12—128字符 | user:{id,student_no,name,role} | 公开；重复账号409；role字段禁止传入 |
-| POST /auth/login | student_no,password | user及csrf_token，并设置Cookie | 公开；错误统一401；每账号/IP均限流 |
+| POST /auth/register | student_no:8—20位字母数字，name:1—50，password?:可选，显式设置须12—128字符；省略时默认等于学号 | user:{id,student_no,name,role} | 公开；重复账号409；role字段禁止传入 |
+| POST /auth/login | student_no:4—20位字母数字（兼容演示教师 teacher），password | user及csrf_token，并设置Cookie | 公开；错误统一401；每账号/IP均限流 |
 | GET /auth/session | 无 | user:{id,name,role},csrf_token,expires_at | 登录 |
 | POST /auth/logout | 无 | 204 | 登录及CSRF |
 | PATCH /users/me | name?，old_password?，new_password? | 本人user | 登录；改密必须旧密码并撤销其他会话 |
@@ -397,3 +397,50 @@ GET /health仅返回{web_ready,db_ready,grader_ready,status}，任一必需单�
 | warning_run | course_id + from/to（source_until由首次请求确定） |
 
 admin retry也必须Idempotency-Key；同一请求失败4xx/503不保留成功键。启动/关闭这类天然幂等状态操作返回现态，revision写操作仍使用乐观锁。教学数据查询不能绕开对象所属模块直接读取原始file或隐藏test_case。
+
+## 12 互测公开接口 SPEC-019
+
+GET /help 与 GET /who 挂在站点根路径（不在 /api/v1 下），无需登录、无需 CSRF、不受 Origin 校验，供课堂互测方自动发现接口与账号。响应仍为 {data, request_id}，仅中文不转义为 \uXXXX，便于人工直接阅读。
+
+GET /who 返回 class_name、group_no、group_name、project、leader{student_no,name}、members[{student_no,name,role}]、member_count、student_nos、accounts{teacher,student}。组信息唯一来源是 backend/shared/group.py，改名单只改该文件。
+
+GET /help 返回 service、response_format、accounts、public_endpoints、guides、modules、counts。modules 由 Flask url_map 实时生成，按 blueprint 归入 SPEC 模块，路径中的路径转换器写作 {参数名}；路由增删不需要改文档，因此本契约只约束字段形状，不逐条复制接口清单。guides 固定包含统一响应格式、登录与 CSRF、课堂点到三段接入说明；点到部分覆盖建任务取码、学生签到、关闭统计、轮换码四步，其中点到码仅在创建与轮换的响应中各返回一次，服务端只存哈希。
+
+开发服务器 vite 的 server 与 preview 代理已转发 /help、/who，互测方用被测系统页面同源地址即可取得 JSON。
+## 13 专业组在线实验：74181 四位加减运算器 SPEC-019
+
+计算机组成原理组本题要求用 74181 与 7400 求两个 4 位数的和与差。三个接口均为公开 GET、无副作用、不写库，不要求登录，便于课堂互测直接核对。
+
+GET /alu74181/spec 返回芯片资料与两种运算的控制位配置：加法为 S3S2S1S0=1001、M=0、Cn̄=H（F = A plus B）；减法为 S3S2S1S0=0110、M=0、Cn̄=L（F = A minus B，芯片内部按 A + B̄ + 1 完成补码减法）。7400 只承担 ADD/SUB 到 S3–S0 与 Cn̄ 的控制译码，不参与数据通路。
+
+GET /alu74181/table 一次返回 2×16×16 共 512 条全组合结果，前端拉取一次后本地索引，切操作数不再请求后端。每条形如 {op,a,b,s3s2s1s0,m,cn_bar,carry_in,operand_b,internal_sum,f,f_bits,f_hex,cn4,carry,borrow,zero,equal,decimal_result,expression}。
+
+GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—15 的整数，op 只接受 add/sub，否则 400 VALIDATION_ERROR。
+
+口径约定：Cn+4 为低有效进位输出，加法结果溢出时该位为 0；减法走 A + B̄ + 1，A 大于等于 B 时最高位有进位、Cn+4 为 0，A 小于 B 时 Cn+4 为 1 表示借位。A=B 为开集电极输出，两数相等时有效。上述结果在 tests/test_alu74181.py 中与整数运算逐组比对，512 组全部一致。
+## 14 第10周互测补充接口 SPEC-001/002
+
+### 14.1 账号与名单
+
+教师固定账号 teacher/teacher；学生用本人学号登录，初始密码等于学号。登录接口的账号校验放宽到 5—20 位（teacher 只有 7 位），注册仍要求 8—20 位。`user` 表新增 `class_name`，用于按班级分组展示成员与座位；课程成员列表 `GET /courses/{id}/members` 的每项追加 `class_name`，并按班级、用户 id 排序。
+
+### 14.2 课堂座位
+
+`class_seat(course_id, student_id, class_name, group_no, seat_no)` 保存课程内的座位安排，同一班级内「组号-座号」唯一；一个课程可容纳多个班，各班座位互不冲突。
+
+创建点到任务时，按冻结参与人把座位复制进 `attendance_seat(task_id, student_id, group_no, seat_no)`，形成任务级快照；之后调整课程座位表不会改动已发布任务的历史布局。课程尚未排座时快照为空，界面退回名单列表。
+
+`GET /attendance-tasks/{id}/seats` 返回 `{task, classes:[{class_name, seats:[{student_id,student_no,name,group_no,seat_no,status,checked_at}]}], unseated}`，`status` 取 present/late/leave/absent，尚无记录时为 pending。学生只能看本人记录的限制不变，该接口沿用任务的课程访问校验。
+
+### 14.3 访问日志与导出
+
+新增 `access_log` 表，每个请求记一条：时间、学号、姓名、角色、方法、路径、状态码、来源 IP、耗时。写入在响应阶段完成，失败不影响业务响应；导出接口自身不记录，避免自我膨胀。
+
+| 接口 | 权限 | 说明 |
+|---|---|---|
+| GET /logs/access | T/A | 分页读访问日志，支持 from/to、student_no、path 前缀筛选 |
+| GET /logs/access.csv | T/A | 导出 CSV，UTF-8 BOM，文件名 week10-server-log.csv |
+| GET /logs/audit.csv | T/A | 导出关键操作审计（谁做了什么、变更前后），来自 audit_event |
+| GET /logs/summary | T/A | 请求数、账号数、失败数与前十个高频路径 |
+
+登录请求同样记录访问者：登录成功后在请求上下文写入当前用户，日志里能看到具体学号，而不是匿名请求。
