@@ -39,8 +39,8 @@
 
 | 方法与路径 | 入参 | data返回 | 权限与特例 |
 |---|---|---|---|
-| POST /auth/register | student_no:8—20位字母数字，name:1—50，password:12—128字符 | user:{id,student_no,name,role} | 公开；重复账号409；role字段禁止传入 |
-| POST /auth/login | student_no,password | user及csrf_token，并设置Cookie | 公开；错误统一401；每账号/IP均限流 |
+| POST /auth/register | student_no:8—20位字母数字，name:1—50，password?:可选，显式设置须12—128字符；省略时默认等于学号 | user:{id,student_no,name,role} | 公开；重复账号409；role字段禁止传入 |
+| POST /auth/login | student_no:4—20位字母数字（兼容演示教师 teacher），password | user及csrf_token，并设置Cookie | 公开；错误统一401；每账号/IP均限流 |
 | GET /auth/session | 无 | user:{id,name,role},csrf_token,expires_at | 登录 |
 | POST /auth/logout | 无 | 204 | 登录及CSRF |
 | PATCH /users/me | name?，old_password?，new_password? | 本人user | 登录；改密必须旧密码并撤销其他会话 |
