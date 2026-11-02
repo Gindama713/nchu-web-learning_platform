@@ -43,56 +43,119 @@ def grader_ready():
     return bool(path) and Path(path).is_file()
 
 
-def engine_command(jar, vector_path, circuit_path, limits):
-    """真实引擎调用命令；向量转换与输出格式由 TV-01 锁定后固化。
+def engine_command(jar, circuit_name, vector_path, circuit_path, limits):
+    """真实引擎调用命令（logisim-evolution 5.0.0 `-w/--test-vector`）。
 
-    默认按 logisim-evolution test-vector 语法构造，平台不拼接 shell、
-    不使用上传文件名（AC-03/第7节）。
+    实测确认的固定契约（v5.0.0 `--help`）：
+        -w, --test-vector <circuit_name> <test_vector> <circ_file>
+    另加 `-o en` 固定输出语言，避免平台按本地化文案解析（见 parse_engine_output）。
+
+    注意：该 CLI 路径会构造 Swing 菜单栏，**在 java.awt.headless=true 下必然抛
+    HeadlessException**（Startup.run -> LogisimMenuBar -> MenuFile）。因此 worker
+    必须提供虚拟显示（Linux 用 xvfb），不能强制 headless；去掉 headless 后由
+    DISPLAY 决定，见 real_executor 的环境变量传递。
+
+    平台不拼接 shell、不使用上传文件名（AC-03/第7节）。
     """
-    return ["java", f"-Xmx{limits['memory_mib']}m", "-Djava.awt.headless=true",
-            "-jar", str(jar), "-test", "vector", str(vector_path), str(circuit_path)]
+    return ["java", f"-Xmx{limits['memory_mib']}m",
+            "-jar", str(jar), "-o", "en", "-w", str(circuit_name),
+            str(vector_path), str(circuit_path)]
 
 
 def write_vector_file(directory, case):
-    """把平台 steps 契约转换为引擎测试向量文件（APIC 第7节：转换由适配层承担）。"""
+    """把平台 steps 契约转换为引擎测试向量文件（APIC 第7节：转换由适配层承担）。
+
+    列顺序：输入 + 输出 + `<set>` + `<seq>`。一个 case 就是一条独立 sequence，
+    所以统一用 set=1、seq=step_no，使引擎在 case 内保留时序状态、case 间不共享。
+
+    返回 None 表示该 case 没有任何 expected 输出列：此时引擎会"零列全过"并
+    报告 Passed=行数，直接采信等于把空测试判满分（AC-11）。
+    """
     steps = json.loads(case["steps_json"])
     inputs = sorted({label for step in steps for label in step.get("inputs", {})})
     outputs = sorted({label for step in steps for label in step.get("expected", {})})
-    lines = ["\t".join(inputs + outputs)]
-    for step in steps:
+    if not outputs or not steps:
+        return None
+    if any(step.get("clock_event", "none") != "none" for step in steps):
+        # APIC 第7节：时钟事件需映射到真实时钟引脚列，且"同向边沿必须插入反向边沿"。
+        # 该映射属 TV-01 待锁定项，未锁定前不得静默丢弃边沿（会把时序题当组合题判）。
+        raise UnsupportedClockEvent()
+    lines = ["\t".join(inputs + outputs + ["<set>", "<seq>"])]
+    for index, step in enumerate(steps, start=1):
         row = []
         for label in inputs:
             row.append(str(step.get("inputs", {}).get(label, 0)))
         for label in outputs:
-            row.append(str(step.get("expected", {}).get(label, "X")))
+            row.append(str(step.get("expected", {}).get(label, "x")))
+        row.extend(["1", str(step.get("step_no") or index)])
         lines.append("\t".join(row))
     path = Path(directory) / f"vector-{case['id']}.txt"
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
 
 
-OUTPUT_LINE = re.compile(r"^\{.*\}$")
+class UnsupportedClockEvent(Exception):
+    """case 含 clock_event 但时钟列映射尚未锁定（TV-01）。"""
+
+
+class VectorHasNoOutput(Exception):
+    """case 没有 expected 输出列，引擎会空过。"""
+
+
+# 真实引擎（v5.0.0）在 `-o en` 下的输出，实测样例：
+#   Loading test vector "wrong.txt"...
+#   Running 2 vectors...
+#   1
+#   Error on test vector 1:
+#   Y = 1 (expected 0)
+#   Passed: 0, Failed: 2
+# 注意：**失败时进程退出码仍为 0**，不能凭退出码判通过（实测）。
+SUMMARY = re.compile(r"Passed:\s*(\d+)\s*,\s*Failed:\s*(\d+)")
+EMPTY_VECTOR = re.compile(r"Passed:\s*0\s*,\s*Failed:\s*0")
+ERROR_HEADER = re.compile(r"Error on test vector\s+(\d+)\s*:")
+DETAIL = re.compile(r"^\s*(\S+)\s*=\s*(\S+)\s*\(expected\s+(\S+)\)\s*$")
 
 
 def parse_engine_output(raw, cases):
-    """解析引擎输出为按 case 的结果。
+    """解析真实引擎输出为按 case 的结果。
 
-    适配层约定：引擎包装输出 JSON 行（每 case 一行 {case_id, passed, actual, error}）。
-    输出不可解析属于 system_error（AC-05），不会给学生误判 0 分。
+    只有 "Passed: N, Failed: M" 汇总行是可靠信号；单个 case 一次调用时，
+    Failed=0 且 Passed>0 才算通过。
+    以下都返回 None（→ system_error，AC-05），不会给学生误判 0 分：
+    没有汇总行、汇总行数量与 case 数不符、汇总行是 Passed=0/Failed=0（空向量，AC-11）。
     """
-    results = {}
-    for line in raw.splitlines():
-        line = line.strip()
-        if not line or not OUTPUT_LINE.match(line):
-            continue
-        try:
-            payload = json.loads(line)
-            results[int(payload["case_id"])] = payload
-        except (KeyError, TypeError, ValueError):
-            return None
-    if set(results) != {case["id"] for case in cases}:
+    if raw is None:
         return None
+    summaries = SUMMARY.findall(raw)
+    if len(summaries) != len(cases) or EMPTY_VECTOR.search(raw):
+        return None
+    details = _error_details(raw) if len(cases) == 1 else []
+    results = {}
+    for index, case in enumerate(cases):
+        passed_count, failed_count = (int(value) for value in summaries[index])
+        results[case["id"]] = {
+            "case_id": case["id"],
+            "passed": failed_count == 0 and passed_count > 0,
+            "actual": details if index == 0 else [],
+        }
     return results
+
+
+def _error_details(raw):
+    """收集 "Error on test vector K:" 之后直到下一个表头/汇总行的明细行。"""
+    details, capturing = [], False
+    for line in raw.splitlines():
+        if ERROR_HEADER.search(line):
+            capturing = True
+            continue
+        if SUMMARY.search(line) or not line.strip():
+            capturing = False
+            continue
+        match = DETAIL.match(line)
+        if capturing and match:
+            details.append({"label": match.group(1), "actual": match.group(2),
+                            "expected": match.group(3)})
+    return details
 
 
 def run_in_sandbox(run_row, submission_path, cases, execute):
@@ -114,21 +177,34 @@ def run_in_sandbox(run_row, submission_path, cases, execute):
         except (KeyError, TypeError, IndexError):
             if hasattr(run_row, "get"):
                 snapshot_json = run_row.get("profile_snapshot_json")
+    circuit_name = None
     if snapshot_json:
         try:
-            profile_limits = (json.loads(snapshot_json) or {}).get("limits") or {}
+            snapshot = json.loads(snapshot_json) or {}
+            circuit_name = snapshot.get("top_circuit")
+            profile_limits = snapshot.get("limits") or {}
             for key in MAX_LIMITS:
                 if key in profile_limits:
                     limits[key] = profile_limits[key]
         except (ValueError, TypeError):
             pass
+    if not circuit_name:
+        # 引擎调用必须指定顶层电路名（-w 的第一个参数）；缺名称无法执行。
+        return {"error_code": "INCOMPLETE_RESULT", "results": {}, "executed": 0}
     with tempfile.TemporaryDirectory(prefix="grading-") as directory:
         workspace = Path(directory)
         (workspace / "submission.circ").write_bytes(Path(submission_path).read_bytes())
         results, executed, notes = {}, 0, None
         for case in cases:
-            vector = write_vector_file(workspace, case)
-            argv = engine_command(jar_path(), vector, workspace / "submission.circ", limits)
+            try:
+                vector = write_vector_file(workspace, case)
+            except UnsupportedClockEvent:
+                # 时钟列映射未锁定：宁可整卷 system_error，也不能把时序题按组合题判分。
+                return {"error_code": "INCOMPLETE_RESULT", "results": results, "executed": executed}
+            if vector is None:
+                return {"error_code": "INCOMPLETE_RESULT", "results": results, "executed": executed}
+            argv = engine_command(jar_path(), circuit_name, vector,
+                                  workspace / "submission.circ", limits)
             try:
                 stdout, code = execute(argv, workspace, limits["cpu_seconds"], limits["output_bytes"])
             except SandboxTimeout:
@@ -139,6 +215,10 @@ def run_in_sandbox(run_row, submission_path, cases, execute):
                 return {"error_code": "ENGINE_UNAVAILABLE", "results": results, "executed": executed}
             parsed = parse_engine_output(stdout, [case])
             if parsed is None:
+                if EMPTY_VECTOR.search(stdout):
+                    # AC-11：引擎正常退出但一条用例都没执行，属结果不完整。
+                    return {"error_code": "INCOMPLETE_RESULT", "results": results,
+                            "executed": executed}
                 if "Circuit load error" in stdout or "Unable to load" in stdout:
                     return {"error_code": "CIRCUIT_LOAD_ERROR", "results": results, "executed": executed}
                 notes = "ENGINE_CRASH"
@@ -166,9 +246,14 @@ def real_executor(argv, cwd, timeout, max_output):
     # Windows 上 Java/JVM 启动需要 SYSTEMROOT 才能定位 ntdll 等系统 DLL，
     # 且需要 TEMP/TMP 才能创建临时文件；缺失会直接报 MissingResource /
     # Unable to load DLL，学生提交被误判 system_error。其他平台保持最小环境。
+    # DISPLAY/XAUTHORITY：logisim-evolution 5.0.0 的 `-w` 路径会构造 Swing 菜单栏，
+    # 没有显示服务就抛 HeadlessException；Linux worker 必须用 xvfb 并提供这两个变量，
+    # 否则所有提交都会变成 system_error（实测）。
     env = {
         "PATH": os.environ.get("PATH", ""),
         "JAVA_HOME": os.environ.get("JAVA_HOME", ""),
+        "DISPLAY": os.environ.get("DISPLAY", ""),
+        "XAUTHORITY": os.environ.get("XAUTHORITY", ""),
     }
     if os.name == "nt":
         env.update({

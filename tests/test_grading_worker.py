@@ -167,12 +167,19 @@ class PreflightTest(TestCase):
 class EngineOutputTest(TestCase):
     def test_parse_output_contract(self):
         # 覆盖 AC-05：输出不可解析归 system_error，不给学生误判满分。
+        # 断言对象是 logisim-evolution 5.0.0 `-w` 的真实输出（实测录制），
+        # 不是平台自造的 JSON 协议。
         cases = [{"id": 7, "steps_json": "[]"}, {"id": 8, "steps_json": "[]"}]
-        good = '{"case_id": 7, "passed": true, "actual": [{"Y": 3}]}\n{"case_id": 8, "passed": false, "actual": [{"Y": 4}]}'
-        parsed = engine.parse_engine_output(good, cases)
+        good = ("Loading test vector \"a.txt\"...\nRunning 2 vectors...\n1\n2\n"
+                "Passed: 2, Failed: 0\n")
+        parsed = engine.parse_engine_output(good, cases[:1])
         self.assertEqual(parsed[7]["passed"], True)
         self.assertIsNone(engine.parse_engine_output("garbage", cases))
-        self.assertIsNone(engine.parse_engine_output('{"case_id": 7, "passed": true}', cases))
+        # 少一条汇总行 = 结果不完整，不能按通过处理。
+        self.assertIsNone(engine.parse_engine_output("Passed: 1, Failed: 0\n", cases))
+        # 空向量（Passed=0, Failed=0）不算通过（AC-11 零用例）。
+        self.assertIsNone(engine.parse_engine_output(
+            "Running 0 vectors...\nPassed: 0, Failed: 0\n", cases[:1]))
 
     def test_sandbox_executor_paths(self):
         # 覆盖平台管道（非引擎结果冒充）：超时→TIME_LIMIT、输出超限→OUTPUT_LIMIT。
@@ -183,16 +190,19 @@ class EngineOutputTest(TestCase):
             target.write_text(CIRC, encoding="utf-8")
             case = {"id": 1, "steps_json": json.dumps(
                 [{"step_no": 1, "inputs": {"A": 1}, "expected": {"Y": 2}, "clock_event": "none"}])}
-            slow = engine.run_in_sandbox({}, target, [case], execute=lambda *a: (_ for _ in ()).throw(
+            # 引擎调用必须知道顶层电路名，故 run_row 需带 profile 快照。
+            run_row = {"profile_snapshot_json": json.dumps(
+                {"top_circuit": "alu8", "limits": {}})}
+            slow = engine.run_in_sandbox(run_row, target, [case], execute=lambda *a: (_ for _ in ()).throw(
                 engine.SandboxTimeout()))
             self.assertEqual(slow["error_code"], "TIME_LIMIT")
-            loud = engine.run_in_sandbox({}, target, [case], execute=lambda *a: (_ for _ in ()).throw(
+            loud = engine.run_in_sandbox(run_row, target, [case], execute=lambda *a: (_ for _ in ()).throw(
                 engine.SandboxOutputLimit()))
             self.assertEqual(loud["error_code"], "OUTPUT_LIMIT")
-            missing = engine.run_in_sandbox({}, target, [case],
+            missing = engine.run_in_sandbox(run_row, target, [case],
                                             execute=lambda *a: (None, 127))
             self.assertEqual(missing["error_code"], "ENGINE_UNAVAILABLE")
-            partial = engine.run_in_sandbox({}, target, [case], execute=lambda *a: ("noise", 0))
+            partial = engine.run_in_sandbox(run_row, target, [case], execute=lambda *a: ("noise", 0))
             self.assertEqual(partial["error_code"], "ENGINE_CRASH")
 
 
