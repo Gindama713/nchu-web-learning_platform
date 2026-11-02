@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """SPEC-018 ci-grader 冒烟：用固定 JAR 真实执行电路，不 mock、不跳过。
 
 依据 README 附录 A.4：ci-grader 必须"固定JAR真实运行ALU/REG/CPU的公开测试电路，
