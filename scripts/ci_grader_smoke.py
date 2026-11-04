@@ -93,10 +93,10 @@ CHAIN_CASES = [
 ]
 # README 附录 A.4 要求真实运行 ALU/REG/CPU 公开电路；这些样例补齐前 ci-grader 不得算通过。
 REQUIRED_CASES = [
-    ("ALU8 正确电路", "alu8", "alu8.circ", "alu8_ok.txt", True),
-    ("ALU8 错误电路", "alu8", "alu8_wrong.circ", "alu8_wrong.txt", False),
-    ("REG8 连续时序", "reg8", "reg8.circ", "reg8_seq.txt", True),
-    ("CPU8 连续时序", "cpu8", "cpu8.circ", "cpu8_seq.txt", True),
+    ("ALU8 正确电路", "ALU8", "alu8.circ", "alu8_ok.txt", True),
+    ("ALU8 错误电路", "ALU8", "alu8_wrong.circ", "alu8_wrong.txt", False),
+    ("REG8 连续时序", "REG8", "reg8.circ", "reg8_seq.txt", True),
+    ("CPU8 连续时序", "CPU8", "cpu8.circ", "cpu8_seq.txt", True),
 ]
 
 
