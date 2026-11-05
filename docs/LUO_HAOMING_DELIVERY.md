@@ -20,7 +20,7 @@
 
 1. **SPEC-007 课堂演示的视图层采用 develop 既有实现。** PR #49 提交说明记录了「SPEC-007 demo and SPEC-015 graph collisions resolved in favor of the develop versions」：`frontend/js/demo-view.js` 为姜苏豪版本，本人的同名实现与 `demo-view.test.js` 未进主干；本人保留 `demo-client.js`（在 develop 中）承担接口契约与前端测试。因此演示模块的组件测试在整合时被移除，验收走浏览器手工流程与后端 `tests/test_demo.py`。
 2. **SPEC-015 的视图层未合入 develop。** develop 的 `frontend/js/` 只有 `knowledge-graph-view.js`（力导向布局），不含本人的 `graph-view.js`（聚焦根、先修可达路径、加边表单）。该文件仅存在于本机工作副本，属未合并改动；先修成环拒绝在后端 `backend/models/knowledge.py`（`PREREQUISITE_CYCLE`，422）已生效，与视图层归属无关。
-3. 本地工作副本无 `.git` 目录，本次补交的四份材料与个人报告经单独分支 `feature/luo-delivery-20261105` 提交，首个提交为 `b514f0b`（基于 `develop` 的 `e9d2940`）。该分支已开 [PR #59](https://github.com/Gindama713/nchu-web-learning_platform/pull/59)（7 文件 +410/−0，mergeable=true）。首次 CI run 42042690543 中 ci-policy/ci-build/ci-test 为 success、ci-lint 因 `scripts/md2docx_report.py` 一处 SIM115 失败；该问题当日本地复现修复（见[测试报告](TEST_REPORT_LUO_HAOMING.md)）并追加提交推送，CI 重跑结论以仓库 Actions 记录为准。PR 评审尚未发生，不能等同于已验收。
+3. 本地工作副本无 `.git` 目录，本次补交的四份材料与个人报告经单独分支 `feature/luo-delivery-20261105` 提交，首个提交为 `b514f0b`（基于 `develop` 的 `e9d2940`）。该分支已开 [PR #59](https://github.com/Gindama713/nchu-web-learning_platform/pull/59)（7 文件 +410/−0）。首次 CI run 42042690543 中 ci-lint 因 `scripts/md2docx_report.py` 一处 SIM115 失败（其余 job 均 success）；当日本地 ruff 0.17.3 复现并修复，修复提交 `7a0a96a` 推送后 [CI run 42044409767](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/42044409767) 重跑：ci-lint、ci-build、ci-test、ci-policy、ci-required 均 success，`ci-grader` 为 skipped（仓库无 Logisim 判分环境），`mergeable_state=clean`。PR 评审与合并尚未发生，不能等同于已验收。
 
 ## 尚不能勾选的交付
 
