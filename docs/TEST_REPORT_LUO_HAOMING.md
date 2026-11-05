@@ -13,7 +13,7 @@
 | `node --test` 七个前端测试文件（`wiring-sim`、`wiring-view`、`wiring-stats-view`、`preparation-client`、`preparation-view`、`graph-view`、`demo-client`） | **41 项通过，0 失败**，321 毫秒 | 网表仿真、连线视图、统计视图、备课客户端与视图、图谱视图、演示客户端契约 |
 | `npm run lint` | 通过，无输出 | ESLint 静态规则 |
 | `npm run build` | 通过，1.00 秒；产物 JS 429.55 kB / CSS 41.75 kB | Vite 生产构建 |
-| `python -m ruff check backend tests scripts` | **未执行** | 本机虚拟环境未安装 ruff（`No module named ruff`），不能记作通过；同类检查由 CI `ci-lint` 承担 |
+| `python -m ruff check backend tests scripts` | **通过（0 错误）**。ruff 0.17.3 本地执行；首查发现 1 处 SIM115（`scripts/md2docx_report.py:83` open 未用上下文管理器），当日修复后复查全绿。该问题与 PR #59 首次 CI run 42042690543 的 ci-lint 失败同源，修复提交后 CI 重跑 | 静态风格检查；此前曾记录为「未执行」，2026-11-05 已补做 |
 
 上述 70 项与 41 项之和为本人模块可复现的本地自动化结论；全仓测试规模更大，不与本人范围混算。
 

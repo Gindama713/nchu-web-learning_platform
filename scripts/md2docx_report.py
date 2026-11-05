@@ -80,7 +80,8 @@ normal.font.name = FONT
 normal.font.size = Pt(BODY_PT)
 normal._element.rPr.rFonts.set(qn("w:eastAsia"), FONT)
 
-lines = open(SRC, encoding="utf-8").read().splitlines()
+with open(SRC, encoding="utf-8") as _f:
+    lines = _f.read().splitlines()
 i = 0
 pending_rows = []
 
