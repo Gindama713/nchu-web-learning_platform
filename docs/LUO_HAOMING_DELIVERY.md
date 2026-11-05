@@ -20,7 +20,7 @@
 
 1. **SPEC-007 课堂演示的视图层采用 develop 既有实现。** PR #49 提交说明记录了「SPEC-007 demo and SPEC-015 graph collisions resolved in favor of the develop versions」：`frontend/js/demo-view.js` 为姜苏豪版本，本人的同名实现与 `demo-view.test.js` 未进主干；本人保留 `demo-client.js`（在 develop 中）承担接口契约与前端测试。因此演示模块的组件测试在整合时被移除，验收走浏览器手工流程与后端 `tests/test_demo.py`。
 2. **SPEC-015 的视图层未合入 develop。** develop 的 `frontend/js/` 只有 `knowledge-graph-view.js`（力导向布局），不含本人的 `graph-view.js`（聚焦根、先修可达路径、加边表单）。该文件仅存在于本机工作副本，属未合并改动；先修成环拒绝在后端 `backend/models/knowledge.py`（`PREREQUISITE_CYCLE`，422）已生效，与视图层归属无关。
-3. 本地工作副本无 `.git` 目录，本次补交的四份材料与个人报告经单独分支提交，提交 SHA 以该分支实际记录为准，不套用他人 PR 编号。
+3. 本地工作副本无 `.git` 目录，本次补交的四份材料与个人报告经单独分支 `feature/luo-delivery-20261105` 提交，首个提交为 `b514f0b`（基于 `develop` 的 `e9d2940`）。该分支目前只有提交与推送记录，尚无 PR 评审与 CI 结果，不能等同于已验收；后续若开 PR，以实际 run 编号另补。
 
 ## 尚不能勾选的交付
 
