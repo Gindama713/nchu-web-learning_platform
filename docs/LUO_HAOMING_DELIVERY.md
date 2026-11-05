@@ -1,0 +1,27 @@
+# 罗浩铭个人交付索引
+
+罗浩铭，学号 24201723，242017 班 g24201710 组。本文供组员和课程检查人员定位本人负责的设计、实现、测试及待补证据。依据为 [PRD 第 10.1 节实名分工](PRD.md#team-plan)。本人负责 SPEC-004 备课、SPEC-007 课堂演示、SPEC-017 实验箱连线三个基础模块，SPEC-010C 实验完成率与连线错误统计独立统计，SPEC-015 先修知识图谱智能模块；重点难点为交互网表与 CPU 单步仿真。实验箱与 Logisim 电路评测的全组集成由对应组员协作，不能用本人的模块测试代替整组验收。
+
+| 课程所需材料 | 本人入口 | 证据范围 |
+|---|---|---|
+| 需求、接口、架构、数据库与变更 | [六份主文档索引](../README.md#1-文档入口)、本文 | 统一规范在 PRD/APIC/DBD；本人不另立契约，模块细节见[设计报告](reports/24201723_罗浩铭_设计报告.md) |
+| 代码与测试 | `backend/apis/wiring.py`、`preparations.py`、`demo.py`、`knowledge.py`、`analytics.py`；`frontend/js/preparation-*.js`、`wiring-*.js`、`graph-view.js`；对应 `tests/test_*.py` | [测试报告](TEST_REPORT_LUO_HAOMING.md)逐项标明本地执行、CI 与未执行范围 |
+| 阶段检查 | [个人检查点材料](checkpoints/LUO_HAOMING_2026-11-05.md) | CP-2 至 CP-5 的可演示内容及待教师确认项 |
+| 运行与用户说明 | [本人模块使用说明](USER_GUIDE_LUO_HAOMING.md)、[README 本地运行](../README.md#8-本地运行与验证) | 教师、学生操作路径与失败处理；目标环境仍需实测 |
+| 个人设计报告 | [Markdown 内容源](reports/24201723_罗浩铭_设计报告.md)、[Word 版](reports/24201723_罗浩铭_设计报告.docx) | 任务书要求的个人文件名；教师最终格式附件未提供，不能称为按附件定稿 |
+
+## 可复核的 GitHub 记录
+
+本人五模块前端收尾分支 `feature/spec-frontends-batch` 的 head 为 `c06156927c093f1dcda7f431d3342950f83866f8`。[PR #49](https://github.com/Gindama713/nchu-web-learning_platform/pull/49)（标题「feat: SPEC-004/017/010C 三个模块前端（挂入分区导航）」）于 2026-10-30T08:34:26Z 合入 `develop`，merge SHA `ffc5aa13de180a232cfc4b40c57abcca352dfd24`，改动 15 文件（+2417/−1）。[对应 Actions run 40862510430](https://github.com/Gindama713/nchu-web-learning_platform/actions/runs/40862510430)（run_attempt 2）的 ci-policy、ci-lint、ci-build、ci-test、ci-required 均为 success；`ci-grader` 在 develop 规则下为 skipped，不能写成通过。
+
+该 PR 实际合入的前端文件为 `preparation-client.js`、`preparation-client.test.js`、`preparation-view.test.js`、`wiring-client.js`、`wiring-sim.js`、`wiring-sim.test.js`、`wiring-stats-view.js`、`wiring-stats-view.test.js`、`wiring-view.test.js`、`styles/preparations.css`、`styles/wiring.css`、`styles/wiring-stats.css` 及 `main.js` 的分区挂载。合并与 CI 属于工程证据，不等同教师检查、非作者规格复核或 `main` 发布验收。
+
+## 需要在检查时说明的整合事实
+
+1. **SPEC-007 课堂演示的视图层采用 develop 既有实现。** PR #49 提交说明记录了「SPEC-007 demo and SPEC-015 graph collisions resolved in favor of the develop versions」：`frontend/js/demo-view.js` 为姜苏豪版本，本人的同名实现与 `demo-view.test.js` 未进主干；本人保留 `demo-client.js`（在 develop 中）承担接口契约与前端测试。因此演示模块的组件测试在整合时被移除，验收走浏览器手工流程与后端 `tests/test_demo.py`。
+2. **SPEC-015 的视图层未合入 develop。** develop 的 `frontend/js/` 只有 `knowledge-graph-view.js`（力导向布局），不含本人的 `graph-view.js`（聚焦根、先修可达路径、加边表单）。该文件仅存在于本机工作副本，属未合并改动；先修成环拒绝在后端 `backend/models/knowledge.py`（`PREREQUISITE_CYCLE`，422）已生效，与视图层归属无关。
+3. 本地工作副本无 `.git` 目录，本次补交的四份材料与个人报告经单独分支提交，提交 SHA 以该分支实际记录为准，不套用他人 PR 编号。
+
+## 尚不能勾选的交付
+
+真实 Logisim JAR 与固定 Java 的电路判分（健康检查 `grader_ready=false`）、目标 Linux 环境与 50 会话、完整备份恢复演练、教师课堂验收结论、Gitea 同 SHA 归档与超星提交均未由本材料证明。CP-4 是否被认定为「重点难点」由教师检查决定，本人不提前宣称得分。小组总报告、源码设计 ZIP 属组长汇总责任，不把个人 Word 报告改名充作小组报告。
