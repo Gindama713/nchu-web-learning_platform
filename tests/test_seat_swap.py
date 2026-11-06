@@ -278,6 +278,21 @@ class SeatSwapTest(TestCase):
         self.assertEqual(self.seat_of(self.numbers[0]), (1, 1))
         self.assertEqual(self.seat_of(self.numbers[1]), (1, 2))
 
+    def test_expired_status_survives_rejected_accept(self):
+        """第一次操作就是「答复一条过期申请」时，过期状态也要落库。
+
+        黑盒复验发现过：expire_stale 写在同一个事务里，答复接口返回 409 一滚回，
+        库里就留一条 pending。这里直接跳过任何成功的读接口，答完立刻查库。
+        """
+        request = self.ask(self.jia, self.numbers[1])
+        self.advance(TTL + 1)
+
+        late = self.call(self.yi, "POST",
+                         f"/api/v1/courses/{self.course_id}/seat-swaps/{request['id']}/accept")
+        self.assertEqual(late.status_code, 409, late.json)
+        self.assertEqual(late.json["error"]["code"], "SWAP_NOT_PENDING")
+        self.assertEqual(self.swap_row(request["id"])["status"], "expired")
+
     def test_still_valid_just_before_deadline(self):
         self.ask(self.jia, self.numbers[1])
         self.advance(TTL - 1)

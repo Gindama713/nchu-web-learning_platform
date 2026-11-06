@@ -55,11 +55,18 @@ def expire_stale(db):
 
     每个端点进来先调一次：读接口不能返回已经过期的申请，写接口不能让人去答复一条
     早就该失效的申请。
+
+    扫到的过期是**既成事实**，单独提交掉。否则答复一条过期申请的请求会带着 409 回滚，
+    连带把这次扫描也回滚，库里就留下一条永远 pending 的僵尸行（黑盒复验实测到过）。
+    提交之后各端点自己的写操作仍然是一个整体，原子性不受影响。
     """
-    return db.execute(
+    affected = db.execute(
         "UPDATE seat_swap_request SET status='expired', responded_at=? "
         "WHERE status='pending' AND expires_at<=?", (stamp(), stamp()),
     ).rowcount
+    if affected:
+        db.commit()
+    return affected
 
 
 def member_seat(db, course_id, student_id):
