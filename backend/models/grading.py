@@ -93,15 +93,17 @@ def validate_port_schema(value):
 
 
 def validate_allowed_components(value):
-    from backend.engines.grading import BASE_COMPONENTS
+    from backend.engines.grading import BASE_COMPONENTS, component_key
     if not isinstance(value, list) or not value:
         raise bad("allowed_components must be a non-empty array")
-    if len(set(value)) != len(value):
+    keys = [component_key(name) for name in value]
+    if len(set(keys)) != len(keys):
         raise bad("allowed_components must not contain duplicates")
-    unknown = [name for name in value if name not in BASE_COMPONENTS]
+    unknown = [name for name, key in zip(value, keys) if key not in BASE_COMPONENTS]
     if unknown:
         raise bad(f"allowed_components outside the platform whitelist: {unknown}")
-    return sorted(value)
+    # 统一存逻辑名，使 `AND` 与 `AND Gate` 落到同一份配置上（DBD 第7节）。
+    return sorted(set(keys))
 
 
 def validate_limits(value):
@@ -229,6 +231,13 @@ def suite_content_sha256(cases):
 FORBIDDEN_MARKERS = ("<!DOCTYPE", "<!ENTITY", "SYSTEM ", "PUBLIC ")
 PATH_ATTRIBUTE = re.compile(r"^(\.\./|/|[A-Za-z]:\\|https?://)")
 
+# 固定基线 logisim-evolution 5.0.0 **实际保存**的根标签是
+# `<project source="5.0.0" version="1.0">`（已用该版本 JAR 加载验证）。
+# `<logisim-evolution>` / `<logisim>` 是其他保存/导出格式的写法，一并接受；
+# 版本兼容性最终由真实引擎加载结果判定（CIRCUIT_LOAD_ERROR → invalid_circuit），
+# 预检只负责结构与隔离，不能因为它不认根标签就把合法电路全部拒之门外。
+LOGISIM_ROOTS = ("project", "logisim-evolution", "logisim")
+
 
 def preflight_basic(content):
     """无 judge profile 时的基础隔离校验：合法项目 XML、禁止 DTD/外部实体与文件引用。"""
@@ -242,7 +251,7 @@ def preflight_basic(content):
         root = ET.fromstring(content)
     except ET.ParseError as exc:
         raise invalid(f"circuit file is not valid XML: {exc}") from exc
-    if root.tag not in ("logisim-evolution", "logisim"):
+    if root.tag not in LOGISIM_ROOTS:
         raise invalid("circuit file must be a Logisim project document")
     for comp in root.iter("comp"):
         for attribute in comp.iter("a"):
@@ -267,7 +276,7 @@ def preflight_circ(content, profile):
         root = ET.fromstring(content)
     except ET.ParseError as exc:
         raise invalid(f"circuit file is not valid XML: {exc}") from exc
-    if root.tag not in ("logisim-evolution", "logisim"):
+    if root.tag not in LOGISIM_ROOTS:
         raise invalid("circuit file must be a Logisim project document")
     circuits = {element.get("name"): element for element in root.findall("circuit")}
     top_name = profile["top_circuit"]
@@ -330,11 +339,13 @@ def preflight_circ(content, profile):
         missing = sorted(set(expected) - set(found))
         raise invalid(f"top circuit is missing pins: {missing}")
     # 元件白名单（Pin 由端口模型控制；子电路已按嵌套规则处理）。
+    from backend.engines.grading import component_key
     allowed = set(json.loads(profile["allowed_components_json"])) | {"Pin"} | set(circuits)
     for circuit in circuits.values():
         for comp in circuit.iter("comp"):
-            if comp.get("name") not in allowed:
-                raise invalid(f"component {comp.get('name')!r} is not in the allowed list")
+            name = comp.get("name")
+            if name not in allowed and component_key(name) not in allowed:
+                raise invalid(f"component {name!r} is not in the allowed list")
     return True
 
 

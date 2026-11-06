@@ -59,9 +59,24 @@ class VectorWriterTest(TestCase):
             ]))
             lines = Path(path).read_text(encoding="utf-8").strip().splitlines()
             self.assertEqual(lines[0].split("\t"), ["A", "B", "Y", "<set>", "<seq>"])
+            # 值必须是十六进制字面量：引擎按 hex 解析，写十进制 255 会被当成 0x255。
             # 一个 case 是一条 sequence：set 固定，seq 用 step_no。
-            self.assertEqual(lines[1].split("\t"), ["1", "2", "3", "1", "1"])
-            self.assertEqual(lines[2].split("\t"), ["4", "5", "9", "1", "2"])
+            self.assertEqual(lines[1].split("\t"), ["0x1", "0x2", "0x3", "1", "1"])
+            self.assertEqual(lines[2].split("\t"), ["0x4", "0x5", "0x9", "1", "2"])
+
+    def test_columns_declare_width_and_hex_values(self):
+        # 实测契约：列名缺 [位宽] 时引擎按 1 位解析，多比特值直接报
+        # "Test Vector data format error: Unexpected character"。
+        with TemporaryDirectory() as directory:
+            path = engine.write_vector_file(
+                directory,
+                case(steps=[{"step_no": 1, "inputs": {"A": 3, "OP": 0},
+                             "expected": {"Y": 8, "C": 0}}]),
+                {"A": 8, "OP": 3, "Y": 8, "C": 1})
+            lines = Path(path).read_text(encoding="utf-8").strip().splitlines()
+            self.assertEqual(lines[0].split("\t"),
+                             ["A[8]", "OP[3]", "C[1]", "Y[8]", "<set>", "<seq>"])
+            self.assertEqual(lines[1].split("\t"), ["0x3", "0x0", "0x0", "0x8", "1", "1"])
 
     def test_case_without_expected_outputs_is_rejected(self):
         # AC-11：没有 expected 列时引擎会"零列全过"，采信即等于判满分。

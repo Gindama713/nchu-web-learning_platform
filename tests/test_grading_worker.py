@@ -41,9 +41,9 @@ CIRC = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 
-def profile_row(port_schema=None, components=None):
+def profile_row(port_schema=None, components=None, top_circuit="alu8"):
     return {
-        "top_circuit": "alu8",
+        "top_circuit": top_circuit,
         "port_schema_json": json.dumps(port_schema or {"inputs": {"A": 8, "B": 8},
                                                        "outputs": {"Y": 8}}),
         "allowed_components_json": json.dumps(components or ["Adder"]),
@@ -138,6 +138,34 @@ class PreflightTest(TestCase):
         self.assertTrue(preflight_basic(CIRC))
         with self.assertRaises(ApiError):
             preflight_basic("<notlogisim><circuit name='x'/></notlogisim>")
+
+    def test_real_logisim_500_saved_file_passes(self):
+        # 回归：logisim-evolution 5.0.0 实际保存的根标签是 `<project source="5.0.0">`，
+        # 门电路存的是显示名（`AND Gate`/`NOT Gate`/`NOR Gate`），还用到 Ground、
+        # Power、Shifter、BitSelector。早期预检只认 `<logisim-evolution>` 与无后缀名，
+        # 会把任何真实 .circ 判成 invalid_circuit——联调实测 alu8.circ 被拒，
+        # 而同一文件交给固定 JAR 是 Passed 11 / Failed 0。
+        fixture = Path(__file__).resolve().parent / "fixtures" / "logisim" / "alu8.circ"
+        content = fixture.read_text(encoding="utf-8")
+        self.assertIn('<project source="5.0.0"', content)
+        profile = profile_row(
+            port_schema={"inputs": {"A": 8, "B": 8, "OP": 3},
+                         "outputs": {"Y": 8, "Z": 1, "C": 1}},
+            components=["AND", "OR", "NOT", "XOR", "NOR", "Adder", "Subtractor",
+                        "Multiplexer", "Splitter", "Constant", "Ground", "Shifter",
+                        "Tunnel"],
+            top_circuit="ALU8")
+        self.assertTrue(preflight_circ(content, profile))
+        self.assertTrue(preflight_basic(content))
+
+    def test_component_key_normalizes_gate_suffix(self):
+        # 覆盖 PRD 第7节白名单：保存名与逻辑名必须落到同一项配置上。
+        from backend.engines.grading import component_key
+        self.assertEqual(component_key("AND Gate"), "AND")
+        self.assertEqual(component_key("NOR Gate"), "NOR")
+        self.assertEqual(component_key("XOR Gate"), "XOR")
+        for plain in ("Adder", "Register", "Splitter", "Ground", "Shifter"):
+            self.assertEqual(component_key(plain), plain)
 
     def test_scale_and_recursion_limits(self):
         # 覆盖 PRD 第7节：元件数≤2000、子电路嵌套≤20 层、递归引用拒绝。

@@ -27,10 +27,23 @@ QUEUE_TIMEOUT_SECONDS = 30 * 60
 # 平台白名单：内置门、连线、寄存器、算术与项目内子电路（PRD 第7节允许清单范围）。
 BASE_COMPONENTS = frozenset({
     "Pin", "AND", "OR", "NOT", "NAND", "NOR", "XOR", "XNOR", "Buffer",
-    "Splitter", "Constant", "Register", "Comparator", "Adder", "Subtractor",
+    "Splitter", "Constant", "Ground", "Power", "Register", "Comparator",
+    "Adder", "Subtractor", "Shifter", "Bit Extender", "BitSelector",
     "Multiplexer", "Demultiplexer", "Decoder", "Priority Encoder", "Encoder",
-    "Bit Extender", "ROM", "RAM", "LED", "Button", "Clock", "Text", "Tunnel",
+    "ROM", "RAM", "LED", "Button", "Clock", "Text", "Tunnel",
 })
+
+
+def component_key(name):
+    """把 .circ 里保存的元件显示名归一为白名单的逻辑名。
+
+    logisim-evolution 5.0.0 保存门电路时用的是带后缀的名字（`AND Gate`、
+    `NOT Gate`、`NOR Gate`…），而白名单与教师配置按逻辑名（`AND`、`NOT`）书写。
+    不做归一化会把所有真实电路判成「元件不在允许列表」。
+    """
+    if isinstance(name, str) and name.endswith(" Gate"):
+        return name[:-5]
+    return name
 
 
 def jar_path():
@@ -62,8 +75,26 @@ def engine_command(jar, circuit_name, vector_path, circuit_path, limits):
             str(vector_path), str(circuit_path)]
 
 
-def write_vector_file(directory, case):
+def _vector_value(value):
+    """平台 steps 里的整数写成引擎测试向量的十六进制字面量。
+
+    引擎默认按**十六进制**读向量值：十进制 255 会被解析成 0x255（9 位），
+    直接报 `Too many bits in "255" expected 8 bits`（实测）。`X`/`Z` 直接透传。
+    """
+    if isinstance(value, bool):
+        return f"0x{int(value):X}"
+    if isinstance(value, int):
+        return f"0x{value:X}"
+    return str(value)
+
+
+def write_vector_file(directory, case, widths=None):
     """把平台 steps 契约转换为引擎测试向量文件（APIC 第7节：转换由适配层承担）。
+
+    列名必须写成 `标签[位宽]`。引擎对未声明位宽的列按 **1 位** 解析，多比特端口
+    的十进制值会直接报 `Test Vector data format error: Unexpected character`
+    （实测：`A` + 值 `3` 报错，`A[8]` + `3` 通过）。位宽来自 judge profile 的
+    port_schema，因此调用方必须把 widths 传进来。
 
     列顺序：输入 + 输出 + `<set>` + `<seq>`。一个 case 就是一条独立 sequence，
     所以统一用 set=1、seq=step_no，使引擎在 case 内保留时序状态、case 间不共享。
@@ -71,6 +102,7 @@ def write_vector_file(directory, case):
     返回 None 表示该 case 没有任何 expected 输出列：此时引擎会"零列全过"并
     报告 Passed=行数，直接采信等于把空测试判满分（AC-11）。
     """
+    widths = widths or {}
     steps = json.loads(case["steps_json"])
     inputs = sorted({label for step in steps for label in step.get("inputs", {})})
     outputs = sorted({label for step in steps for label in step.get("expected", {})})
@@ -80,13 +112,18 @@ def write_vector_file(directory, case):
         # APIC 第7节：时钟事件需映射到真实时钟引脚列，且"同向边沿必须插入反向边沿"。
         # 该映射属 TV-01 待锁定项，未锁定前不得静默丢弃边沿（会把时序题当组合题判）。
         raise UnsupportedClockEvent()
-    lines = ["\t".join(inputs + outputs + ["<set>", "<seq>"])]
+
+    def column(label):
+        width = widths.get(label)
+        return f"{label}[{width}]" if width else label
+
+    lines = ["\t".join([column(label) for label in inputs + outputs] + ["<set>", "<seq>"])]
     for index, step in enumerate(steps, start=1):
         row = []
         for label in inputs:
-            row.append(str(step.get("inputs", {}).get(label, 0)))
+            row.append(_vector_value(step.get("inputs", {}).get(label, 0)))
         for label in outputs:
-            row.append(str(step.get("expected", {}).get(label, "x")))
+            row.append(_vector_value(step.get("expected", {}).get(label, "x")))
         row.extend(["1", str(step.get("step_no") or index)])
         lines.append("\t".join(row))
     path = Path(directory) / f"vector-{case['id']}.txt"
@@ -178,6 +215,7 @@ def run_in_sandbox(run_row, submission_path, cases, execute):
             if hasattr(run_row, "get"):
                 snapshot_json = run_row.get("profile_snapshot_json")
     circuit_name = None
+    widths = {}
     if snapshot_json:
         try:
             snapshot = json.loads(snapshot_json) or {}
@@ -186,6 +224,10 @@ def run_in_sandbox(run_row, submission_path, cases, execute):
             for key in MAX_LIMITS:
                 if key in profile_limits:
                     limits[key] = profile_limits[key]
+            # 端口位宽用于向量列名 `标签[位宽]`，缺了引擎按 1 位解析直接报错。
+            schema = snapshot.get("port_schema") or {}
+            for side in ("inputs", "outputs"):
+                widths.update(schema.get(side) or {})
         except (ValueError, TypeError):
             pass
     if not circuit_name:
@@ -197,7 +239,7 @@ def run_in_sandbox(run_row, submission_path, cases, execute):
         results, executed, notes = {}, 0, None
         for case in cases:
             try:
-                vector = write_vector_file(workspace, case)
+                vector = write_vector_file(workspace, case, widths)
             except UnsupportedClockEvent:
                 # 时钟列映射未锁定：宁可整卷 system_error，也不能把时序题按组合题判分。
                 return {"error_code": "INCOMPLETE_RESULT", "results": results, "executed": executed}
