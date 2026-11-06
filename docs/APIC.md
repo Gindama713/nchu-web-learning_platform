@@ -444,3 +444,29 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 | GET /logs/summary | T/A | 请求数、账号数、失败数与前十个高频路径 |
 
 登录请求同样记录访问者：登录成功后在请求上下文写入当前用户，日志里能看到具体学号，而不是匿名请求。
+
+### 14.4 学生自助换位
+
+学生在座位图上调整自己的位置，两条路径：目标位置没人就直接坐过去，有人就发一条换位申请等对方答复。
+
+规则：
+
+- 一次只能挂一条 `pending` 申请，由 `seat_swap_request` 上的部分唯一索引 `UNIQUE(requester_id) WHERE status='pending'` 在库里兜住，应用层先返回 409 SWAP_PENDING_EXISTS；
+- 申请有效期 15 分钟，`expires_at` 到点自动转 `expired`。每个端点入口先扫一遍过期数据，不依赖后台定时任务；
+- 换位成功后同时改 `class_seat`（课程级排座）和该课程全部 `attendance_seat`（已生成任务快照），只改一处会让座位图停在旧位置；
+- 对调用「一起 DELETE 再按对调坐标 INSERT」，绕开 `UNIQUE(course_id,class_name,group_no,seat_no)` 在中间态互撞；
+- 答复前复核两边坐标，中途有人挪过就判 `SEAT_CHANGED` 并把这条申请转 `cancelled`。
+
+`seat_swap_request(id,course_id,requester_id,target_id,from_group,from_seat,to_group,to_seat,status,created_at,expires_at,responded_at)`，`status` 取 pending/accepted/declined/expired/cancelled，保留 `from/to` 坐标是为了答复时能判断申请发出后座位有没有变。
+
+| 接口 | 权限 | 说明 |
+|---|---|---|
+| PUT /courses/{id}/me/seat | S | 坐到空位，body `{group_no,seat_no}`；目标有人返回 409 SEAT_TAKEN，越界 422 OUT_OF_RANGE，未排座 404 NOT_SEATED |
+| POST /courses/{id}/seat-swaps | S | 发起换位申请，body `{target_student_id}`，成功 201；与自己换 409 CANNOT_SWAP_SELF，对方未排座 404 TARGET_NOT_SEATED，已有 pending 409 SWAP_PENDING_EXISTS，对方正在申请自己 409 SWAP_ALREADY_ASKED |
+| GET /courses/{id}/seat-swaps | S | 我发出的、发给我的各最近 10 条，附 `ttl_minutes` |
+| GET /seat-swaps/incoming | S | 跨课程拉「等我答复」的申请，登录后弹窗用 |
+| POST /courses/{id}/seat-swaps/{sid}/accept | S | 只有被申请人能答复；座位已变 409 SEAT_CHANGED，申请已结束 409 SWAP_NOT_PENDING |
+| POST /courses/{id}/seat-swaps/{sid}/decline | S | 拒绝，同样只限被申请人 |
+| DELETE /courses/{id}/seat-swaps/{sid} | S | 发起人撤回 |
+
+教师与助教不走这条路径（403 FORBIDDEN），排座仍由教师端完成。换位结果双方都会收到 `notification`，`event_key` 分别为 `seat_swap:{id}` 与 `seat_swap_result:{id}:{status}`，重复写入不产生第二条。
