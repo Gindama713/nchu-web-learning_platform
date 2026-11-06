@@ -7,7 +7,8 @@
 生成结果：
     4 个班 × 40 人 = 160 个学生账号，密码统一等于学号；
     全部加入 teacher/teacher 名下的课堂点到课程；
-    每班分 10 组、每组 4 个座位，写入 class_seat。
+    按人数选一间够用的教室（023 起可自定义规模），四个班同处一张
+    平面图、各占一段连续排，写入 class_seat。
 
 脚本可重复执行：已存在的学号就地更新班级与密码，不会重复插入。
 
@@ -27,17 +28,14 @@ from pathlib import Path
 
 CLASSES = ["242015", "242016", "242017", "242018"]
 PER_CLASS = 40
-GROUPS = 10
-SEATS_PER_GROUP = PER_CLASS // GROUPS
 
-# 本组四人：学号 -> 姓名，固定在第 10 组
+# 本组四人：学号 -> 姓名，固定排在本班最后几排
 OURS = {
     "24201718": "姜苏豪",
     "24201716": "黄俊诚",
     "24201723": "罗浩铭",
     "24201737": "石佰合",
 }
-OUR_GROUP = 10
 
 SURNAMES = (
     "王李张刘陈杨黄赵周吴徐孙马朱胡林郭何高罗郑梁谢宋唐许韩冯邓曹彭曾萧田董袁潘于蒋蔡余杜叶程苏魏吕丁任沈姚卢"
@@ -78,31 +76,26 @@ def build_roster():
     return roster
 
 
-def assign_seats(roster):
-    """每班 10 组 × 4 座；本组四人固定在第 10 组。"""
+def assign_seats(roster, cols):
+    """按班分段、行优先排座：每班占连续若干排，本组四人固定在本班最后。
+
+    023 之后 group_no / seat_no 的语义是「第几排 / 第几座」，四个班共用
+    一张平面图，所以每班必须落在不同的排段上，不能各自都从第 1 排开始。
+    """
     by_class = {}
     for class_name, number, _name in roster:
         by_class.setdefault(class_name, []).append(number)
 
     seats = {}
-    for class_name, numbers in by_class.items():
-        ours = [number for number in numbers if number in OURS]
-        rest = [number for number in numbers if number not in OURS]
+    row = 1
+    for class_name in sorted(by_class):
+        numbers = sorted(by_class[class_name], key=lambda number: (number in OURS, number))
         filled = []
-        if ours:
-            for offset, number in enumerate(sorted(ours)):
-                filled.append((number, OUR_GROUP, offset + 1))
-        cursor = 0
-        for group in range(1, GROUPS + 1):
-            if ours and group == OUR_GROUP:
-                continue
-            for seat in range(1, SEATS_PER_GROUP + 1):
-                if cursor >= len(rest):
-                    break
-                filled.append((rest[cursor], group, seat))
-                cursor += 1
+        for offset, number in enumerate(numbers):
+            filled.append((number, row + offset // cols, offset % cols + 1))
         seats[class_name] = filled
-    return seats
+        row += -(-len(numbers) // cols)
+    return seats, row - 1
 
 
 def main(argv=None):
@@ -116,15 +109,18 @@ def main(argv=None):
     sys.path.insert(0, str(repo))
     from werkzeug.security import generate_password_hash
 
+    from backend.apis.classroom import pick_preset
     from backend.shared.db import migrate
 
     path = Path(args.db)
     migrate(path)
 
     roster = build_roster()
-    seats = assign_seats(roster)
-    print("名单 %d 人，%d 个班，每班 %d 组 × %d 座"
-          % (len(roster), len(CLASSES), GROUPS, SEATS_PER_GROUP))
+    room = pick_preset(len(roster))
+    seats, used_rows = assign_seats(roster, room["cols"])
+    rows = max(used_rows, room["rows"])
+    print("名单 %d 人，%d 个班；教室 %s %d 排 × %d 座（占用 %d 排）"
+          % (len(roster), len(CLASSES), room["label"], rows, room["cols"], used_rows))
     if args.dry_run:
         for class_name in CLASSES[:1]:
             sample = [row for row in roster if row[0] == class_name][:6]
@@ -147,6 +143,14 @@ def main(argv=None):
             print("找不到课堂点到课程，先跑 scripts/seed_teacher_course.py", file=sys.stderr)
             return 2
         course_id = course["id"]
+
+        db.execute("INSERT INTO classroom(course_id,name,template,rows,cols,aisle_every,"
+                   "created_at,updated_at) VALUES(?,?,?,?,?,?,?,?) "
+                   "ON CONFLICT(course_id) DO UPDATE SET name=excluded.name,template=excluded.template,"
+                   "rows=excluded.rows,cols=excluded.cols,aisle_every=excluded.aisle_every,"
+                   "updated_at=excluded.updated_at",
+                   (course_id, room["label"], room["template"], rows, room["cols"],
+                    room["aisle_every"], timestamp, timestamp))
 
         created = updated = 0
         for class_name, number, name in roster:
