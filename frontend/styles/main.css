@@ -545,6 +545,48 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
 .seatmap-mine.empty { color: #6b809c; background: #f7f9fc; border-color: #e1e8f1; }
 .seatmap-mine.empty b { color: #8496ad; }
 .seatmap-detail { margin-top: 12px; font-size: .82rem; color: #182436; }
+/* 学生端：空位和同学座位都可点，给一个明确的可点手感 */
+.seat-cell.pickable { cursor: pointer; }
+.seat-cell.pickable.empty { opacity: .8; border-color: #c9d7e8; }
+.seat-cell.pickable.empty:hover:not(:disabled) { opacity: 1; border-color: #2f6fd0; background: #f2f7fd; }
+.seat-cell.pickable.empty::before {
+  content: '＋'; position: absolute; inset: 0; display: grid; place-items: center;
+  color: #b6c7db; font-size: .9rem;
+}
+
+/* 我发起的换位申请：等答复期间常驻一条，带倒计时和撤回 */
+.swap-strip {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 12px;
+  padding: 9px 14px; border-radius: 10px; font-size: .84rem; color: #7a5410;
+  background: #fff8e8; border: 1px solid #f2ddab;
+}
+.swap-strip b { color: #96650f; }
+.swap-strip i { font-style: normal; font-weight: 700; font-variant-numeric: tabular-nums; }
+.swap-strip button { margin-left: auto; padding: 5px 12px; font-size: .8rem; }
+
+/* 对方登录时弹出的换位确认框 */
+.swap-modal {
+  position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 20px;
+  background: rgb(15 32 55 / 55%); backdrop-filter: blur(2px);
+}
+.swap-dialog {
+  width: min(440px, 100%); display: grid; gap: 10px; padding: 26px 26px 22px;
+  border-radius: 16px; background: #fff; box-shadow: 0 24px 60px -20px rgb(9 24 44 / 55%);
+}
+.swap-eyebrow {
+  margin: 0; font-size: .78rem; letter-spacing: .04em; color: #8496ad;
+}
+.swap-eyebrow i { font-style: normal; font-weight: 700; color: #d94b3f; font-variant-numeric: tabular-nums; }
+.swap-dialog h3 { margin: 0; font-size: 1.22rem; color: #12325f; }
+.swap-body { margin: 0; font-size: .88rem; line-height: 1.65; color: #4c5f78; }
+.swap-body b { color: #173b6c; }
+.swap-tip { margin: 0; font-size: .8rem; color: #8496ad; }
+.swap-actions { display: flex; gap: 10px; margin-top: 6px; }
+.swap-actions button { flex: 1 1 0; }
+@media (max-width: 520px) {
+  .swap-dialog { padding: 22px 20px 18px; }
+  .swap-actions { flex-direction: column; }
+}
 .seatmap-detail button { margin-left: 8px; }
 .seat-rosters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
 @media (max-width: 900px) { .seat-rosters { grid-template-columns: 1fr; } }

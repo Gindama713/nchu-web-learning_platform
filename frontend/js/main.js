@@ -279,6 +279,8 @@ createApp({
       if (user.value.role !== 'admin' && !courseId.value && courses.value.length) {
         await selectCourse(courses.value[0].id)
       }
+      // 别人在等他答复的换位申请，登录就弹出来
+      await pollIncoming()
     }
     async function login() {
       await act(loginRequest, '登录成功。')
@@ -323,6 +325,100 @@ createApp({
       seatList.value.forEach(seat => { counts[seat.status] = (counts[seat.status] ?? 0) + 1 })
       return counts
     })
+    // 换位：学生点空位直接坐，点别人就发申请等答复；服务端 15 分钟不回就作废
+    const seatSwap = reactive({
+      outgoing: [], incoming: [], ttl: 15, modal: null, now: Date.now(), busy: false,
+    })
+    const SWAP_TEXT = {
+      pending: '等待答复', accepted: '已换座', declined: '对方拒绝', expired: '已过期', cancelled: '已撤回',
+    }
+    const swapText = status => SWAP_TEXT[status] ?? status
+    const swapLeft = row => {
+      if (!row || row.status !== 'pending') return '—'
+      const left = Math.max(0, Math.round((Date.parse(row.expires_at) - seatSwap.now) / 1000))
+      return `${String(Math.floor(left / 60)).padStart(2, '0')}:${String(left % 60).padStart(2, '0')}`
+    }
+    const mySwap = computed(() => seatSwap.outgoing.find(row => row.status === 'pending') ?? null)
+    const seatOccupiedBy = cell => (cell?.seat ? cell.seat : null)
+    const seatCellTitle = cell => {
+      if (cell.seat) {
+        const base = `${seatLabel(cell.seat)}　${cell.seat.student_no} ${cell.seat.name}　${seatText(cell.seat.status)}`
+        if (user.value?.role !== 'student') return base
+        if (cell.seat.student_id === user.value.id) return `${base}　（我的座位）`
+        return `${base}　（点一下申请换位）`
+      }
+      return user.value?.role === 'student' ? `${cell.row} 排 ${cell.col} 座 · 空位，点一下坐这里` : '空座'
+    }
+
+    async function loadSwaps() {
+      if (!courseId.value || user.value?.role !== 'student') return
+      const data = await readApi(`/api/v1/courses/${courseId.value}/seat-swaps`)
+      seatSwap.outgoing = data.outgoing
+      seatSwap.incoming = data.incoming
+      seatSwap.ttl = data.ttl_minutes
+    }
+    // 登录后和每 20 秒拉一次：对方答复 / 过期都要在界面上及时反映出来
+    async function pollIncoming() {
+      if (user.value?.role !== 'student') { seatSwap.modal = null; return }
+      try {
+        const data = await readApi('/api/v1/seat-swaps/incoming')
+        seatSwap.modal = data.items[0] ?? null
+        seatSwap.ttl = data.ttl_minutes
+        seatSwap.now = Date.now()
+        if (seatSwap.modal && courseId.value) await loadSwaps()
+      } catch { /* 轮询失败不打断页面 */ }
+    }
+    async function sitHere(cell) {
+      if (seatSwap.busy || user.value?.role !== 'student') return
+      const seat = seatOccupiedBy(cell)
+      if (seat && seat.student_id === user.value.id) { seatDetail.value = seat; return }
+      if (seat) {
+        if (mySwap.value) { message.value = '你已经有一个换位申请在等答复了，先撤回再申请。'; return }
+        const yes = window.confirm(`申请和 ${seat.name}（${seatLabel(seat)}）换座位？对方有 ${seatSwap.ttl} 分钟答复时间。`)
+        if (!yes) return
+        seatSwap.busy = true
+        await act(async () => {
+          await write('/api/v1/courses/' + courseId.value + '/seat-swaps', 'POST',
+            { target_student_id: seat.student_id })
+          await loadSwaps()
+        }, `已向 ${seat.name} 发出换位申请，等对方答复。`)
+        seatSwap.busy = false
+        return
+      }
+      if (!courseId.value) return
+      const yes = window.confirm(`坐到 ${cell.row} 排 ${cell.col} 座？`)
+      if (!yes) return
+      seatSwap.busy = true
+      await act(async () => {
+        await write('/api/v1/courses/' + courseId.value + '/me/seat', 'PUT',
+          { group_no: cell.row, seat_no: cell.col })
+        if (seatData.value) await loadSeats(seatData.value.task.id)
+        await loadSwaps()
+      }, `已换到 ${cell.row} 排 ${cell.col} 座。`)
+      seatSwap.busy = false
+    }
+    async function answerSwap(row, accept) {
+      if (!row || seatSwap.busy) return
+      seatSwap.busy = true
+      await act(async () => {
+        await write(`/api/v1/courses/${row.course_id}/seat-swaps/${row.id}/${accept ? 'accept' : 'decline'}`,
+          'POST')
+        seatSwap.modal = null
+        if (seatData.value) await loadSeats(seatData.value.task.id)
+        await loadSwaps()
+      }, accept ? '已换座，双方座位对调完成。' : '已拒绝这次换位。')
+      seatSwap.busy = false
+    }
+    async function cancelSwap(row) {
+      if (!row || seatSwap.busy) return
+      seatSwap.busy = true
+      await act(async () => {
+        await write(`/api/v1/courses/${row.course_id}/seat-swaps/${row.id}`, 'DELETE')
+        await loadSwaps()
+      }, '已撤回换位申请。')
+      seatSwap.busy = false
+    }
+
     // 四个班混排在一张图里，颜色是唯一能区分班级的线索，所以按班名固定取色
     const SEAT_COLORS = ['#2f6fd0', '#16a394', '#f2994a', '#9b6dd6', '#d9534f', '#4a90d9', '#56b98a']
     const seatClasses = computed(() => [...new Set(seatList.value.map(seat => seat.class_name))].sort())
@@ -355,7 +451,8 @@ createApp({
       for (let row = 1; row <= seatData.value.grid.rows; row += 1) {
         const cells = []
         for (let col = 1; col <= seatData.value.grid.cols; col += 1) {
-          cells.push({ key: `${row}-${col}`, col, slot: seatSlot(col), seat: seatIndex.value.get(`${row}-${col}`) ?? null })
+          cells.push({ key: `${row}-${col}`, row, col, slot: seatSlot(col),
+            seat: seatIndex.value.get(`${row}-${col}`) ?? null })
         }
         grid.push({ row, cells })
       }
@@ -442,6 +539,8 @@ createApp({
       clearCourse()
       courseId.value = Number(id)
       await act(refreshCourse, '课程已加载。')
+      // 换位申请是按课程查的，切课后重新拉一次
+      if (user.value?.role === 'student') await act(loadSwaps, '')
     }
     async function createCourse() {
       await act(async () => {
@@ -706,11 +805,19 @@ createApp({
         if (courseEpoch === epoch && recognition.value?.id === id) recognition.value = confirmed
       }, '结构草稿已确认，不会自动运行或计分。')
     }
-    onMounted(session)
+    onMounted(async () => {
+      await session()
+      // 换位提醒：登录后先拉一次（已登录状态刷新页面也要弹），之后每 20 秒轮询；
+      // 单独的 1 秒 tick 只负责把倒计时数字走动起来，不发请求。
+      await pollIncoming()
+      window.setInterval(pollIncoming, 20000)
+      window.setInterval(() => { seatSwap.now = Date.now() }, 1000)
+    })
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, authMode, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       demoStudentNo, fillTeacher, fillStudent,
       seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses, mySeat,
+      seatSwap, mySwap, swapLeft, swapText, seatCellTitle, sitHere, answerSwap, cancelSwap, loadSwaps, pollIncoming,
       classColor, seatRosters, sourceText, seatLabel, seatSlot, room, roomForm, applyPreset, saveRoom, autoSeat, unseat,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
       leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect, gesture, enrollGesture, checkInByGesture, clearGesture }
@@ -938,6 +1045,9 @@ createApp({
         </div>
         <p v-if="mySeat" class="seatmap-mine"><b>我坐这里</b>座位 {{ seatLabel(mySeat) }}　{{ mySeat.student_no }} {{ mySeat.name }}　{{ mySeat.class_name }}　状态：{{ seatText(mySeat.status) }}</p>
         <p v-else-if="user.role === 'student'" class="seatmap-mine empty"><b>没有我的座位</b>这张图里没有排到你的座位，找任课老师确认一下。</p>
+        <p v-if="mySwap" class="swap-strip"><b>换位申请中</b>申请和 {{ mySwap.target_name }} 换座，等对方答复，剩余 <i>{{ swapLeft(mySwap) }}</i>
+        <button type="button" class="secondary" @click="cancelSwap(mySwap)">撤回</button></p>
+        <p v-if="user.role === 'student' && seatData" class="att-meta">点空位直接坐过去；点同学会向对方发换位申请，对方 {{ seatSwap.ttl }} 分钟内答复，超时作废。</p>
         <div class="seatmap-legend">
         <span v-for="name in seatClasses" :key="name"><i class="chip" :style="{ background: classColor(name) }"></i>{{ name }}</span>
         <span class="legend-gap"></span>
@@ -952,11 +1062,11 @@ createApp({
         <template v-for="line in seatRows" :key="line.row">
         <span class="seat-row-label" :style="{ gridColumn: 1, gridRow: line.row }">{{ line.row }}</span>
         <button v-for="cell in line.cells" :key="cell.key" type="button"
-          :class="['seat-cell', cell.seat ? cell.seat.status : 'empty', { mine: cell.seat && mySeat && cell.seat.student_id === mySeat.student_id }]"
+          :class="['seat-cell', cell.seat ? cell.seat.status : 'empty', { mine: cell.seat && mySeat && cell.seat.student_id === mySeat.student_id, pickable: user.role === 'student' }]"
           :style="{ gridColumn: seatSlot(cell.col) + 1, gridRow: line.row, borderTopColor: cell.seat ? classColor(cell.seat.class_name) : 'transparent' }"
-          :disabled="!cell.seat"
-          :title="cell.seat ? seatLabel(cell.seat) + '　' + cell.seat.student_no + ' ' + cell.seat.name + '　' + seatText(cell.seat.status) : '空座'"
-          @click="cell.seat && (seatDetail = cell.seat)">
+          :disabled="user.role === 'teacher' && !cell.seat"
+          :title="seatCellTitle(cell)"
+          @click="user.role === 'student' ? sitHere(cell) : (cell.seat && (seatDetail = cell.seat))">
         <template v-if="cell.seat">
         <b>{{ cell.seat.seat_no }}</b>
         <span>{{ cell.seat.name }}</span>
@@ -1094,5 +1204,20 @@ createApp({
         </template>
       </template>
       </template>
+
+      <div v-if="seatSwap.modal" class="swap-modal" role="dialog" aria-modal="true" aria-labelledby="swap-title">
+        <div class="swap-dialog">
+        <p class="swap-eyebrow">换位申请 · 剩余 <i>{{ swapLeft(seatSwap.modal) }}</i></p>
+        <h3 id="swap-title">{{ seatSwap.modal.requester_name }} 想和你换座位</h3>
+        <p class="swap-body">TA 现在坐 <b>{{ seatSwap.modal.from_group }} 排 {{ seatSwap.modal.from_seat }} 座</b>，
+          想换到你现在的位置 <b>{{ seatSwap.modal.to_group }} 排 {{ seatSwap.modal.to_seat }} 座</b>。
+          {{ seatSwap.modal.course_title }}</p>
+        <p class="swap-tip">{{ seatSwap.ttl }} 分钟内不答复就自动失效，双方座位都不动。</p>
+        <div class="swap-actions">
+        <button type="button" :disabled="seatSwap.busy" @click="answerSwap(seatSwap.modal, true)">同意换位</button>
+        <button type="button" class="secondary" :disabled="seatSwap.busy" @click="answerSwap(seatSwap.modal, false)">拒绝</button>
+        </div>
+        </div>
+      </div>
     </main>`,
 }).mount('#app')
