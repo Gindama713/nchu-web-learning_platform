@@ -153,10 +153,12 @@ createApp({
     const taskForm = reactive({ title: '', start_at: '', late_at: '', end_at: '' })
     const check = reactive({ task_id: '', code: '', reason: '' })
     const analysisFilter = reactive({ from: '', to: '', paper_ids: '' })
-    // 课堂点到座位图：按班级分页展示教室布局与每个座位的实时状态
+    // 课堂点到座位图：一整张平面网格，四个班混排在同一间教室里
     const seatData = ref(null)
-    const seatClass = ref('')
     const seatDetail = ref(null)
+    // 教室规模：教师可以按自己的教室改行列，预设只是快捷入口
+    const room = ref(null)
+    const roomForm = reactive({ name: '', template: 'custom', rows: 10, cols: 12, aisle_every: 0 })
     let courseEpoch = 0
 
     function clearCourse() {
@@ -172,8 +174,8 @@ createApp({
       draft.value = '[]'
       secretCode.value = ''
       seatData.value = null
-      seatClass.value = ''
       seatDetail.value = null
+      room.value = null
       check.task_id = ''
       check.code = ''
       check.reason = ''
@@ -211,12 +213,13 @@ createApp({
       if (!id || currentUser.role === 'admin') return
       const base = `/api/v1/courses/${id}`
       const teacher = currentUser.role === 'teacher'
-      const [taskRows, leaveRows, recordRows, warningRows, memberRows] = await Promise.all([
+      const [taskRows, leaveRows, recordRows, warningRows, memberRows, roomRow] = await Promise.all([
         readApi(`${base}/attendance-tasks?page_size=100`),
         readApi(`${base}/leave-requests?page_size=100`),
         readApi(`${base}/attendance-records?page_size=100`),
         teacher ? readApi(`${base}/warnings?page_size=100`) : Promise.resolve([]),
         teacher ? readApi(`${base}/members?page_size=100`) : Promise.resolve([]),
+        teacher ? readApi(`${base}/classroom`) : Promise.resolve(null),
       ])
       if (courseEpoch !== epoch || courseId.value !== id || user.value !== currentUser) return
       tasks.value = taskRows
@@ -224,6 +227,7 @@ createApp({
       records.value = recordRows
       warnings.value = warningRows
       members.value = memberRows
+      if (roomRow) syncRoom(roomRow)
     }
     async function session() {
       try {
@@ -286,39 +290,118 @@ createApp({
       await act(async () => {
         const data = await readApi('/api/v1/attendance-tasks/' + taskId + '/seats')
         seatData.value = data
-        seatClass.value = data.classes.length ? data.classes[0].class_name : ''
         seatDetail.value = null
       })
     }
-    const seatCurrent = computed(() => {
-      if (!seatData.value) return []
-      const hit = seatData.value.classes.find(item => item.class_name === seatClass.value)
-      return hit ? hit.seats : []
-    })
+    const seatList = computed(() => seatData.value?.seats ?? [])
     const seatStats = computed(() => {
       const counts = { present: 0, late: 0, leave: 0, absent: 0, pending: 0 }
-      seatCurrent.value.forEach(seat => { counts[seat.status] = (counts[seat.status] ?? 0) + 1 })
+      seatList.value.forEach(seat => { counts[seat.status] = (counts[seat.status] ?? 0) + 1 })
       return counts
     })
-    const seatGroups = computed(() => {
+    // 四个班混排在一张图里，颜色是唯一能区分班级的线索，所以按班名固定取色
+    const SEAT_COLORS = ['#2f6fd0', '#16a394', '#f2994a', '#9b6dd6', '#d9534f', '#4a90d9', '#56b98a']
+    const seatClasses = computed(() => [...new Set(seatList.value.map(seat => seat.class_name))].sort())
+    const classColor = name => SEAT_COLORS[Math.max(0, seatClasses.value.indexOf(name)) % SEAT_COLORS.length]
+    const seatIndex = computed(() => {
       const map = new Map()
-      seatCurrent.value.forEach(seat => {
-        if (!map.has(seat.group_no)) map.set(seat.group_no, [])
-        map.get(seat.group_no).push(seat)
-      })
-      return [...map.entries()]
-        .sort((left, right) => left[0] - right[0])
-        .map(([no, seats]) => ({ no, seats: seats.slice().sort((left, right) => left.seat_no - right.seat_no) }))
+      seatList.value.forEach(seat => map.set(`${seat.group_no}-${seat.seat_no}`, seat))
+      return map
     })
-    // 教室分左中右三块：把组按顺序切成三列，中间列组数少时自然留白
+    const seatAisle = computed(() => seatData.value?.classroom?.aisle_every || 0)
+    // 有过道时第 col 座落在第几列：把过道本身也算作一列，grid-column 才对得上
+    const seatSlot = col => {
+      const aisle = seatAisle.value
+      return aisle ? col + Math.floor((col - 1) / aisle) : col
+    }
     const seatColumns = computed(() => {
-      const groups = seatGroups.value
-      const size = Math.ceil(groups.length / 3) || 1
-      return [groups.slice(0, size), groups.slice(size, size * 2), groups.slice(size * 2)]
+      if (!seatData.value) return ''
+      const total = seatData.value.grid.cols
+      // 第 1 列留给排号，座位从第 2 列起算
+      const parts = ['34px']
+      for (let col = 1; col <= total; col += 1) {
+        parts.push('minmax(68px, 1fr)')
+        if (seatAisle.value && col % seatAisle.value === 0 && col < total) parts.push('14px')
+      }
+      return parts.join(' ')
+    })
+    const seatRows = computed(() => {
+      if (!seatData.value) return []
+      const grid = []
+      for (let row = 1; row <= seatData.value.grid.rows; row += 1) {
+        const cells = []
+        for (let col = 1; col <= seatData.value.grid.cols; col += 1) {
+          cells.push({ key: `${row}-${col}`, col, slot: seatSlot(col), seat: seatIndex.value.get(`${row}-${col}`) ?? null })
+        }
+        grid.push({ row, cells })
+      }
+      return grid
+    })
+    // 图下面三栏名单：已到（含迟到）/ 未到（未签到 + 缺勤）/ 请假
+    const seatRosters = computed(() => {
+      const buckets = { here: [], away: [], leave: [] }
+      seatList.value.forEach(seat => {
+        const bucket = seat.status === 'leave' ? 'leave' : ['present', 'late'].includes(seat.status) ? 'here' : 'away'
+        buckets[bucket].push(seat)
+      })
+      Object.values(buckets).forEach(list => list.sort(
+        (left, right) => left.group_no - right.group_no || left.seat_no - right.seat_no))
+      return buckets
     })
     const seatText = status => ({
       present: '已到', late: '迟到', leave: '请假', absent: '缺勤', pending: '未签到',
     }[status] ?? status)
+    const sourceText = source => ({ checkin: '签到码', gesture: '手势图案', close: '系统结算' }[source] ?? '—')
+    const seatLabel = seat => seat ? `${seat.group_no} 排 ${seat.seat_no} 座` : '未排座'
+
+    function syncRoom(data) {
+      room.value = data
+      roomForm.name = data.name
+      roomForm.template = data.template
+      roomForm.rows = data.rows
+      roomForm.cols = data.cols
+      roomForm.aisle_every = data.aisle_every
+    }
+    function applyPreset(preset) {
+      roomForm.name = preset.label
+      roomForm.template = preset.template
+      roomForm.rows = preset.rows
+      roomForm.cols = preset.cols
+      roomForm.aisle_every = preset.aisle_every
+      message.value = `已套用「${preset.label}」${preset.rows} 排 × ${preset.cols} 座，点「保存教室」生效。`
+    }
+    async function refreshSeatmap() {
+      if (seatData.value) await loadSeats(seatData.value.task.id)
+      if (courseId.value) syncRoom(await readApi(`/api/v1/courses/${courseId.value}/classroom`))
+    }
+    async function saveRoom() {
+      await act(async () => {
+        const data = await write(`/api/v1/courses/${courseId.value}/classroom`, 'PUT', {
+          name: roomForm.name, template: 'custom', rows: Number(roomForm.rows),
+          cols: Number(roomForm.cols), aisle_every: Number(roomForm.aisle_every),
+        })
+        syncRoom(data)
+        if (seatData.value) await loadSeats(seatData.value.task.id)
+        message.value = data.removed
+          ? `教室已保存，清理了 ${data.removed} 个越出教室的座位。`
+          : '教室已保存。'
+      })
+    }
+    async function autoSeat() {
+      await act(async () => {
+        const data = await write(`/api/v1/courses/${courseId.value}/classroom/auto-seat`, 'POST', {})
+        syncRoom(data)
+        if (seatData.value) await loadSeats(seatData.value.task.id)
+        message.value = `已按班排座，${data.placed} 人入座。`
+      })
+    }
+    async function unseat(studentId) {
+      await act(async () => {
+        await write(`/api/v1/courses/${courseId.value}/seats/${studentId}`, 'PATCH', { clear: true })
+        await refreshSeatmap()
+        message.value = '已把该学生撤出座位表。'
+      })
+    }
     async function logout() {
       await act(async () => {
         await write('/api/v1/auth/logout', 'POST')
@@ -557,7 +640,8 @@ createApp({
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       demoStudentNo, fillTeacher, fillStudent,
-      seatData, seatClass, seatDetail, loadSeats, seatCurrent, seatStats, seatColumns, seatText,
+      seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses,
+      classColor, seatRosters, sourceText, seatLabel, seatSlot, room, roomForm, applyPreset, saveRoom, autoSeat, unseat,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
       leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect }
   },
@@ -724,44 +808,103 @@ createApp({
         </ul>
         <p v-if="!tasks.length">还没有考勤任务。</p>
 
+        <details v-if="user.role === 'teacher'" class="att-panel">
+        <summary>教室设置（{{ room ? room.name + ' · ' + roomForm.rows + ' 排 × ' + roomForm.cols + ' 座' : '加载中' }}）</summary>
+        <div v-if="room" class="room-presets">
+        <button v-for="preset in room.presets" :key="preset.template" type="button" class="secondary"
+          @click="applyPreset(preset)">{{ preset.label }} · {{ preset.rows }} 排 × {{ preset.cols }} 座</button>
+        </div>
+        <form v-if="room" class="inline-form" @submit.prevent="saveRoom">
+        <label>教室名称 <input v-model.trim="roomForm.name" maxlength="40" required></label>
+        <label>排数 <input v-model.number="roomForm.rows" type="number" min="1" :max="room.limits.rows" required></label>
+        <label>每排座位 <input v-model.number="roomForm.cols" type="number" min="1" :max="room.limits.cols" required></label>
+        <label>过道间隔 <input v-model.number="roomForm.aisle_every" type="number" min="0" :max="room.limits.aisle_every"></label>
+        <button>保存教室</button></form>
+        <p v-if="room" class="att-meta">容量 {{ room.capacity }} 座　学生 {{ room.students }} 人　已排座 {{ room.seated }} 人　未排 {{ room.unseated }} 人</p>
+        <div v-if="room" class="att-actions">
+        <button type="button" @click="autoSeat">一键按班排座</button>
+        <span class="att-meta">按班级顺序整排起排，四个班各占一段连续排；教室不够时会直接报错而不是硬塞。</span>
+        </div>
+        </details>
+
         <div v-if="seatData" class="seatmap">
         <div class="seatmap-head">
         <strong>教室座位图 · {{ seatData.task.title }}</strong>
-        <span>应到 {{ seatCurrent.length }}　已到 {{ seatStats.present + seatStats.late }}　迟到 {{ seatStats.late }}　请假 {{ seatStats.leave }}　缺勤 {{ seatStats.absent }}　未签到 {{ seatStats.pending }}</span>
-        </div>
-        <div class="seatmap-podium">讲 台 / 屏 幕</div>
-        <div v-if="seatData.classes.length > 1" class="seatmap-classes">
-        <button v-for="item in seatData.classes" :key="item.class_name" type="button"
-          :class="{ active: seatClass === item.class_name }" @click="seatClass = item.class_name; seatDetail = null">{{ item.class_name }}</button>
-        </div>
-        <div class="seatmap-floor">
-        <div v-for="(column, index) in seatColumns" :key="index" class="seat-col">
-        <div v-for="group in column" :key="group.no" class="seat-group">
-        <span class="seat-group-label">第 {{ group.no }} 组</span>
-        <div class="seat-group-seats">
-        <button v-for="seat in group.seats" :key="seat.student_id" type="button"
-          :class="['seat', seat.status]"
-          :title="seat.student_no + ' ' + seat.name + ' · ' + seatText(seat.status)"
-          @click="seatDetail = seat">
-        <b>{{ group.no }}-{{ seat.seat_no }}</b>
-        <span>{{ seat.name }}</span>
-        </button>
-        </div>
-        </div>
-        </div>
+        <span class="seatmap-room">{{ seatData.classroom.name }}　{{ seatData.grid.rows }} 排 × {{ seatData.grid.cols }} 座</span>
+        <span>应到 {{ seatList.length }}　已到 {{ seatStats.present + seatStats.late }}　迟到 {{ seatStats.late }}　请假 {{ seatStats.leave }}　缺勤 {{ seatStats.absent }}　未签到 {{ seatStats.pending }}</span>
         </div>
         <div class="seatmap-legend">
-        <span><i style="background:#e6f7ee;border:1px solid #8fd3ae"></i>已到</span>
-        <span><i style="background:#fff4d6;border:1px solid #e8c46a"></i>迟到</span>
-        <span><i style="background:#e8f2ff;border:1px solid #a9c8ee"></i>请假</span>
-        <span><i style="background:#fdeceb;border:1px solid #f2c0bc"></i>缺勤</span>
-        <span><i style="background:#f3f6fb;border:1px dashed #c9d6e8"></i>未签到</span>
+        <span v-for="name in seatClasses" :key="name"><i class="chip" :style="{ background: classColor(name) }"></i>{{ name }}</span>
+        <span class="legend-gap"></span>
+        <span><i class="dot present"></i>已到</span>
+        <span><i class="dot late"></i>迟到</span>
+        <span><i class="dot leave"></i>请假</span>
+        <span><i class="dot absent"></i>缺勤</span>
+        <span><i class="dot pending"></i>未签到</span>
+        </div>
+        <div class="seatmap-podium">讲 台 / 屏 幕</div>
+        <div class="seatmap-grid" :style="{ gridTemplateColumns: seatColumns }">
+        <template v-for="line in seatRows" :key="line.row">
+        <span class="seat-row-label" :style="{ gridColumn: 1, gridRow: line.row }">{{ line.row }}</span>
+        <button v-for="cell in line.cells" :key="cell.key" type="button"
+          :class="['seat-cell', cell.seat ? cell.seat.status : 'empty']"
+          :style="{ gridColumn: seatSlot(cell.col) + 1, gridRow: line.row, borderTopColor: cell.seat ? classColor(cell.seat.class_name) : 'transparent' }"
+          :disabled="!cell.seat"
+          :title="cell.seat ? seatLabel(cell.seat) + '　' + cell.seat.student_no + ' ' + cell.seat.name + '　' + seatText(cell.seat.status) : '空座'"
+          @click="cell.seat && (seatDetail = cell.seat)">
+        <template v-if="cell.seat">
+        <b>{{ cell.seat.seat_no }}</b>
+        <span>{{ cell.seat.name }}</span>
+        <em v-if="cell.seat.status === 'late'">迟</em>
+        </template>
+        </button>
+        </template>
         </div>
         <p v-if="seatDetail" class="seatmap-detail">
-        座位 {{ seatDetail.group_no }}-{{ seatDetail.seat_no }}　{{ seatDetail.student_no }} {{ seatDetail.name }}　状态：{{ seatText(seatDetail.status) }}　签到时间：{{ seatDetail.checked_at ? shortTime(seatDetail.checked_at) : '—' }}
+        座位 {{ seatLabel(seatDetail) }}　{{ seatDetail.student_no }} {{ seatDetail.name }}　{{ seatDetail.class_name }}　状态：{{ seatText(seatDetail.status) }}　签到时间：{{ seatDetail.checked_at ? shortTime(seatDetail.checked_at) : '—' }}　方式：{{ sourceText(seatDetail.source) }}
         <button type="button" class="secondary" @click="seatDetail = null">关闭</button>
         </p>
-        <p v-if="seatData.unseated" class="seatmap-detail">另有 {{ seatData.unseated }} 名应到学生没有排座，请先在课程座位表里安排。</p>
+        <p v-if="seatData.unseated" class="seatmap-detail">另有 {{ seatData.unseated }} 名应到学生没有排座，请先在上面的「教室设置」里一键排座。</p>
+
+        <div class="seat-rosters">
+        <div class="roster-col">
+        <h4>已到 <b>{{ seatRosters.here.length }}</b></h4>
+        <ul>
+        <li v-for="seat in seatRosters.here" :key="seat.student_id">
+        <span class="roster-seat">{{ seatLabel(seat) }}</span>
+        <span class="roster-name">{{ seat.name }}</span>
+        <span class="roster-class" :style="{ color: classColor(seat.class_name) }">{{ seat.class_name }}</span>
+        <em v-if="seat.status === 'late'" class="roster-late">迟到</em>
+        <span class="roster-time">{{ seat.checked_at ? shortTime(seat.checked_at) : '—' }}</span>
+        <span class="roster-source">{{ sourceText(seat.source) }}</span>
+        </li>
+        </ul>
+        <p v-if="!seatRosters.here.length" class="roster-empty">暂无</p>
+        </div>
+        <div class="roster-col">
+        <h4>未到 <b>{{ seatRosters.away.length }}</b></h4>
+        <ul>
+        <li v-for="seat in seatRosters.away" :key="seat.student_id">
+        <span class="roster-seat">{{ seatLabel(seat) }}</span>
+        <span class="roster-name">{{ seat.name }}</span>
+        <span class="roster-class" :style="{ color: classColor(seat.class_name) }">{{ seat.class_name }}</span>
+        <em class="roster-flag">{{ seatText(seat.status) }}</em>
+        </li>
+        </ul>
+        <p v-if="!seatRosters.away.length" class="roster-empty">暂无</p>
+        </div>
+        <div class="roster-col">
+        <h4>请假 <b>{{ seatRosters.leave.length }}</b></h4>
+        <ul>
+        <li v-for="seat in seatRosters.leave" :key="seat.student_id">
+        <span class="roster-seat">{{ seatLabel(seat) }}</span>
+        <span class="roster-name">{{ seat.name }}</span>
+        <span class="roster-class" :style="{ color: classColor(seat.class_name) }">{{ seat.class_name }}</span>
+        </li>
+        </ul>
+        <p v-if="!seatRosters.leave.length" class="roster-empty">暂无</p>
+        </div>
+        </div>
         </div>
 
         <details v-if="user.role === 'teacher'" class="att-panel">
