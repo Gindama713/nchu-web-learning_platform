@@ -19,6 +19,7 @@ import { WarningView } from './warning-view.js'
 import { PreparationView } from './preparation-view.js'
 import { WiringView } from './wiring-view.js'
 import { WiringStatsView } from './wiring-stats-view.js'
+import { GesturePad } from './gesture-pad.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
@@ -40,7 +41,7 @@ import '../styles/wiring.css'
 import '../styles/wiring-stats.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView, GesturePad },
   setup() {
     const user = ref(null)
     const practiceEntry = ref(null)
@@ -151,7 +152,9 @@ createApp({
     const courseForm = reactive({ title: '', teacher_id: '', retain_previous_teacher: false })
     const memberNo = ref('')
     const taskForm = reactive({ title: '', start_at: '', late_at: '', end_at: '' })
-    const check = reactive({ task_id: '', code: '', reason: '' })
+    const check = reactive({ task_id: '', code: '', reason: '', mode: 'code' })
+    // 手势签到：enrolled 表示是否已设置图案；first 暂存第一次画的图案等确认
+    const gesture = reactive({ enrolled: false, updated_at: null, first: null, hint: '按住并划过至少 4 个点。' })
     const analysisFilter = reactive({ from: '', to: '', paper_ids: '' })
     // 课堂点到座位图：一整张平面网格，四个班混排在同一间教室里
     const seatData = ref(null)
@@ -179,6 +182,8 @@ createApp({
       check.task_id = ''
       check.code = ''
       check.reason = ''
+      check.mode = 'code'
+      gesture.first = null
       memberNo.value = ''
       analysisFilter.from = ''
       analysisFilter.to = ''
@@ -213,13 +218,14 @@ createApp({
       if (!id || currentUser.role === 'admin') return
       const base = `/api/v1/courses/${id}`
       const teacher = currentUser.role === 'teacher'
-      const [taskRows, leaveRows, recordRows, warningRows, memberRows, roomRow] = await Promise.all([
+      const [taskRows, leaveRows, recordRows, warningRows, memberRows, roomRow, gestureRow] = await Promise.all([
         readApi(`${base}/attendance-tasks?page_size=100`),
         readApi(`${base}/leave-requests?page_size=100`),
         readApi(`${base}/attendance-records?page_size=100`),
         teacher ? readApi(`${base}/warnings?page_size=100`) : Promise.resolve([]),
         teacher ? readApi(`${base}/members?page_size=100`) : Promise.resolve([]),
         teacher ? readApi(`${base}/classroom`) : Promise.resolve(null),
+        currentUser.role === 'student' ? readApi('/api/v1/auth/gesture') : Promise.resolve(null),
       ])
       if (courseEpoch !== epoch || courseId.value !== id || user.value !== currentUser) return
       tasks.value = taskRows
@@ -228,6 +234,10 @@ createApp({
       warnings.value = warningRows
       members.value = memberRows
       if (roomRow) syncRoom(roomRow)
+      if (gestureRow) {
+        gesture.enrolled = gestureRow.enrolled
+        gesture.updated_at = gestureRow.updated_at
+      }
     }
     async function session() {
       try {
@@ -504,6 +514,52 @@ createApp({
         await refreshCourse()
       }, '签到成功。')
     }
+    // 手势图案：录入要连画两次确认，签到则松手即提交
+    async function enrollGesture(pattern, pad) {
+      if (pattern.length < 4) {
+        gesture.first = null
+        gesture.hint = '至少连接 4 个点，请重画。'
+        return
+      }
+      if (!gesture.first) {
+        gesture.first = pattern
+        gesture.hint = '请再画一次同样的图案确认。'
+        return
+      }
+      if (gesture.first.join('-') !== pattern.join('-')) {
+        gesture.first = null
+        gesture.hint = '两次不一致，请重新开始。'
+        pad?.reset()
+        return
+      }
+      await act(async () => {
+        await write('/api/v1/auth/gesture', 'PUT', { pattern })
+        gesture.first = null
+        gesture.enrolled = true
+        gesture.hint = '手势图案已保存，以后可以画它签到。'
+        pad?.reset()
+      })
+    }
+    async function checkInByGesture(pattern, pad) {
+      if (!check.task_id) {
+        message.value = '请先选择要点到的任务。'
+        pad?.reset()
+        return
+      }
+      await act(async () => {
+        await write(`/api/v1/attendance-tasks/${check.task_id}/check-ins`, 'POST', { pattern })
+        await refreshCourse()
+        pad?.reset()
+      }, '手势签到成功。')
+    }
+    async function clearGesture() {
+      await act(async () => {
+        await write('/api/v1/auth/gesture', 'DELETE')
+        gesture.enrolled = false
+        gesture.first = null
+        gesture.hint = '已清除手势图案，可以重新设置。'
+      })
+    }
     async function leave() {
       await act(async () => {
         await write(`/api/v1/attendance-tasks/${check.task_id}/leave-requests`, 'POST', { reason: check.reason })
@@ -643,7 +699,7 @@ createApp({
       seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses,
       classColor, seatRosters, sourceText, seatLabel, seatSlot, room, roomForm, applyPreset, saveRoom, autoSeat, unseat,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
-      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect }
+      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect, gesture, enrollGesture, checkInByGesture, clearGesture }
   },
   template: `
     <main class="page">
@@ -798,7 +854,7 @@ createApp({
         <div class="att-bar"><i :class="rateOf(item.id) >= 80 ? 'good' : rateOf(item.id) > 0 ? 'mid' : 'low'" :style="'width:' + rateOf(item.id) + '%'"></i></div>
         <p class="att-meta">到勤 {{ attendedOf(item.id) }} / {{ totalOf(item.id) }} 人次<b>{{ rateOf(item.id) }}%</b></p>
         </template>
-        <p v-else class="att-meta">我的状态：{{ myStatusOf(item.id) }}</p>
+        <p v-else class="att-meta">我的状态：{{ seatText(myStatusOf(item.id)) }}</p>
         <div v-if="user.role === 'teacher'" class="att-actions">
         <button type="button" class="secondary" @click="loadSeats(item.id)">教室座位图</button>
         <button v-if="item.status === 'open'" type="button" class="secondary" @click="rotate(item.id)">轮换码</button>
@@ -916,9 +972,25 @@ createApp({
         <label>结束 <input v-model="taskForm.end_at" type="datetime-local" required></label><button>创建</button></form>
         </details>
 
-        <form v-if="user.role === 'student' && tasks.length" class="inline-form att-checkin" @submit.prevent="checkIn">
+        <form v-if="user.role === 'student' && tasks.length" class="inline-form att-checkin" @submit.prevent="check.mode === 'code' && checkIn()">
         <label>任务 <select v-model="check.task_id" required><option value="">请选择</option><option v-for="item in tasks" :key="item.id" :value="item.id">{{ item.title }}</option></select></label>
-        <label>签到码 <input v-model.trim="check.code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required></label><button>签到</button></form>
+        <span class="check-modes" role="group" aria-label="签到方式">
+        <button type="button" :class="{ active: check.mode === 'code' }" @click="check.mode = 'code'">签到码</button>
+        <button type="button" :class="{ active: check.mode === 'gesture' }" @click="check.mode = 'gesture'">手势图案</button>
+        </span>
+        <label v-if="check.mode === 'code'">签到码 <input v-model.trim="check.code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required></label>
+        <button v-if="check.mode === 'code'">签到</button></form>
+        <div v-if="user.role === 'student' && tasks.length && check.mode === 'gesture'" class="gesture-checkin">
+        <gesture-pad ref="checkPad" :disabled="!check.task_id" @done="checkInByGesture($event, $refs.checkPad)" />
+        <p class="att-meta">{{ !check.task_id ? '先在上面选择要点到的任务。' : gesture.enrolled ? '按住并划过你自己设置的手势图案，松手即签到。' : '你还没有设置手势图案，先在下面的「我的手势签到」里设一个。' }}</p>
+        </div>
+        <details v-if="user.role === 'student'" class="att-panel">
+        <summary>我的手势签到（{{ gesture.enrolled ? '已设置' : '未设置' }}）</summary>
+        <p class="att-meta">{{ gesture.hint }}</p>
+        <gesture-pad ref="enrollPad" @done="enrollGesture($event, $refs.enrollPad)" />
+        <div v-if="gesture.enrolled" class="att-actions">
+        <button type="button" class="secondary" @click="clearGesture">清除手势图案</button></div>
+        </details>
         <form v-if="user.role === 'student' && check.task_id" class="inline-form" @submit.prevent="leave">
         <label>请假理由 <input v-model.trim="check.reason" maxlength="500" required></label><button class="secondary">申请请假</button></form>
 

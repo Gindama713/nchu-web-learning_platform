@@ -24,6 +24,7 @@ from backend.shared.api import (
 )
 from backend.shared.auth import course_access, require_user
 from backend.shared.db import get_db, write
+from backend.shared.gesture import pattern_matches, pattern_text
 
 bp = Blueprint("attendance", __name__)
 
@@ -122,13 +123,26 @@ def list_tasks(course_id):
 
 @bp.post("/attendance-tasks/<int:task_id>/check-ins")
 def check_in(task_id):
+    """签到：签到码与手势图案二选一。
+
+    签到码是老师课上念的公共码，手势图案是学生自己的图形密码。两者都能
+    完成一次签到，记录里的 source 区分是哪种，座位图名单据此标注。
+    """
     user = require_user()
-    data = body(("code",))
     if user["role"] != "student":
         raise ApiError(403, "FORBIDDEN", "Student required")
-    supplied = data["code"]
-    if not isinstance(supplied, str) or not re.fullmatch(r"[0-9]{6}", supplied):
-        raise ApiError(422, "INVALID_ATTENDANCE_CODE", "Invalid attendance code")
+    data = body(allowed=("code", "pattern"))
+    if ("code" in data) == ("pattern" in data):
+        raise ApiError(422, "VALIDATION_ERROR", "签到码与手势图案需要二选一")
+    by_gesture = "pattern" in data
+    source = "gesture" if by_gesture else "checkin"
+    error_code = "INVALID_GESTURE" if by_gesture else "INVALID_ATTENDANCE_CODE"
+    if by_gesture:
+        supplied = pattern_text(data["pattern"])
+    else:
+        supplied = data["code"]
+        if not isinstance(supplied, str) or not re.fullmatch(r"[0-9]{6}", supplied):
+            raise ApiError(422, "INVALID_ATTENDANCE_CODE", "Invalid attendance code")
     invalid = False
     with write() as db:
         task = task_for_user(task_id)
@@ -145,19 +159,27 @@ def check_in(task_id):
         timestamp = stamp()
         if task["status"] != "open" or not task["start_at"] <= timestamp < task["end_at"]:
             raise ApiError(409, "STATE_CONFLICT", "Attendance window is closed")
-        if not hmac.compare_digest(code_hash(supplied), task["code_hash"]):
+        if by_gesture:
+            stored = db.execute("SELECT gesture_hash FROM user WHERE id=?", (user["id"],)).fetchone()["gesture_hash"]
+            if not stored:
+                raise ApiError(422, "GESTURE_NOT_ENROLLED",
+                               "还没有设置手势图案，请先在「我的手势签到」里画一次")
+            valid = pattern_matches(stored, data["pattern"])
+        else:
+            valid = hmac.compare_digest(code_hash(supplied), task["code_hash"])
+        if not valid:
             rate_limit(f"checkin:{task_id}:{user['id']}", 5)
             invalid = True
         else:
             status = "present" if timestamp < task["late_at"] else "late"
             cursor = db.execute("INSERT INTO attendance_record(task_id,student_id,status,checked_at,"
-                                "source,created_at,updated_at) VALUES(?,?,?,?,'checkin',?,?)",
-                                (task_id, user["id"], status, timestamp, timestamp, timestamp))
+                                "source,created_at,updated_at) VALUES(?,?,?,?,?,?,?)",
+                                (task_id, user["id"], status, timestamp, source, timestamp, timestamp))
             audit("attendance.checkin", "attendance_record", cursor.lastrowid,
-                  after={"status": status, "task_id": task_id})
+                  after={"status": status, "task_id": task_id, "source": source})
             record = db.execute("SELECT * FROM attendance_record WHERE id=?", (cursor.lastrowid,)).fetchone()
     if invalid:
-        raise ApiError(422, "INVALID_ATTENDANCE_CODE", "Invalid attendance code")
+        raise ApiError(422, error_code, "Invalid attendance gesture" if by_gesture else "Invalid attendance code")
     return result(record_json(record), 201)
 
 

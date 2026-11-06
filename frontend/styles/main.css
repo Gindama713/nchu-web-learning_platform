@@ -445,4 +445,17 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
 .roster-empty { margin: 0; font-size: .74rem; color: #9aa8bb; }
 .room-presets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
 .room-presets button { font-size: .8rem; }
+/* 手势签到：3×3 画布 + 签到方式切换 */
+.check-modes { display: inline-flex; gap: 4px; padding: 3px; border: 1px solid #dce4ee; border-radius: 9px; background: #f6f9fd; }
+.check-modes button { padding: 6px 14px; font-size: .82rem; border: 1px solid transparent; border-radius: 7px; background: transparent; color: #173b6c; }
+.check-modes button.active { background: #173b6c; color: #fff; }
+.gesture-checkin { display: grid; gap: 6px; justify-items: start; margin: 6px 0 12px; }
+.gesture-pad {
+  width: 236px; height: 236px; padding: 8px; border-radius: 14px; background: #f6f9fd;
+  border: 1px solid #dce4ee; touch-action: none; user-select: none;
+}
+.gesture-pad svg { display: block; width: 100%; height: 100%; cursor: crosshair; }
+.gesture-pad.active { border-color: #2f6fd0; background: #eef4fd; }
+.gesture-pad.disabled { opacity: .45; }
+.gesture-pad.disabled svg { cursor: not-allowed; }
 @media (prefers-reduced-motion: reduce) { .seat-cell { transition: none; } .seat-cell:hover:not(:disabled) { transform: none; } }

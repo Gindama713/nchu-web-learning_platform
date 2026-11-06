@@ -28,6 +28,7 @@ from backend.shared.auth import (
     require_user,
 )
 from backend.shared.db import get_db, write
+from backend.shared.gesture import pattern_hash
 
 bp = Blueprint("identity", __name__)
 DUMMY_HASH = generate_password_hash("not-a-real-account-password")
@@ -132,6 +133,37 @@ def logout():
     response.delete_cookie(COOKIE, path="/")
     response.headers["Cache-Control"] = "no-store"
     return response
+
+
+@bp.get("/auth/gesture")
+def get_gesture():
+    user = require_user()
+    row = get_db().execute("SELECT gesture_hash,gesture_updated_at FROM user WHERE id=?",
+                           (user["id"],)).fetchone()
+    return result({"enrolled": row["gesture_hash"] is not None,
+                   "updated_at": row["gesture_updated_at"]})
+
+
+@bp.put("/auth/gesture")
+def set_gesture():
+    user = require_user()
+    data = body(("pattern",))
+    hashed = pattern_hash(data["pattern"])
+    with write() as db:
+        db.execute("UPDATE user SET gesture_hash=?,gesture_updated_at=?,updated_at=? WHERE id=?",
+                   (hashed, stamp(), stamp(), user["id"]))
+        audit("auth.gesture_set", "user", user["id"])
+    return result({"enrolled": True})
+
+
+@bp.delete("/auth/gesture")
+def clear_gesture():
+    user = require_user()
+    with write() as db:
+        db.execute("UPDATE user SET gesture_hash=NULL,gesture_updated_at=NULL,updated_at=? WHERE id=?",
+                   (stamp(), user["id"]))
+        audit("auth.gesture_clear", "user", user["id"])
+    return result({"enrolled": False})
 
 
 @bp.patch("/users/me")
