@@ -1,0 +1,170 @@
+{
+  "checked_at_utc": "2026-10-28T10:01:11Z",
+  "checked_at_local": "2026-10-28 18:01:11 Asia/Shanghai",
+  "scope": "C12c materials recomputation only. No business/browser rerun, no source/migration/auth/CI change, no merge/deploy/publication/archive/message.",
+  "develop": "8e32fb41ab9453f8b4b4f8e7be86153a183b88dc",
+  "branch": "feature/c12c-materials-20261028",
+  "branch_start": "origin/develop 8e32fb41ab9453f8b4b4f8e7be86153a183b88dc; no unmerged PR46/PR45/PR41/PR40 files copied",
+  "matrix": {
+    "path": "docs/evidence/c12a/acceptance-matrix.json",
+    "rows": 131,
+    "local": {
+      "pass": 81,
+      "fail": 0,
+      "blocked": 50,
+      "pending": 0
+    },
+    "integration": {
+      "pass": 81,
+      "fail": 0,
+      "blocked": 50,
+      "pending": 0
+    },
+    "changed_rows": [
+      "SPEC-005/R20",
+      "SPEC-011/AC-02",
+      "SPEC-011/R20",
+      "SPEC-011/R35",
+      "SPEC-011/R46",
+      "SPEC-011/NF-SEC",
+      "SPEC-011/NF-UI",
+      "SPEC-012/AC-01",
+      "SPEC-012/AC-02",
+      "SPEC-012/AC-03",
+      "SPEC-012/AC-04",
+      "SPEC-012/R20",
+      "SPEC-012/R34",
+      "SPEC-012/R35",
+      "SPEC-012/R46",
+      "SPEC-012/NF-SEC"
+    ],
+    "basis": "develop 8e32fb4 merged code and fixed evidence: #14 actual merge 3368060, #15 actual merge 0a2b84c, #27/#29-#35 merge commits in develop; no PR46/PR45/PR40 content used as merged fact."
+  },
+  "merged_integrations": [
+    {
+      "pr": 27,
+      "develop_merge_commit": "4b8a5fb",
+      "head": "7096b496504f62181f60987062b1397bdb96a937",
+      "head_is_ancestor": true,
+      "scope": "C12b NF-UI integration evidence"
+    },
+    {
+      "pr": 28,
+      "develop_merge_commit": "8c46abe",
+      "head": "33cab7eac170606382c05fc8ed3b3e2a72bd689d",
+      "head_is_ancestor": true,
+      "scope": "C12c initial delivery materials"
+    },
+    {
+      "pr": 29,
+      "develop_merge_commit": "299cd6e",
+      "scope": "004 to 008 R37 integration"
+    },
+    {
+      "pr": 30,
+      "develop_merge_commit": "0135502",
+      "scope": "006 R01 resource seam"
+    },
+    {
+      "pr": 31,
+      "develop_merge_commit": "5e0190e",
+      "scope": "005/011 QA consumption seam"
+    },
+    {
+      "pr": 32,
+      "develop_merge_commit": "00aad53",
+      "scope": "005/003 resource seams"
+    },
+    {
+      "pr": 33,
+      "develop_merge_commit": "4c76aa6",
+      "scope": "012/013 consumption seams"
+    },
+    {
+      "pr": 34,
+      "develop_merge_commit": "dd8f9c9",
+      "scope": "006/010B mixed consumption"
+    },
+    {
+      "pr": 35,
+      "develop_merge_commit": "f0529d7",
+      "scope": "005/010B knowledge lifecycle"
+    },
+    {
+      "pr": 14,
+      "actual_merge": "336806072638a4ab0a973b3e7b01b517f73aa9d6",
+      "head_is_ancestor": true
+    },
+    {
+      "pr": 15,
+      "actual_merge": "0a2b84c7ecf05df9f29c4142cd36c28266b3eb4d",
+      "head_is_ancestor": true
+    },
+    {
+      "pr": 16,
+      "actual_merge": "aa373606f47d4e5c4533e6d48d263c7781bddf26",
+      "head_is_ancestor": true
+    },
+    {
+      "pr": 17,
+      "actual_merge": "32ec16bf3a281d6f4d9be8f1c19410239d73145c",
+      "head_is_ancestor": true
+    }
+  ],
+  "open_prs": {
+    "46": {
+      "title": "SPEC-008 C05a/C05b新基线验收补证",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "head": "9a8343c7a475271f338c5e82a03456b2e8a9d441",
+      "base": "8e32fb41ab9453f8b4b4f8e7be86153a183b88dc",
+      "reviews": [],
+      "changed_files": 10,
+      "ci_run": 40647967505,
+      "ci_conclusion": "success",
+      "evidence_test_head": "55167f6f1b04c91606e6e53fa5e7ca339b9cfcbe",
+      "use_in_c12c": "reference only; not merged and not a develop fact"
+    },
+    "45": {
+      "title": "SPEC-006 C02/C03页面真实双浏览器验收补证",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "head": "0924e0032ea1b19dcc7ec427cc1e4649946b249e",
+      "base": "8e32fb41ab9453f8b4b4f8e7be86153a183b88dc",
+      "reviews": [],
+      "use_in_c12c": "ignored; not cited as evidence"
+    },
+    "41": {
+      "title": "SPEC-005图文资源契约提案与依赖探针",
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "head": "1864e19934de9802145751167d702a71ff180b70",
+      "base": "8e32fb41ab9453f8b4b4f8e7be86153a183b88dc",
+      "use_in_c12c": "005 image gate remains blocked; not merged"
+    },
+    "40": {
+      "title": "SPEC-010B合入后阻塞项复验与七SPEC验收收口",
+      "state": "open",
+      "draft": false,
+      "merged": false,
+      "head": "7a99ca215595411b8b25b669283dd412cb82e595",
+      "base": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a",
+      "use_in_c12c": "not merged; its 81/50 matrix is not used as develop fact"
+    }
+  },
+  "real_non_author_review": {
+    "PR46": "reviews=[]; sensitive grading/answer-protection/review changes still need two real non-author reviewers",
+    "PR45": "reviews=[]; ignored by this package",
+    "R47": "not closed"
+  },
+  "classroom_acceptance": "no teacher/classroom evidence in this package",
+  "gitea_and_chaoxing": "no new Gitea/Chaoxing operation",
+  "verification": {
+    "check_docs": "pending in this package; recorded in material-checks-20261028.json after run",
+    "dual_browser": "not rerun; PR46 evidence referenced only",
+    "business_tests": "not rerun; docs/materials only"
+  }
+}

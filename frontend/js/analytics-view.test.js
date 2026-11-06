@@ -165,6 +165,21 @@ test('scores category and paper filters do not leak to knowledge and empty means
   assert.equal(paths.at(-1), '/api/v1/courses/3/analytics?dimension=knowledge')
 })
 
+const scores = (id = 19) => ({ analysis_run_id: id, dimension: 'scores', source_until: '2026-10-14T00:00:00Z',
+  generated_at: 'same', algorithm_version: 'scores-v1', sample_size: 3, population_basis: 'frozen_paper_attempts',
+  warnings: [], metrics: { kind: 'homework', expected_count: 3, submitted_count: 2, missing_count: 1,
+    graded_count: 1, partial_count: 1, mean_score: 8, mean_percentage: 80, selected_paper_ids: [5], score_bins: [] },
+  series: [] })
+
+test('分类成绩的同卷平均分显示为分，百分比显示为百分号', async t => {
+  const { root, fixture } = await mount(t)
+  change(root, '统计维度', 'scores'); await flush()
+  fixture.data = scores()
+  button(root, '查询统计').props.onClick(); await flush()
+  assert.match(content(root), /同卷平均分8\.00 分/)
+  assert.match(content(root), /平均百分比80\.00%/)
+})
+
 test('identity switch invalidates late result; students never receive export controls', async t => {
   const { root, fixture, user } = await mount(t)
   let release

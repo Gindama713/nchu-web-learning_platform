@@ -1,0 +1,27 @@
+{
+  "started_at": "2026-10-28T06:27:39.337791+00:00",
+  "tested_head": "2e61297632b97dde13ec1aafefb2f3f851530369",
+  "knowledge_fixture": false,
+  "scope": "actual empty practice/wrong HTTP/UI with migrated 005",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.86",
+      "checks": [
+        "teacher_has_no_student_practice_or_personal_wrong_controls",
+        "student_real_empty_lists_without_dependency_fixtures_390px"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "156.0.4314.50",
+      "checks": [
+        "teacher_has_no_student_practice_or_personal_wrong_controls",
+        "student_real_empty_lists_without_dependency_fixtures_390px"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "status": "passed",
+  "finished_at": "2026-10-28T06:27:50.877291+00:00"
+}
