@@ -450,6 +450,7 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
 .check-modes button { padding: 6px 14px; font-size: .82rem; border: 1px solid transparent; border-radius: 7px; background: transparent; color: #173b6c; }
 .check-modes button.active { background: #173b6c; color: #fff; }
 .gesture-checkin { display: grid; gap: 6px; justify-items: start; margin: 6px 0 12px; }
+.pad-step { margin: 4px 0 2px; font-size: .82rem; font-weight: 600; color: #173b6c; }
 .gesture-pad {
   width: 236px; height: 236px; padding: 8px; border-radius: 14px; background: #f6f9fd;
   border: 1px solid #dce4ee; touch-action: none; user-select: none;

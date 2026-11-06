@@ -237,6 +237,10 @@ createApp({
       if (gestureRow) {
         gesture.enrolled = gestureRow.enrolled
         gesture.updated_at = gestureRow.updated_at
+        // 已录入时先提醒会被覆盖，否则学生一进来随手画两下就把旧图案换掉了
+        if (gesture.enrolled && !gesture.first) {
+          gesture.hint = '已设置图案。要更换就再连画两次新图案，不想换就别在这里画。'
+        }
       }
     }
     async function session() {
@@ -549,7 +553,7 @@ createApp({
       await act(async () => {
         await write(`/api/v1/attendance-tasks/${check.task_id}/check-ins`, 'POST', { pattern })
         await refreshCourse()
-        pad?.reset()
+        // 成功后不擦图案：让学生看到自己刚画的那一笔，下次按下时会自动清空
       }, '手势签到成功。')
     }
     async function clearGesture() {
@@ -981,11 +985,12 @@ createApp({
         <label v-if="check.mode === 'code'">签到码 <input v-model.trim="check.code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required></label>
         <button v-if="check.mode === 'code'">签到</button></form>
         <div v-if="user.role === 'student' && tasks.length && check.mode === 'gesture'" class="gesture-checkin">
+        <p class="pad-step">① 签到：画一遍你设置过的图案</p>
         <gesture-pad ref="checkPad" :disabled="!check.task_id" @done="checkInByGesture($event, $refs.checkPad)" />
-        <p class="att-meta">{{ !check.task_id ? '先在上面选择要点到的任务。' : gesture.enrolled ? '按住并划过你自己设置的手势图案，松手即签到。' : '你还没有设置手势图案，先在下面的「我的手势签到」里设一个。' }}</p>
+        <p class="att-meta">{{ !check.task_id ? '先在上面选择要点到的任务。' : gesture.enrolled ? '按住并划过你自己设置的手势图案，松手即签到。' : '你还没有设置手势图案，先在下面的「② 设置 / 更换图案」里设一个。' }}</p>
         </div>
         <details v-if="user.role === 'student'" class="att-panel">
-        <summary>我的手势签到（{{ gesture.enrolled ? '已设置' : '未设置' }}）</summary>
+        <summary>② 设置 / 更换图案（{{ gesture.enrolled ? '已设置' : '未设置' }}）</summary>
         <p class="att-meta">{{ gesture.hint }}</p>
         <gesture-pad ref="enrollPad" @done="enrollGesture($event, $refs.enrollPad)" />
         <div v-if="gesture.enrolled" class="att-actions">
