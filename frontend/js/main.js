@@ -133,7 +133,7 @@ createApp({
       document.querySelector('.practice-bank')?.scrollIntoView({ behavior: 'smooth' })
     }
     const csrf = ref('')
-    const message = ref('请登录或注册。')
+    const message = ref('')
     const courses = ref([])
     const people = ref([])
     const courseId = ref(null)
@@ -148,6 +148,8 @@ createApp({
     const draft = ref('[]')
     const secretCode = ref('')
     const auth = reactive({ student_no: '', name: '', password: '' })
+    // 登录页把「登录」和「注册」分成两个页签，不再把注册姓名、演示账号、使用说明全堆在一个卡片里
+    const authMode = ref('login')
     const demoStudentNo = ref('')
     const courseForm = reactive({ title: '', teacher_id: '', retain_previous_teacher: false })
     const memberNo = ref('')
@@ -304,10 +306,18 @@ createApp({
       await act(async () => {
         const data = await readApi('/api/v1/attendance-tasks/' + taskId + '/seats')
         seatData.value = data
-        seatDetail.value = null
+        // 学生打开座位图是为了找自己坐哪，所以默认就选中本人座位，不用在 133 个格子里翻
+        seatDetail.value = user.value?.role === 'student'
+          ? (data.seats ?? []).find(seat => seat.student_id === user.value.id) ?? null
+          : null
       })
     }
     const seatList = computed(() => seatData.value?.seats ?? [])
+    // 我在图上的那一个座位；教师看的时候为 null
+    const mySeat = computed(() => {
+      if (user.value?.role !== 'student') return null
+      return seatList.value.find(seat => seat.student_id === user.value.id) ?? null
+    })
     const seatStats = computed(() => {
       const counts = { present: 0, late: 0, leave: 0, absent: 0, pending: 0 }
       seatList.value.forEach(seat => { counts[seat.status] = (counts[seat.status] ?? 0) + 1 })
@@ -698,41 +708,71 @@ createApp({
     }
     onMounted(session)
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
-      recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
+      recognition, draft, secretCode, auth, authMode, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       demoStudentNo, fillTeacher, fillStudent,
-      seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses,
+      seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses, mySeat,
       classColor, seatRosters, sourceText, seatLabel, seatSlot, room, roomForm, applyPreset, saveRoom, autoSeat, unseat,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
       leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect, gesture, enrollGesture, checkInByGesture, clearGesture }
   },
   template: `
-    <main class="page">
-      <header :class="['hero', user && 'compact']"><p class="eyebrow">g24201710 · 计算机组成原理</p>
+    <main :class="['page', user ? '' : 'page-auth']">
+      <header v-if="user" class="hero compact"><p class="eyebrow">g24201710 · 计算机组成原理</p>
         <h1>中央处理器课程学习系统</h1><p role="status" aria-live="polite">{{ message }}</p>
-        <button v-if="user" type="button" @click="logout">退出</button></header>
-      <section v-if="!user" class="card login-card"><h2>登录 / 学生注册</h2>
-        <label>学号 <input id="username" v-model.trim="auth.student_no" maxlength="20" autocomplete="username"></label>
-        <label>姓名（注册填写） <input v-model.trim="auth.name" maxlength="50" autocomplete="name"></label>
-        <label>密码 <input id="password" v-model="auth.password" type="password" autocomplete="current-password"></label>
-        <div class="actions"><button id="login" type="button" @click="login">登录</button>
-          <button type="button" class="secondary" @click="register">注册学生账号</button></div>
-        <div class="login-demo">
-          <label>学生学号（一键填充用） <input id="student-no" v-model.trim="demoStudentNo" maxlength="20"
-            placeholder="留空使用 24200000"></label>
-          <div class="actions">
-            <button id="auto-fill-teacher" type="button" class="secondary" @click="fillTeacher">填入教师账号</button>
-            <button id="auto-fill-student" type="button" class="secondary" @click="fillStudent">填入学生账号</button>
-          </div>
+        <button type="button" @click="logout">退出</button></header>
+      <section v-if="!user" class="auth">
+        <aside class="auth-side">
+        <span class="auth-logo" aria-hidden="true">计</span>
+        <p class="auth-eyebrow">g24201710 · 2024 级计算机科学与技术</p>
+        <h1>中央处理器<br>课程学习系统</h1>
+        <p class="auth-lead">课堂点到、座位图、练习与评测，一个入口。</p>
+        <ul class="auth-points">
+        <li><b>四班同堂</b>133 人一张座位图，按班分段排座，登录就能看到自己坐哪。</li>
+        <li><b>两种点到</b>签到码或者手势图案，学生自己挑一种。</li>
+        <li><b>随堂留痕</b>练习、错题、讲评自动归档，不用另外记。</li>
+        </ul>
+        </aside>
+        <section class="auth-card">
+        <div class="auth-tabs" role="tablist" aria-label="登录或注册">
+        <button type="button" role="tab" :aria-selected="authMode === 'login'" :class="{ active: authMode === 'login' }"
+          @click="authMode = 'login'">登录</button>
+        <button type="button" role="tab" :aria-selected="authMode === 'register'" :class="{ active: authMode === 'register' }"
+          @click="authMode = 'register'">注册</button>
         </div>
-        <section class="login-guide" aria-labelledby="software-guide-title">
-          <h3 id="software-guide-title">《软件使用说明》</h3>
-          <ol>
-            <li>教师演示：点击“填入教师账号”，使用 teacher / teacher 登录。</li>
-            <li>学生演示：在“学生学号”填入学号（留空按 24200000），点击“填入学生账号”，密码与学号相同。</li>
-            <li>学生注册：填写学号与姓名后点击“注册学生账号”，默认密码就是学号；登录后可在“账号设置”修改。</li>
-            <li>四个班的真实名单由管理员运行名单导入脚本建立，重复导入不会产生重复账号。</li>
-          </ol>
-        </section></section>
+        <h2>{{ authMode === 'login' ? '欢迎回来' : '创建学生账号' }}</h2>
+        <p class="auth-sub">{{ authMode === 'login' ? '用学号登录，初始密码与学号相同。' : '填学号和姓名即可，默认密码就是学号。' }}</p>
+        <form class="auth-form" @submit.prevent="authMode === 'login' ? login() : register()">
+        <label class="auth-field"><span>学号</span>
+          <input id="username" v-model.trim="auth.student_no" maxlength="20" autocomplete="username" placeholder="例如 24201718" required></label>
+        <label v-if="authMode === 'register'" class="auth-field"><span>姓名</span>
+          <input v-model.trim="auth.name" maxlength="50" autocomplete="name" placeholder="与名单一致" required></label>
+        <label class="auth-field"><span>密码</span>
+          <input id="password" v-model="auth.password" type="password" placeholder="与学号相同"
+            :autocomplete="authMode === 'login' ? 'current-password' : 'new-password'" required></label>
+        <button id="login" class="auth-submit" type="submit">{{ authMode === 'login' ? '登 录' : '注册并登录' }}</button>
+        </form>
+        <p class="auth-msg" role="status" aria-live="polite">{{ message }}</p>
+        <div v-if="authMode === 'login'" class="auth-demo">
+        <p class="auth-demo-title">演示账号</p>
+        <label class="auth-demo-input"><span>学生学号</span>
+          <input id="student-no" v-model.trim="demoStudentNo" maxlength="20" placeholder="24200000"></label>
+        <div class="auth-demo-row">
+        <button id="auto-fill-teacher" type="button" @click="fillTeacher">填入教师 teacher</button>
+        <button id="auto-fill-student" type="button" @click="fillStudent">填入学生 {{ demoStudentNo || '24200000' }}</button>
+        </div>
+        <p class="auth-demo-tip">密码与学号相同，填好后点上面的登录。</p>
+        </div>
+        <details class="auth-help">
+        <summary>使用说明</summary>
+        <ol>
+          <li>教师演示：点「填入教师 teacher」，再点登录。</li>
+          <li>学生演示：在「学生学号」填学号，点「填入学生」，密码与学号相同。</li>
+          <li>学生注册：切到上方「注册」，填学号与姓名，默认密码为学号。</li>
+          <li>四个班的真实名单由管理员运行导入脚本建立，重复导入不会产生重复账号。</li>
+        </ol>
+        </details>
+        </section>
+      </section>
       <template v-else>
         <nav class="tabbar" role="tablist" aria-label="功能分区">
           <button v-for="item in (user.role === 'admin' ? tabs.slice(0, 1) : tabs)" :key="item.id" type="button" role="tab"
@@ -859,10 +899,12 @@ createApp({
         <p class="att-meta">到勤 {{ attendedOf(item.id) }} / {{ totalOf(item.id) }} 人次<b>{{ rateOf(item.id) }}%</b></p>
         </template>
         <p v-else class="att-meta">我的状态：{{ seatText(myStatusOf(item.id)) }}</p>
-        <div v-if="user.role === 'teacher'" class="att-actions">
-        <button type="button" class="secondary" @click="loadSeats(item.id)">教室座位图</button>
+        <div class="att-actions">
+        <button type="button" class="secondary" @click="loadSeats(item.id)">{{ user.role === 'teacher' ? '教室座位图' : '看看我坐哪' }}</button>
+        <template v-if="user.role === 'teacher'">
         <button v-if="item.status === 'open'" type="button" class="secondary" @click="rotate(item.id)">轮换码</button>
         <button v-if="item.status === 'open'" type="button" @click="close(item.id)">结算</button>
+        </template>
         </div>
         </li>
         </ul>
@@ -890,9 +932,12 @@ createApp({
         <div v-if="seatData" class="seatmap">
         <div class="seatmap-head">
         <strong>教室座位图 · {{ seatData.task.title }}</strong>
-        <span class="seatmap-room">{{ seatData.classroom.name }}　{{ seatData.grid.rows }} 排 × {{ seatData.grid.cols }} 座</span>
+        <span class="seatmap-room">{{ seatData.classroom.name }}　{{ seatData.classroom.rows }} 排 × {{ seatData.classroom.cols }} 座<template
+          v-if="seatData.grid.rows > seatData.classroom.rows || seatData.grid.cols > seatData.classroom.cols"><b class="seatmap-warn">这张任务的座位快照还是 {{ seatData.grid.rows }} 排 × {{ seatData.grid.cols }} 座，图上已按快照撑开</b></template></span>
         <span>应到 {{ seatList.length }}　已到 {{ seatStats.present + seatStats.late }}　迟到 {{ seatStats.late }}　请假 {{ seatStats.leave }}　缺勤 {{ seatStats.absent }}　未签到 {{ seatStats.pending }}</span>
         </div>
+        <p v-if="mySeat" class="seatmap-mine"><b>我坐这里</b>座位 {{ seatLabel(mySeat) }}　{{ mySeat.student_no }} {{ mySeat.name }}　{{ mySeat.class_name }}　状态：{{ seatText(mySeat.status) }}</p>
+        <p v-else-if="user.role === 'student'" class="seatmap-mine empty"><b>没有我的座位</b>这张图里没有排到你的座位，找任课老师确认一下。</p>
         <div class="seatmap-legend">
         <span v-for="name in seatClasses" :key="name"><i class="chip" :style="{ background: classColor(name) }"></i>{{ name }}</span>
         <span class="legend-gap"></span>
@@ -907,7 +952,7 @@ createApp({
         <template v-for="line in seatRows" :key="line.row">
         <span class="seat-row-label" :style="{ gridColumn: 1, gridRow: line.row }">{{ line.row }}</span>
         <button v-for="cell in line.cells" :key="cell.key" type="button"
-          :class="['seat-cell', cell.seat ? cell.seat.status : 'empty']"
+          :class="['seat-cell', cell.seat ? cell.seat.status : 'empty', { mine: cell.seat && mySeat && cell.seat.student_id === mySeat.student_id }]"
           :style="{ gridColumn: seatSlot(cell.col) + 1, gridRow: line.row, borderTopColor: cell.seat ? classColor(cell.seat.class_name) : 'transparent' }"
           :disabled="!cell.seat"
           :title="cell.seat ? seatLabel(cell.seat) + '　' + cell.seat.student_no + ' ' + cell.seat.name + '　' + seatText(cell.seat.status) : '空座'"
@@ -926,7 +971,7 @@ createApp({
         </p>
         <p v-if="seatData.unseated" class="seatmap-detail">另有 {{ seatData.unseated }} 名应到学生没有排座，请先在上面的「教室设置」里一键排座。</p>
 
-        <div class="seat-rosters">
+        <div v-if="user.role === 'teacher'" class="seat-rosters">
         <div class="roster-col">
         <h4>已到 <b>{{ seatRosters.here.length }}</b></h4>
         <ul>

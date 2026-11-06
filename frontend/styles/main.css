@@ -365,14 +365,116 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
 .account-form { align-content: start; }
 .account-grid { align-items: start; }
 
-/* 登录页：演示账号填充与使用说明 */
-.login-demo { border-top: 1px solid #e4ebf3; margin-top: 16px; padding-top: 12px; }
-.login-guide {
-  background: #f7f9fc; border: 1px solid #dce4ee; border-radius: 10px;
-  margin-top: 14px; padding: 14px 16px;
+/* 登录页：左侧品牌栏（介绍系统做什么）+ 右侧单任务卡片；登录与注册拆成两个页签，
+   演示账号和使用说明各占一块，不再把五组输入和一段说明堆成一张长表单 */
+.page-auth { width: min(1180px, 100% - 32px); display: grid; align-content: center; min-height: 100vh; }
+.auth {
+  display: grid; grid-template-columns: 1.02fr .98fr;
+  min-height: min(660px, calc(100vh - 96px));
+  background: #fff; border-radius: 22px; overflow: hidden;
+  box-shadow: 0 26px 64px -32px rgb(23 59 108 / .5), 0 2px 6px rgb(23 59 108 / .06);
 }
-.login-guide h3 { margin: 0 0 8px; font-size: 1rem; color: #12325f; }
-.login-guide ol { margin: 0; padding-left: 20px; color: #4c5f78; display: grid; gap: 6px; font-size: .9rem; }
+.auth-side {
+  position: relative; display: flex; flex-direction: column; gap: 14px;
+  padding: 50px 46px; color: #fff;
+  background: linear-gradient(158deg, #1b4577 0%, #173b6c 44%, #0e2647 100%);
+}
+.auth-side::after {
+  content: ''; position: absolute; right: -90px; bottom: -120px; width: 320px; height: 320px;
+  border-radius: 50%; background: radial-gradient(circle, rgb(47 111 208 / .55), transparent 68%);
+  pointer-events: none;
+}
+.auth-logo {
+  width: 52px; height: 52px; border-radius: 15px; display: grid; place-items: center;
+  font-size: 1.32rem; font-weight: 700; letter-spacing: .04em;
+  background: rgb(255 255 255 / 14%); border: 1px solid rgb(255 255 255 / 22%);
+}
+.auth-eyebrow { margin: 8px 0 0; font-size: .79rem; letter-spacing: .06em; color: rgb(255 255 255 / 62%); }
+.auth-side h1 { margin: 0; font-size: clamp(1.8rem, 3.1vw, 2.5rem); line-height: 1.28; }
+.auth-lead { margin: 0; font-size: .96rem; color: rgb(255 255 255 / 78%); }
+.auth-points { margin: auto 0 0; padding: 0; list-style: none; display: grid; gap: 14px; }
+.auth-points li {
+  position: relative; padding-left: 16px; font-size: .86rem; line-height: 1.6;
+  color: rgb(255 255 255 / 72%);
+}
+.auth-points li::before {
+  content: ''; position: absolute; left: 0; top: .58em; width: 6px; height: 6px;
+  border-radius: 50%; background: #7fb2f0;
+}
+.auth-points b { display: block; color: #fff; font-size: .94rem; margin-bottom: 1px; }
+
+.auth-card { padding: 42px 44px; display: grid; gap: 12px; align-content: start; }
+.auth-tabs {
+  display: inline-grid; grid-auto-flow: column; gap: 4px; justify-self: start;
+  padding: 4px; border-radius: 11px; background: #eef3f9;
+}
+.auth-tabs button {
+  padding: 8px 24px; border: 0; border-radius: 8px; background: transparent;
+  font-size: .9rem; font-weight: 600; color: #5a7291; cursor: pointer; transition: background .15s ease, color .15s ease;
+}
+.auth-tabs button.active { background: #fff; color: #173b6c; box-shadow: 0 2px 6px rgb(23 59 108 / .14); }
+.auth-tabs button:focus-visible { outline: 2px solid #2f6fd0; outline-offset: 2px; }
+.auth-card h2 { margin: 4px 0 0; font-size: 1.5rem; color: #12325f; }
+.auth-sub { margin: 0; font-size: .85rem; color: #6b809c; }
+.auth-form { display: grid; gap: 14px; margin-top: 6px; }
+.auth-field { display: grid; gap: 6px; }
+.auth-field span { font-size: .8rem; font-weight: 600; color: #4c5f78; }
+.auth-field input {
+  height: 46px; padding: 0 14px; border: 1px solid #dce4ee; border-radius: 11px;
+  font-size: .95rem; background: #fff; color: #17324f; transition: border-color .15s ease, box-shadow .15s ease;
+}
+.auth-field input::placeholder { color: #a9b8c9; }
+.auth-field input:focus { outline: none; border-color: #2f6fd0; box-shadow: 0 0 0 3px rgb(47 111 208 / .16); }
+.auth-submit {
+  height: 48px; margin-top: 4px; border: 0; border-radius: 12px;
+  background: linear-gradient(135deg, #2f6fd0, #1c55a8); color: #fff;
+  font-size: 1rem; font-weight: 600; letter-spacing: .12em; cursor: pointer;
+  box-shadow: 0 12px 24px -14px rgb(47 111 208 / .95); transition: filter .15s ease, transform .15s ease;
+}
+.auth-submit:hover { filter: brightness(1.07); }
+.auth-submit:active { transform: translateY(1px); }
+.auth-submit:focus-visible { outline: 2px solid #173b6c; outline-offset: 2px; }
+.auth-msg { margin: 0; min-height: 1.15em; font-size: .83rem; color: #2f6fd0; }
+.auth-demo { border-top: 1px dashed #e1e8f1; padding-top: 12px; display: grid; gap: 8px; }
+.auth-demo-title { margin: 0; font-size: .77rem; color: #8496ad; letter-spacing: .04em; }
+.auth-demo-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.auth-demo-row button {
+  padding: 9px 14px; border: 1px solid #dce4ee; border-radius: 9px; background: #f8fafd;
+  font-size: .84rem; color: #2b4a72; cursor: pointer; transition: border-color .15s ease, background .15s ease;
+}
+.auth-demo-row button:hover { border-color: #b9cde6; background: #f1f6fc; }
+.auth-demo-row button:focus-visible { outline: 2px solid #2f6fd0; outline-offset: 2px; }
+.auth-demo-input { display: flex; align-items: center; gap: 8px; font-size: .79rem; color: #6b809c; }
+.auth-demo-input span { white-space: nowrap; flex: 0 0 auto; }
+.auth-demo-input input {
+  flex: 1 1 auto; min-width: 0; height: 36px; padding: 0 10px;
+  border: 1px solid #e1e8f1; border-radius: 8px; font-size: .84rem; color: #17324f;
+}
+.auth-demo-input input:focus { outline: none; border-color: #2f6fd0; box-shadow: 0 0 0 2px rgb(47 111 208 / .14); }
+.auth-demo-tip { margin: 0; font-size: .76rem; color: #9aa9bc; }
+.auth-help { font-size: .81rem; color: #6b809c; }
+.auth-help summary { cursor: pointer; color: #3d6ba5; }
+.auth-help summary:focus-visible { outline: 2px solid #2f6fd0; outline-offset: 2px; }
+.auth-help ol { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 5px; line-height: 1.55; }
+@media (max-width: 940px) {
+  .auth { grid-template-columns: 1fr; min-height: 0; }
+  .auth-side { padding: 32px 26px; gap: 10px; }
+  .auth-points { margin-top: 6px; gap: 10px; }
+  .auth-card { padding: 28px 26px 32px; }
+}
+/* 手机上品牌栏必须让位：收成一条窄头，登录表单要能在首屏看到，不然要滑半屏才找到输入框 */
+@media (max-width: 640px) {
+  .page-auth { min-height: 0; padding: 16px 0; }
+  .auth { border-radius: 16px; }
+  .auth-side { padding: 22px 20px 24px; gap: 8px; flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .auth-side::after { display: none; }
+  .auth-logo { width: 40px; height: 40px; border-radius: 12px; font-size: 1.05rem; }
+  .auth-eyebrow, .auth-lead, .auth-points { display: none; }
+  .auth-side h1 { font-size: 1.16rem; line-height: 1.35; }
+  .auth-side h1 br { display: none; }
+  .auth-card { padding: 24px 20px 28px; }
+  .auth-demo-row button { flex: 1 1 auto; }
+}
 
 /* 课堂点到座位图：一整张平面网格，四个班混排；格子上沿的色条标班级，底色标签到状态 */
 .seatmap { margin-top: 16px; border: 1px solid #dce4ee; border-radius: 12px; padding: 16px; background: #fbfdff; }
@@ -380,6 +482,11 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
 .seatmap-head strong { color: #173b6c; }
 .seatmap-head span { font-size: .82rem; color: #60718a; }
 .seatmap-room { font-variant-numeric: tabular-nums; }
+/* 教室改小/改大之后，旧任务的座位快照会和当前教室对不上；如实标出来，别让人以为座位画到图外面了 */
+.seatmap-warn {
+  margin-left: 6px; padding: 1px 7px; border-radius: 6px; font-weight: 600; font-size: .78rem;
+  color: #96650f; background: #fff6e3; border: 1px solid #f0d9a8;
+}
 .seatmap-podium {
   margin: 0 auto 16px; width: 240px; padding: 9px 0; text-align: center;
   background: #173b6c; color: #fff; border-radius: 8px; font-size: .82rem; letter-spacing: .16em;
@@ -418,6 +525,25 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
 .seat-cell.absent { background: #fdeceb; border-color: #f2c0bc; }
 .seat-cell.pending { background: #f3f6fb; color: #8b9bb0; border-style: dashed; }
 .seat-cell.empty { background: transparent; border-style: dashed; border-color: #e6ecf5; border-top-color: transparent; opacity: .55; }
+/* 学生自己的那一个座位：红色描边 + 左上角「我」，在 133 个格子里一眼能找到 */
+.seat-cell.mine {
+  border-color: #d94b3f; border-top-color: #d94b3f !important;
+  box-shadow: 0 0 0 2px #d94b3f, 0 4px 12px rgb(217 75 63 / 22%); position: relative; z-index: 1;
+}
+.seat-cell.mine b { color: #d94b3f; }
+.seat-cell.mine::after {
+  content: '我'; position: absolute; top: 2px; right: 3px; width: 15px; height: 15px;
+  border-radius: 50%; background: #d94b3f; color: #fff; font-size: .56rem; line-height: 15px;
+  text-align: center; font-style: normal;
+}
+.seatmap-mine {
+  margin: 0 0 12px; padding: 9px 14px; border-radius: 10px; font-size: .85rem; color: #7a2a22;
+  background: #fdf0ee; border: 1px solid #f6cdc8; display: flex; flex-wrap: wrap; gap: 4px 10px;
+  font-variant-numeric: tabular-nums;
+}
+.seatmap-mine b { color: #d94b3f; }
+.seatmap-mine.empty { color: #6b809c; background: #f7f9fc; border-color: #e1e8f1; }
+.seatmap-mine.empty b { color: #8496ad; }
 .seatmap-detail { margin-top: 12px; font-size: .82rem; color: #182436; }
 .seatmap-detail button { margin-left: 8px; }
 .seat-rosters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
