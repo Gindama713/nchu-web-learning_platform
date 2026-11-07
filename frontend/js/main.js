@@ -19,6 +19,7 @@ import { WarningView } from './warning-view.js'
 import { PreparationView } from './preparation-view.js'
 import { WiringView } from './wiring-view.js'
 import { WiringStatsView } from './wiring-stats-view.js'
+import { GesturePad } from './gesture-pad.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
@@ -40,7 +41,7 @@ import '../styles/wiring.css'
 import '../styles/wiring-stats.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView, GesturePad },
   setup() {
     const user = ref(null)
     const practiceEntry = ref(null)
@@ -54,16 +55,11 @@ createApp({
     ]
     const tab = ref('course')
     // 按任务聚合考勤记录，用于任务卡片的到勤进度条
-    // 课程封面：按 id 取渐变，同一门课颜色固定，避免每次刷新变来变去
+    // 课程封面：按 id 取 B 色板里的纯色，同一门课颜色固定，避免刷新变来变去。
+    // 纯展示常量，不参与任何逻辑判断；长度保持 8，取模结果不变。
     const COVERS = [
-      'linear-gradient(135deg, #2f6fd0, #17408a)',
-      'linear-gradient(135deg, #16a394, #0d7368)',
-      'linear-gradient(135deg, #f2994a, #c96f22)',
-      'linear-gradient(135deg, #9b6dd6, #67409f)',
-      'linear-gradient(135deg, #eb5757, #b13434)',
-      'linear-gradient(135deg, #4a90d9, #2b64a8)',
-      'linear-gradient(135deg, #56b98a, #35805e)',
-      'linear-gradient(135deg, #7f8fa6, #55647a)',
+      '#3F4EA8', '#2B3675', '#0E8A8A', '#5A68BF',
+      '#3F4EA8', '#2B3675', '#0E8A8A', '#5A68BF',
     ]
     const coverOf = id => COVERS[Number(id) % COVERS.length]
 
@@ -132,7 +128,7 @@ createApp({
       document.querySelector('.practice-bank')?.scrollIntoView({ behavior: 'smooth' })
     }
     const csrf = ref('')
-    const message = ref('请登录或注册。')
+    const message = ref('')
     const courses = ref([])
     const people = ref([])
     const courseId = ref(null)
@@ -147,16 +143,22 @@ createApp({
     const draft = ref('[]')
     const secretCode = ref('')
     const auth = reactive({ student_no: '', name: '', password: '' })
+    // 登录页把「登录」和「注册」分成两个页签，不再把注册姓名、演示账号、使用说明全堆在一个卡片里
+    const authMode = ref('login')
     const demoStudentNo = ref('')
     const courseForm = reactive({ title: '', teacher_id: '', retain_previous_teacher: false })
     const memberNo = ref('')
     const taskForm = reactive({ title: '', start_at: '', late_at: '', end_at: '' })
-    const check = reactive({ task_id: '', code: '', reason: '' })
+    const check = reactive({ task_id: '', code: '', reason: '', mode: 'code' })
+    // 手势签到：enrolled 表示是否已设置图案；first 暂存第一次画的图案等确认
+    const gesture = reactive({ enrolled: false, updated_at: null, first: null, hint: '按住并划过至少 4 个点。' })
     const analysisFilter = reactive({ from: '', to: '', paper_ids: '' })
-    // 课堂点到座位图：按班级分页展示教室布局与每个座位的实时状态
+    // 课堂点到座位图：一整张平面网格，四个班混排在同一间教室里
     const seatData = ref(null)
-    const seatClass = ref('')
     const seatDetail = ref(null)
+    // 教室规模：教师可以按自己的教室改行列，预设只是快捷入口
+    const room = ref(null)
+    const roomForm = reactive({ name: '', template: 'custom', rows: 10, cols: 12, aisle_every: 0 })
     let courseEpoch = 0
 
     function clearCourse() {
@@ -172,11 +174,13 @@ createApp({
       draft.value = '[]'
       secretCode.value = ''
       seatData.value = null
-      seatClass.value = ''
       seatDetail.value = null
+      room.value = null
       check.task_id = ''
       check.code = ''
       check.reason = ''
+      check.mode = 'code'
+      gesture.first = null
       memberNo.value = ''
       analysisFilter.from = ''
       analysisFilter.to = ''
@@ -211,12 +215,14 @@ createApp({
       if (!id || currentUser.role === 'admin') return
       const base = `/api/v1/courses/${id}`
       const teacher = currentUser.role === 'teacher'
-      const [taskRows, leaveRows, recordRows, warningRows, memberRows] = await Promise.all([
+      const [taskRows, leaveRows, recordRows, warningRows, memberRows, roomRow, gestureRow] = await Promise.all([
         readApi(`${base}/attendance-tasks?page_size=100`),
         readApi(`${base}/leave-requests?page_size=100`),
         readApi(`${base}/attendance-records?page_size=100`),
         teacher ? readApi(`${base}/warnings?page_size=100`) : Promise.resolve([]),
         teacher ? readApi(`${base}/members?page_size=100`) : Promise.resolve([]),
+        teacher ? readApi(`${base}/classroom`) : Promise.resolve(null),
+        currentUser.role === 'student' ? readApi('/api/v1/auth/gesture') : Promise.resolve(null),
       ])
       if (courseEpoch !== epoch || courseId.value !== id || user.value !== currentUser) return
       tasks.value = taskRows
@@ -224,6 +230,15 @@ createApp({
       records.value = recordRows
       warnings.value = warningRows
       members.value = memberRows
+      if (roomRow) syncRoom(roomRow)
+      if (gestureRow) {
+        gesture.enrolled = gestureRow.enrolled
+        gesture.updated_at = gestureRow.updated_at
+        // 已录入时先提醒会被覆盖，否则学生一进来随手画两下就把旧图案换掉了
+        if (gesture.enrolled && !gesture.first) {
+          gesture.hint = '已设置图案。要更换就再连画两次新图案，不想换就别在这里画。'
+        }
+      }
     }
     async function session() {
       try {
@@ -259,6 +274,8 @@ createApp({
       if (user.value.role !== 'admin' && !courseId.value && courses.value.length) {
         await selectCourse(courses.value[0].id)
       }
+      // 别人在等他答复的换位申请，登录就弹出来
+      await pollIncoming()
     }
     async function login() {
       await act(loginRequest, '登录成功。')
@@ -286,39 +303,221 @@ createApp({
       await act(async () => {
         const data = await readApi('/api/v1/attendance-tasks/' + taskId + '/seats')
         seatData.value = data
-        seatClass.value = data.classes.length ? data.classes[0].class_name : ''
-        seatDetail.value = null
+        // 学生打开座位图是为了找自己坐哪，所以默认就选中本人座位，不用在 133 个格子里翻
+        seatDetail.value = user.value?.role === 'student'
+          ? (data.seats ?? []).find(seat => seat.student_id === user.value.id) ?? null
+          : null
       })
     }
-    const seatCurrent = computed(() => {
-      if (!seatData.value) return []
-      const hit = seatData.value.classes.find(item => item.class_name === seatClass.value)
-      return hit ? hit.seats : []
+    const seatList = computed(() => seatData.value?.seats ?? [])
+    // 我在图上的那一个座位；教师看的时候为 null
+    const mySeat = computed(() => {
+      if (user.value?.role !== 'student') return null
+      return seatList.value.find(seat => seat.student_id === user.value.id) ?? null
     })
     const seatStats = computed(() => {
       const counts = { present: 0, late: 0, leave: 0, absent: 0, pending: 0 }
-      seatCurrent.value.forEach(seat => { counts[seat.status] = (counts[seat.status] ?? 0) + 1 })
+      seatList.value.forEach(seat => { counts[seat.status] = (counts[seat.status] ?? 0) + 1 })
       return counts
     })
-    const seatGroups = computed(() => {
-      const map = new Map()
-      seatCurrent.value.forEach(seat => {
-        if (!map.has(seat.group_no)) map.set(seat.group_no, [])
-        map.get(seat.group_no).push(seat)
-      })
-      return [...map.entries()]
-        .sort((left, right) => left[0] - right[0])
-        .map(([no, seats]) => ({ no, seats: seats.slice().sort((left, right) => left.seat_no - right.seat_no) }))
+    // 换位：学生点空位直接坐，点别人就发申请等答复；服务端 15 分钟不回就作废
+    const seatSwap = reactive({
+      outgoing: [], incoming: [], ttl: 15, modal: null, now: Date.now(), busy: false,
     })
-    // 教室分左中右三块：把组按顺序切成三列，中间列组数少时自然留白
+    const SWAP_TEXT = {
+      pending: '等待答复', accepted: '已换座', declined: '对方拒绝', expired: '已过期', cancelled: '已撤回',
+    }
+    const swapText = status => SWAP_TEXT[status] ?? status
+    const swapLeft = row => {
+      if (!row || row.status !== 'pending') return '—'
+      const left = Math.max(0, Math.round((Date.parse(row.expires_at) - seatSwap.now) / 1000))
+      return `${String(Math.floor(left / 60)).padStart(2, '0')}:${String(left % 60).padStart(2, '0')}`
+    }
+    const mySwap = computed(() => seatSwap.outgoing.find(row => row.status === 'pending') ?? null)
+    const seatOccupiedBy = cell => (cell?.seat ? cell.seat : null)
+    const seatCellTitle = cell => {
+      if (cell.seat) {
+        const base = `${seatLabel(cell.seat)}　${cell.seat.student_no} ${cell.seat.name}　${seatText(cell.seat.status)}`
+        if (user.value?.role !== 'student') return base
+        if (cell.seat.student_id === user.value.id) return `${base}　（我的座位）`
+        return `${base}　（点一下申请换位）`
+      }
+      return user.value?.role === 'student' ? `${cell.row} 排 ${cell.col} 座 · 空位，点一下坐这里` : '空座'
+    }
+
+    async function loadSwaps() {
+      if (!courseId.value || user.value?.role !== 'student') return
+      const data = await readApi(`/api/v1/courses/${courseId.value}/seat-swaps`)
+      seatSwap.outgoing = data.outgoing
+      seatSwap.incoming = data.incoming
+      seatSwap.ttl = data.ttl_minutes
+    }
+    // 登录后和每 20 秒拉一次：对方答复 / 过期都要在界面上及时反映出来
+    async function pollIncoming() {
+      if (user.value?.role !== 'student') { seatSwap.modal = null; return }
+      try {
+        const data = await readApi('/api/v1/seat-swaps/incoming')
+        seatSwap.modal = data.items[0] ?? null
+        seatSwap.ttl = data.ttl_minutes
+        seatSwap.now = Date.now()
+        if (seatSwap.modal && courseId.value) await loadSwaps()
+      } catch { /* 轮询失败不打断页面 */ }
+    }
+    async function sitHere(cell) {
+      if (seatSwap.busy || user.value?.role !== 'student') return
+      const seat = seatOccupiedBy(cell)
+      if (seat && seat.student_id === user.value.id) { seatDetail.value = seat; return }
+      if (seat) {
+        if (mySwap.value) { message.value = '你已经有一个换位申请在等答复了，先撤回再申请。'; return }
+        const yes = window.confirm(`申请和 ${seat.name}（${seatLabel(seat)}）换座位？对方有 ${seatSwap.ttl} 分钟答复时间。`)
+        if (!yes) return
+        seatSwap.busy = true
+        await act(async () => {
+          await write('/api/v1/courses/' + courseId.value + '/seat-swaps', 'POST',
+            { target_student_id: seat.student_id })
+          await loadSwaps()
+        }, `已向 ${seat.name} 发出换位申请，等对方答复。`)
+        seatSwap.busy = false
+        return
+      }
+      if (!courseId.value) return
+      const yes = window.confirm(`坐到 ${cell.row} 排 ${cell.col} 座？`)
+      if (!yes) return
+      seatSwap.busy = true
+      await act(async () => {
+        await write('/api/v1/courses/' + courseId.value + '/me/seat', 'PUT',
+          { group_no: cell.row, seat_no: cell.col })
+        if (seatData.value) await loadSeats(seatData.value.task.id)
+        await loadSwaps()
+      }, `已换到 ${cell.row} 排 ${cell.col} 座。`)
+      seatSwap.busy = false
+    }
+    async function answerSwap(row, accept) {
+      if (!row || seatSwap.busy) return
+      seatSwap.busy = true
+      await act(async () => {
+        await write(`/api/v1/courses/${row.course_id}/seat-swaps/${row.id}/${accept ? 'accept' : 'decline'}`,
+          'POST')
+        seatSwap.modal = null
+        if (seatData.value) await loadSeats(seatData.value.task.id)
+        await loadSwaps()
+      }, accept ? '已换座，双方座位对调完成。' : '已拒绝这次换位。')
+      seatSwap.busy = false
+    }
+    async function cancelSwap(row) {
+      if (!row || seatSwap.busy) return
+      seatSwap.busy = true
+      await act(async () => {
+        await write(`/api/v1/courses/${row.course_id}/seat-swaps/${row.id}`, 'DELETE')
+        await loadSwaps()
+      }, '已撤回换位申请。')
+      seatSwap.busy = false
+    }
+
+    // 四个班混排在一张图里，颜色是唯一能区分班级的线索，所以按班名固定取色
+    const SEAT_COLORS = ['#2f6fd0', '#16a394', '#f2994a', '#9b6dd6', '#d9534f', '#4a90d9', '#56b98a']
+    const seatClasses = computed(() => [...new Set(seatList.value.map(seat => seat.class_name))].sort())
+    const classColor = name => SEAT_COLORS[Math.max(0, seatClasses.value.indexOf(name)) % SEAT_COLORS.length]
+    const seatIndex = computed(() => {
+      const map = new Map()
+      seatList.value.forEach(seat => map.set(`${seat.group_no}-${seat.seat_no}`, seat))
+      return map
+    })
+    const seatAisle = computed(() => seatData.value?.classroom?.aisle_every || 0)
+    // 有过道时第 col 座落在第几列：把过道本身也算作一列，grid-column 才对得上
+    const seatSlot = col => {
+      const aisle = seatAisle.value
+      return aisle ? col + Math.floor((col - 1) / aisle) : col
+    }
     const seatColumns = computed(() => {
-      const groups = seatGroups.value
-      const size = Math.ceil(groups.length / 3) || 1
-      return [groups.slice(0, size), groups.slice(size, size * 2), groups.slice(size * 2)]
+      if (!seatData.value) return ''
+      const total = seatData.value.grid.cols
+      // 第 1 列留给排号，座位从第 2 列起算
+      const parts = ['34px']
+      for (let col = 1; col <= total; col += 1) {
+        parts.push('minmax(68px, 1fr)')
+        if (seatAisle.value && col % seatAisle.value === 0 && col < total) parts.push('14px')
+      }
+      return parts.join(' ')
+    })
+    const seatRows = computed(() => {
+      if (!seatData.value) return []
+      const grid = []
+      for (let row = 1; row <= seatData.value.grid.rows; row += 1) {
+        const cells = []
+        for (let col = 1; col <= seatData.value.grid.cols; col += 1) {
+          cells.push({ key: `${row}-${col}`, row, col, slot: seatSlot(col),
+            seat: seatIndex.value.get(`${row}-${col}`) ?? null })
+        }
+        grid.push({ row, cells })
+      }
+      return grid
+    })
+    // 图下面三栏名单：已到（含迟到）/ 未到（未签到 + 缺勤）/ 请假
+    const seatRosters = computed(() => {
+      const buckets = { here: [], away: [], leave: [] }
+      seatList.value.forEach(seat => {
+        const bucket = seat.status === 'leave' ? 'leave' : ['present', 'late'].includes(seat.status) ? 'here' : 'away'
+        buckets[bucket].push(seat)
+      })
+      Object.values(buckets).forEach(list => list.sort(
+        (left, right) => left.group_no - right.group_no || left.seat_no - right.seat_no))
+      return buckets
     })
     const seatText = status => ({
       present: '已到', late: '迟到', leave: '请假', absent: '缺勤', pending: '未签到',
     }[status] ?? status)
+    const sourceText = source => ({ checkin: '签到码', gesture: '手势图案', close: '系统结算' }[source] ?? '—')
+    const seatLabel = seat => seat ? `${seat.group_no} 排 ${seat.seat_no} 座` : '未排座'
+
+    function syncRoom(data) {
+      room.value = data
+      roomForm.name = data.name
+      roomForm.template = data.template
+      roomForm.rows = data.rows
+      roomForm.cols = data.cols
+      roomForm.aisle_every = data.aisle_every
+    }
+    function applyPreset(preset) {
+      roomForm.name = preset.label
+      roomForm.template = preset.template
+      roomForm.rows = preset.rows
+      roomForm.cols = preset.cols
+      roomForm.aisle_every = preset.aisle_every
+      message.value = `已套用「${preset.label}」${preset.rows} 排 × ${preset.cols} 座，点「保存教室」生效。`
+    }
+    async function refreshSeatmap() {
+      if (seatData.value) await loadSeats(seatData.value.task.id)
+      if (courseId.value) syncRoom(await readApi(`/api/v1/courses/${courseId.value}/classroom`))
+    }
+    async function saveRoom() {
+      await act(async () => {
+        const data = await write(`/api/v1/courses/${courseId.value}/classroom`, 'PUT', {
+          name: roomForm.name, template: 'custom', rows: Number(roomForm.rows),
+          cols: Number(roomForm.cols), aisle_every: Number(roomForm.aisle_every),
+        })
+        syncRoom(data)
+        if (seatData.value) await loadSeats(seatData.value.task.id)
+        message.value = data.removed
+          ? `教室已保存，清理了 ${data.removed} 个越出教室的座位。`
+          : '教室已保存。'
+      })
+    }
+    async function autoSeat() {
+      await act(async () => {
+        const data = await write(`/api/v1/courses/${courseId.value}/classroom/auto-seat`, 'POST', {})
+        syncRoom(data)
+        if (seatData.value) await loadSeats(seatData.value.task.id)
+        message.value = `已按班排座，${data.placed} 人入座。`
+      })
+    }
+    async function unseat(studentId) {
+      await act(async () => {
+        await write(`/api/v1/courses/${courseId.value}/seats/${studentId}`, 'PATCH', { clear: true })
+        await refreshSeatmap()
+        message.value = '已把该学生撤出座位表。'
+      })
+    }
     async function logout() {
       await act(async () => {
         await write('/api/v1/auth/logout', 'POST')
@@ -335,6 +534,8 @@ createApp({
       clearCourse()
       courseId.value = Number(id)
       await act(refreshCourse, '课程已加载。')
+      // 换位申请是按课程查的，切课后重新拉一次
+      if (user.value?.role === 'student') await act(loadSwaps, '')
     }
     async function createCourse() {
       await act(async () => {
@@ -420,6 +621,52 @@ createApp({
         check.code = ''
         await refreshCourse()
       }, '签到成功。')
+    }
+    // 手势图案：录入要连画两次确认，签到则松手即提交
+    async function enrollGesture(pattern, pad) {
+      if (pattern.length < 4) {
+        gesture.first = null
+        gesture.hint = '至少连接 4 个点，请重画。'
+        return
+      }
+      if (!gesture.first) {
+        gesture.first = pattern
+        gesture.hint = '请再画一次同样的图案确认。'
+        return
+      }
+      if (gesture.first.join('-') !== pattern.join('-')) {
+        gesture.first = null
+        gesture.hint = '两次不一致，请重新开始。'
+        pad?.reset()
+        return
+      }
+      await act(async () => {
+        await write('/api/v1/auth/gesture', 'PUT', { pattern })
+        gesture.first = null
+        gesture.enrolled = true
+        gesture.hint = '手势图案已保存，以后可以画它签到。'
+        pad?.reset()
+      })
+    }
+    async function checkInByGesture(pattern, pad) {
+      if (!check.task_id) {
+        message.value = '请先选择要点到的任务。'
+        pad?.reset()
+        return
+      }
+      await act(async () => {
+        await write(`/api/v1/attendance-tasks/${check.task_id}/check-ins`, 'POST', { pattern })
+        await refreshCourse()
+        // 成功后不擦图案：让学生看到自己刚画的那一笔，下次按下时会自动清空
+      }, '手势签到成功。')
+    }
+    async function clearGesture() {
+      await act(async () => {
+        await write('/api/v1/auth/gesture', 'DELETE')
+        gesture.enrolled = false
+        gesture.first = null
+        gesture.hint = '已清除手势图案，可以重新设置。'
+      })
     }
     async function leave() {
       await act(async () => {
@@ -553,42 +800,81 @@ createApp({
         if (courseEpoch === epoch && recognition.value?.id === id) recognition.value = confirmed
       }, '结构草稿已确认，不会自动运行或计分。')
     }
-    onMounted(session)
+    onMounted(async () => {
+      await session()
+      // 换位提醒：登录后先拉一次（已登录状态刷新页面也要弹），之后每 20 秒轮询；
+      // 单独的 1 秒 tick 只负责把倒计时数字走动起来，不发请求。
+      await pollIncoming()
+      window.setInterval(pollIncoming, 20000)
+      window.setInterval(() => { seatSwap.now = Date.now() }, 1000)
+    })
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
-      recognition, draft, secretCode, auth, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
+      recognition, draft, secretCode, auth, authMode, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       demoStudentNo, fillTeacher, fillStudent,
-      seatData, seatClass, seatDetail, loadSeats, seatCurrent, seatStats, seatColumns, seatText,
+      seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses, mySeat,
+      seatSwap, mySwap, swapLeft, swapText, seatCellTitle, sitHere, answerSwap, cancelSwap, loadSwaps, pollIncoming,
+      classColor, seatRosters, sourceText, seatLabel, seatSlot, room, roomForm, applyPreset, saveRoom, autoSeat, unseat,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
-      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect }
+      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect, gesture, enrollGesture, checkInByGesture, clearGesture }
   },
   template: `
-    <main class="page">
-      <header :class="['hero', user && 'compact']"><p class="eyebrow">g24201710 · 计算机组成原理</p>
+    <main :class="['page', user ? '' : 'page-auth']">
+      <header v-if="user" class="hero compact"><p class="eyebrow">g24201710 · 计算机组成原理</p>
         <h1>中央处理器课程学习系统</h1><p role="status" aria-live="polite">{{ message }}</p>
-        <button v-if="user" type="button" @click="logout">退出</button></header>
-      <section v-if="!user" class="card login-card"><h2>登录 / 学生注册</h2>
-        <label>学号 <input id="username" v-model.trim="auth.student_no" maxlength="20" autocomplete="username"></label>
-        <label>姓名（注册填写） <input v-model.trim="auth.name" maxlength="50" autocomplete="name"></label>
-        <label>密码 <input id="password" v-model="auth.password" type="password" autocomplete="current-password"></label>
-        <div class="actions"><button id="login" type="button" @click="login">登录</button>
-          <button type="button" class="secondary" @click="register">注册学生账号</button></div>
-        <div class="login-demo">
-          <label>学生学号（一键填充用） <input id="student-no" v-model.trim="demoStudentNo" maxlength="20"
-            placeholder="留空使用 24200000"></label>
-          <div class="actions">
-            <button id="auto-fill-teacher" type="button" class="secondary" @click="fillTeacher">填入教师账号</button>
-            <button id="auto-fill-student" type="button" class="secondary" @click="fillStudent">填入学生账号</button>
-          </div>
+        <button type="button" @click="logout">退出</button></header>
+      <section v-if="!user" class="auth">
+        <aside class="auth-side">
+        <span class="auth-logo" aria-hidden="true">计</span>
+        <p class="auth-eyebrow">g24201710 · 2024 级计算机科学与技术</p>
+        <h1>中央处理器<br>课程学习系统</h1>
+        <p class="auth-lead">课堂点到、座位图、练习与评测，一个入口。</p>
+        <ul class="auth-points">
+        <li><b>四班同堂</b>133 人一张座位图，按班分段排座，登录就能看到自己坐哪。</li>
+        <li><b>两种点到</b>签到码或者手势图案，学生自己挑一种。</li>
+        <li><b>随堂留痕</b>练习、错题、讲评自动归档，不用另外记。</li>
+        </ul>
+        </aside>
+        <section class="auth-card">
+        <div class="auth-tabs" role="tablist" aria-label="登录或注册">
+        <button type="button" role="tab" :aria-selected="authMode === 'login'" :class="{ active: authMode === 'login' }"
+          @click="authMode = 'login'">登录</button>
+        <button type="button" role="tab" :aria-selected="authMode === 'register'" :class="{ active: authMode === 'register' }"
+          @click="authMode = 'register'">注册</button>
         </div>
-        <section class="login-guide" aria-labelledby="software-guide-title">
-          <h3 id="software-guide-title">《软件使用说明》</h3>
-          <ol>
-            <li>教师演示：点击“填入教师账号”，使用 teacher / teacher 登录。</li>
-            <li>学生演示：在“学生学号”填入学号（留空按 24200000），点击“填入学生账号”，密码与学号相同。</li>
-            <li>学生注册：填写学号与姓名后点击“注册学生账号”，默认密码就是学号；登录后可在“账号设置”修改。</li>
-            <li>四个班的真实名单由管理员运行名单导入脚本建立，重复导入不会产生重复账号。</li>
-          </ol>
-        </section></section>
+        <h2>{{ authMode === 'login' ? '欢迎回来' : '创建学生账号' }}</h2>
+        <p class="auth-sub">{{ authMode === 'login' ? '用学号登录，初始密码与学号相同。' : '填学号和姓名即可，默认密码就是学号。' }}</p>
+        <form class="auth-form" @submit.prevent="authMode === 'login' ? login() : register()">
+        <label class="auth-field"><span>学号</span>
+          <input id="username" v-model.trim="auth.student_no" maxlength="20" autocomplete="username" placeholder="例如 24201718" required></label>
+        <label v-if="authMode === 'register'" class="auth-field"><span>姓名</span>
+          <input v-model.trim="auth.name" maxlength="50" autocomplete="name" placeholder="与名单一致" required></label>
+        <label class="auth-field"><span>密码</span>
+          <input id="password" v-model="auth.password" type="password" placeholder="与学号相同"
+            :autocomplete="authMode === 'login' ? 'current-password' : 'new-password'" required></label>
+        <button id="login" class="auth-submit" type="submit">{{ authMode === 'login' ? '登 录' : '注册并登录' }}</button>
+        </form>
+        <p class="auth-msg" role="status" aria-live="polite">{{ message }}</p>
+        <div v-if="authMode === 'login'" class="auth-demo">
+        <p class="auth-demo-title">演示账号</p>
+        <label class="auth-demo-input"><span>学生学号</span>
+          <input id="student-no" v-model.trim="demoStudentNo" maxlength="20" placeholder="24200000"></label>
+        <div class="auth-demo-row">
+        <button id="auto-fill-teacher" type="button" @click="fillTeacher">填入教师 teacher</button>
+        <button id="auto-fill-student" type="button" @click="fillStudent">填入学生 {{ demoStudentNo || '24200000' }}</button>
+        </div>
+        <p class="auth-demo-tip">密码与学号相同，填好后点上面的登录。</p>
+        </div>
+        <details class="auth-help">
+        <summary>使用说明</summary>
+        <ol>
+          <li>教师演示：点「填入教师 teacher」，再点登录。</li>
+          <li>学生演示：在「学生学号」填学号，点「填入学生」，密码与学号相同。</li>
+          <li>学生注册：切到上方「注册」，填学号与姓名，默认密码为学号。</li>
+          <li>四个班的真实名单由管理员运行导入脚本建立，重复导入不会产生重复账号。</li>
+        </ol>
+        </details>
+        </section>
+      </section>
       <template v-else>
         <nav class="tabbar" role="tablist" aria-label="功能分区">
           <button v-for="item in (user.role === 'admin' ? tabs.slice(0, 1) : tabs)" :key="item.id" type="button" role="tab"
@@ -714,54 +1000,121 @@ createApp({
         <div class="att-bar"><i :class="rateOf(item.id) >= 80 ? 'good' : rateOf(item.id) > 0 ? 'mid' : 'low'" :style="'width:' + rateOf(item.id) + '%'"></i></div>
         <p class="att-meta">到勤 {{ attendedOf(item.id) }} / {{ totalOf(item.id) }} 人次<b>{{ rateOf(item.id) }}%</b></p>
         </template>
-        <p v-else class="att-meta">我的状态：{{ myStatusOf(item.id) }}</p>
-        <div v-if="user.role === 'teacher'" class="att-actions">
-        <button type="button" class="secondary" @click="loadSeats(item.id)">教室座位图</button>
+        <p v-else class="att-meta">我的状态：{{ seatText(myStatusOf(item.id)) }}</p>
+        <div class="att-actions">
+        <button type="button" class="secondary" @click="loadSeats(item.id)">{{ user.role === 'teacher' ? '教室座位图' : '看看我坐哪' }}</button>
+        <template v-if="user.role === 'teacher'">
         <button v-if="item.status === 'open'" type="button" class="secondary" @click="rotate(item.id)">轮换码</button>
         <button v-if="item.status === 'open'" type="button" @click="close(item.id)">结算</button>
+        </template>
         </div>
         </li>
         </ul>
         <p v-if="!tasks.length">还没有考勤任务。</p>
 
+        <details v-if="user.role === 'teacher'" class="att-panel">
+        <summary>教室设置（{{ room ? room.name + ' · ' + roomForm.rows + ' 排 × ' + roomForm.cols + ' 座' : '加载中' }}）</summary>
+        <div v-if="room" class="room-presets">
+        <button v-for="preset in room.presets" :key="preset.template" type="button" class="secondary"
+          @click="applyPreset(preset)">{{ preset.label }} · {{ preset.rows }} 排 × {{ preset.cols }} 座</button>
+        </div>
+        <form v-if="room" class="inline-form" @submit.prevent="saveRoom">
+        <label>教室名称 <input v-model.trim="roomForm.name" maxlength="40" required></label>
+        <label>排数 <input v-model.number="roomForm.rows" type="number" min="1" :max="room.limits.rows" required></label>
+        <label>每排座位 <input v-model.number="roomForm.cols" type="number" min="1" :max="room.limits.cols" required></label>
+        <label>过道间隔 <input v-model.number="roomForm.aisle_every" type="number" min="0" :max="room.limits.aisle_every"></label>
+        <button>保存教室</button></form>
+        <p v-if="room" class="att-meta">容量 {{ room.capacity }} 座　学生 {{ room.students }} 人　已排座 {{ room.seated }} 人　未排 {{ room.unseated }} 人</p>
+        <div v-if="room" class="att-actions">
+        <button type="button" @click="autoSeat">一键按班排座</button>
+        <span class="att-meta">按班级顺序整排起排，四个班各占一段连续排；教室不够时会直接报错而不是硬塞。</span>
+        </div>
+        </details>
+
         <div v-if="seatData" class="seatmap">
         <div class="seatmap-head">
         <strong>教室座位图 · {{ seatData.task.title }}</strong>
-        <span>应到 {{ seatCurrent.length }}　已到 {{ seatStats.present + seatStats.late }}　迟到 {{ seatStats.late }}　请假 {{ seatStats.leave }}　缺勤 {{ seatStats.absent }}　未签到 {{ seatStats.pending }}</span>
+        <span class="seatmap-room">{{ seatData.classroom.name }}　{{ seatData.classroom.rows }} 排 × {{ seatData.classroom.cols }} 座<template
+          v-if="seatData.grid.rows > seatData.classroom.rows || seatData.grid.cols > seatData.classroom.cols"><b class="seatmap-warn">这张任务的座位快照还是 {{ seatData.grid.rows }} 排 × {{ seatData.grid.cols }} 座，图上已按快照撑开</b></template></span>
+        <span>应到 {{ seatList.length }}　已到 {{ seatStats.present + seatStats.late }}　迟到 {{ seatStats.late }}　请假 {{ seatStats.leave }}　缺勤 {{ seatStats.absent }}　未签到 {{ seatStats.pending }}</span>
+        </div>
+        <p v-if="mySeat" class="seatmap-mine"><b>我坐这里</b>座位 {{ seatLabel(mySeat) }}　{{ mySeat.student_no }} {{ mySeat.name }}　{{ mySeat.class_name }}　状态：{{ seatText(mySeat.status) }}</p>
+        <p v-else-if="user.role === 'student'" class="seatmap-mine empty"><b>没有我的座位</b>这张图里没有排到你的座位，找任课老师确认一下。</p>
+        <p v-if="mySwap" class="swap-strip"><b>换位申请中</b>申请和 {{ mySwap.target_name }} 换座，等对方答复，剩余 <i>{{ swapLeft(mySwap) }}</i>
+        <button type="button" class="secondary" @click="cancelSwap(mySwap)">撤回</button></p>
+        <p v-if="user.role === 'student' && seatData" class="att-meta">点空位直接坐过去；点同学会向对方发换位申请，对方 {{ seatSwap.ttl }} 分钟内答复，超时作废。</p>
+        <div class="seatmap-legend">
+        <span v-for="name in seatClasses" :key="name"><i class="chip" :style="{ background: classColor(name) }"></i>{{ name }}</span>
+        <span class="legend-gap"></span>
+        <span><i class="dot present"></i>已到</span>
+        <span><i class="dot late"></i>迟到</span>
+        <span><i class="dot leave"></i>请假</span>
+        <span><i class="dot absent"></i>缺勤</span>
+        <span><i class="dot pending"></i>未签到</span>
         </div>
         <div class="seatmap-podium">讲 台 / 屏 幕</div>
-        <div v-if="seatData.classes.length > 1" class="seatmap-classes">
-        <button v-for="item in seatData.classes" :key="item.class_name" type="button"
-          :class="{ active: seatClass === item.class_name }" @click="seatClass = item.class_name; seatDetail = null">{{ item.class_name }}</button>
-        </div>
-        <div class="seatmap-floor">
-        <div v-for="(column, index) in seatColumns" :key="index" class="seat-col">
-        <div v-for="group in column" :key="group.no" class="seat-group">
-        <span class="seat-group-label">第 {{ group.no }} 组</span>
-        <div class="seat-group-seats">
-        <button v-for="seat in group.seats" :key="seat.student_id" type="button"
-          :class="['seat', seat.status]"
-          :title="seat.student_no + ' ' + seat.name + ' · ' + seatText(seat.status)"
-          @click="seatDetail = seat">
-        <b>{{ group.no }}-{{ seat.seat_no }}</b>
-        <span>{{ seat.name }}</span>
+        <div class="seatmap-grid" :style="{ gridTemplateColumns: seatColumns }">
+        <template v-for="line in seatRows" :key="line.row">
+        <span class="seat-row-label" :style="{ gridColumn: 1, gridRow: line.row }">{{ line.row }}</span>
+        <button v-for="cell in line.cells" :key="cell.key" type="button"
+          :class="['seat-cell', cell.seat ? cell.seat.status : 'empty', { mine: cell.seat && mySeat && cell.seat.student_id === mySeat.student_id, pickable: user.role === 'student' }]"
+          :style="{ gridColumn: seatSlot(cell.col) + 1, gridRow: line.row, borderTopColor: cell.seat ? classColor(cell.seat.class_name) : 'transparent' }"
+          :disabled="user.role === 'teacher' && !cell.seat"
+          :title="seatCellTitle(cell)"
+          @click="user.role === 'student' ? sitHere(cell) : (cell.seat && (seatDetail = cell.seat))">
+        <template v-if="cell.seat">
+        <b>{{ cell.seat.seat_no }}</b>
+        <span>{{ cell.seat.name }}</span>
+        <em v-if="cell.seat.status === 'late'">迟</em>
+        </template>
         </button>
-        </div>
-        </div>
-        </div>
-        </div>
-        <div class="seatmap-legend">
-        <span><i style="background:#e6f7ee;border:1px solid #8fd3ae"></i>已到</span>
-        <span><i style="background:#fff4d6;border:1px solid #e8c46a"></i>迟到</span>
-        <span><i style="background:#e8f2ff;border:1px solid #a9c8ee"></i>请假</span>
-        <span><i style="background:#fdeceb;border:1px solid #f2c0bc"></i>缺勤</span>
-        <span><i style="background:#f3f6fb;border:1px dashed #c9d6e8"></i>未签到</span>
+        </template>
         </div>
         <p v-if="seatDetail" class="seatmap-detail">
-        座位 {{ seatDetail.group_no }}-{{ seatDetail.seat_no }}　{{ seatDetail.student_no }} {{ seatDetail.name }}　状态：{{ seatText(seatDetail.status) }}　签到时间：{{ seatDetail.checked_at ? shortTime(seatDetail.checked_at) : '—' }}
+        座位 {{ seatLabel(seatDetail) }}　{{ seatDetail.student_no }} {{ seatDetail.name }}　{{ seatDetail.class_name }}　状态：{{ seatText(seatDetail.status) }}　签到时间：{{ seatDetail.checked_at ? shortTime(seatDetail.checked_at) : '—' }}　方式：{{ sourceText(seatDetail.source) }}
         <button type="button" class="secondary" @click="seatDetail = null">关闭</button>
         </p>
-        <p v-if="seatData.unseated" class="seatmap-detail">另有 {{ seatData.unseated }} 名应到学生没有排座，请先在课程座位表里安排。</p>
+        <p v-if="seatData.unseated" class="seatmap-detail">另有 {{ seatData.unseated }} 名应到学生没有排座，请先在上面的「教室设置」里一键排座。</p>
+
+        <div v-if="user.role === 'teacher'" class="seat-rosters">
+        <div class="roster-col">
+        <h4>已到 <b>{{ seatRosters.here.length }}</b></h4>
+        <ul>
+        <li v-for="seat in seatRosters.here" :key="seat.student_id">
+        <span class="roster-seat">{{ seatLabel(seat) }}</span>
+        <span class="roster-name">{{ seat.name }}</span>
+        <span class="roster-class" :style="{ color: classColor(seat.class_name) }">{{ seat.class_name }}</span>
+        <em v-if="seat.status === 'late'" class="roster-late">迟到</em>
+        <span class="roster-time">{{ seat.checked_at ? shortTime(seat.checked_at) : '—' }}</span>
+        <span class="roster-source">{{ sourceText(seat.source) }}</span>
+        </li>
+        </ul>
+        <p v-if="!seatRosters.here.length" class="roster-empty">暂无</p>
+        </div>
+        <div class="roster-col">
+        <h4>未到 <b>{{ seatRosters.away.length }}</b></h4>
+        <ul>
+        <li v-for="seat in seatRosters.away" :key="seat.student_id">
+        <span class="roster-seat">{{ seatLabel(seat) }}</span>
+        <span class="roster-name">{{ seat.name }}</span>
+        <span class="roster-class" :style="{ color: classColor(seat.class_name) }">{{ seat.class_name }}</span>
+        <em class="roster-flag">{{ seatText(seat.status) }}</em>
+        </li>
+        </ul>
+        <p v-if="!seatRosters.away.length" class="roster-empty">暂无</p>
+        </div>
+        <div class="roster-col">
+        <h4>请假 <b>{{ seatRosters.leave.length }}</b></h4>
+        <ul>
+        <li v-for="seat in seatRosters.leave" :key="seat.student_id">
+        <span class="roster-seat">{{ seatLabel(seat) }}</span>
+        <span class="roster-name">{{ seat.name }}</span>
+        <span class="roster-class" :style="{ color: classColor(seat.class_name) }">{{ seat.class_name }}</span>
+        </li>
+        </ul>
+        <p v-if="!seatRosters.leave.length" class="roster-empty">暂无</p>
+        </div>
+        </div>
         </div>
 
         <details v-if="user.role === 'teacher'" class="att-panel">
@@ -773,9 +1126,26 @@ createApp({
         <label>结束 <input v-model="taskForm.end_at" type="datetime-local" required></label><button>创建</button></form>
         </details>
 
-        <form v-if="user.role === 'student' && tasks.length" class="inline-form att-checkin" @submit.prevent="checkIn">
+        <form v-if="user.role === 'student' && tasks.length" class="inline-form att-checkin" @submit.prevent="check.mode === 'code' && checkIn()">
         <label>任务 <select v-model="check.task_id" required><option value="">请选择</option><option v-for="item in tasks" :key="item.id" :value="item.id">{{ item.title }}</option></select></label>
-        <label>签到码 <input v-model.trim="check.code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required></label><button>签到</button></form>
+        <span class="check-modes" role="group" aria-label="签到方式">
+        <button type="button" :class="{ active: check.mode === 'code' }" @click="check.mode = 'code'">签到码</button>
+        <button type="button" :class="{ active: check.mode === 'gesture' }" @click="check.mode = 'gesture'">手势图案</button>
+        </span>
+        <label v-if="check.mode === 'code'">签到码 <input v-model.trim="check.code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required></label>
+        <button v-if="check.mode === 'code'">签到</button></form>
+        <div v-if="user.role === 'student' && tasks.length && check.mode === 'gesture'" class="gesture-checkin">
+        <p class="pad-step">① 签到：画一遍你设置过的图案</p>
+        <gesture-pad ref="checkPad" :disabled="!check.task_id" @done="checkInByGesture($event, $refs.checkPad)" />
+        <p class="att-meta">{{ !check.task_id ? '先在上面选择要点到的任务。' : gesture.enrolled ? '按住并划过你自己设置的手势图案，松手即签到。' : '你还没有设置手势图案，先在下面的「② 设置 / 更换图案」里设一个。' }}</p>
+        </div>
+        <details v-if="user.role === 'student'" class="att-panel">
+        <summary>② 设置 / 更换图案（{{ gesture.enrolled ? '已设置' : '未设置' }}）</summary>
+        <p class="att-meta">{{ gesture.hint }}</p>
+        <gesture-pad ref="enrollPad" @done="enrollGesture($event, $refs.enrollPad)" />
+        <div v-if="gesture.enrolled" class="att-actions">
+        <button type="button" class="secondary" @click="clearGesture">清除手势图案</button></div>
+        </details>
         <form v-if="user.role === 'student' && check.task_id" class="inline-form" @submit.prevent="leave">
         <label>请假理由 <input v-model.trim="check.reason" maxlength="500" required></label><button class="secondary">申请请假</button></form>
 
@@ -829,5 +1199,20 @@ createApp({
         </template>
       </template>
       </template>
+
+      <div v-if="seatSwap.modal" class="swap-modal" role="dialog" aria-modal="true" aria-labelledby="swap-title">
+        <div class="swap-dialog">
+        <p class="swap-eyebrow">换位申请 · 剩余 <i>{{ swapLeft(seatSwap.modal) }}</i></p>
+        <h3 id="swap-title">{{ seatSwap.modal.requester_name }} 想和你换座位</h3>
+        <p class="swap-body">TA 现在坐 <b>{{ seatSwap.modal.from_group }} 排 {{ seatSwap.modal.from_seat }} 座</b>，
+          想换到你现在的位置 <b>{{ seatSwap.modal.to_group }} 排 {{ seatSwap.modal.to_seat }} 座</b>。
+          {{ seatSwap.modal.course_title }}</p>
+        <p class="swap-tip">{{ seatSwap.ttl }} 分钟内不答复就自动失效，双方座位都不动。</p>
+        <div class="swap-actions">
+        <button type="button" :disabled="seatSwap.busy" @click="answerSwap(seatSwap.modal, true)">同意换位</button>
+        <button type="button" class="secondary" :disabled="seatSwap.busy" @click="answerSwap(seatSwap.modal, false)">拒绝</button>
+        </div>
+        </div>
+      </div>
     </main>`,
 }).mount('#app')
