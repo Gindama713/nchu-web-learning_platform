@@ -55,16 +55,11 @@ createApp({
     ]
     const tab = ref('course')
     // 按任务聚合考勤记录，用于任务卡片的到勤进度条
-    // 课程封面：按 id 取渐变，同一门课颜色固定，避免每次刷新变来变去
+    // 课程封面：按 id 取 B 色板里的纯色，同一门课颜色固定，避免刷新变来变去。
+    // 纯展示常量，不参与任何逻辑判断；长度保持 8，取模结果不变。
     const COVERS = [
-      'linear-gradient(135deg, #2f6fd0, #17408a)',
-      'linear-gradient(135deg, #16a394, #0d7368)',
-      'linear-gradient(135deg, #f2994a, #c96f22)',
-      'linear-gradient(135deg, #9b6dd6, #67409f)',
-      'linear-gradient(135deg, #eb5757, #b13434)',
-      'linear-gradient(135deg, #4a90d9, #2b64a8)',
-      'linear-gradient(135deg, #56b98a, #35805e)',
-      'linear-gradient(135deg, #7f8fa6, #55647a)',
+      '#3F4EA8', '#2B3675', '#0E8A8A', '#5A68BF',
+      '#3F4EA8', '#2B3675', '#0E8A8A', '#5A68BF',
     ]
     const coverOf = id => COVERS[Number(id) % COVERS.length]
 

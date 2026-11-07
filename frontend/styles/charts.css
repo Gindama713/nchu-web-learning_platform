@@ -63,8 +63,8 @@
 /* 图例 */
 .chart-legend { display: flex; flex-wrap: wrap; gap: 10px 20px; margin: 12px 0 0; padding: 0; list-style: none; }
 .chart-legend li { display: flex; align-items: center; gap: 7px; font-size: .82rem; color: #4a5a70; }
-.chart-legend i { flex: none; width: 10px; height: 10px; border-radius: 3px; }
-.chart-legend b { color: #182436; font-variant-numeric: tabular-nums; }
+.chart-legend i { flex: none; width: 10px; height: 10px; border-radius: 6px; }
+.chart-legend b { color: var(--ink); font-variant-numeric: tabular-nums; }
 .chart-legend small { color: #8896aa; font-variant-numeric: tabular-nums; }
 
 /* 环形中心数值 */
@@ -73,7 +73,7 @@
 .chart-center {
   position: absolute; inset: 0; display: grid; place-content: center; text-align: center; pointer-events: none;
 }
-.chart-center strong { display: block; font-size: 1.6rem; color: #12325f; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.chart-center strong { display: block; font-size: 1.6rem; color: var(--brand); line-height: 1.1; font-variant-numeric: tabular-nums; }
 .chart-center span { font-size: .72rem; color: #8896aa; }
 
 @media (prefers-reduced-motion: reduce) {

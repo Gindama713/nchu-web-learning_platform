@@ -10,10 +10,10 @@
 .wiring-stats-restore { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
 .wiring-stats-report { display: grid; gap: 8px; }
 .wiring-stats-metrics { display: grid; grid-template-columns: minmax(120px, 1fr) minmax(100px, 1fr); max-width: 650px; margin: 0; }
-.wiring-stats-metrics dt, .wiring-stats-metrics dd { padding: 10px; margin: 0; border-bottom: 1px solid #dce4ee; }
-.wiring-stats-metrics dd { font-variant-numeric: tabular-nums; font-weight: 600; }
+.wiring-stats-metrics dt, .wiring-stats-metrics dd { padding: 10px; margin: 0; border-bottom: 1px solid var(--line); }
+.wiring-stats-metrics dd { font-variant-numeric: tabular-nums; font-weight: 500; }
 .wiring-stats-scroll { overflow-x: auto; margin: 24px 0; }
 .wiring-stats-scroll table { border-collapse: collapse; width: 100%; }
-.wiring-stats-scroll caption { text-align: left; font-weight: 600; margin-bottom: 12px; }
-.wiring-stats-scroll th, .wiring-stats-scroll td { padding: 10px; text-align: left; border-bottom: 1px solid #dce4ee; min-width: 90px; }
+.wiring-stats-scroll caption { text-align: left; font-weight: 500; margin-bottom: 12px; }
+.wiring-stats-scroll th, .wiring-stats-scroll td { padding: 10px; text-align: left; border-bottom: 1px solid var(--line); min-width: 90px; }
 .wiring-stats-scroll th:first-child, .wiring-stats-scroll td:first-child { min-width: 240px; }
