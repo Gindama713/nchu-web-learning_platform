@@ -89,10 +89,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Require real Logisim grading smoke test
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      # Logisim 5.0.0 的 --test-vector 路径会构造 Swing 菜单栏，headless 下必抛
+      # HeadlessException；必须用虚拟显示，不能加 -Djava.awt.headless=true。
+      - name: Install virtual display
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
+      - run: python -m pip install -r backend/requirements.lock
+      - name: Download and verify fixed Logisim JAR
+        env:
+          JAR_SHA256: 6b368e894742c04cc83aa9830f869bcab0190ede4df43ad6fecdb89b3a23a41c
         run: |
-          echo 'SPEC-018 real-engine grading is not implemented; release is blocked.'
-          exit 1
+          curl -fsSL --retry 3 -o /tmp/logisim.jar \
+            "https://github.com/${{ github.repository }}/releases/download/grader-jar-5.0.0/logisim-evolution-5.0.0-all.jar"
+          echo "${JAR_SHA256}  /tmp/logisim.jar" | sha256sum -c -
+      - name: Real Logisim engine smoke test
+        run: xvfb-run -a env LOGISIM_JAR_PATH=/tmp/logisim.jar python scripts/ci_grader_smoke.py
 
   ci-required:
     if: always()
