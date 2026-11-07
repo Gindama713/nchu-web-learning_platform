@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPU 教学管理平台 · 需求与设计文档入口（242017 班 g24201710 组）</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#1f2933; --muted:#63707d;
+    --line:#e2e7ed; --accent:#1d5fbf; --accent-soft:#eaf1fd; --code:#f2f4f7;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:"Microsoft YaHei","PingFang SC","Segoe UI",Arial,sans-serif;
+       font-size:15px;line-height:1.75}
+  header{background:var(--panel);border-bottom:1px solid var(--line);padding:22px 32px}
+  header h1{margin:0 0 6px;font-size:21px;letter-spacing:.2px}
+  header p{margin:0;color:var(--muted);font-size:13px}
+  .badge{display:inline-block;background:var(--accent-soft);color:var(--accent);
+         border-radius:4px;padding:2px 9px;font-size:12px;margin-right:8px}
+  .wrap{display:flex;align-items:flex-start;max-width:1400px;margin:0 auto;gap:24px;padding:24px}
+  nav{width:290px;flex:0 0 290px;background:var(--panel);border:1px solid var(--line);
+      border-radius:8px;padding:16px;position:sticky;top:24px;max-height:calc(100vh - 48px);overflow:auto}
+  nav h2{font-size:12px;color:var(--muted);letter-spacing:1px;margin:14px 0 8px;text-transform:uppercase}
+  nav h2:first-child{margin-top:0}
+  nav a{display:block;padding:6px 10px;border-radius:5px;color:var(--ink);
+        text-decoration:none;font-size:13.5px;border-left:3px solid transparent}
+  nav a:hover{background:var(--bg)}
+  nav a.active{background:var(--accent-soft);border-left-color:var(--accent);color:var(--accent);font-weight:600}
+  nav a small{display:block;color:var(--muted);font-weight:400;font-size:11.5px;line-height:1.4}
+  main{flex:1;min-width:0;background:var(--panel);border:1px solid var(--line);
+       border-radius:8px;padding:28px 34px;min-height:70vh}
+  .home h2{font-size:19px;margin:26px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .home h2:first-child{margin-top:0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:12px 0 20px}
+  .card{border:1px solid var(--line);border-radius:6px;padding:12px 14px;background:#fcfdff}
+  .card a{color:var(--accent);text-decoration:none;font-weight:600}
+  .card p{margin:4px 0 0;color:var(--muted);font-size:12.5px;line-height:1.55}
+  .note{background:#fff8e9;border:1px solid #f0dfae;border-radius:6px;padding:12px 16px;font-size:13px;color:#6b5724}
+  .doc h1,.doc h2,.doc h3{line-height:1.4;margin:1.3em 0 .6em}
+  .doc h1{font-size:24px;border-bottom:2px solid var(--line);padding-bottom:8px}
+  .doc h2{font-size:19px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .doc h3{font-size:16px}
+  .doc p{margin:.7em 0}
+  .doc ul,.doc ol{padding-left:24px}
+  .doc code{background:var(--code);padding:1px 5px;border-radius:3px;font-size:13px}
+  .doc pre{background:var(--code);padding:12px 14px;border-radius:6px;overflow:auto;font-size:12.5px;line-height:1.6}
+  .doc pre code{background:none;padding:0}
+  .doc table{border-collapse:collapse;width:100%;margin:12px 0;font-size:13px;display:block;overflow:auto}
+  .doc th,.doc td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+  .doc th{background:var(--bg)}
+  .doc a{color:var(--accent)}
+  .doc blockquote{border-left:3px solid var(--accent);margin:12px 0;padding:2px 14px;color:var(--muted);background:var(--bg)}
+  .doc hr{border:0;border-top:1px solid var(--line);margin:22px 0}
+  .bar{display:flex;align-items:center;gap:12px;margin-bottom:18px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+  .bar a{color:var(--accent)}
+  .err{background:#fdeeee;border:1px solid #f2c4c4;color:#8a3333;padding:14px;border-radius:6px;font-size:13.5px}
+  footer{max-width:1400px;margin:0 auto;padding:0 24px 30px;color:var(--muted);font-size:12px}
+  @media(max-width:900px){.wrap{flex-direction:column;padding:14px}nav{width:100%;flex:none;position:static;max-height:none}main{padding:20px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>CPU 教学管理平台 · 需求与设计文档入口</h1>
+  <p><span class="badge">项目检查 1</span>242017 班 · g24201710 组 · 组长 24201718 姜苏豪 · 组员 24201716 黄俊诚 / 24201723 罗浩铭 / 24201737 石佰合</p>
+</header>
+
+<div class="wrap">
+  <nav id="nav"></nav>
+  <main id="main"><div class="home" id="home"></div></main>
+</div>
+
+<footer>本页为纯静态文档门户，不依赖外部 CDN 或后端服务；项目本体为 Vue 3 + Flask + SQLite 动态应用，运行方式见仓库根目录 README.md。</footer>
+
+<script>
+// 文档清单：path 相对于 docs/index.html
+var GROUPS = [
+  {title:"六份需求设计主文档（项目检查 1）", items:[
+    {name:"README.md", path:"../README.md", desc:"项目总览、文档索引、本地运行与部署"},
+    {name:"PRD.md", path:"PRD.md", desc:"范围、模块规格、业务规则、验收标准与实名分工"},
+    {name:"APIC.md", path:"APIC.md", desc:"接口路径、参数、返回、错误码与权限"},
+    {name:"ADR.md", path:"ADR.md", desc:"架构决策、评测方案、托管与隔离"},
+    {name:"CHG-RB.md", path:"CHG-RB.md", desc:"变更、发布、回灌、备份与回滚"},
+    {name:"DBD.md", path:"DBD.md", desc:"表结构、字段、关系、约束与生命周期"}
+  ]},
+  {title:"个人交付材料", items:[
+    {name:"姜苏豪 · 交付索引", path:"JIANG_SUHAO_DELIVERY.md", desc:"SPEC-001/002/010A/014/016/019"},
+    {name:"姜苏豪 · 测试报告", path:"TEST_REPORT_JIANG_SUHAO.md", desc:"测试与验收记录"},
+    {name:"姜苏豪 · 使用说明", path:"USER_GUIDE_JIANG_SUHAO.md", desc:"本人模块操作路径"},
+    {name:"黄俊诚 · 交付索引", path:"C12C_DELIVERY_HUANG_JUNCHENG.md", desc:"C12c 正式材料与证据矩阵"},
+    {name:"黄俊诚 · 测试报告", path:"TEST_REPORT_HUANG_JUNCHENG.md", desc:"测试与验收记录"},
+    {name:"黄俊诚 · 使用说明", path:"USER_GUIDE_HUANG_JUNCHENG.md", desc:"本人模块操作路径"},
+    {name:"罗浩铭 · 交付索引", path:"LUO_HAOMING_DELIVERY.md", desc:"SPEC-004/007/010C/015/017"},
+    {name:"罗浩铭 · 测试报告", path:"TEST_REPORT_LUO_HAOMING.md", desc:"本地与 CI 证据口径"},
+    {name:"罗浩铭 · 使用说明", path:"USER_GUIDE_LUO_HAOMING.md", desc:"备课、演示、连线、图谱、统计"}
+  ]},
+  {title:"阶段检查与设计报告", items:[
+    {name:"检查点 · 姜苏豪", path:"checkpoints/JIANG_SUHAO_2026-10-22.md", desc:"2026-10-22 阶段检查"},
+    {name:"检查点 · 黄俊诚", path:"checkpoints/HUANG_JUNCHENG_C12C.md", desc:"C12c 阶段检查"},
+    {name:"检查点 · 罗浩铭", path:"checkpoints/LUO_HAOMING_2026-11-05.md", desc:"CP-2 至 CP-5 与演示脚本"},
+    {name:"第二次课堂提交提示词", path:"SECOND_SUBMISSION_TEAM_PROMPT.md", desc:"2026-10-16 分批操作记录"}
+  ]},
+  {title:"个人设计报告（Word 版，点击下载）", items:[
+    {name:"24201718_姜苏豪_设计报告.docx", path:"reports/24201718_姜苏豪_设计报告.docx", desc:"Word 版个人设计报告"},
+    {name:"24201716_黄俊诚_设计报告.docx", path:"reports/24201716_黄俊诚_设计报告.docx", desc:"Word 版个人设计报告"},
+    {name:"24201723_罗浩铭_设计报告.docx", path:"reports/24201723_罗浩铭_设计报告.docx", desc:"Word 版个人设计报告"}
+  ]}
+];
+
+var esc = function(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+};
+
+// 极简 Markdown 渲染：零依赖，覆盖标题/列表/表格/代码/引用/链接/分隔线
+function render(md){
+  var lines = md.replace(/\r\n?/g,"\n").split("\n"), out = [], i = 0;
+  var inline = function(t){
+    var s = esc(t);
+    s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function(m, label, href){
+      return '<a href="' + href + '">' + label + "</a>";
+    });
+    s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+    return s;
+  };
+  while(i < lines.length){
+    var L = lines[i];
+    if(/^```/.test(L)){
+      var buf = []; i++;
+      while(i < lines.length && !/^```/.test(lines[i])){ buf.push(lines[i]); i++; }
+      i++;
+      out.push("<pre><code>" + esc(buf.join("\n")) + "</code></pre>");
+      continue;
+    }
+    if(/^\s*\|/.test(L) && i+1 < lines.length && /^\s*\|[\s:\-|]+\|\s*$/.test(lines[i+1])){
+      var head = L.trim().replace(/^\||\|$/g,"").split("|").map(function(x){return x.trim()});
+      i += 2;
+      var rows = [];
+      while(i < lines.length && /^\s*\|/.test(lines[i])){
+        rows.push(lines[i].trim().replace(/^\||\|$/g,"").split("|").map(function(x){return x.trim()}));
+        i++;
+      }
+      var h = "<table><thead><tr>" + head.map(function(c){return "<th>"+inline(c)+"</th>"}).join("") + "</tr></thead><tbody>";
+      rows.forEach(function(r){ h += "<tr>" + r.map(function(c){return "<td>"+inline(c)+"</td>"}).join("") + "</tr>"; });
+      out.push(h + "</tbody></table>");
+      continue;
+    }
+    var m = /^(#{1,6})\s+(.*)$/.exec(L);
+    if(m){ out.push("<h"+m[1].length+">"+inline(m[2])+"</h"+m[1].length+">"); i++; continue; }
+    if(/^\s*(---|\*\*\*|___)\s*$/.test(L)){ out.push("<hr>"); i++; continue; }
+    if(/^>\s?/.test(L)){ out.push("<blockquote>"+inline(L.replace(/^>\s?/,""))+"</blockquote>"); i++; continue; }
+    if(/^\s*[-*+]\s+/.test(L) || /^\s*\d+\.\s+/.test(L)){
+      var ordered = /^\s*\d+\.\s+/.test(L), buf2 = [];
+      while(i < lines.length && (/^\s*[-*+]\s+/.test(lines[i]) || /^\s*\d+\.\s+/.test(lines[i]))){
+        buf2.push("<li>"+inline(lines[i].replace(/^\s*(?:[-*+]|\d+\.)\s+/,""))+"</li>"); i++;
+      }
+      out.push((ordered?"<ol>":"<ul>")+buf2.join("")+(ordered?"</ol>":"</ul>"));
+      continue;
+    }
+    if(L.trim() === ""){ i++; continue; }
+    var para = [];
+    while(i < lines.length && lines[i].trim() !== "" &&
+          !/^(#{1,6})\s|^\s*\||^```|^>\s?|^\s*[-*+]\s+|^\s*\d+\.\s+|^\s*(---|\*\*\*|___)\s*$/.test(lines[i])){
+      para.push(lines[i]); i++;
+    }
+    if(para.length) out.push("<p>"+inline(para.join(" "))+"</p>");
+    else i++;
+  }
+  return out.join("\n");
+}
+
+function buildNav(){
+  var n = document.getElementById("nav"), html = "";
+  GROUPS.forEach(function(g){
+    html += "<h2>" + esc(g.title) + "</h2>";
+    g.items.forEach(function(it){
+      html += '<a href="#' + encodeURIComponent(it.path) + '" data-path="' + esc(it.path) + '">' + esc(it.name) +
+              "<small>" + esc(it.desc) + "</small></a>";
+    });
+  });
+  n.innerHTML = html;
+}
+
+function buildHome(){
+  var html = '<div class="note">本页是课程平台静态沙箱所需的 <code>docs/index.html</code> 文档门户。' +
+             '左侧可直接预览 Markdown 文档；Word 版设计报告点击后下载。项目本体为动态 Web 应用，' +
+             '启动与验证命令见 <a href="#../README.md" data-path="../README.md">README.md</a>。</div>';
+  GROUPS.forEach(function(g){
+    html += "<h2>" + esc(g.title) + "</h2><div class='grid'>";
+    g.items.forEach(function(it){
+      html += '<div class="card"><a href="#' + encodeURIComponent(it.path) + '" data-path="' + esc(it.path) + '">' +
+              esc(it.name) + "</a><p>" + esc(it.desc) + "</p></div>";
+    });
+    html += "</div>";
+  });
+  html += "<h2>目录说明</h2><p>规格驱动材料位于 <code>specs/</code>，全局设计导航位于 <code>steering/</code>，" +
+          "后端接口与迁移位于 <code>backend/</code>，前端页面位于 <code>frontend/</code>，" +
+          "自动化测试位于 <code>tests/</code>，文档一致性检查位于 <code>scripts/check_docs.py</code>。" +
+          "课堂检查材料按任务书要求归档在 <code>docs/checkpoints/</code>，验收证据在 <code>docs/evidence/</code>。</p>";
+  document.getElementById("home").innerHTML = html;
+}
+
+function markActive(path){
+  var as = document.querySelectorAll("#nav a");
+  for(var i=0;i<as.length;i++) as[i].className = (as[i].getAttribute("data-path") === path ? "active" : "");
+}
+
+function show(path){
+  var el = document.getElementById("main");
+  if(/\.docx?$/i.test(path)){
+    el.innerHTML = '<div class="bar"><a href="#home">← 返回首页</a></div><div class="err">' +
+      'Word 文档无法在浏览器内直接预览，请点击 <a href="' + esc(path) + '">下载并打开 ' + esc(path.split("/").pop()) + '</a>。</div>';
+    return;
+  }
+  markActive(path);
+  el.innerHTML = '<div class="bar">正在加载 <b>' + esc(path) + "</b> …</div>";
+  fetch(path).then(function(r){
+    if(!r.ok) throw new Error("HTTP " + r.status);
+    return r.text();
+  }).then(function(txt){
+    el.innerHTML = '<div class="bar"><a href="#home" data-path="__home__">← 返回首页</a> · 源文件：' +
+      '<a href="' + esc(path) + '" target="_blank" rel="noopener">' + esc(path) + '</a> · 本页面为极简 Markdown 预览，' +
+      '复杂表格与脚注请以源文件为准</div><div class="doc">' + render(txt) + "</div>";
+    window.scrollTo(0,0);
+  }).catch(function(e){
+    el.innerHTML = '<div class="bar"><a href="#home" data-path="__home__">← 返回首页</a></div>' +
+      '<div class="err">预览失败（' + esc(e.message) + '）。若直接以 file:// 打开本页，浏览器会禁止读取本地文件；' +
+      '在静态服务器下可正常预览。也可以 <a href="' + esc(path) + '" target="_blank" rel="noopener">直接打开源文件</a>。</div>';
+  });
+}
+
+function route(){
+  var h = decodeURIComponent((location.hash || "").replace(/^#/,""));
+  if(!h || h === "home" || h === "__home__"){
+    markActive("");
+    document.getElementById("main").innerHTML = '<div class="home" id="home"></div>';
+    buildHome();
+    return;
+  }
+  show(h);
+}
+
+document.addEventListener("click", function(ev){
+  var a = ev.target.closest ? ev.target.closest("a[data-path]") : null;
+  if(a && a.getAttribute("data-path") === "__home__"){ location.hash = "home"; route(); }
+});
+window.addEventListener("hashchange", route);
+buildNav();
+route();
+</script>
+</body>
+</html>
