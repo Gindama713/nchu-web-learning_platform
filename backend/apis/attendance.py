@@ -7,6 +7,7 @@ import secrets
 
 from flask import Blueprint, current_app, make_response, request
 
+from backend.apis.classroom import classroom_state
 from backend.shared.api import (
     ApiError,
     audit,
@@ -23,6 +24,7 @@ from backend.shared.api import (
 )
 from backend.shared.auth import course_access, require_user
 from backend.shared.db import get_db, write
+from backend.shared.gesture import pattern_matches, pattern_text
 
 bp = Blueprint("attendance", __name__)
 
@@ -121,13 +123,26 @@ def list_tasks(course_id):
 
 @bp.post("/attendance-tasks/<int:task_id>/check-ins")
 def check_in(task_id):
+    """签到：签到码与手势图案二选一。
+
+    签到码是老师课上念的公共码，手势图案是学生自己的图形密码。两者都能
+    完成一次签到，记录里的 source 区分是哪种，座位图名单据此标注。
+    """
     user = require_user()
-    data = body(("code",))
     if user["role"] != "student":
         raise ApiError(403, "FORBIDDEN", "Student required")
-    supplied = data["code"]
-    if not isinstance(supplied, str) or not re.fullmatch(r"[0-9]{6}", supplied):
-        raise ApiError(422, "INVALID_ATTENDANCE_CODE", "Invalid attendance code")
+    data = body(allowed=("code", "pattern"))
+    if ("code" in data) == ("pattern" in data):
+        raise ApiError(422, "VALIDATION_ERROR", "签到码与手势图案需要二选一")
+    by_gesture = "pattern" in data
+    source = "gesture" if by_gesture else "checkin"
+    error_code = "INVALID_GESTURE" if by_gesture else "INVALID_ATTENDANCE_CODE"
+    if by_gesture:
+        supplied = pattern_text(data["pattern"])
+    else:
+        supplied = data["code"]
+        if not isinstance(supplied, str) or not re.fullmatch(r"[0-9]{6}", supplied):
+            raise ApiError(422, "INVALID_ATTENDANCE_CODE", "Invalid attendance code")
     invalid = False
     with write() as db:
         task = task_for_user(task_id)
@@ -144,43 +159,60 @@ def check_in(task_id):
         timestamp = stamp()
         if task["status"] != "open" or not task["start_at"] <= timestamp < task["end_at"]:
             raise ApiError(409, "STATE_CONFLICT", "Attendance window is closed")
-        if not hmac.compare_digest(code_hash(supplied), task["code_hash"]):
+        if by_gesture:
+            stored = db.execute("SELECT gesture_hash FROM user WHERE id=?", (user["id"],)).fetchone()["gesture_hash"]
+            if not stored:
+                raise ApiError(422, "GESTURE_NOT_ENROLLED",
+                               "还没有设置手势图案，请先在「我的手势签到」里画一次")
+            valid = pattern_matches(stored, data["pattern"])
+        else:
+            valid = hmac.compare_digest(code_hash(supplied), task["code_hash"])
+        if not valid:
             rate_limit(f"checkin:{task_id}:{user['id']}", 5)
             invalid = True
         else:
             status = "present" if timestamp < task["late_at"] else "late"
             cursor = db.execute("INSERT INTO attendance_record(task_id,student_id,status,checked_at,"
-                                "source,created_at,updated_at) VALUES(?,?,?,?,'checkin',?,?)",
-                                (task_id, user["id"], status, timestamp, timestamp, timestamp))
+                                "source,created_at,updated_at) VALUES(?,?,?,?,?,?,?)",
+                                (task_id, user["id"], status, timestamp, source, timestamp, timestamp))
             audit("attendance.checkin", "attendance_record", cursor.lastrowid,
-                  after={"status": status, "task_id": task_id})
+                  after={"status": status, "task_id": task_id, "source": source})
             record = db.execute("SELECT * FROM attendance_record WHERE id=?", (cursor.lastrowid,)).fetchone()
     if invalid:
-        raise ApiError(422, "INVALID_ATTENDANCE_CODE", "Invalid attendance code")
+        raise ApiError(422, error_code, "Invalid attendance gesture" if by_gesture else "Invalid attendance code")
     return result(record_json(record), 201)
 
 
 @bp.get("/attendance-tasks/<int:task_id>/seats")
 def task_seats(task_id):
-    """课堂点到座位图：按班级分组返回每个座位的学生与实时状态。"""
+    """课堂点到座位图：四个班混排在同一间教室的一整张平面网格上。
+
+    返回的是「排, 座」二维坐标而不是按班分组的嵌套结构，前端据此铺一张
+    rows × cols 的图；班级只用来给座位配色，不再切页。
+    教室后来被改小、而任务快照里还留着更大的坐标时，以快照的坐标为准
+    撑开网格，避免座位画到图外面去。
+    """
     task = task_for_user(task_id)
     db = get_db()
+    room = classroom_state(db, task["course_id"])
     rows = db.execute(
         "SELECT s.student_id,s.group_no,s.seat_no,u.student_no,u.name,u.class_name,"
-        "r.status,r.checked_at FROM attendance_seat s "
+        "r.status,r.checked_at,r.source FROM attendance_seat s "
         "JOIN user u ON u.id=s.student_id "
         "LEFT JOIN attendance_record r ON r.task_id=s.task_id AND r.student_id=s.student_id "
-        "WHERE s.task_id=? ORDER BY u.class_name,s.group_no,s.seat_no", (task_id,)).fetchall()
-    classes = {}
-    for row in rows:
-        bucket = classes.setdefault(row["class_name"] or "未分班", [])
-        bucket.append({"student_id": row["student_id"], "student_no": row["student_no"],
-                       "name": row["name"], "group_no": row["group_no"],
-                       "seat_no": row["seat_no"], "status": row["status"] or "pending",
-                       "checked_at": row["checked_at"]})
+        "WHERE s.task_id=? ORDER BY s.group_no,s.seat_no", (task_id,)).fetchall()
+    seats = [{"student_id": row["student_id"], "student_no": row["student_no"], "name": row["name"],
+              "class_name": row["class_name"] or "未分班", "group_no": row["group_no"],
+              "seat_no": row["seat_no"], "status": row["status"] or "pending",
+              "checked_at": row["checked_at"], "source": row["source"]}
+             for row in rows]
+    grid_rows = max([room["rows"]] + [seat["group_no"] for seat in seats])
+    grid_cols = max([room["cols"]] + [seat["seat_no"] for seat in seats])
     return result({
         "task": task_json(task),
-        "classes": [{"class_name": name, "seats": seats} for name, seats in sorted(classes.items())],
+        "classroom": {key: room[key] for key in ("name", "template", "rows", "cols", "aisle_every")},
+        "grid": {"rows": grid_rows, "cols": grid_cols},
+        "seats": seats,
         "unseated": db.execute(
             "SELECT COUNT(*) FROM attendance_participant p WHERE p.task_id=? AND p.student_id NOT IN "
             "(SELECT student_id FROM attendance_seat WHERE task_id=?)", (task_id, task_id)).fetchone()[0],

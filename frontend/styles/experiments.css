@@ -21,7 +21,7 @@
 
 .experiment-rules {
   background: rgba(15, 23, 42, 0.05);
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 0.85rem;
   margin: 0;
   max-height: 16rem;
@@ -31,9 +31,9 @@
 }
 
 .experiment-entry[data-mode='wiring'] {
-  background: #1d4ed8;
+  background: var(--primary);
 }
 
 .experiment-entry[data-mode='circuit'] {
-  background: #0f766e;
+  background: var(--second);
 }
