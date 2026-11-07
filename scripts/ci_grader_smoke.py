@@ -117,6 +117,49 @@ def run_cases(jar, cases):
     return failures
 
 
+def run_platform_conversion_case(jar):
+    """覆盖平台转换层：steps → write_vector_file → 引擎 → parse_engine_output。
+
+    只跑预置 .txt 的冒烟只能证明引擎 CLI 可用，证明不了平台的 steps/expected
+    能不能转成引擎向量（#58 审查意见第 2 条）。这里用组合逻辑用例（无 clock_event，
+    避开 TV-01 尚未锁定的时钟列映射），至少把转换层接进发布门禁。
+    """
+    import json
+    from tempfile import TemporaryDirectory
+
+    circuit = FIXTURES / "pipeline.circ"
+    if not circuit.is_file():
+        return ["平台转换层：缺 pipeline.circ"]
+    cases = [
+        ("平台转换层·正确", {"id": 1, "steps_json": json.dumps([
+            {"step_no": 1, "inputs": {"A": 0}, "expected": {"Y": 0}, "clock_event": "none"},
+            {"step_no": 2, "inputs": {"A": 1}, "expected": {"Y": 1}, "clock_event": "none"},
+        ])}, True),
+        ("平台转换层·反例", {"id": 2, "steps_json": json.dumps([
+            {"step_no": 1, "inputs": {"A": 0}, "expected": {"Y": 1}, "clock_event": "none"},
+        ])}, False),
+    ]
+    failures = []
+    with TemporaryDirectory() as directory:
+        for label, case, expect_pass in cases:
+            vector = engine.write_vector_file(directory, case)
+            if vector is None:
+                failures.append(f"{label}：write_vector_file 返回 None")
+                continue
+            text = Path(vector).read_text(encoding="utf-8")
+            if "<set>" not in text or "<seq>" not in text or "0x" not in text:
+                failures.append(f"{label}：生成向量缺 set/seq 或十六进制值：{text!r}")
+                continue
+            passed, detail, _raw = run_engine(jar, "pipeline", vector, circuit)
+            if passed != expect_pass:
+                want = "通过" if expect_pass else "判错"
+                got = "通过" if passed else "判错"
+                failures.append(f"{label}：期望 {want}，实际 {got}（{detail}）")
+            else:
+                print(f"  [ok] {label:<16} {'通过' if passed else '判错'}")
+    return failures
+
+
 def main():
     parser = argparse.ArgumentParser(description="SPEC-018 ci-grader 真实引擎冒烟")
     parser.add_argument("--jar", default=os.environ.get("LOGISIM_JAR_PATH"),
@@ -136,6 +179,8 @@ def main():
         return 1
 
     failures = run_cases(args.jar, CHAIN_CASES)
+    # 转换层自检很便宜，--engine-only 也跑：引擎通道绿不等于平台链路绿。
+    failures += run_platform_conversion_case(args.jar)
     if not args.engine_only:
         failures += run_cases(args.jar, REQUIRED_CASES)
 
@@ -144,7 +189,7 @@ def main():
         for failure in failures:
             print(f"  - {failure}")
         if not args.engine_only and any(
-                name in failure
+                name in failure.lower()
                 for failure in failures for name in ("alu8", "reg8", "cpu8")):
             print("\nALU/REG/CPU 公开样例是 README 附录 A.4 的 ci-grader 硬要求，"
                   "不能用通道自检或 mock 代替。")
