@@ -7,10 +7,14 @@ status/token/now<lease_until（R29）。真实引擎 CLI 适配格式在 TV-01 �
 
 import json
 import os
+import queue
 import re
+import signal
 import sqlite3
 import subprocess
 import tempfile
+import threading
+import time
 from datetime import timedelta
 from pathlib import Path
 from uuid import uuid4
@@ -303,41 +307,94 @@ def real_executor(argv, cwd, timeout, max_output):
             "TEMP": os.environ.get("TEMP", ""),
             "TMP": os.environ.get("TMP", ""),
         })
+    spawn = {}
+    if os.name == "posix":
+        # 自成一个进程组，超时时连 Java 派生的子进程一起终止。
+        spawn["start_new_session"] = True
+    elif os.name == "nt":
+        spawn["creationflags"] = getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0)
     try:
         process = subprocess.Popen(
             argv, cwd=str(cwd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL, text=True, encoding="utf-8", errors="replace",
-            env=env,
+            env=env, **spawn,
         )
     except OSError:
         return None, 127
+
+    # 直接 readline() 到 EOF 会在引擎挂起且不肯关 stdout 时永久阻塞，永远走不到
+    # wait(timeout)（#58 审查意见第 3 条）。改成后台线程读、主线程按 deadline 收。
+    lines, done = queue.Queue(), object()
+    reader_done = threading.Event()
+
+    def reader():
+        try:
+            for line in iter(process.stdout.readline, ""):
+                lines.put(line)
+        except (OSError, ValueError):
+            # 超时路径下主线程可能先关掉 stdout，读线程安静退出即可。
+            pass
+        finally:
+            reader_done.set()
+            lines.put(done)
+
+    threading.Thread(target=reader, daemon=True).start()
+    deadline = time.monotonic() + max(0, timeout)
     output, truncated = [], False
     try:
-        for chunk in iter(lambda: process.stdout.readline() or None, None):
-            output.append(chunk)
-            if sum(len(line) for line in output) > max_output:
+        while True:
+            try:
+                line = lines.get(timeout=0.1)
+            except queue.Empty:
+                if time.monotonic() >= deadline:
+                    _terminate(process)
+                    raise SandboxTimeout() from None
+                if reader_done.is_set() and lines.empty():
+                    break
+                continue
+            if line is done:
+                break
+            output.append(line)
+            if sum(len(item) for item in output) > max_output:
                 truncated = True
                 break
+            if time.monotonic() >= deadline:
+                _terminate(process)
+                raise SandboxTimeout() from None
         if truncated:
             _terminate(process)
             raise SandboxOutputLimit()
         try:
-            process.wait(timeout=max(0, timeout))
+            process.wait(timeout=max(0, deadline - time.monotonic()))
         except subprocess.TimeoutExpired:
             _terminate(process)
             raise SandboxTimeout() from None
     finally:
         if process.poll() is None:
             _terminate(process)
+        try:
+            process.stdout.close()
+        except (OSError, ValueError):
+            pass
     return "".join(output), process.returncode
 
 
 def _terminate(process):
+    """终止整个进程组，避免只杀掉父进程后 Java 子进程残留。"""
     try:
-        process.kill()
-    except OSError:
+        if os.name == "posix":
+            os.killpg(process.pid, signal.SIGKILL)
+        else:
+            process.kill()
+    except (OSError, AttributeError):
+        try:
+            process.kill()
+        except OSError:
+            pass
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
         pass
-    process.wait(timeout=5)
 
 
 # ---------- 租约队列（DBD 第7节 / R29） ----------
