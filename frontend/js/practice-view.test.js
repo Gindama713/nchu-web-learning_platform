@@ -44,6 +44,7 @@ async function mount(t, entry = null) {
       return result({ attempt_id: 7, question_version_id: 8, correct: false, score: 0, explanation: '<img>本次解析' })
     }
     if (path.startsWith('/api/v1/courses?')) return result([{ id: 3, title: 'CPU' }], 1)
+    if (path.includes('/knowledge-points?')) return result([{ id: 2, title: '程序计数器' }], 1)
     if (path.includes('/questions?')) { if (fixture.wait) await fixture.wait; return result(fixture.public, fixture.total ?? fixture.public.length) }
     if (path.includes('/wrong-questions?')) return result(fixture.wrong, fixture.total ?? fixture.wrong.length)
     throw new Error(path)
@@ -60,6 +61,8 @@ const open = async root => { button(root, '#5 · v1 · <script>旧题干</script
 test('recommendation opens exact current version via existing public API and normal submission', async t => {
   const { root, fixture } = await mount(t, { courseId: 3, knowledgeId: 2, versionId: 8 })
   assert.ok(form(root, 'practice-form'))
+  assert.match(content(root), /知识点 程序计数器/)
+  assert.doesNotMatch(content(root), /知识点 #2/)
   assert.match(fixture.reads.find(path => path.includes('/questions?')), /knowledge_id=2/)
   submit(root, 'practice-form'); await flush()
   assert.equal(JSON.parse(fixture.writes[0].options.body).question_version_id, 8)
