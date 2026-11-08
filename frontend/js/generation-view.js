@@ -12,7 +12,7 @@ export const GenerationView = {
     const failureTitle = ref('')
     const replay = ref(Boolean(props.replayId))
     let active = true
-    const form = reactive({ title: '', kind: props.quizOnly ? 'quiz' : 'homework', count: '3', total_points: '10.01',
+    const form = reactive({ title: '', kind: props.quizOnly ? 'quiz' : 'homework', count: '3', total_points: '100',
       easy: '3', medium: '0', hard: '0', knowledge_ids: [], seed: '', confidential: false,
       history_until: '', replay_of: props.replayId ? String(props.replayId) : '' })
     onUnmounted(() => { active = false })
