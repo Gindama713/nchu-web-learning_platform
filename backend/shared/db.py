@@ -52,6 +52,25 @@ def write(db=None):
         raise
 
 
+def _legacy_class_seat(db):
+    table = db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='class_seat'").fetchone()
+    if not table:
+        return False
+    columns = {row["name"] for row in db.execute("PRAGMA table_info(class_seat)")}
+    return "class_name" not in columns
+
+
+def _preserve_legacy_seats(sql):
+    """021 drops 020's class_seat; carry existing rows into its new table."""
+    return ("CREATE TABLE class_seat_pre021 AS SELECT * FROM class_seat;\n" + sql +
+            "\nINSERT INTO class_seat(id,course_id,student_id,class_name,group_no,seat_no,created_at,updated_at) "
+            "SELECT b.id,b.course_id,b.student_id,"
+            "COALESCE(NULLIF(TRIM(u.class_name),''),'未分班'),"
+            "b.group_no,b.seat_no,b.created_at,b.updated_at "
+            "FROM class_seat_pre021 b JOIN user u ON u.id=b.student_id;\n"
+            "DROP TABLE class_seat_pre021;\n")
+
+
 def migrate(path):
     db = connect(path)
     try:
@@ -65,6 +84,8 @@ def migrate(path):
                 if existing["checksum"] != checksum:
                     raise RuntimeError(f"Migration changed after application: {migration.name}")
                 continue
+            if migration.stem == "021_week10_seat_class" and _legacy_class_seat(db):
+                sql = _preserve_legacy_seats(sql)
             if migration.stem == "019_wiring_retries":
                 # SQLite cannot drop the old UNIQUE table while child FKs are enabled.
                 # Disable only on this dedicated migration connection, validate before commit.
