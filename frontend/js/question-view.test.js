@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { setImmediate } from 'node:timers/promises'
 import { createRenderer, nextTick } from 'vue'
-import { QuestionBankView } from './question-view.js'
+import { QuestionBankView, removeOption, updateOptionKey } from './question-view.js'
 
 function element(type, text = '') { return { type, text, children: [], props: {}, parent: null } }
 function remove(item) {
@@ -126,4 +126,33 @@ test('student has no teacher controls or reference answers and failed refresh cl
   await flush()
   assert.equal(all(root).find(n => n.type === 'button' && content(n).startsWith('#1 · v1')), undefined)
   assert.ok(find(root, 'button', '重试题库'))
+})
+
+const single = () => ({ type: 'single', answer: 'A',
+  options: [{ key: 'A', text: '控制器' }, { key: 'B', text: '存储器' }] })
+
+test('单选题改选项 key 时同步更新已选答案', () => {
+  const form = single()
+  updateOptionKey(form, 0, 'C')
+  assert.equal(form.answer, 'C')
+})
+
+test('单选题移除正确选项时清空答案，移除其他选项不动答案', () => {
+  const form = single()
+  removeOption(form, 0)
+  assert.equal(form.answer, '')
+  assert.deepEqual(form.options.map(option => option.key), ['B'])
+
+  const other = single()
+  removeOption(other, 1)
+  assert.equal(other.answer, 'A')
+})
+
+test('多选题改 key 或移除选项时同步过滤答案集合', () => {
+  const form = { type: 'multiple', answer: ['A', 'C'],
+    options: [{ key: 'A', text: '运算器' }, { key: 'B', text: '操作系统' }, { key: 'C', text: '存储器' }] }
+  updateOptionKey(form, 0, 'A2')
+  assert.deepEqual(form.answer, ['A2', 'C'])
+  removeOption(form, 2)
+  assert.deepEqual(form.answer, ['A2'])
 })
