@@ -407,11 +407,19 @@ class KnowledgeStore:
                 root_id = positive_id(root_id)
                 if root_id not in id_to_idx:
                     raise KnowledgeError(404, "NOT_FOUND", "根知识点不存在或不可见")
-                root_idx = id_to_idx[root_id]
+                # 相关子图按全部关系类型计算（先修、包含等），只看先修可达会漏掉
+                # 刚用「包含」连接的节点，表现为添加关系后子图毫无变化（DEF-005）。
+                adjacency = {}
+                for edge in edges:
+                    adjacency.setdefault(edge["source"], set()).add(edge["target"])
+                    adjacency.setdefault(edge["target"], set()).add(edge["source"])
                 related = {root_id}
-                for j in range(len(node_ids)):
-                    if reach[root_idx, j] or reach[j, root_idx]:
-                        related.add(idx_to_id[j])
+                stack = [root_id]
+                while stack:
+                    for neighbor in adjacency.get(stack.pop(), ()):
+                        if neighbor not in related:
+                            related.add(neighbor)
+                            stack.append(neighbor)
                 result["nodes"] = [n for n in nodes if n["id"] in related]
                 result["edges"] = [e for e in edges if e["source"] in related and e["target"] in related]
                 result["root_id"] = root_id
