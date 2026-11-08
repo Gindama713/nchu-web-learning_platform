@@ -1,0 +1,15 @@
+{
+  "date": "2026-10-17T02:11:49.147393+00:00",
+  "tested_head": "4498fd97ff30fb9a1e92146528d960c6975ed48a",
+  "dirty_paths": [],
+  "scope": "007 API authorization observations; 008/006 -> 010B -> 011 bounded subchain; not full I-03",
+  "007_contract_defects": [
+    "future after_revision replaces current revision; owner 罗浩铭"
+  ],
+  "007_UI": "blocked, missing registered classroom page",
+  "fault_injections": [],
+  "tests": 3,
+  "expected_failures": 1,
+  "seconds": 8.165,
+  "result": "passed_with_007_expected_failure"
+}

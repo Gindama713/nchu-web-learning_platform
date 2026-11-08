@@ -1,0 +1,493 @@
+{
+  "chapter": [
+    {
+      "id": 1,
+      "course_id": 1,
+      "title": "I01 ALU",
+      "position": 0
+    }
+  ],
+  "knowledge_point": [
+    {
+      "id": 1,
+      "chapter_id": 1,
+      "title": "I01 ALU",
+      "content": "<h2>I01图文边界</h2><p>A<sup>2</sup><sub>i</sub>原版资源</p>",
+      "example": "<p><b>例题</b>链接文本</p>",
+      "published": 0,
+      "content_revision": 3,
+      "is_foundational": 0
+    },
+    {
+      "id": 2,
+      "chapter_id": 1,
+      "title": "I01 进位",
+      "content": "<p>ALU 算术逻辑单元</p>",
+      "example": "",
+      "published": 1,
+      "content_revision": 1,
+      "is_foundational": 0
+    },
+    {
+      "id": 3,
+      "chapter_id": 1,
+      "title": "I01 草稿",
+      "content": "<p>ALU 算术逻辑单元</p>",
+      "example": "",
+      "published": 0,
+      "content_revision": 1,
+      "is_foundational": 0
+    }
+  ],
+  "learning_progress": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "knowledge_id": 1,
+      "completed": 1,
+      "completed_at": "2026-10-17T02:45:55.515224Z"
+    }
+  ],
+  "experiment": [
+    {
+      "id": 1,
+      "course_id": 1,
+      "code": "EXP-01",
+      "title": "I01浏览器ALU实验",
+      "description": "同课知识引用",
+      "archived": 0,
+      "created_at": "2026-10-17T02:45:50.000Z",
+      "updated_at": "2026-10-17T02:45:50.000Z"
+    }
+  ],
+  "experiment_version": [
+    {
+      "id": 1,
+      "experiment_id": 1,
+      "version": 1,
+      "title": "I01浏览器v1",
+      "objectives": "理解算术和进位",
+      "instructions": "连接并验证ALU",
+      "submission_modes_json": "[\"wiring\"]",
+      "panel_json": "{\"schema_version\": 1, \"components\": [{\"id\": \"sw_a\", \"type\": \"SWITCH\", \"params\": {\"width\": 8, \"initial\": 0}, \"ports\": {\"OUT\": \"sw_a_out\"}}, {\"id\": \"sw_b\", \"type\": \"SWITCH\", \"params\": {\"width\": 8, \"initial\": 0}, \"ports\": {\"OUT\": \"sw_b_out\"}}, {\"id\": \"sw_op\", \"type\": \"SWITCH\", \"params\": {\"width\": 3, \"initial\": 0}, \"ports\": {\"OUT\": \"sw_op_out\"}}, {\"id\": \"alu\", \"type\": \"ALU8\", \"params\": {}, \"ports\": {\"A\": \"alu_a\", \"B\": \"alu_b\", \"OP\": \"alu_op\", \"Y\": \"alu_y\", \"Z\": \"alu_z\", \"C\": \"alu_c\"}}, {\"id\": \"led_y\", \"type\": \"LED\", \"params\": {\"width\": 8}, \"ports\": {\"IN\": \"led_y_in\"}}, {\"id\": \"led_z\", \"type\": \"LED\", \"params\": {\"width\": 1}, \"ports\": {\"IN\": \"led_z_in\"}}, {\"id\": \"led_c\", \"type\": \"LED\", \"params\": {\"width\": 1}, \"ports\": {\"IN\": \"led_c_in\"}}], \"terminals\": [{\"id\": \"sw_a_out\", \"component_id\": \"sw_a\", \"name\": \"OUT\", \"direction\": \"out\", \"width\": 8, \"required\": false}, {\"id\": \"sw_b_out\", \"component_id\": \"sw_b\", \"name\": \"OUT\", \"direction\": \"out\", \"width\": 8, \"required\": false}, {\"id\": \"sw_op_out\", \"component_id\": \"sw_op\", \"name\": \"OUT\", \"direction\": \"out\", \"width\": 3, \"required\": false}, {\"id\": \"alu_a\", \"component_id\": \"alu\", \"name\": \"A\", \"direction\": \"in\", \"width\": 8, \"required\": true}, {\"id\": \"alu_b\", \"component_id\": \"alu\", \"name\": \"B\", \"direction\": \"in\", \"width\": 8, \"required\": true}, {\"id\": \"alu_op\", \"component_id\": \"alu\", \"name\": \"OP\", \"direction\": \"in\", \"width\": 3, \"required\": true}, {\"id\": \"alu_y\", \"component_id\": \"alu\", \"name\": \"Y\", \"direction\": \"out\", \"width\": 8, \"required\": false}, {\"id\": \"alu_z\", \"component_id\": \"alu\", \"name\": \"Z\", \"direction\": \"out\", \"width\": 1, \"required\": false}, {\"id\": \"alu_c\", \"component_id\": \"alu\", \"name\": \"C\", \"direction\": \"out\", \"width\": 1, \"required\": false}, {\"id\": \"led_y_in\", \"component_id\": \"led_y\", \"name\": \"IN\", \"direction\": \"in\", \"width\": 8, \"required\": true}, {\"id\": \"led_z_in\", \"component_id\": \"led_z\", \"name\": \"IN\", \"direction\": \"in\", \"width\": 1, \"required\": true}, {\"id\": \"led_c_in\", \"component_id\": \"led_c\", \"name\": \"IN\", \"direction\": \"in\", \"width\": 1, \"required\": true}], \"code\": \"EXP-01\", \"layout\": {}}",
+      "rules_json": "{\"require_required_inputs\": true}",
+      "status": "published",
+      "published_at": "2026-10-17T02:45:50.000Z",
+      "start_at": "2026-10-17T02:44:50.000Z",
+      "end_at": "2026-10-17T02:55:50.000Z",
+      "definition_sha256": "6106c351d26e009a07c792bbe25cf6d5264e50f6b08be9368f88e31b83c57828",
+      "created_at": "2026-10-17T02:45:50.000Z",
+      "updated_at": "2026-10-17T02:45:50.000Z"
+    }
+  ],
+  "experiment_knowledge": [
+    {
+      "experiment_version_id": 1,
+      "knowledge_id": 1
+    },
+    {
+      "experiment_version_id": 1,
+      "knowledge_id": 2
+    }
+  ],
+  "experiment_participant": [
+    {
+      "experiment_version_id": 1,
+      "student_id": 3
+    },
+    {
+      "experiment_version_id": 1,
+      "student_id": 4
+    },
+    {
+      "experiment_version_id": 1,
+      "student_id": 5
+    },
+    {
+      "experiment_version_id": 1,
+      "student_id": 6
+    }
+  ],
+  "wiring_attempt": [],
+  "wiring_action": [],
+  "wiring_validation": [],
+  "analysis_run": [
+    {
+      "id": 1,
+      "course_id": 1,
+      "creator_id": 2,
+      "scope": "class",
+      "subject_student_id": null,
+      "kind": "knowledge",
+      "algorithm_version": "knowledge-objective-v1",
+      "parameters_json": "{\"from\": \"2026-09-19T02:45:50.000Z\", \"to\": \"2026-10-17T02:45:50.000Z\", \"student_id\": null, \"knowledge_ids\": [1, 2]}",
+      "source_until": "2026-10-17T02:45:50.000Z",
+      "generated_at": "2026-10-17T02:45:50.000Z",
+      "sample_size": 0,
+      "result_json": "{\"dimension\": \"knowledge\", \"sample_size\": 0, \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": null, \"published_knowledge_count\": 2, \"progress\": null, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}, \"series\": [{\"period_start\": \"2026-09-19T02:45:50.000Z\", \"period_end\": \"2026-09-20T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": null, \"published_knowledge_count\": 2, \"progress\": null, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-20T16:00:00.000Z\", \"period_end\": \"2026-09-27T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": null, \"published_knowledge_count\": 2, \"progress\": null, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-27T16:00:00.000Z\", \"period_end\": \"2026-10-04T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": null, \"published_knowledge_count\": 2, \"progress\": null, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-10-04T16:00:00.000Z\", \"period_end\": \"2026-10-11T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": null, \"published_knowledge_count\": 2, \"progress\": null, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-10-11T16:00:00.000Z\", \"period_end\": \"2026-10-17T02:45:50.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": null, \"published_knowledge_count\": 2, \"progress\": null, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}], \"source_until\": \"2026-10-17T02:45:50.000Z\", \"algorithm_version\": \"knowledge-objective-v1\", \"population_basis\": \"objective_answer_events;progress=current_published_knowledge_snapshot\", \"unit\": {\"mastery\": \"ratio\", \"progress\": \"ratio\"}, \"warnings\": [\"自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合\", \"班级进度未定义，请选择学生查看个人进度\"], \"generated_at\": \"2026-10-17T02:45:50.000Z\", \"filters\": {\"from\": \"2026-09-19T02:45:50.000Z\", \"to\": \"2026-10-17T02:45:50.000Z\", \"student_id\": null, \"knowledge_ids\": [1, 2]}, \"analysis_run_id\": 1}",
+      "input_snapshot_json": "{\"knowledge\": [{\"id\": 1, \"title\": \"I01 ALU\", \"content_revision\": 1}, {\"id\": 2, \"title\": \"I01 进位\", \"content_revision\": 1}], \"progress\": [], \"samples\": [], \"subject_student_id\": null}",
+      "model_status": null,
+      "model_parameters_json": null,
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 2,
+      "course_id": 1,
+      "creator_id": 3,
+      "scope": "self",
+      "subject_student_id": 3,
+      "kind": "knowledge",
+      "algorithm_version": "knowledge-objective-v1",
+      "parameters_json": "{\"from\": \"2026-09-19T02:45:50.000Z\", \"to\": \"2026-10-17T02:45:50.000Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}",
+      "source_until": "2026-10-17T02:45:50.000Z",
+      "generated_at": "2026-10-17T02:45:50.000Z",
+      "sample_size": 0,
+      "result_json": "{\"dimension\": \"knowledge\", \"sample_size\": 0, \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}, \"series\": [{\"period_start\": \"2026-09-19T02:45:50.000Z\", \"period_end\": \"2026-09-20T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-20T16:00:00.000Z\", \"period_end\": \"2026-09-27T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-27T16:00:00.000Z\", \"period_end\": \"2026-10-04T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-10-04T16:00:00.000Z\", \"period_end\": \"2026-10-11T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-10-11T16:00:00.000Z\", \"period_end\": \"2026-10-17T02:45:50.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"I01 ALU\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"I01 进位\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}], \"source_until\": \"2026-10-17T02:45:50.000Z\", \"algorithm_version\": \"knowledge-objective-v1\", \"population_basis\": \"objective_answer_events;progress=current_published_knowledge_snapshot\", \"unit\": {\"mastery\": \"ratio\", \"progress\": \"ratio\"}, \"warnings\": [\"自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合\"], \"generated_at\": \"2026-10-17T02:45:50.000Z\", \"filters\": {\"from\": \"2026-09-19T02:45:50.000Z\", \"to\": \"2026-10-17T02:45:50.000Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}, \"analysis_run_id\": 2}",
+      "input_snapshot_json": "{\"knowledge\": [{\"id\": 1, \"title\": \"I01 ALU\", \"content_revision\": 2}, {\"id\": 2, \"title\": \"I01 进位\", \"content_revision\": 1}], \"progress\": [], \"samples\": [], \"subject_student_id\": 3}",
+      "model_status": null,
+      "model_parameters_json": null,
+      "created_at": "2026-10-17T02:45:50.000Z"
+    }
+  ],
+  "resource": [
+    {
+      "id": 1,
+      "course_id": 1,
+      "chapter_id": null,
+      "title": "I01合法文档对照",
+      "kind": "guide",
+      "visibility": "teacher_only",
+      "archived": 0,
+      "created_at": "2026-10-17T02:45:50.000Z",
+      "updated_at": "2026-10-17T02:45:50.000Z"
+    }
+  ],
+  "resource_version": [
+    {
+      "id": 1,
+      "resource_id": 1,
+      "version": 1,
+      "file_id": 1,
+      "change_note": null,
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 2,
+      "resource_id": 1,
+      "version": 2,
+      "file_id": 2,
+      "change_note": null,
+      "created_at": "2026-10-17T02:45:50.000Z"
+    }
+  ],
+  "resource_event": [
+    {
+      "id": 1,
+      "user_id": 3,
+      "resource_version_id": 1,
+      "event_type": "download",
+      "event_id": "e8e9c193-3f8a-4f5a-b175-bd02cd4b4fcc",
+      "request_id": "fdc78d3280954e2e9a7e5dd85b4b6d43",
+      "created_at": "2026-10-17T02:45:50.000Z"
+    }
+  ],
+  "audit_event": [
+    {
+      "id": 1,
+      "actor_id": 1,
+      "action": "auth.login",
+      "object_type": "user",
+      "object_id": 1,
+      "request_id": "b5678a054aee411ab29b64c4f23b9d56",
+      "before_summary": null,
+      "after_summary": null,
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "actor_id": 2,
+      "action": "auth.login",
+      "object_type": "user",
+      "object_id": 2,
+      "request_id": "b05eea9949264ed18566ebe9d3e4b147",
+      "before_summary": null,
+      "after_summary": null,
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "actor_id": 3,
+      "action": "user.register",
+      "object_type": "user",
+      "object_id": 3,
+      "request_id": "cd2ddf45d52246e88eb156ef15dc5dc8",
+      "before_summary": null,
+      "after_summary": "{\"role\": \"student\"}",
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "actor_id": 3,
+      "action": "auth.login",
+      "object_type": "user",
+      "object_id": 3,
+      "request_id": "72e528f9eb264f9e955e59fb4eb9d3c7",
+      "before_summary": null,
+      "after_summary": null,
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "actor_id": 4,
+      "action": "user.register",
+      "object_type": "user",
+      "object_id": 4,
+      "request_id": "11c92debecf44c1ebccc693b3c5437e1",
+      "before_summary": null,
+      "after_summary": "{\"role\": \"student\"}",
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "actor_id": 4,
+      "action": "auth.login",
+      "object_type": "user",
+      "object_id": 4,
+      "request_id": "a5dbe9b5325541b0a73c928e5d063ce4",
+      "before_summary": null,
+      "after_summary": null,
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "actor_id": 5,
+      "action": "user.register",
+      "object_type": "user",
+      "object_id": 5,
+      "request_id": "7df5e61299ac48f389df94edd62203d0",
+      "before_summary": null,
+      "after_summary": "{\"role\": \"student\"}",
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "actor_id": 5,
+      "action": "auth.login",
+      "object_type": "user",
+      "object_id": 5,
+      "request_id": "f5cbf1ac351b4dd5a95064ac38a88f36",
+      "before_summary": null,
+      "after_summary": null,
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "actor_id": 6,
+      "action": "user.register",
+      "object_type": "user",
+      "object_id": 6,
+      "request_id": "0d093e8806df41feae399856abaf22ec",
+      "before_summary": null,
+      "after_summary": "{\"role\": \"student\"}",
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 10,
+      "actor_id": 6,
+      "action": "auth.login",
+      "object_type": "user",
+      "object_id": 6,
+      "request_id": "78bfcdecc7d74d078206803e8e796200",
+      "before_summary": null,
+      "after_summary": null,
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 11,
+      "actor_id": 1,
+      "action": "course.create",
+      "object_type": "course",
+      "object_id": 1,
+      "request_id": "fbe086a3cd8f48898c6c0a36a4f4c638",
+      "before_summary": null,
+      "after_summary": "{\"teacher_id\": 2}",
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 12,
+      "actor_id": 2,
+      "action": "course.member_add",
+      "object_type": "course_member",
+      "object_id": 3,
+      "request_id": "6152624a786c4b3988ddb88ce307d491",
+      "before_summary": null,
+      "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 13,
+      "actor_id": 2,
+      "action": "course.member_add",
+      "object_type": "course_member",
+      "object_id": 4,
+      "request_id": "e089ef501a4f4b4fa4af15c1248a4b44",
+      "before_summary": null,
+      "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 14,
+      "actor_id": 2,
+      "action": "course.member_add",
+      "object_type": "course_member",
+      "object_id": 5,
+      "request_id": "dda898e19c924a4dbfc3c5345f4d0026",
+      "before_summary": null,
+      "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 15,
+      "actor_id": 2,
+      "action": "course.member_add",
+      "object_type": "course_member",
+      "object_id": 6,
+      "request_id": "10cdbd3fe9ad479894db63949281a116",
+      "before_summary": null,
+      "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+      "created_at": "2026-10-17T04:00:00.000Z"
+    },
+    {
+      "id": 16,
+      "actor_id": 2,
+      "action": "auth.login",
+      "object_type": "user",
+      "object_id": 2,
+      "request_id": "2a32bb966bd747f1a17379534f624ffc",
+      "before_summary": null,
+      "after_summary": null,
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 17,
+      "actor_id": 2,
+      "action": "resource.create",
+      "object_type": "resource",
+      "object_id": 1,
+      "request_id": "79878ebfc29147ecb07ee91321a04af5",
+      "before_summary": null,
+      "after_summary": "{\"title\": \"I01合法文档对照\", \"kind\": \"guide\", \"visibility\": \"students\"}",
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 18,
+      "actor_id": 2,
+      "action": "resource.version_add",
+      "object_type": "resource_version",
+      "object_id": 2,
+      "request_id": "5a16012a44ad4508b02e635ad07a52c0",
+      "before_summary": null,
+      "after_summary": "{\"resource_id\": 1, \"version\": 2}",
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 19,
+      "actor_id": 3,
+      "action": "auth.login",
+      "object_type": "user",
+      "object_id": 3,
+      "request_id": "18833d2499e4412485b55971c4c89401",
+      "before_summary": null,
+      "after_summary": null,
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 20,
+      "actor_id": 2,
+      "action": "experiment.create",
+      "object_type": "experiment",
+      "object_id": 1,
+      "request_id": "5ca46d25de7b434aaf5d5b817e132559",
+      "before_summary": null,
+      "after_summary": "{\"course_id\": 1, \"code\": \"EXP-01\"}",
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 21,
+      "actor_id": 2,
+      "action": "experiment.version_create",
+      "object_type": "experiment_version",
+      "object_id": 1,
+      "request_id": "48bf40d79dc1418a9d23aabe91cd090d",
+      "before_summary": null,
+      "after_summary": "{\"experiment_id\": 1, \"version\": 1, \"submission_modes\": [\"wiring\"]}",
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 22,
+      "actor_id": 2,
+      "action": "experiment.publish",
+      "object_type": "experiment_version",
+      "object_id": 1,
+      "request_id": "426e8043f147432c8ab9a9f4f25cc2f8",
+      "before_summary": null,
+      "after_summary": "{\"participants\": 4, \"start_at\": \"2026-10-17T02:44:50.000Z\", \"end_at\": \"2026-10-17T02:55:50.000Z\"}",
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 23,
+      "actor_id": 3,
+      "action": "resource.access",
+      "object_type": "resource_version",
+      "object_id": 1,
+      "request_id": "fdc78d3280954e2e9a7e5dd85b4b6d43",
+      "before_summary": null,
+      "after_summary": "{\"event_type\": \"download\", \"event_id\": \"e8e9c193-3f8a-4f5a-b175-bd02cd4b4fcc\"}",
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 24,
+      "actor_id": 2,
+      "action": "resource.update",
+      "object_type": "resource",
+      "object_id": 1,
+      "request_id": "c974654bfedc4af8b72689c1bb5a986c",
+      "before_summary": null,
+      "after_summary": "{\"visibility\": \"teacher_only\"}",
+      "created_at": "2026-10-17T02:45:50.000Z"
+    },
+    {
+      "id": 25,
+      "actor_id": 2,
+      "action": "course.member_remove",
+      "object_type": "course_member",
+      "object_id": 3,
+      "request_id": "2e7221f4a263443c97cb19d586a81cbd",
+      "before_summary": "{\"course_id\": 1, \"active\": true}",
+      "after_summary": null,
+      "created_at": "2026-10-17T02:45:50.000Z"
+    }
+  ],
+  "file_objects": [
+    {
+      "id": 1,
+      "owner_id": 2,
+      "original_name": "control.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 50,
+      "sha256": "c663b251938ca649283ae83ad1dbd424533bcdb6baac350736e8fd93a43cb22e",
+      "purpose": "resource:guide"
+    },
+    {
+      "id": 2,
+      "owner_id": 2,
+      "original_name": "v2.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 50,
+      "sha256": "b4765c2212469d83363a2a5ded125202625ee6004b5f2a205f3cceefe6ae9534",
+      "purpose": "resource:guide"
+    }
+  ],
+  "foreign_key_check": [],
+  "integrity_check": "ok"
+}

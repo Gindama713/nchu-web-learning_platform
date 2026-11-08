@@ -1,0 +1,6 @@
+test_current_projection_retains_history_and_old_snapshots_through_005_lifecycle (tests.test_knowledge_lifecycle.KnowledgeLifecycleTest.test_current_projection_retains_history_and_old_snapshots_through_005_lifecycle) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.689s
+
+OK

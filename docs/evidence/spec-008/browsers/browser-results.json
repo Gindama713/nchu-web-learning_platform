@@ -1,0 +1,39 @@
+{
+  "started_at": "2026-10-14T13:03:37.009716+00:00",
+  "tested_head": "917ea08736a001220922f130d090ff35eeb7e5da",
+  "working_tree_dirty": false,
+  "scope": "real 001/005/006/008 controlled HTTP/UI; server clock and network faults injected",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.40",
+      "checks": [
+        "real_knowledge_five_type_ui_draft_publication_zero_statistics_and_null_rates",
+        "real_notification_original_quiz_prestart_metadata_no_questions_or_teacher_controls",
+        "fixed_versions_false_multiple_omitted_numeric_pending_short_and_deadline_original_key_byte_replay",
+        "teacher_frozen_missing_omission_denominator_short_null_and_multiple_sum_200_percent",
+        "real_manual_grade_updates_mean_pending_and_390px_statistics",
+        "injected_statistics_failure_removes_stale_data_and_real_retry_recovers",
+        "explicit_review_exact_deadline_persists_once_and_repeat_keeps_original_timestamp",
+        "student_relogin_refresh_latest_score_fixed_answers_and_wrong_entry_release_390px"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "checks": [
+        "real_knowledge_five_type_ui_draft_publication_zero_statistics_and_null_rates",
+        "real_notification_original_quiz_prestart_metadata_no_questions_or_teacher_controls",
+        "fixed_versions_false_multiple_omitted_numeric_pending_short_and_deadline_original_key_byte_replay",
+        "teacher_frozen_missing_omission_denominator_short_null_and_multiple_sum_200_percent",
+        "real_manual_grade_updates_mean_pending_and_390px_statistics",
+        "injected_statistics_failure_removes_stale_data_and_real_retry_recovers",
+        "explicit_review_exact_deadline_persists_once_and_repeat_keeps_original_timestamp",
+        "student_relogin_refresh_latest_score_fixed_answers_and_wrong_entry_release_390px"
+      ]
+    }
+  ],
+  "page_errors": [],
+  "status": "passed",
+  "finished_at": "2026-10-14T13:04:04.834548+00:00"
+}

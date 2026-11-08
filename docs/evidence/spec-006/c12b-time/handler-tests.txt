@@ -1,0 +1,10 @@
+test_window_boundaries_replay_exact_snapshot_after_deadline_and_review (tests.test_attempts.KnowledgeFixtureAttemptTest.test_window_boundaries_replay_exact_snapshot_after_deadline_and_review) ... ok
+test_new_submission_at_end_is_rejected_without_consuming_key (tests.test_quizzes.QuizApiTest.test_new_submission_at_end_is_rejected_without_consuming_key) ... ok
+test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot (tests.test_quizzes.QuizApiTest.test_exact_start_end_shared_replay_and_manual_scores_do_not_rewrite_snapshot) ... ok
+test_closed_unreviewed_quiz_protects_all_versions_and_wrong_question_entry (tests.test_quizzes.QuizApiTest.test_closed_unreviewed_quiz_protects_all_versions_and_wrong_question_entry) ... ok
+test_review_exact_end_durable_repeat_and_all_answer_entries_release (tests.test_quizzes.QuizApiTest.test_review_exact_end_durable_repeat_and_all_answer_entries_release) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 14.788s
+
+OK

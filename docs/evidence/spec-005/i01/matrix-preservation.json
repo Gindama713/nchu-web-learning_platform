@@ -1,0 +1,26 @@
+{
+  "base": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "rows": 131,
+  "changed": [
+    "SPEC-005/AC-01",
+    "SPEC-005/AC-03",
+    "SPEC-005/AC-04",
+    "SPEC-005/R20",
+    "SPEC-005/R38",
+    "SPEC-005/NF-SEC",
+    "SPEC-005/NF-UI",
+    "SPEC-010B/R38"
+  ],
+  "unchanged_rows": 123,
+  "original_dict_and_markdown_retained": true,
+  "original_head_tested_verdict_attachments_retained": true,
+  "verdicts": {
+    "通过": 80,
+    "阻断": 51
+  },
+  "integration_verdicts": {
+    "通过": 59,
+    "阻断": 72
+  },
+  "old_markdown_sha256": "bb7717a05ac3ee15baa2568f86f8476466cabcae884d114f38bd4ca0d614c092"
+}

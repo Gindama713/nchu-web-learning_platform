@@ -1,0 +1,161 @@
+[
+  {
+    "id": "E005",
+    "source": "docs/evidence/spec-005/browsers/browser-results.json",
+    "source_ref": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+    "sha256": "6b6483ef30fe8971d1bd98e9524d2ace84ad29c959799dbc0518a346de35ad7c",
+    "tested_head": "bdfa25c2cfde83c6d0a128af859422dae5b2dae2",
+    "dirty": "not recorded in this format",
+    "status": "passed",
+    "browsers": [
+      {
+        "channel": "chrome",
+        "version": "154.0.8037.98",
+        "status": "passed",
+        "checks": [
+          "teacher_add_rename_atomic_reorder",
+          "draft_hidden_publish_real_api",
+          "search_formula_example_xss_escape_student_controls",
+          "bookmark_progress_refresh_logout_relogin",
+          "390px_no_horizontal_overflow",
+          "empty_search_clears_detail",
+          "injected_network_loading_failure_retry",
+          "unpublish_hides_republish_preserves_cancel_states"
+        ],
+        "page_errors": [],
+        "screenshots": [
+          "chrome-desktop.jpg",
+          "chrome-mobile.jpg"
+        ]
+      },
+      {
+        "channel": "msedge",
+        "version": "155.0.4283.45",
+        "status": "passed",
+        "checks": [
+          "teacher_add_rename_atomic_reorder",
+          "draft_hidden_publish_real_api",
+          "search_formula_example_xss_escape_student_controls",
+          "bookmark_progress_refresh_logout_relogin",
+          "390px_no_horizontal_overflow",
+          "empty_search_clears_detail",
+          "injected_network_loading_failure_retry",
+          "unpublish_hides_republish_preserves_cancel_states"
+        ],
+        "page_errors": [],
+        "screenshots": [
+          "msedge-desktop.jpg",
+          "msedge-mobile.jpg"
+        ]
+      }
+    ],
+    "checks": null,
+    "compared_paths": [
+      "backend/models/knowledge.py",
+      "backend/apis/knowledge.py",
+      "frontend/js/knowledge-view.js"
+    ],
+    "changed_scoped_paths": [
+      "backend/models/knowledge.py"
+    ],
+    "reuse_boundary": "只复用原断言范围；夹具不得冒充真实005；010B时间/加载显示以B12和UI12为准"
+  },
+  {
+    "id": "E006",
+    "source": "docs/evidence/spec-006/practices-knowledge-fixture/browser-results.json",
+    "source_ref": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+    "sha256": "2c0e7ad48a5a2b4dbdb1dea7885d823e42017ef1620fd9baa354641bb3c5d65e",
+    "tested_head": "408c29a8171b3ab86f8eb6f4114f6543aeaf0b0e",
+    "dirty": "not recorded in this format",
+    "status": "passed",
+    "browsers": [
+      {
+        "channel": "chrome",
+        "version": "155.0.8059.40",
+        "checks": [
+          "teacher_has_no_student_practice_or_personal_wrong_controls",
+          "student_public_list_has_no_reference_or_private_exam_question",
+          "real_commit_lost_response_locks_form_and_retries_exact_201_bytes_and_key",
+          "source_tag_filter_old_public_version_remains_exact_after_private_latest_edit_and_resolves",
+          "new_actual_error_reopens_same_wrong_identity_without_deleting_history",
+          "multiple_full_set_boolean_false_numeric_exact_tolerance_actual_ui_grading",
+          "actual_paper_objective_error_enters_wrong_list_without_pre_review_answers_or_practice",
+          "server_exact_timed_review_boundary_reveals_exam_wrong_reference",
+          "relogin_retains_real_wrong_count_sources_and_six_practice_facts_audits"
+        ]
+      },
+      {
+        "channel": "msedge",
+        "version": "155.0.4283.45",
+        "checks": [
+          "teacher_has_no_student_practice_or_personal_wrong_controls",
+          "student_public_list_has_no_reference_or_private_exam_question",
+          "real_commit_lost_response_locks_form_and_retries_exact_201_bytes_and_key",
+          "source_tag_filter_old_public_version_remains_exact_after_private_latest_edit_and_resolves",
+          "new_actual_error_reopens_same_wrong_identity_without_deleting_history",
+          "multiple_full_set_boolean_false_numeric_exact_tolerance_actual_ui_grading",
+          "actual_paper_objective_error_enters_wrong_list_without_pre_review_answers_or_practice",
+          "server_exact_timed_review_boundary_reveals_exam_wrong_reference",
+          "relogin_retains_real_wrong_count_sources_and_six_practice_facts_audits"
+        ]
+      }
+    ],
+    "checks": null,
+    "compared_paths": [
+      "backend/models/practice.py",
+      "backend/apis/practices.py",
+      "frontend/js/practice-view.js"
+    ],
+    "changed_scoped_paths": [],
+    "reuse_boundary": "只复用原断言范围；夹具不得冒充真实005；010B时间/加载显示以B12和UI12为准"
+  },
+  {
+    "id": "E008",
+    "source": "docs/evidence/spec-008/browsers/browser-results.json",
+    "source_ref": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+    "sha256": "f6d4472adb26c4a72f783040b01b8815721a91ae87188e951d32c704dcc5f3df",
+    "tested_head": "917ea08736a001220922f130d090ff35eeb7e5da",
+    "dirty": false,
+    "status": "passed",
+    "browsers": [
+      {
+        "channel": "chrome",
+        "version": "155.0.8059.40",
+        "checks": [
+          "real_knowledge_five_type_ui_draft_publication_zero_statistics_and_null_rates",
+          "real_notification_original_quiz_prestart_metadata_no_questions_or_teacher_controls",
+          "fixed_versions_false_multiple_omitted_numeric_pending_short_and_deadline_original_key_byte_replay",
+          "teacher_frozen_missing_omission_denominator_short_null_and_multiple_sum_200_percent",
+          "real_manual_grade_updates_mean_pending_and_390px_statistics",
+          "injected_statistics_failure_removes_stale_data_and_real_retry_recovers",
+          "explicit_review_exact_deadline_persists_once_and_repeat_keeps_original_timestamp",
+          "student_relogin_refresh_latest_score_fixed_answers_and_wrong_entry_release_390px"
+        ]
+      },
+      {
+        "channel": "msedge",
+        "version": "155.0.4283.45",
+        "checks": [
+          "real_knowledge_five_type_ui_draft_publication_zero_statistics_and_null_rates",
+          "real_notification_original_quiz_prestart_metadata_no_questions_or_teacher_controls",
+          "fixed_versions_false_multiple_omitted_numeric_pending_short_and_deadline_original_key_byte_replay",
+          "teacher_frozen_missing_omission_denominator_short_null_and_multiple_sum_200_percent",
+          "real_manual_grade_updates_mean_pending_and_390px_statistics",
+          "injected_statistics_failure_removes_stale_data_and_real_retry_recovers",
+          "explicit_review_exact_deadline_persists_once_and_repeat_keeps_original_timestamp",
+          "student_relogin_refresh_latest_score_fixed_answers_and_wrong_entry_release_390px"
+        ]
+      }
+    ],
+    "checks": null,
+    "compared_paths": [
+      "backend/models/quiz.py",
+      "backend/apis/quizzes.py",
+      "frontend/js/paper-view.js"
+    ],
+    "changed_scoped_paths": [
+      "frontend/js/paper-view.js"
+    ],
+    "reuse_boundary": "只复用原断言范围；夹具不得冒充真实005；010B时间/加载显示以B12和UI12为准"
+  }
+]

@@ -1,0 +1,706 @@
+{
+  "test": "test_r01_import_write_fault_rolls_back_and_key_retries",
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/courses",
+      "status": 201,
+      "body": {
+        "data": {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        },
+        "request_id": "367de9e6b5c840e9a1d86044e9ae10bd"
+      },
+      "bytes": 117,
+      "sha256": "7b6bef31bac8da6e400ca505774ffe06fde2d74d5e57376a1ba8233515951f12"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/members",
+      "status": 201,
+      "body": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 3
+        },
+        "request_id": "7ce2d7e1ea4f4c068f9846c80be08f8e"
+      },
+      "bytes": 109,
+      "sha256": "164b9ac9615d35ae89d8c6e4d616254861e0603f5e18e46deb62b5062ebaa8f8"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/chapters",
+      "status": 201,
+      "body": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        },
+        "request_id": "321aa2e3386f4562908978672e90898b"
+      },
+      "bytes": 115,
+      "sha256": "faec154344431bab59e6b0ed822d233c36bc44abc4072d4dab0d024d21fd6f18"
+    },
+    {
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "status": 201,
+      "body": {
+        "data": {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点1"
+        },
+        "request_id": "e54e507069ab4632ae9e06938b923fa1"
+      },
+      "bytes": 223,
+      "sha256": "5811b271c6cd0baac44595b297e02dac0278c220ad62674a13029d81ed2f45c9"
+    },
+    {
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "status": 201,
+      "body": {
+        "data": {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点2"
+        },
+        "request_id": "5190a1c5c19f42d3b5a63d9ae19444e4"
+      },
+      "bytes": 223,
+      "sha256": "c2d3012ab054c8df2320e9f2b6ba99b1dbbfb52721e274d12de688491468dc0a"
+    },
+    {
+      "method": "POST multipart",
+      "path": "/courses/1/resources",
+      "status": 201,
+      "body": {
+        "data": {
+          "id": 1,
+          "kind": "question_bank",
+          "resource_id": 1,
+          "sha256": "1908aeae1b1c5d4df9a30965fa429ad15ee177934cdf9b23b02efa4aaec36b5e",
+          "size": 352,
+          "title": "R01源文件",
+          "version": 1
+        },
+        "request_id": "be5e53eacd0045bdb01dcb33716e44f5"
+      },
+      "bytes": 236,
+      "sha256": "dba042e898241f91e03a583e72f9bde4a24da8af497253f8b47bd583d09a655c"
+    },
+    {
+      "method": "POST",
+      "path": "/resources/1/question-imports",
+      "status": 409,
+      "body": {
+        "error": {
+          "code": "DATA_CONFLICT",
+          "details": {},
+          "message": "Data conflict"
+        },
+        "request_id": "2173598e37fb48d9a0c6b9e37322cd9b"
+      },
+      "bytes": 122,
+      "sha256": "e8d8172a36dbb081f30266b29f2b93b88bb0340df2bf1a71e425e068086ba3c3"
+    },
+    {
+      "method": "POST",
+      "path": "/resources/1/question-imports",
+      "status": 201,
+      "body": {
+        "data": {
+          "count": 2,
+          "import_id": 1,
+          "question_version_ids": [
+            1,
+            2
+          ]
+        },
+        "request_id": "5b3edc19f7c340f1a24ffebbf54d775f"
+      },
+      "bytes": 112,
+      "sha256": "d70597f0b36fc254931e90bc70f193119b6bef414bca4275e61aaa207c0157f8"
+    },
+    {
+      "method": "POST",
+      "path": "/resources/1/question-imports",
+      "status": 201,
+      "body": {
+        "data": {
+          "count": 2,
+          "import_id": 1,
+          "question_version_ids": [
+            1,
+            2
+          ]
+        },
+        "request_id": "5b3edc19f7c340f1a24ffebbf54d775f"
+      },
+      "bytes": 112,
+      "sha256": "d70597f0b36fc254931e90bc70f193119b6bef414bca4275e61aaa207c0157f8"
+    }
+  ],
+  "checkpoints": [
+    {
+      "label": "before import audit fault",
+      "db": {
+        "counts": {
+          "question": 0,
+          "question_version": 0,
+          "question_knowledge": 0,
+          "question_import": 0,
+          "idempotency_record": 0,
+          "audit_event": 9,
+          "resource_event": 0,
+          "preparation": 0,
+          "preparation_resource": 0,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          }
+        ],
+        "papers": [],
+        "preparations": [],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          }
+        ],
+        "idempotency": [],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "after late audit fault: questions batch key all rolled back",
+      "db": {
+        "counts": {
+          "question": 0,
+          "question_version": 0,
+          "question_knowledge": 0,
+          "question_import": 0,
+          "idempotency_record": 0,
+          "audit_event": 9,
+          "resource_event": 0,
+          "preparation": 0,
+          "preparation_resource": 0,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          }
+        ],
+        "papers": [],
+        "preparations": [],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          }
+        ],
+        "idempotency": [],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "fault removed: original key accepted",
+      "db": {
+        "counts": {
+          "question": 2,
+          "question_version": 2,
+          "question_knowledge": 2,
+          "question_import": 1,
+          "idempotency_record": 1,
+          "audit_event": 10,
+          "resource_event": 0,
+          "preparation": 0,
+          "preparation_resource": 0,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [
+          {
+            "id": 1,
+            "resource_version_id": 1,
+            "actor_id": 2,
+            "count": 2
+          }
+        ],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          }
+        ],
+        "papers": [],
+        "preparations": [],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.question_import",
+            "object_type": "question_import",
+            "object_id": 1
+          }
+        ],
+        "idempotency": [
+          {
+            "operation": "resource_question_import",
+            "resource_type": "question_import",
+            "resource_id": 1,
+            "response_status": 201
+          }
+        ],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "fault recovery replay unchanged",
+      "db": {
+        "counts": {
+          "question": 2,
+          "question_version": 2,
+          "question_knowledge": 2,
+          "question_import": 1,
+          "idempotency_record": 1,
+          "audit_event": 10,
+          "resource_event": 0,
+          "preparation": 0,
+          "preparation_resource": 0,
+          "preparation_quiz": 0,
+          "paper": 0,
+          "paper_participant": 0,
+          "attempt": 0,
+          "answer": 0
+        },
+        "imports": [
+          {
+            "id": 1,
+            "resource_version_id": 1,
+            "actor_id": 2,
+            "count": 2
+          }
+        ],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          }
+        ],
+        "papers": [],
+        "preparations": [],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.question_import",
+            "object_type": "question_import",
+            "object_id": 1
+          }
+        ],
+        "idempotency": [
+          {
+            "operation": "resource_question_import",
+            "resource_type": "question_import",
+            "resource_id": 1,
+            "response_status": 201
+          }
+        ],
+        "foreign_key_check": []
+      }
+    }
+  ],
+  "final_db": {
+    "counts": {
+      "question": 2,
+      "question_version": 2,
+      "question_knowledge": 2,
+      "question_import": 1,
+      "idempotency_record": 1,
+      "audit_event": 10,
+      "resource_event": 0,
+      "preparation": 0,
+      "preparation_resource": 0,
+      "preparation_quiz": 0,
+      "paper": 0,
+      "paper_participant": 0,
+      "attempt": 0,
+      "answer": 0
+    },
+    "imports": [
+      {
+        "id": 1,
+        "resource_version_id": 1,
+        "actor_id": 2,
+        "count": 2
+      }
+    ],
+    "resources": [
+      {
+        "id": 1,
+        "kind": "question_bank",
+        "visibility": "teacher_only"
+      }
+    ],
+    "versions": [
+      {
+        "id": 1,
+        "resource_id": 1,
+        "version": 1,
+        "file_id": 1
+      }
+    ],
+    "papers": [],
+    "preparations": [],
+    "audit": [
+      {
+        "id": 1,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 1
+      },
+      {
+        "id": 2,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 2
+      },
+      {
+        "id": 3,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 3
+      },
+      {
+        "id": 4,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 3
+      },
+      {
+        "id": 5,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 4
+      },
+      {
+        "id": 6,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 4
+      },
+      {
+        "id": 7,
+        "action": "course.create",
+        "object_type": "course",
+        "object_id": 1
+      },
+      {
+        "id": 8,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 3
+      },
+      {
+        "id": 9,
+        "action": "resource.create",
+        "object_type": "resource",
+        "object_id": 1
+      },
+      {
+        "id": 10,
+        "action": "resource.question_import",
+        "object_type": "question_import",
+        "object_id": 1
+      }
+    ],
+    "idempotency": [
+      {
+        "operation": "resource_question_import",
+        "resource_type": "question_import",
+        "resource_id": 1,
+        "response_status": 201
+      }
+    ],
+    "foreign_key_check": []
+  }
+}

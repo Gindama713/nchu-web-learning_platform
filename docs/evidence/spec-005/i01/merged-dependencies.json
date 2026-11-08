@@ -1,0 +1,12 @@
+{
+  "develop": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "source": "GitHub closed PR collection merged_at plus git merge-base --is-ancestor actual_merge origin/develop",
+  "verified": [
+    {"pr": 4, "spec": "005", "actual_merge": "17fd54e6dd428c1446127a4338ddf6b51a85e656", "ancestor_exit": 0},
+    {"pr": 19, "spec": "003", "actual_merge": "991566cbdb84a036259363d43b89a16dc52cdbed", "ancestor_exit": 0},
+    {"pr": 18, "spec": "009", "actual_merge": "53d9a2a4db9aa715c8951a99a25005b497b38024", "ancestor_exit": 0},
+    {"pr": 22, "spec": "017", "actual_merge": "5eea466ec2a9b9f23cc4ccf9f1548d16545b43d1", "ancestor_exit": 0},
+    {"pr": 23, "spec": "010C", "actual_merge": "6ec4c53f6130b3ad3f17b52c757afbf2c0e39b66", "ancestor_exit": 0}
+  ],
+  "conditional_004_007": "No develop changes since prior verified baseline; no actual merged fix received. Preserve I03-007-01/02 and R37-004-01/02 plus missing 004 UI; no affected retest or full rerun."
+}

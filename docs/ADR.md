@@ -38,13 +38,13 @@ flowchart TB
 
 课堂归档将GitHub已通过检查的提交原样传输到Gitea专用归档分支和不可变checkpoint tag，并核对对象SHA相同；不在Gitea重新squash或重新合并生成不同提交。Gitea的main保持禁止人为直推，不为归档而临时关闭GitHub/Gitea主分支保护。默认归档分支名为submission/checkpoint-N，教师从该分支/tag查看。若教师要求特定默认分支，先调整提交展示方式并记录，不偷偷形成第二条开发主线。
 
-Gitea检查报告保存GitHub PR链接、base/head/tested SHA、最终merge SHA、CI报告、评审摘要及阶段提交映射，确保不用只看GitHub也能审查贡献。GitHub PR评论不是Git对象，不会随push自动复制，必须专门整理到检查报告。任务书要求Gitea托管和PR评审，并未明确PR必须在Gitea平台内；按用户确认采用GitHub评审，证据随Gitea归档，若课堂另有要求再登记调整。
+Gitea检查报告保存GitHub PR链接、base/head/tested SHA、最终merge SHA、CI报告、实际评审记录及阶段提交映射，确保不用只看GitHub也能审查贡献。GitHub PR评论不是Git对象，不会随push自动复制，必须专门整理到检查报告。任务书要求Gitea托管和PR评审，并未明确PR必须在Gitea平台内；按用户确认采用GitHub评审，证据随Gitea归档，若课堂另有要求再登记调整。取消GitHub强制批准人数不代表课程要求的实际评审已完成。
 
 ## ADR-005 采用精简Git Flow及强制CI
 
 保留main/develop/feature/release/hotfix。main只接release/hotfix的PR；develop接feature及发布修复回灌。选择merge commit保留个人原始提交与合并节点。组员教程的直接push共享分支示例不采用；共享主线通过PR合入。
 
-Actions对main PR运行测试、构建、lint及真实评测冒烟，配合required checks和PR审批真正阻断失败合并；仅写工作流不足以保护main。develop同样执行基础门禁以降低发布集中失败风险。文档阶段不谎称空仓库构建通过，软件发布前必须执行真实完整门禁。完整规则见README附录A。
+Actions对main PR运行测试、构建、lint及真实评测冒烟，配合required checks和必经PR真正阻断失败合并；仅写工作流不足以保护main。develop同样执行基础门禁以降低发布集中失败风险。文档阶段不谎称空仓库构建通过，软件发布前必须执行真实完整门禁。完整规则见README附录A。
 
 ## ADR-006 固定Logisim-evolution并调用真实引擎
 
@@ -120,6 +120,6 @@ Java21基线依据[Logisim-evolution v5.0.0 README](https://raw.githubuserconten
 
 ## ADR-016 核心技术验证先于实现
 
-TV-01验证固定引擎能执行连续时序而非逐行复位；TV-02验证浏览器与后端按共同schema重放同一序列逐步一致；TV-03验证受限识别样例。负责人、节点、预算、失败步骤见PRD第10.4.3节，当前均未执行。固定引擎/Java补丁/JAR SHA和模板SHA在验证后登记，不凭文档写成已锁定。失败时提交具体分歧与备选适配方案，更新PRD/APIC/DBD/ADR和受影响验收，经非作者复核再进入核心实现；必做连线与真实评测范围保留。
+TV-01验证固定引擎能执行连续时序而非逐行复位；TV-02验证浏览器与后端按共同schema重放同一序列逐步一致；TV-03验证受限识别样例。负责人、节点、预算、失败步骤见PRD第10.4.3节，当前均未执行。固定引擎/Java补丁/JAR SHA和模板SHA在验证后登记，不凭文档写成已锁定。失败时提交具体分歧与备选适配方案，更新PRD/APIC/DBD/ADR和受影响验收，留下实际评审记录再进入核心实现；必做连线与真实评测范围保留。
 
 v0.5归并将接口补充放回APIC所属模块，新增字段放回DBD实体；现行验收位置由PRD第12节明确，公共幂等与跨模块事务仍集中维护。两地副本同步与本地备份只用于文档管理，不能充当Git历史或课堂提交。

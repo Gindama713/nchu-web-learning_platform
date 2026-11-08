@@ -1,0 +1,51 @@
+{
+  "pr": 15,
+  "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/15",
+  "head_sha": "d6617280888a148506b005a9bd1c51a04f681977",
+  "base_sha": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+  "tested_merge_sha": "108f8fbef3b566a85bcfeb3d02b4dd37016b6300",
+  "actual_merge_sha": null,
+  "run_id": 38694148590,
+  "jobs": [
+    {
+      "id": 116286682906,
+      "name": "ci-test",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 116286683103,
+      "name": "ci-lint",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 116286683132,
+      "name": "ci-build",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 116286683267,
+      "name": "ci-policy",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "id": 116286684472,
+      "name": "ci-grader",
+      "status": "completed",
+      "conclusion": "skipped"
+    },
+    {
+      "id": 116287868433,
+      "name": "ci-required",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "reviews": [],
+  "review_threads": [],
+  "comments": [],
+  "note": "Snapshot for d661728 only; final documentation head must be checked separately."
+}

@@ -1,0 +1,14 @@
+{
+  "started_at": "2026-10-17T03:14:14.473677+00:00",
+  "tested_head": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "dirty_paths": [
+    "?? scripts/verify_consumption_handlers.py",
+    "?? tests/test_consumption_seams.py"
+  ],
+  "tests": 2,
+  "failures": 1,
+  "errors": 0,
+  "expected_failures": 0,
+  "elapsed_seconds": 5.244,
+  "status": "failed"
+}

@@ -1,0 +1,53 @@
+{
+  "started_at": "2026-10-13T11:50:09.562912+00:00",
+  "os": "Windows-11-10.0.26200-SP0",
+  "python": "3.13.12",
+  "playwright": "1.63.0",
+  "tested_head": "bdfa25c2cfde83c6d0a128af859422dae5b2dae2",
+  "scope": "controlled real HTTP/UI; headless installed browsers; not classroom or performance acceptance",
+  "fault_injection": "list network held then aborted; retry uses real HTTP; no mocked API responses",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "154.0.8037.98",
+      "status": "passed",
+      "checks": [
+        "teacher_add_rename_atomic_reorder",
+        "draft_hidden_publish_real_api",
+        "search_formula_example_xss_escape_student_controls",
+        "bookmark_progress_refresh_logout_relogin",
+        "390px_no_horizontal_overflow",
+        "empty_search_clears_detail",
+        "injected_network_loading_failure_retry",
+        "unpublish_hides_republish_preserves_cancel_states"
+      ],
+      "page_errors": [],
+      "screenshots": [
+        "chrome-desktop.jpg",
+        "chrome-mobile.jpg"
+      ]
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.45",
+      "status": "passed",
+      "checks": [
+        "teacher_add_rename_atomic_reorder",
+        "draft_hidden_publish_real_api",
+        "search_formula_example_xss_escape_student_controls",
+        "bookmark_progress_refresh_logout_relogin",
+        "390px_no_horizontal_overflow",
+        "empty_search_clears_detail",
+        "injected_network_loading_failure_retry",
+        "unpublish_hides_republish_preserves_cancel_states"
+      ],
+      "page_errors": [],
+      "screenshots": [
+        "msedge-desktop.jpg",
+        "msedge-mobile.jpg"
+      ]
+    }
+  ],
+  "status": "passed",
+  "finished_at": "2026-10-13T11:50:28.062897+00:00"
+}

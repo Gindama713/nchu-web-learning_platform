@@ -1,0 +1,38 @@
+test_r01_all_source_versions_and_preparation_rejected (tests.test_resource_question_integration.ResourceQuestionSeamTest.test_r01_all_source_versions_and_preparation_rejected) ... ERROR
+test_r01_import_invalid_atomic_and_original_key_bytes (tests.test_resource_question_integration.ResourceQuestionSeamTest.test_r01_import_invalid_atomic_and_original_key_bytes) ... ok
+test_r01_import_write_fault_rolls_back_and_key_retries (tests.test_resource_question_integration.ResourceQuestionSeamTest.test_r01_import_write_fault_rolls_back_and_key_retries) ... ok
+test_r01_imported_quiz_old_question_version_and_unreviewed_answers (tests.test_resource_question_integration.ResourceQuestionSeamTest.test_r01_imported_quiz_old_question_version_and_unreviewed_answers) ... ok
+
+======================================================================
+ERROR: test_r01_all_source_versions_and_preparation_rejected (tests.test_resource_question_integration.ResourceQuestionSeamTest.test_r01_all_source_versions_and_preparation_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "E:\develop\code\IDEA-CODE\nchu-web-learning_platform\tests\test_resource_question_integration.py", line 163, in test_r01_all_source_versions_and_preparation_rejected
+    self.record(method, path, response)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\develop\code\IDEA-CODE\nchu-web-learning_platform\tests\test_resource_question_integration.py", line 62, in record
+    'body': response.json if response.is_json else None,
+            ^^^^^^^^^^^^^
+  File "E:\develop\code\IDEA-CODE\nchu-web-learning_platform\.venv\Lib\site-packages\werkzeug\wrappers\response.py", line 593, in json
+    return self.get_json()
+           ~~~~~~~~~~~~~^^
+  File "E:\develop\code\IDEA-CODE\nchu-web-learning_platform\.venv\Lib\site-packages\werkzeug\wrappers\response.py", line 620, in get_json
+    return self.json_module.loads(data)
+           ~~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "E:\develop\code\IDEA-CODE\nchu-web-learning_platform\.venv\Lib\site-packages\flask\json\provider.py", line 187, in loads
+    return json.loads(s, **kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^
+  File "E:\develop\Python\Lib\json\__init__.py", line 352, in loads
+    return _default_decoder.decode(s)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^
+  File "E:\develop\Python\Lib\json\decoder.py", line 345, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "E:\develop\Python\Lib\json\decoder.py", line 363, in raw_decode
+    raise JSONDecodeError("Expecting value", s, err.value) from None
+json.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)
+
+----------------------------------------------------------------------
+Ran 4 tests in 8.501s
+
+FAILED (errors=1)

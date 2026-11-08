@@ -1,6 +1,6 @@
 # 中央处理器课程学习系统接口契约
 
-版本0.6，需求设计已完成团队评审；业务接口仍为设计，当前仅有下述框架探针运行。接口统一前缀 /api/v1。模块编号、实验逻辑及判分以PRD为准，持久化以DBD为准。
+版本0.6，需求设计已完成团队评审；框架探针可运行，SPEC-005主体实现已接入001/公共迁移，受控真实API链通过本地及CI；其他业务按各模块记录区分设计和运行。接口统一前缀 /api/v1。模块编号、实验逻辑及判分以PRD为准，持久化以DBD为准。005实际验证及阻塞见[SPEC-005实施记录](SPEC-005_IMPLEMENTATION.md)。
 
 ## 1 公共协议
 
@@ -39,8 +39,8 @@
 
 | 方法与路径 | 入参 | data返回 | 权限与特例 |
 |---|---|---|---|
-| POST /auth/register | student_no:8—20位字母数字，name:1—50，password:12—128字符 | user:{id,student_no,name,role} | 公开；重复账号409；role字段禁止传入 |
-| POST /auth/login | student_no,password | user及csrf_token，并设置Cookie | 公开；错误统一401；每账号/IP均限流 |
+| POST /auth/register | student_no:8—20位字母数字，name:1—50，password?:可选，显式设置须12—128字符；省略时默认等于学号 | user:{id,student_no,name,role} | 公开；重复账号409；role字段禁止传入 |
+| POST /auth/login | student_no:4—20位字母数字（兼容演示教师 teacher），password | user及csrf_token，并设置Cookie | 公开；错误统一401；每账号/IP均限流 |
 | GET /auth/session | 无 | user:{id,name,role},csrf_token,expires_at | 登录 |
 | POST /auth/logout | 无 | 204 | 登录及CSRF |
 | PATCH /users/me | name?，old_password?，new_password? | 本人user | 登录；改密必须旧密码并撤销其他会话 |
@@ -113,6 +113,18 @@ GET /courses/{id}/chapters提供分页{id,title,position}，排序position升序
 
 签到码公开模型：AttendanceTask查询/关闭响应仅含id/course_id/title/start_at/late_at/end_at/status/code_expires_at，不含code或code_hash；创建响应额外含一次性code（6位字符串，保留前导0），轮换响应含code/expires_at/扫码内容，均Cache-Control: no-store。DBD只存哈希，不保存明文到日志、通知或幂等响应缓存。教师刷新或忘记码时通过轮换获得新码，原码立即失效；关闭后不得轮换。没有“找回旧码”界面或查询接口。R40按PRD SPEC-002 AC-05验收。旧码失败用尚未签到学生验证，已成功签到者重复请求仍返回原记录，不能据此判断码是否有效；错误明文不回显。
 
+### 3.1 SPEC-005实现字段与接入
+
+Knowledge列表、创建、更新和详情共享字段：`id,chapter_id,title,content,example,published,is_foundational,content_revision`；详情另有`is_bookmarked`及`progress:{completed,completed_at}`。未完成/无记录时`completed=false,completed_at=null`。`PUT progress`的`updated_at`为本次操作UTC时间，重复完成保留原`completed_at`。它是自报进度，不是掌握度或成绩。
+
+正文/例题输入最长5000字符；保存时富文本仅保留p/br/b/strong/i/em/u/ul/ol/li/pre/code/blockquote/sub/sup/h2/h3标签，去除全部属性及其他标签，文本转义。公式可用sub/sup或文本，图片、链接和主动内容暂不支持。title仍按公共1—100字符约束。未知写字段、非JSON布尔状态、空PATCH拒绝400。
+
+知识创建`content_revision=1`，持久字段实际变化时在同事务递增；相同值PATCH不递增。发布/下架、基础标记变更均纳入revision。011应每次从当前已发布集合及各知识revision派生语料版本；005不创建索引或返回旧索引。章节新增/重排递增`chapters_revision`，仅改名不改变排序revision。
+
+005的knowledge_security适配层消费已从develop同步的001实现的`backend.shared.auth.require_user/check_csrf`；缺少依赖时保持503 MAINTENANCE，不提供默认用户。适配层核对APP_ORIGIN，并将共享ApiError转为005统一错误。实际会话超时、撤销、版本及CSRF算法仍由001负责。在业务事务取得锁后再调用require_user，防止请求鉴权后、写入前的会话撤销竞态；同时复核user.active/role及active member，teacher_id不能独立授权，管理员不自动获得教师编辑权限。
+
+如组长选择显式注册`app.extensions['course_security']`，需实现`current_user_id()`、`verify_write_request()`及`verify_transaction(connection,user)`三个方法；缺少事务内会话复核拒绝503。此内部适配点已按develop f242d2b接入并通过受控真实API测试；不能把测试替身注册到运行应用。已接入但未登录401，模块迁移不存在/校验失败503。005不改001业务逻辑。
+
 ## 4 习题课堂接口 SPEC-006—008
 
 Question写模型：type枚举single/multiple/boolean/numeric/short，stem非空，options为有序{key,text}数组（选择题2—8项），answer与学生value的类型按下表严格区分，tolerance为数值题非负容差默认0，explanation为文本，difficulty取easy/medium/hard，knowledge_ids非空ID数组，practice_available为布尔且默认false。学生读取版本始终删除answer/explanation，允许讲评后才返回。题目编辑产生版本，已发布试卷引用旧版本。
@@ -130,6 +142,11 @@ Question写模型：type枚举single/multiple/boolean/numeric/short，stem非空
 Attempt统一读模型：{id,paper_id,student_id,revision,status,score,partial_score,total_points,submitted_at,answers:[{question_version_id,value,answered,grading_status,score,max_score,comment,correct,answer?,explanation?}]}。revision初始0；status=partial/graded；grading_status=unanswered/pending/graded；pending的score、correct均null，客观题已评分correct为布尔（漏答false），简答correct始终null。score字段始终存在，部分批阅时null。学生只在允许讲评时获得标准answer/explanation，教师可读取；这里的学生value与标准answer不可混用。
 
 manual-scores仅允许非空items，题号唯一、属于本卷且为已作答简答；每题0≤score≤max_score，comment为0—1000字符。整批先校验，类型/重复/精度错误全批400；分值超配分、非本卷或非可批简答全批422；均不更改revision；revision冲突409。成功同事务评分、汇总、审计并revision+1，返回完整Attempt；允许更正已批简答，保留前后分及操作者，不允许批改客观题或漏答0分。
+
+C03a已接入整卷提交及答卷详情/分页查询；POST paper/quiz两个入口均返回201并使用第11节的同一paper_attempt作用域。成功快照保存完整JSON响应（含首次request_id）及状态码，与attempt/answer/审计同事务；重放不更新答卷或重新判分，当前状态另GET。省略/null/多选空数组/简答空白统一未答；答案条目和多选key排序，数值1与1.0相同，简答仅按本节规定去首尾空白，内部文本不改变。同键异paper_id亦409。UUID使用带连字符格式，大小写归一；到期新受理仍受每人每卷唯一约束。学生所有入口在实际review_at前去掉标准answer/explanation，讲评后仍复核question身份级保护；教师可见原冻结答案。C03b已接入manual-scores及学生作答/历史/结果、教师批阅/更正页面；C05a已接入quiz专用发布与列表，显式讲评/逐题统计留待C05b。
+
+C03b复用006c表及BEGIN IMMEDIATE，事务内重新核对当前任课教师权限；不按学生是否仍在课内删除原名单或评分事实。revision须为非负JSON整数且可递增，负分/非有限数值/字符串/布尔/超精度/非法评语400；负分视为字段校验错误，超过本题原配分422。全部条目校验完成后才修改answer.score/comment/graded_by，汇总所有答案，pending存在则总分null，否则总分等于已定分；条件更新revision+1，追加attempt.manual_scores审计，记录前后分数/评语/操作者，任一点失败全部回滚。更正后的最新状态通过GET读取，原paper_attempt成功快照保持不变。页面在失败重试时保留原提交内容和键，冲突后禁用旧批阅并要求重载，不使用本机时间替代服务器窗口判断。
+
 | 方法与路径 | 入参 | 返回 | 权限/特例 |
 |---|---|---|---|
 | POST /courses/{id}/questions | Question写模型 | {id,version_id,...Question} | T |
@@ -166,6 +183,44 @@ QuizStatistics={quiz_id,source_until,expected_count,submitted_count,missing_coun
 
 演示preset为内置可信场景：gate为AND/OR/NOT/XOR真值；comb为多路选择/组合ALU；sequential为REG8；alu为ALU8；memory为ROM16X8读取；cpu为CPU-EDU-8固定程序执行。gate/comb/memory无实验关联也可用，禁止任意脚本。场景只读定义固定scene_version，demo_session固化版本和初态；state动作只允许该场景的白名单输入。CPU演示使用可信内置状态机和ROM，不调用学生.circ；circuit-only的EXP-04可关联CPU演示而不要求wiring panel。组合场景step仅重新传播，时序场景按PRD周期推进。教学演示不写学生实验成绩。
 
+### 4.1 SPEC-006题库版本实现阶段（C02a）
+
+当前实现本节三个questions端点及C02b的paper创建、普通发布、详情与分页列表；C03已接入作答/批阅，C04练习提交/错题见第4.3节。教师创建、PATCH和列表共享`id,version_id,version,type,stem,options,answer,explanation,difficulty,tolerance,knowledge_ids,practice_available`；id为稳定question身份，version_id为固定内容版本，version从1递增。列表只选未归档question的最新版本，按question.id升序；学生仅看practice_available=true版本并始终删除answer/explanation。题库列表不承担试卷讲评后的答案入口。
+
+创建必传type/stem/options/answer/difficulty/knowledge_ids，其余按本节默认值；未知字段、空PATCH、重复或非法知识ID拒绝400。stem及选项text为1—5000字符，explanation为0—5000字符；知识标签必须非空且同课。每次有效PATCH以当前最新字段为基础合并并完整校验，在同一短写事务追加版本及知识关联，不更新旧行；公开版本置question.ever_public=1，后续私有版本不清除公开历史。简答不支持单题公开练习。
+
+公共001提供会话/CSRF/Origin和事务内权限复核；005现已进入develop，题目标签必须指向真实同课知识点，标签不存在或跨课返回400且不写半份题目。若部署缺少005知识表，仍返回503 DEPENDENCY_UNAVAILABLE；模块迁移缺失/校验失败返回503 MAINTENANCE。开放练习及学生公开题读取通过question身份的统一保密检查；paper/paper_item缺失时503，有未到讲评的published保密卷时409 QUESTION_RESERVED，不按end_at提前释放。C02b已复用该检查完成普通发布；C04已接入练习/错题，C05及备课接入须继续复用。实现与证据见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
+
+### 4.2 SPEC-006试卷实现阶段（C02b）
+
+创建草稿只接受title/kind/items及可选confidential；items非空，条目只接受question_version_id/points，版本须属同课未归档题目，同question的两版也不能重复。points为有限JSON数值且正数、最多两位小数，每题和总分的百分之一分整数不得超出SQLite整数范围；禁止布尔、字符串、非有限值或静默舍入。items按请求顺序固定position，从1开始。创建返回完整教师详情，后续题库新增版本不改变本卷。
+
+普通POST /papers/{id}/publish支持三种kind，必须提供有时区的start_at/end_at/review_at，精度最多毫秒，归一到UTC并满足start<end≤review；confidential=true必填1—1000字符说明。quiz经普通入口发布时也是定时讲评；C05专用quiz入口才允许review_at初始null和显式讲评。成功将同课当前active且全局active student名单、发布状态、时间、说明及审计同事务写入，返回教师详情含participant_count；重复发布409 STATE_CONFLICT，发布后不可修改。保密卷禁止与所有尚受保护的已发布卷共享question，普通卷禁止与尚受保护的保密卷共享question；曾公开版本/ever_public/任何已到start_at的published卷构成可追踪公开历史，保密发布409 QUESTION_PUBLIC。检查、冻结与题目公开写入共享BEGIN IMMEDIATE，不依赖异步标记。
+
+列表接受kind/status/page/page_size，拒绝未知/重复参数，page_size≤100，按paper.id升序，返回元数据，不含items或答案。教师能查所有本课draft/published及冻结人数；学生必须当前仍有课程权限、在原冻结名单且published，转入者不补历史名单。详情开始前不含items；开始及截止后返回固定版本题干/选项/配分，review_at未到或null去掉answer/explanation，实际到讲评时才开放标准答案并再次检查身份级保密保护。详情条目含question_version_id、稳定id、version_id/version、position/points及题目读字段；学生不返回教师确认说明、冻结人数。所有paper响应no-store。C02b没有收卷或评分入口，不代表UC-02完整验收。
+
+### 4.3 SPEC-006公开练习与错题实现阶段（C04）
+
+POST /questions/{id}/practice-attempts仅当前同课学生可调用，严格接受question_version_id与answer及UUID Idempotency-Key。版本须属于路径题目、未归档且practice_available=true的客观版本，不要求它是最新版；私有/简答版本409 PRACTICE_UNAVAILABLE，版本不匹配404，类型/未知字段/非法key等400。复用五题型值校验和客观判分，有限数值按十进制容差、多选集合全等；空作答（null/多选[]）记0分和answered=false，不计实际错题。响应201含attempt_id、question_version_id、correct、score（0/100）、explanation。没有公开GET标准答案入口。
+
+practice_attempt独立作用域复用第11节公共快照：版本与数值/多选等值规范化后比指纹，业务、错题状态、审计、首次201完整JSON字节同事务保存；24小时内原键原内容返回原字节，不增加错误次数，异题/异版本/异内容409 IDEMPOTENCY_CONFLICT。当前身份/课程权限、版本公开资格和question身份保护在重放前复核，异常已开放或带旧解析快照的受保护身份仍409 QUESTION_RESERVED。新键可创建新练习，失败不占成功键。
+
+GET /users/me/wrong-questions仅学生本人，严格接受knowledge_id/page/page_size，page_size最多100；无student_id等代查参数，教师/管理员403。按wrong_question.id倒序，返回当前仍有学生成员权限课程内的错误来源版本，knowledge_id按该固定版本标签筛选；退出课程后隐藏，恢复成员后历史仍保留。表格约定字段外附题目只读字段id/version_id/version/type/stem/options/difficulty/tolerance/practice_available及can_practice，供无需猜ID的页面选择重练；id=question_id，version_id=question_version_id。last_attempt_type取paper/practice，last_attempt_id分别是attempt.id/practice_attempt.id，只指最近实际客观错误，不因正确重练替换错误来源。
+
+wrong_count从原answer（answered=1、客观、0分）和practice_attempt（answered=1、correct=0）逐事实统计，同题/同学生只有一条wrong_question；漏答和简答不入本。正确公开练习仅把已有条目标记resolved=true；新客观错答置false，历史不删除。来源为paper时仅实际review_at已到并仍在原名单才answer_visible=true；来源为practice时依据该固定版本公开资格。两者先复核全部版本同question的保密占用，受保护时固定false且删除answer/explanation；can_practice另由固定版本客观公开资格、未归档和同一保护检查派生。
+
+学生页面提供公开练习/个人错题、固定版本作答、分页/已加载知识标签筛选及重练；丢响应锁住原内容并以原键重试，身份变化、权限/保护拒绝及读取失败清空旧结果。005真实知识标签已接入；003题库源文件/导入和004备课保护联测仍待原模块接齐。C05a/C05b专用quiz发布/列表、显式讲评/逐题统计已接入，实施与完整006验收状态见[SPEC-006实施记录](SPEC-006_IMPLEMENTATION.md)。
+
+### 4.4 SPEC-008专用发布、统计与显式讲评（C05a/C05b）
+
+POST /courses/{id}/quizzes返回201；只接受paper_id/start_at/end_at及可选confidentiality_note，在原发布短写事务中冻结同课有效学生名单、写原paper发布时间与review_at=null、保密复核及审计。跨课/不存在404，非quiz/非draft409，未知字段、非法ID、无时区/超毫秒时间或开始不早于截止400。返回id=paper_id、paper_id、status=upcoming/open/closed（按服务器时间派生）及原paper元数据。GET /courses/{id}/quizzes固定kind=quiz，接受status=draft/published/page/page_size，不接受kind或重复/未知参数；返回Paper元数据，status仍是存储状态、window_state是时间状态；学生仅已发布且原冻结名单内，开始前不含题干，解析仍经原paper/attempt读取。两个入口响应no-store。
+
+quiz发布（包括普通paper发布quiz）复用公共notify，在发布事务向冻结名单写target_type=quiz、target_id=paper.id、event_key=quiz.published:{paper_id}，按(user_id,event_key)去重。通知读取不授予目标权限；重复发布409不多写通知，通知失败回滚名单/发布/审计。学生测验作答、历史与教师批阅复用006服务；页面倒计时仅为本机估计，服务器决定新请求窗口，原成功键截止后仍可重放。完整矩阵、依赖与恢复见[SPEC-008实施记录](SPEC-008_IMPLEMENTATION.md)。
+
+C05b GET /quizzes/{id}/statistics为当前同课教师专用，拒绝查询参数；返回第4节固定QuizStatistics，名单、答卷、固定版本及最新批分在同一读事务中聚合，source_until为该次服务器读时刻，不创建analysis_run。draft没有冻结名单/答卷，允许返回零统计；非quiz409、未知对象或无课程权限404、同课学生403、失效会话401。漏答参与提交分母及已定分均分，pending不混均分；选择题全部选项含零计数，顺序固定，无学生身份列表。后续批分只影响新查询，此接口不提供010B不可变快照/CSV。
+
+POST /quizzes/{id}/review接受空请求体或空JSON对象，拒绝业务字段、非对象、非法JSON及查询参数；复用公共CSRF/Origin及写事务内会话/同课教师复核。非quiz、draft或服务器now<end_at返回409；仅在原review_at=null时设服务器now，并同事务追加quiz.review审计，失败全部回滚。成功200返回{review_published_at}，等于原paper.review_at；重试/并发重试保留首次时刻及一份审计。普通paper发布quiz已设定的review_at保持不变，不能经此入口提前或延后定时讲评。所有响应no-store；学生原paper/attempt/错题读取按实际review_at及题目身份保护判断，讲评不会改分或改写原提交成功快照。
+
 ## 5 分析与智能接口 SPEC-010—016
 
 | 方法与路径 | 入参 | 返回data | 权限及约束 |
@@ -179,7 +234,7 @@ QuizStatistics={quiz_id,source_until,expected_count,submitted_count,missing_coun
 | PATCH /warnings/{id} | status:handled，note:1—500 | Warning | T |
 | GET /courses/{id}/knowledge-graph | root_id? | {nodes:[{id,title,mastery?}],edges:[{source,target,type}],prerequisite_paths} | L，mastery仅本人或授权范围 |
 | POST /courses/{id}/knowledge-edges | source_id,target_id,type:prerequisite/contains | Edge | T；自环、跨课、先修环422 |
-| POST /courses/{id}/recognitions | image:PNG/JPEG≤5MiB且≤4096×4096 | {id,status,items:[{symbol,bbox,confidence,confidence_band,label,label_status}],requires_confirmation:true,algorithm_version,template_set_sha256} | L；不支持类型415；无法识别返回status=unrecognized |
+| POST /courses/{id}/recognitions | image:PNG/JPEG≤5MiB且≤4096×4096 | {id,status,items:[{symbol,bbox,confidence,confidence_band,label,label_bbox,label_status}],requires_confirmation:true,algorithm_version,template_set_sha256} | L；不支持类型415；无法识别返回status=unrecognized |
 | POST /recognitions/{id}/confirm | items:[{symbol,bbox,label?}] | {id,status:confirmed,confirmed_items,algorithm_version,template_set_sha256} | 原提交者；仅生成结构草稿，不执行任意文件 |
 | POST /courses/{id}/warning-runs | from?,to?；Idempotency-Key | 201 {analysis_run_id,status:completed,source_until,sample_size,model_status,warning_count} | T；默认最近28天；同步限时计算，失败503不创建半批结果；算法见PRD第4.2节 |
 | GET /courses/{id}/warning-runs | 分页 | 批次及model_status列表 | T |
@@ -202,13 +257,31 @@ analytics响应增加source_until、population_basis、warnings和unit；series�
 - scores：kind:homework/exam/quiz（查询必需），paper_id?；expected_count,submitted_count,missing_count,graded_count,partial_count,mean_score,mean_percentage,score_bins；不同满分按百分比分箱[0,60)、[60,70)、[70,80)、[80,90)、[90,100]，原始均分仅同一paper有值；缺交不自动算0，pending不混入已批均分。
 四人分工中010B承担scores，003承担resources；所有维度都支持同口径CSV。
 
+C06 knowledge实施口径：`algorithm_version=knowledge-objective-v1`，`sample_size=answered_count`；总体按`(source,sample_id)`去重，source为practice或answer，分别使用practice_attempt.id与answer.id，避免两表数字ID碰撞。固定question_version的多标签在各点分别计入，同一样本不重复累计总体；总体保留本课区间内真实历史客观作答（包括已下架知识的作答），items只投影当前发布集合K。班级范围汇总本课历史作答，不因学生后来退出丢失历史事实；本人/教师选学生范围仅提取该学生输入。个人进度按上述K交集；教师未选学生时`completed_knowledge_count=null,progress=null`，`published_knowledge_count=|K|`，warnings提示选择学生查看个人进度，不将全班完成条数套入个人分母。series按上海周一00:00切分左闭右开区间，首尾裁剪到from/to，每段作答按事件时间计算，进度仍使用同一当前快照。此范围边界由本轮用户采用推荐方案确认，不代替团队评审。
+
+C06已接入knowledge首次查询、同表完整输入/结果保存及按ID读取；只接受dimension/from/to/student_id，空值、重复参数、无关筛选和超范围ID均400。保存前再次复核会话、当前课程权限及指定学生的有效学生成员关系；计算/事实缺失/保存失败返回503 ANALYSIS_UNAVAILABLE，无半份快照或可用ID。读取只允许创建者及当前有权访问的保存范围，已撤权选定学生同样404；所有统计响应no-store。C07已补knowledge/scores教师CSV；学生仍403，重复导出参数及混筛选400。详见[SPEC-010B实施记录](SPEC-010B_IMPLEMENTATION.md)。
+
+C07 scores实施口径：`algorithm_version=scores-frozen-participants-v1`；查询必须kind，仅另接受from/to/student_id/paper_id。paper_id必须为本课该类别的已发布卷；个人范围还须在原冻结名单，否则404。按paper.start_at左闭右开选择已发布卷，读取同一数据库快照中的冻结名单及source_until前attempt；不按提交/批阅日期重新筛任务。expected/submitted/missing/graded/partial的单位均为“学生×试卷”人卷次，历史退出不减全班分母，转入不补历史任务；个人输入只保存本人。partial不计最终均分，实际已批0分照常计入。mean_score仅实际集合包含一张卷且有已批成绩时有值（原分单位分，百分之一分转两位）；跨卷mean_score=null，mean_percentage按每份已批卷百分比等权平均、保留两位。sample_size=graded_count；score_bins固定有序`[{label,count}]`，label依次为`[0,60)`、`[60,70)`、`[70,80)`、`[80,90)`、`[90,100]`，按未舍入百分比分箱，100计最后箱；空样本计数0而均分null。metrics另含selected_paper_ids升序；series按上海周一分段并按同一paper.start_at口径。当前没有独立pending状态，partial_count即待批数。
+
+C07新建knowledge/scores结果增加filters（与parameters_json一致的解析筛选及实际对象ID）供原页面标示；旧快照无该字段时仍按原保存结果读取，不补算。CSV采用UTF-8 BOM，先写ID/时间/算法/样本/口径/单位/警告/filters，再以overall和series输出全部标量及对象集合；knowledge_items按知识ID升序列原title/作答/正确/错题/mastery，scores另列overall_bin/series_bin及原有序分箱。数值直接序列化快照JSON精度、null为空，ratio/percent单位分别标注；页面比率以百分数两位显示。含逗号/引号/换行的单元格使用标准CSV引用，字符串公式前缀=、+、-、@（含前导空白）及首字符tab/CR/LF加单引号。读取与导出不重查事实，批分后旧ID的JSON和CSV保持原样。
+
+010B页面使用以上统计与快照接口，用户操作见[README§8.5](../README.md)。CSV的knowledge_series_items还按原周序列顺序输出每周知识明细，不遗漏series中的items；页面显示总计知识明细及周汇总表。浏览器仅以当前用户ID/角色为本地存储键保存课程/快照ID，恢复重新鉴权；过滤条件或身份变更会废弃迟到响应，恢复/导出失败清除旧结果，不静默回退新统计。此说明不改变QA或推荐契约。
+
+010D grading实施口径：`algorithm_version=grading-teaching-v1`；查询只接受`dimension/from/to/student_id`，按已发布circuit版本`start_at`左闭右开选任务，`sample_size=effective_count`。教学单元为`(student_id,experiment_version_id)`：按`(created_at,id)`倒序取首个具有effective_run的submission，effective_run为其id最大的accepted/wrong_answer/timeout/resource_limit/invalid_circuit run；queued/running/system_error不覆盖旧分。`pass_rate=accepted_count/effective_count`，`student_count`为有效成绩去重学生，`mean_score`按原始分（0—100）等权，`score_bins`固定`[0,60)`/`[60,70)`/`[70,80)`/`[80,90)`/`[90,100]`。`run_count/system_error_count/timeout_count/resource_limit_count`统计区间内全部run，独立于教学分母。`metrics.suites`按`suite_id`分组、字段同口径，只出现system_error的suite同样列出；suite层`submission_count`为在该suite产生过run的submission数。空样本计数0、比率与均分null并保存合法快照；CSV只序列化该快照。读取与导出复用analysis_run及统一404/403语义，详见[SPEC-010D实施记录](SPEC-010D_IMPLEMENTATION.md)。
+
 ### 5.2 问答与推荐
 
 QA按当前已发布知识语料revision按需重建TF-IDF；重建失败返回503 INDEX_UNAVAILABLE，不返回旧内容；空语料found=false、matches=[]。推荐始终返回对象，items可为空，外层reason与source_until仍存在；确定算法及reason枚举见PRD第4.3节。
 
+C11已接入recommend-v1及学生页面。推荐仅会话学生本人，单个limit为1—20/默认5；不接受user_id/student_id/客户端截止参数，重复或未知参数400。复用5.1现有客观事实提取，窗口为UTC毫秒的 `[source_until−28天,source_until)`，候选/完成状态取同一当前读快照；返回前重新授权并核验当前候选和练习资格，持续变化或计算/事实读取故障503 RECOMMENDATION_UNAVAILABLE。响应均no-store，不依赖看板API或持久化推荐缓存。练习从每题最新版本中过滤同课、未归档、开放客观、本点标签与现行保密保护，再取版本ID最小者；无则null。实际阅读/练习入口再次经005/006当前权限及保护检查。实现及证据见[SPEC-012实施记录](SPEC-012_IMPLEMENTATION.md)。
+
 ### 5.3 组卷与重放
 
 组卷只返回草稿，不直接发布。请求采用二选一模型：首次传第5节字段及history_until?；重放仅传replay_of及新title，禁止同时覆盖约束/seed；响应含generation_snapshot_id。冻结候选最新版本（同question一份）、历史正确率/样本数、排序、约束、seed、算法版本；重放严格读取快照，不查新题库。配分用total_points*100整分，按选中顺序均分、余数给前若干题，每题至少1个百分之一分。不满足数量/配额/覆盖的确定矛盾422；搜索预算耗尽503 SEARCH_LIMIT，不能伪报无解。具体算法见PRD第4.2节；confidential同候选快照一起冻结。
+
+C08已接入内部`paper-backtrack-v1`候选/求解/快照组件。历史指标按固定question_version的真实paper answer与practice_attempt合并，只计history_until前已作答、已评分客观事实；partial中的客观分有效，漏答/简答排除，n=0的正确率为null。seed为signed 64位JSON整数，省略时生成并保存；首次用NumPy PCG64生成并固化16位十六进制排序键。重算只使用快照，不重新生成键。参数类型、难度配额和题量不匹配、超过500候选为400；合法约束确定无解为422 INFEASIBLE_CONSTRAINTS。节点进入时计数，含根/剪枝/终点；恰在第100000节点穷尽为422，只有仍需访问下一节点才为503 SEARCH_LIMIT。
+
+C09提供上述POST入口，成功201并增加status=draft、generation_snapshot_id、points_hundredths（按选题顺序的精确整数）、search_nodes及seed_text（原seed十进制字符串，供浏览器无损展示）。title须为1—100字；replay_of为本课程generation_snapshot ID，仅当前有效教师可用，跨课/不存在/撤权404，学生403，CSRF/Origin沿用001。重放只读取保存输入求解，不提取当前题库/历史、不调用RNG；每次成功新建同输入哈希快照和独立草稿，原卷不改。保存前在短写事务重新授权，检查全部候选版本同课、所选题未归档、公开历史与保密占用资格；只查询当前资格，不重新选题。资格变化409 QUESTION_PUBLIC/QUESTION_RESERVED/QUESTION_UNAVAILABLE，不静默替换原题。snapshot、draft、固定版本条目及paper.generate审计同一事务；失败整体回滚，无成功ID。普通及quiz发布继续走第4节原入口并再次检查当前资格，不自动发布。
 
 GET /courses/{id}/analytics的from/to默认最近28天；事件按事件时间筛选，成绩及完成率按发布任务start_at选择任务、取source_until前结果。attendance细则见第5.4节。多实验样本为(student_id,experiment_version_id)，不等于自然人数。
 
@@ -218,7 +291,13 @@ GET /courses/{id}/analytics的from/to默认最近28天；事件按事件时间�
 
 attendance-performance-v1的唯一计算定义及C01—C04见PRD第4.4节：同区间已关闭考勤任务按学生汇总，已评分homework/exam/quiz先换百分比再等权平均，按student_id配对Pearson。performance_paper_ids只允许attendance；kind/paper_id只允许scores；不适用参数400。source_until为服务器一致读取快照时间，to>source_until为400。班级未筛student_id时sample_size=candidate_count；教师student_id筛选只输出所选人的指标，相关性reason=personal_scope且不输出班级配对数，与学生范围一致。个人范围sample_size为本人有应到任务时1否则0，candidate_count/paired_count/missing_performance_count均null；班级范围指标始终存在。班级paired_count不足3优先insufficient_pairs，零方差zero_variance，否则ok；r无单位、[-1,1]、展示6位，rate为0—1、performance_mean_percentage为0—100；缺分母null。metrics另含performance_mean_percentage（按有效配对学生等权）及各排除计数；series也使用同一口径。warnings包含“相关性不代表因果，不自动扣分”。CSV与页面同一源快照，不输出学生无权查看的班级数据。
 
+当前实现将 `performance_paper_ids` 作为重复查询参数传输，如 `?dimension=attendance&performance_paper_ids=12&performance_paper_ids=13`；空值、重复值或超过100项均400。测评表未迁移时，考勤成绩关联返回503 `DEPENDENCY_UNAVAILABLE`，不返回虚构的空统计。预警批次的 `reasons` 是带 `code`、`sample_size` 和证据值的对象数组；目前规则码为 `LOW_OBJECTIVE_RATE`、`RECENT_ATTENDANCE`、`RELATIVE_WEAK_CLUSTER`。预警列表分页顶层增加 `analysis_run_id`、`model_status`；尚无批次时分别为null、`no_run`，聚类样本不足时为`insufficient_data`，即使 `data=[]` 也保留状态。预警依赖客观作答及实验事实表，缺表同样返回503；`Idempotency-Key` 按原始查询参数判定重放，默认时间窗的重复请求不因服务器时钟推进而变成冲突。
+
 识别算法recognition-template-v1、二值掩膜交并比、0.55识别下限及0.85低置信度分界、固定字典、bbox约束和F01—F05见PRD第4.5节。低置信度是recognized项的confidence_band=low，不另造数据库状态；零项unrecognized。POST confirm仅原提交者，空数组允许；symbol限NOT/AND/OR/XOR，label限固定字典，非法框/枚举400，重复确认409，越权404。确认只存结构草稿，不推断网表/成绩。模型中的算法版本与模板哈希由服务端生成，不允许请求覆盖。
+
+当前模板与预处理冻结为 `recognition-template-v1`，SHA-256 为 `e5fad902074d5401cb207932a72b539cdf2647f3fffcd29b65b42fe0bd016a49`；PRD第4.5节的 F01—F05 已按 `recognition-fixtures-v2` 存入仓库并逐字节验哈希。`label_bbox` 是已识别标签的原图框，未知标签为null；模板相似度不是正确概率。上传保存图片所有权和哈希；确认仅更新 `recognition.confirmed_items_json`，不会写电路网表、实验状态或分数。固定输入的本地测试不能冒充其他环境或任意照片效果验收。
+
+confirm的items数量不得超过本次识别的items数量；因此unrecognized的确认只能提交空数组，不能通过识别确认接口创建原本未检出的符号。
 
 ## 6 实验与连线接口 SPEC-009/017
 
@@ -235,7 +314,7 @@ Action模型：seq正整数、type、payload、client_at。type为connect时payl
 | POST /experiments/{id}/versions | title,objectives,knowledge_ids,instructions,submission_modes,panel?,rules；不接收judge_profile_id或其他服务端派生字段 | 新draft版本，judge_profile_id=null | T；wiring模式必须提供panel；检查panel/rules/schema；circuit草稿允许尚无评测配置 |
 | POST /experiment-versions/{id}/publish | start_at,end_at,initial_test_suite_id?（circuit必需） | 已发布版本 | T；wiring模式需端子和规则完整，circuit模式需判分配置齐全且测试集验证通过；不支持的提交模式返回409 |
 | GET /experiment-versions/{id} | 无 | 脱敏ExperimentVersion | L；学生不可见隐藏rules答案与测试集 |
-| POST /experiment-versions/{id}/wiring-attempts | 无 | WiringAttempt:{id,revision:0,status:draft,state,latest_seq:0} | S |
+| POST /experiment-versions/{id}/wiring-attempts | 无 | WiringAttempt:{id,revision:0,status:draft,state,latest_seq:0} | S；已发布、冻结参与名单且在窗口内；已有draft可返回原attempt，已submitted则201创建新attempt重做，旧记录不变 |
 | GET /wiring-attempts/{id} | 无 | WiringAttempt、actions摘要、saved_at | 本人/T |
 | PUT /wiring-attempts/{id} | revision,state,actions | {id,revision:旧值+1,latest_seq,saved_at} | 本人S；旧revision409；服务端重放结果须与state一致，否则422 STATE_MISMATCH；同批状态/动作原子保存 |
 | POST /wiring-attempts/{id}/validate | revision | {valid,errors:[{code,terminal_ids,wire_ids,message}],revision} | 本人；数据冲突409，合法请求但错误连线返回200且valid=false |
@@ -318,3 +397,76 @@ GET /health仅返回{web_ready,db_ready,grader_ready,status}，任一必需单�
 | warning_run | course_id + from/to（source_until由首次请求确定） |
 
 admin retry也必须Idempotency-Key；同一请求失败4xx/503不保留成功键。启动/关闭这类天然幂等状态操作返回现态，revision写操作仍使用乐观锁。教学数据查询不能绕开对象所属模块直接读取原始file或隐藏test_case。
+
+## 12 互测公开接口 SPEC-019
+
+GET /help 与 GET /who 挂在站点根路径（不在 /api/v1 下），无需登录、无需 CSRF、不受 Origin 校验，供课堂互测方自动发现接口与账号。响应仍为 {data, request_id}，仅中文不转义为 \uXXXX，便于人工直接阅读。
+
+GET /who 返回 class_name、group_no、group_name、project、leader{student_no,name}、members[{student_no,name,role}]、member_count、student_nos、accounts{teacher,student}。组信息唯一来源是 backend/shared/group.py，改名单只改该文件。
+
+GET /help 返回 service、response_format、accounts、public_endpoints、guides、modules、counts。modules 由 Flask url_map 实时生成，按 blueprint 归入 SPEC 模块，路径中的路径转换器写作 {参数名}；路由增删不需要改文档，因此本契约只约束字段形状，不逐条复制接口清单。guides 固定包含统一响应格式、登录与 CSRF、课堂点到三段接入说明；点到部分覆盖建任务取码、学生签到、关闭统计、轮换码四步，其中点到码仅在创建与轮换的响应中各返回一次，服务端只存哈希。
+
+开发服务器 vite 的 server 与 preview 代理已转发 /help、/who，互测方用被测系统页面同源地址即可取得 JSON。
+## 13 专业组在线实验：74181 四位加减运算器 SPEC-019
+
+计算机组成原理组本题要求用 74181 与 7400 求两个 4 位数的和与差。三个接口均为公开 GET、无副作用、不写库，不要求登录，便于课堂互测直接核对。
+
+GET /alu74181/spec 返回芯片资料与两种运算的控制位配置：加法为 S3S2S1S0=1001、M=0、Cn̄=H（F = A plus B）；减法为 S3S2S1S0=0110、M=0、Cn̄=L（F = A minus B，芯片内部按 A + B̄ + 1 完成补码减法）。7400 只承担 ADD/SUB 到 S3–S0 与 Cn̄ 的控制译码，不参与数据通路。
+
+GET /alu74181/table 一次返回 2×16×16 共 512 条全组合结果，前端拉取一次后本地索引，切操作数不再请求后端。每条形如 {op,a,b,s3s2s1s0,m,cn_bar,carry_in,operand_b,internal_sum,f,f_bits,f_hex,cn4,carry,borrow,zero,equal,decimal_result,expression}。
+
+GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—15 的整数，op 只接受 add/sub，否则 400 VALIDATION_ERROR。
+
+口径约定：Cn+4 为低有效进位输出，加法结果溢出时该位为 0；减法走 A + B̄ + 1，A 大于等于 B 时最高位有进位、Cn+4 为 0，A 小于 B 时 Cn+4 为 1 表示借位。A=B 为开集电极输出，两数相等时有效。上述结果在 tests/test_alu74181.py 中与整数运算逐组比对，512 组全部一致。
+## 14 第10周互测补充接口 SPEC-001/002
+
+### 14.1 账号与名单
+
+教师固定账号 teacher/teacher；学生用本人学号登录，初始密码等于学号。登录接口的账号校验放宽到 5—20 位（teacher 只有 7 位），注册仍要求 8—20 位。`user` 表新增 `class_name`，用于按班级分组展示成员与座位；课程成员列表 `GET /courses/{id}/members` 的每项追加 `class_name`，并按班级、用户 id 排序。
+
+### 14.2 课堂座位
+
+`class_seat(course_id, student_id, class_name, group_no, seat_no)` 保存课程内的座位安排，同一班级内「组号-座号」唯一；一个课程可容纳多个班，各班座位互不冲突。
+
+创建点到任务时，按冻结参与人把座位复制进 `attendance_seat(task_id, student_id, group_no, seat_no)`，形成任务级快照；之后调整课程座位表不会改动已发布任务的历史布局。课程尚未排座时快照为空，界面退回名单列表。
+
+`GET /attendance-tasks/{id}/seats` 返回 `{task, classes:[{class_name, seats:[{student_id,student_no,name,group_no,seat_no,status,checked_at}]}], unseated}`，`status` 取 present/late/leave/absent，尚无记录时为 pending。学生只能看本人记录的限制不变，该接口沿用任务的课程访问校验。
+
+### 14.3 访问日志与导出
+
+新增 `access_log` 表，每个请求记一条：时间、学号、姓名、角色、方法、路径、状态码、来源 IP、耗时。写入在响应阶段完成，失败不影响业务响应；导出接口自身不记录，避免自我膨胀。
+
+| 接口 | 权限 | 说明 |
+|---|---|---|
+| GET /logs/access | T/A | 分页读访问日志，支持 from/to、student_no、path 前缀筛选 |
+| GET /logs/access.csv | T/A | 导出 CSV，UTF-8 BOM，文件名 week10-server-log.csv |
+| GET /logs/audit.csv | T/A | 导出关键操作审计（谁做了什么、变更前后），来自 audit_event |
+| GET /logs/summary | T/A | 请求数、账号数、失败数与前十个高频路径 |
+
+登录请求同样记录访问者：登录成功后在请求上下文写入当前用户，日志里能看到具体学号，而不是匿名请求。
+
+### 14.4 学生自助换位
+
+学生在座位图上调整自己的位置，两条路径：目标位置没人就直接坐过去，有人就发一条换位申请等对方答复。
+
+规则：
+
+- 一次只能挂一条 `pending` 申请，由 `seat_swap_request` 上的部分唯一索引 `UNIQUE(requester_id) WHERE status='pending'` 在库里兜住，应用层先返回 409 SWAP_PENDING_EXISTS；
+- 申请有效期 15 分钟，`expires_at` 到点自动转 `expired`。每个端点入口先扫一遍过期数据，不依赖后台定时任务；
+- 换位成功后同时改 `class_seat`（课程级排座）和该课程全部 `attendance_seat`（已生成任务快照），只改一处会让座位图停在旧位置；
+- 对调用「一起 DELETE 再按对调坐标 INSERT」，绕开 `UNIQUE(course_id,class_name,group_no,seat_no)` 在中间态互撞；
+- 答复前复核两边坐标，中途有人挪过就判 `SEAT_CHANGED` 并把这条申请转 `cancelled`。
+
+`seat_swap_request(id,course_id,requester_id,target_id,from_group,from_seat,to_group,to_seat,status,created_at,expires_at,responded_at)`，`status` 取 pending/accepted/declined/expired/cancelled，保留 `from/to` 坐标是为了答复时能判断申请发出后座位有没有变。
+
+| 接口 | 权限 | 说明 |
+|---|---|---|
+| PUT /courses/{id}/me/seat | S | 坐到空位，body `{group_no,seat_no}`；目标有人返回 409 SEAT_TAKEN，越界 422 OUT_OF_RANGE，未排座 404 NOT_SEATED |
+| POST /courses/{id}/seat-swaps | S | 发起换位申请，body `{target_student_id}`，成功 201；与自己换 409 CANNOT_SWAP_SELF，对方未排座 404 TARGET_NOT_SEATED，已有 pending 409 SWAP_PENDING_EXISTS，对方正在申请自己 409 SWAP_ALREADY_ASKED |
+| GET /courses/{id}/seat-swaps | S | 我发出的、发给我的各最近 10 条，附 `ttl_minutes` |
+| GET /seat-swaps/incoming | S | 跨课程拉「等我答复」的申请，登录后弹窗用 |
+| POST /courses/{id}/seat-swaps/{sid}/accept | S | 只有被申请人能答复；座位已变 409 SEAT_CHANGED，申请已结束 409 SWAP_NOT_PENDING |
+| POST /courses/{id}/seat-swaps/{sid}/decline | S | 拒绝，同样只限被申请人 |
+| DELETE /courses/{id}/seat-swaps/{sid} | S | 发起人撤回 |
+
+教师与助教不走这条路径（403 FORBIDDEN），排座仍由教师端完成。换位结果双方都会收到 `notification`，`event_key` 分别为 `seat_swap:{id}` 与 `seat_swap_result:{id}:{status}`，重复写入不产生第二条。

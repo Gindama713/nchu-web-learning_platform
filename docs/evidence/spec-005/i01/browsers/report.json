@@ -1,0 +1,116 @@
+{
+  "started_at": "2026-10-17T02:45:47.870273+00:00",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "checks": [
+        "B1_existing_resource_upload_real_PNG_415_no_image_object",
+        "B2_existing_resource_UI_permitted_PDF_two_versions_control_only",
+        "B3_existing_005_editor_saves_contract_sanitized_markup_without_reference_picker",
+        "A1_B4_real_student_005_reading_progress_refresh_no_embedded_resource_request",
+        "A2_real_009_list_guidance_knowledge_labels_and_entry_event_observed",
+        "B5_independent_PDF_old_version_UI_download_and_permission_reread_not_image_proof",
+        "A3_005_unpublish_clears_old_detail_009_member_revocation_clears_entry"
+      ],
+      "page_errors": [],
+      "blocked": [
+        "I01-017-01: no mounted 017 workbench; no UI wiring/save/refresh/submit pass",
+        "I01-010C-01: no existing wiring analytics page; handler consumption only",
+        "B image preview/download blocked: PNG upload rejects every defined kind; knowledge reference contract absent"
+      ],
+      "version": "155.0.8059.41",
+      "headings": [
+        "中央处理器课程学习系统",
+        "课程",
+        "章节与知识",
+        "章节目录",
+        "I01 ALU",
+        "I01图文边界",
+        "例题",
+        "课程检索问答",
+        "通知",
+        "课程题库",
+        "课程试卷",
+        "随堂测",
+        "答卷历史与结果",
+        "个人学习推荐",
+        "公开练习与个人错题",
+        "教学资源",
+        "实验中心（实验辅助）",
+        "本人可见历史版本",
+        "EXP-01 · I01浏览器ALU实验 · v1",
+        "实验目标",
+        "实验器件",
+        "实验步骤",
+        "验证规则（公开部分）",
+        "关联知识点",
+        "提交入口",
+        "知识与分类成绩分析",
+        "原快照 #2 · 知识分析"
+      ],
+      "download": {
+        "control": "PDF v1 only",
+        "bytes_match": true,
+        "size": 50
+      },
+      "status": "passed_existing_pages_with_explicit_blockers"
+    },
+    {
+      "channel": "msedge",
+      "checks": [
+        "B1_existing_resource_upload_real_PNG_415_no_image_object",
+        "B2_existing_resource_UI_permitted_PDF_two_versions_control_only",
+        "B3_existing_005_editor_saves_contract_sanitized_markup_without_reference_picker",
+        "A1_B4_real_student_005_reading_progress_refresh_no_embedded_resource_request",
+        "A2_real_009_list_guidance_knowledge_labels_and_entry_event_observed",
+        "B5_independent_PDF_old_version_UI_download_and_permission_reread_not_image_proof",
+        "A3_005_unpublish_clears_old_detail_009_member_revocation_clears_entry"
+      ],
+      "page_errors": [],
+      "blocked": [
+        "I01-017-01: no mounted 017 workbench; no UI wiring/save/refresh/submit pass",
+        "I01-010C-01: no existing wiring analytics page; handler consumption only",
+        "B image preview/download blocked: PNG upload rejects every defined kind; knowledge reference contract absent"
+      ],
+      "version": "155.0.4283.45",
+      "headings": [
+        "中央处理器课程学习系统",
+        "课程",
+        "章节与知识",
+        "章节目录",
+        "I01 ALU",
+        "I01图文边界",
+        "例题",
+        "课程检索问答",
+        "通知",
+        "课程题库",
+        "课程试卷",
+        "随堂测",
+        "答卷历史与结果",
+        "个人学习推荐",
+        "公开练习与个人错题",
+        "教学资源",
+        "实验中心（实验辅助）",
+        "本人可见历史版本",
+        "EXP-01 · I01浏览器ALU实验 · v1",
+        "实验目标",
+        "实验器件",
+        "实验步骤",
+        "验证规则（公开部分）",
+        "关联知识点",
+        "提交入口",
+        "知识与分类成绩分析",
+        "原快照 #2 · 知识分析"
+      ],
+      "download": {
+        "control": "PDF v1 only",
+        "bytes_match": true,
+        "size": 50
+      },
+      "status": "passed_existing_pages_with_explicit_blockers"
+    }
+  ],
+  "tested_head": "96f4f2989765359e01949f4003dde4d32c0c4814",
+  "dirty_paths": [],
+  "status": "passed_existing_pages_with_explicit_blockers"
+}

@@ -1,0 +1,4723 @@
+{
+  "requests": [
+    {
+      "transport": "real Flask handler",
+      "actor": "admin",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006ADMIN",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "94c92597c5a798857f4b9530e2629541c3ee9b204b165d06484c8919fa3483a0",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "T006ADMIN",
+            "role": "admin",
+            "student_no": "T006ADMIN"
+          }
+        },
+        "request_id": "a8b52672a85f4589a1be7f40880c33be"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006TEACH",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "e80ac3f54ded270de60b5c93677988e66e4f0ca8d175865e0c5e3455fef4b960",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "T006TEACH",
+            "role": "teacher",
+            "student_no": "T006TEACH"
+          }
+        },
+        "request_id": "e785d747515f473581c454818b289ebc"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T006STUD1",
+        "name": "T006STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 201,
+      "response_sha256": "382c3ee3466a86c68f7d70a32c069c53b5d63e803093342d51050ca1ccee65c5",
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T006STUD1",
+            "role": "student",
+            "student_no": "T006STUD1"
+          }
+        },
+        "request_id": "461799218c314e13929d75843eb73029"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "a7893d0cac3031e40d609d38e6a9e8a74da208a26245ed910e6eff4ee8a87c76",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T006STUD1",
+            "role": "student",
+            "student_no": "T006STUD1"
+          }
+        },
+        "request_id": "fbcf36787e654b0d94c1c95da1d04960"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "outsider",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T006STUD2",
+        "name": "T006STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 201,
+      "response_sha256": "777c4280120af3869e64dcc688ac723bac3bd68bb64d60bce0e7285204e10874",
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T006STUD2",
+            "role": "student",
+            "student_no": "T006STUD2"
+          }
+        },
+        "request_id": "2aacd9c96fd842119505822244f10b60"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "outsider",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "2bc2631a2eebee368b22cd74fae2e99a2f9ca403218a4bea36f8865dc0a3b9b6",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T006STUD2",
+            "role": "student",
+            "student_no": "T006STUD2"
+          }
+        },
+        "request_id": "263b5594481b4bf0bd03e7fe2ad5b98d"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "admin",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/courses",
+      "request": {
+        "title": "C02a CPU",
+        "teacher_id": 2
+      },
+      "status": 201,
+      "response_sha256": "5bcf0f10f4e2e76c293a7b238dca32014585d3bf954dbae82c48222af0b9ebb0",
+      "response": {
+        "data": {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        },
+        "request_id": "0f3d009a68d14913b4a68f710c382bb7"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 3,
+        "member_role": "student"
+      },
+      "status": 201,
+      "response_sha256": "65f32cd49a70a38d09ac4c79591242189e33f3f35a3867e0c2abe6e488289f2e",
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 3
+        },
+        "request_id": "5c865cd917be4bdb8dbfdf74a429fcf6"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/courses/1/chapters",
+      "request": {
+        "title": "CPU"
+      },
+      "status": 201,
+      "response_sha256": "bfe56bf6bf716965bc0a96645ba7d828451d2a1d58c7d4364b76782fb641a9c2",
+      "response": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        },
+        "request_id": "3d5180aa2b8844579b5bb8f50054d072"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "知识点1",
+        "content": "教学正文",
+        "published": true
+      },
+      "status": 201,
+      "response_sha256": "283a38d6653cad9c829532b84b557ff17956abcb5d16d14753f3c53c5150512b",
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点1"
+        },
+        "request_id": "dc562ce0e7644552b923bb659697d402"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-13T12:00:00+00:00",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "知识点2",
+        "content": "教学正文",
+        "published": true
+      },
+      "status": 201,
+      "response_sha256": "b74f6c3605602a99369007360ff70fce937eddd709daf0c01eacd1401ec99a30",
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点2"
+        },
+        "request_id": "8e829136256e4469baa3fd29bbb95d5e"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "admin",
+      "at": "2026-10-11T15:50:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006ADMIN",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "71eb983193d930a8ef48dddadd8030c9e4d28a735cea822f9892d8a2165f61e8",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "T006ADMIN",
+            "role": "admin",
+            "student_no": "T006ADMIN"
+          }
+        },
+        "request_id": "f2e6fdcaaed04e81bec35e432168de8c"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:50:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006TEACH",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "612244403a8aef1d4d27115479bd1c3e4547ff790042402b50bbfe6bce48789a",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "T006TEACH",
+            "role": "teacher",
+            "student_no": "T006TEACH"
+          }
+        },
+        "request_id": "04b6bc5e329f4d6bb884b96954f523bb"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-11T15:50:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "dcfd65e9740bf793fa6c76c6b4d72995e3c12ba94b53ec28ece0570be074136c",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T006STUD1",
+            "role": "student",
+            "student_no": "T006STUD1"
+          }
+        },
+        "request_id": "31f361d6eae34100a5916542a09d66ac"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "outsider",
+      "at": "2026-10-11T15:50:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "78f877a63551f1a33a59fbdf3dec0bcd51a7c371fd48d86b2998d1a9f03f08a5",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T006STUD2",
+            "role": "student",
+            "student_no": "T006STUD2"
+          }
+        },
+        "request_id": "da48aad548c64a25a3c4d0762c0cceb5"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:50:00+00:00",
+      "method": "POST",
+      "path": "/courses/1/questions",
+      "request": {
+        "type": "single",
+        "stem": "PC的作用？",
+        "difficulty": "easy",
+        "knowledge_ids": [
+          1,
+          2
+        ],
+        "options": [
+          {
+            "key": "A",
+            "text": "下一条指令地址"
+          },
+          {
+            "key": "B",
+            "text": "当前数据"
+          }
+        ],
+        "answer": "A",
+        "practice_available": true
+      },
+      "status": 201,
+      "response_sha256": "3b84057ba152cd876cd00b25f749f9a0f0d69934160c62440d7b09ecdeb1f48c",
+      "response": {
+        "data": {
+          "answer": "A",
+          "difficulty": "easy",
+          "explanation": "",
+          "id": 1,
+          "knowledge_ids": [
+            1,
+            2
+          ],
+          "options": [
+            {
+              "key": "A",
+              "text": "下一条指令地址"
+            },
+            {
+              "key": "B",
+              "text": "当前数据"
+            }
+          ],
+          "practice_available": true,
+          "stem": "PC的作用？",
+          "tolerance": 0.0,
+          "type": "single",
+          "version": 1,
+          "version_id": 1
+        },
+        "request_id": "1825aa86a32b4b35b2cb5274406c7ab0"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:50:00+00:00",
+      "method": "POST",
+      "path": "/courses/1/questions",
+      "request": {
+        "type": "single",
+        "stem": "PC的作用？",
+        "difficulty": "easy",
+        "knowledge_ids": [
+          1,
+          2
+        ],
+        "options": [
+          {
+            "key": "A",
+            "text": "下一条指令地址"
+          },
+          {
+            "key": "B",
+            "text": "当前数据"
+          }
+        ],
+        "answer": "A"
+      },
+      "status": 201,
+      "response_sha256": "c3bf7211beb526224a6ef8b535589f52b66d631d45585d1e7591a69c50488b4f",
+      "response": {
+        "data": {
+          "answer": "A",
+          "difficulty": "easy",
+          "explanation": "",
+          "id": 2,
+          "knowledge_ids": [
+            1,
+            2
+          ],
+          "options": [
+            {
+              "key": "A",
+              "text": "下一条指令地址"
+            },
+            {
+              "key": "B",
+              "text": "当前数据"
+            }
+          ],
+          "practice_available": false,
+          "stem": "PC的作用？",
+          "tolerance": 0.0,
+          "type": "single",
+          "version": 1,
+          "version_id": 2
+        },
+        "request_id": "a99a608ff1c94ad3850675396ba39e70"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:50:00+00:00",
+      "method": "POST",
+      "path": "/courses/1/questions",
+      "request": {
+        "type": "boolean",
+        "stem": "PC的作用？",
+        "difficulty": "easy",
+        "knowledge_ids": [
+          2
+        ],
+        "options": [],
+        "answer": true
+      },
+      "status": 201,
+      "response_sha256": "58e733397adac2410421e4337a37aa1dfaec0ac31fbbd803c318146d212acd6d",
+      "response": {
+        "data": {
+          "answer": true,
+          "difficulty": "easy",
+          "explanation": "",
+          "id": 3,
+          "knowledge_ids": [
+            2
+          ],
+          "options": [],
+          "practice_available": false,
+          "stem": "PC的作用？",
+          "tolerance": 0.0,
+          "type": "boolean",
+          "version": 1,
+          "version_id": 3
+        },
+        "request_id": "22039f23d96c4d1583220818f59ca718"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:50:00+00:00",
+      "method": "POST",
+      "path": "/courses/1/questions",
+      "request": {
+        "type": "short",
+        "stem": "PC的作用？",
+        "difficulty": "easy",
+        "knowledge_ids": [
+          1
+        ],
+        "options": [],
+        "answer": "受控参考"
+      },
+      "status": 201,
+      "response_sha256": "7bfa30716549d64963ef60485c9aceffac011fc80e9d935af044f3c53e207310",
+      "response": {
+        "data": {
+          "answer": "受控参考",
+          "difficulty": "easy",
+          "explanation": "",
+          "id": 4,
+          "knowledge_ids": [
+            1
+          ],
+          "options": [],
+          "practice_available": false,
+          "stem": "PC的作用？",
+          "tolerance": 0.0,
+          "type": "short",
+          "version": 1,
+          "version_id": 4
+        },
+        "request_id": "2c4ccb2e9356429e91808c43d68a8a41"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:50:00+00:00",
+      "method": "POST",
+      "path": "/courses/1/papers",
+      "request": {
+        "title": "两周混合来源测验",
+        "kind": "quiz",
+        "confidential": true,
+        "items": [
+          {
+            "question_version_id": 2,
+            "points": 10
+          },
+          {
+            "question_version_id": 3,
+            "points": 10
+          },
+          {
+            "question_version_id": 4,
+            "points": 10
+          }
+        ]
+      },
+      "status": 201,
+      "response_sha256": "1d190e6155efa96f7281333fad93631c7eddf2ad832953d4fbbe213d19031ace",
+      "response": {
+        "data": {
+          "algorithm_version": null,
+          "confidential": true,
+          "confidentiality_note": null,
+          "end_at": null,
+          "generation_snapshot_id": null,
+          "id": 1,
+          "items": [
+            {
+              "answer": "A",
+              "difficulty": "easy",
+              "explanation": "",
+              "id": 2,
+              "knowledge_ids": [
+                1,
+                2
+              ],
+              "options": [
+                {
+                  "key": "A",
+                  "text": "下一条指令地址"
+                },
+                {
+                  "key": "B",
+                  "text": "当前数据"
+                }
+              ],
+              "points": 10.0,
+              "position": 1,
+              "practice_available": false,
+              "question_version_id": 2,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "single",
+              "version": 1,
+              "version_id": 2
+            },
+            {
+              "answer": true,
+              "difficulty": "easy",
+              "explanation": "",
+              "id": 3,
+              "knowledge_ids": [
+                2
+              ],
+              "options": [],
+              "points": 10.0,
+              "position": 2,
+              "practice_available": false,
+              "question_version_id": 3,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "boolean",
+              "version": 1,
+              "version_id": 3
+            },
+            {
+              "answer": "受控参考",
+              "difficulty": "easy",
+              "explanation": "",
+              "id": 4,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [],
+              "points": 10.0,
+              "position": 3,
+              "practice_available": false,
+              "question_version_id": 4,
+              "stem": "PC的作用？",
+              "tolerance": 0.0,
+              "type": "short",
+              "version": 1,
+              "version_id": 4
+            }
+          ],
+          "kind": "quiz",
+          "participant_count": 0,
+          "review_at": null,
+          "seed": null,
+          "start_at": null,
+          "status": "draft",
+          "title": "两周混合来源测验",
+          "total_points": 30.0,
+          "window_state": null
+        },
+        "request_id": "12b9f6f3c9fe4b56b4a4d87d406bf950"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:50:00+00:00",
+      "method": "POST",
+      "path": "/courses/1/quizzes",
+      "request": {
+        "paper_id": 1,
+        "start_at": "2026-10-11T15:55:00Z",
+        "end_at": "2026-10-11T16:10:00Z",
+        "confidentiality_note": "受控未公开题"
+      },
+      "status": 201,
+      "response_sha256": "9691f69e8a162dbb76e5f66c2a9224a67ac67ec895abea5290b3d2b24f045132",
+      "response": {
+        "data": {
+          "algorithm_version": null,
+          "confidential": true,
+          "confidentiality_note": "受控未公开题",
+          "end_at": "2026-10-11T16:10:00.000Z",
+          "generation_snapshot_id": null,
+          "id": 1,
+          "kind": "quiz",
+          "paper_id": 1,
+          "participant_count": 1,
+          "review_at": null,
+          "seed": null,
+          "start_at": "2026-10-11T15:55:00.000Z",
+          "status": "upcoming",
+          "title": "两周混合来源测验",
+          "total_points": 30.0,
+          "window_state": "upcoming"
+        },
+        "request_id": "3e849ff5535846d08a38edc3c151c4aa"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "admin",
+      "at": "2026-10-11T15:58:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006ADMIN",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "5bd14389148a4db57c625bb3a07c05400fa40f7fe0ad6445e441846d6177dbdd",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "T006ADMIN",
+            "role": "admin",
+            "student_no": "T006ADMIN"
+          }
+        },
+        "request_id": "0a9103702fb547a3815a76851d0c90bd"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:58:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006TEACH",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "93fe9cd8b0293cc834bffb474a6fe61582c0ae8e0c382e06209daf7527b2086f",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "T006TEACH",
+            "role": "teacher",
+            "student_no": "T006TEACH"
+          }
+        },
+        "request_id": "a40d3656d02943deb5e690f4d1eb94dc"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-11T15:58:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "e4c429c32e281cc73c78800ce5d8b4c9580da0de97ac200ef8fdd511fe3fc618",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T006STUD1",
+            "role": "student",
+            "student_no": "T006STUD1"
+          }
+        },
+        "request_id": "e3b632bb73f14aa9b17a27d985909d08"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "outsider",
+      "at": "2026-10-11T15:58:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "d3b4ca8f0ae7fcab1bce2a3eb78a4fc85f425cb4b093c379b1ee71f2ed32bbd8",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T006STUD2",
+            "role": "student",
+            "student_no": "T006STUD2"
+          }
+        },
+        "request_id": "6927123baece428290ab28cc242954ef"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-11T15:58:00+00:00",
+      "method": "POST",
+      "path": "/questions/1/practice-attempts",
+      "request": {
+        "question_version_id": 1,
+        "answer": "B"
+      },
+      "status": 201,
+      "response_sha256": "6295b3269c5c9f34c99e9b6f668e6346eebd76d76c5dcec777d970053de9e343",
+      "response": {
+        "data": {
+          "attempt_id": 1,
+          "correct": false,
+          "explanation": "",
+          "question_version_id": 1,
+          "score": 0.0
+        },
+        "request_id": "1b99c69ba6094eb38be117351993049c"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-11T15:58:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/recommendations",
+      "request": null,
+      "status": 200,
+      "response_sha256": "9c613189e2eae05deeda3500a63568f7fc8f16ffe36469c37de6a607470a9d00",
+      "response": {
+        "data": {
+          "algorithm_version": "recommend-v1",
+          "items": [
+            {
+              "knowledge_id": 1,
+              "mastery": 0.0,
+              "question_version_id": 1,
+              "reason": "insufficient_sample",
+              "sample_size": 1,
+              "score": 1.0
+            },
+            {
+              "knowledge_id": 2,
+              "mastery": 0.0,
+              "question_version_id": 1,
+              "reason": "insufficient_sample",
+              "sample_size": 1,
+              "score": 1.0
+            }
+          ],
+          "reason": "ok",
+          "source_until": "2026-10-11T15:58:00.001Z"
+        },
+        "request_id": "1514d78bc4ba40e1ad416fdc5c217cee"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "admin",
+      "at": "2026-10-11T15:59:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006ADMIN",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "0e4feaba88cbc7b67ad0cb6d7609977ac14f10be6c885c1446e7a41e7e7a15f9",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "T006ADMIN",
+            "role": "admin",
+            "student_no": "T006ADMIN"
+          }
+        },
+        "request_id": "7d7003212bd6402f9c2226fab40d25e2"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:59:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006TEACH",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "0a80d419034e88e5f9ec3d8999befe9c212425369c8ac8800711cde5723addfb",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "T006TEACH",
+            "role": "teacher",
+            "student_no": "T006TEACH"
+          }
+        },
+        "request_id": "8e9b8cc830e0432ca0eaf104dab9590b"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-11T15:59:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "a7d863bf431ccf216770a1d5ad1d5c3e7a58ea529c701d40d701595af7b2fae1",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T006STUD1",
+            "role": "student",
+            "student_no": "T006STUD1"
+          }
+        },
+        "request_id": "6001ed399ed045f8a6ad8a1a465b3014"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "outsider",
+      "at": "2026-10-11T15:59:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "547296f367c204420cf1b1ce370b5f0a4feaef4cdfe35b77e01fe8d8d864a649",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T006STUD2",
+            "role": "student",
+            "student_no": "T006STUD2"
+          }
+        },
+        "request_id": "56a055b7429c465b922c80bb8794abaf"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-11T15:59:00+00:00",
+      "method": "POST",
+      "path": "/quizzes/1/attempts",
+      "request": {
+        "answers": [
+          {
+            "question_version_id": 2,
+            "value": "A"
+          },
+          {
+            "question_version_id": 4,
+            "value": "受控简答"
+          }
+        ]
+      },
+      "status": 201,
+      "response_sha256": "876dcdbc30bc84b95b47b6931111f03ab0e57cfdb3cca9325a701f53df910bfb",
+      "response": {
+        "data": {
+          "answers": [
+            {
+              "answered": true,
+              "comment": "",
+              "correct": true,
+              "grading_status": "graded",
+              "max_score": 10.0,
+              "question_version_id": 2,
+              "score": 10.0,
+              "value": "A"
+            },
+            {
+              "answered": false,
+              "comment": "",
+              "correct": false,
+              "grading_status": "unanswered",
+              "max_score": 10.0,
+              "question_version_id": 3,
+              "score": 0.0,
+              "value": null
+            },
+            {
+              "answered": true,
+              "comment": "",
+              "correct": null,
+              "grading_status": "pending",
+              "max_score": 10.0,
+              "question_version_id": 4,
+              "score": null,
+              "value": "受控简答"
+            }
+          ],
+          "id": 1,
+          "paper_id": 1,
+          "partial_score": 10.0,
+          "revision": 0,
+          "score": null,
+          "status": "partial",
+          "student_id": 3,
+          "submitted_at": "2026-10-11T15:59:00.000Z",
+          "total_points": 30.0
+        },
+        "request_id": "16218fabc2ef45a99ab199094787203b"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-11T15:59:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/recommendations",
+      "request": null,
+      "status": 200,
+      "response_sha256": "c7c4856b6aa705c8e3eb73ccf84bda1d27133220b87ddb484617da4e82ea6a99",
+      "response": {
+        "data": {
+          "algorithm_version": "recommend-v1",
+          "items": [
+            {
+              "knowledge_id": 1,
+              "mastery": 0.5,
+              "question_version_id": 1,
+              "reason": "insufficient_sample",
+              "sample_size": 2,
+              "score": 0.6
+            },
+            {
+              "knowledge_id": 2,
+              "mastery": 0.5,
+              "question_version_id": 1,
+              "reason": "insufficient_sample",
+              "sample_size": 2,
+              "score": 0.6
+            }
+          ],
+          "reason": "ok",
+          "source_until": "2026-10-11T15:59:00.001Z"
+        },
+        "request_id": "942a0e04488f4e2e9e402ba0c7f7ec58"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-11T15:59:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/analytics?dimension=knowledge",
+      "request": null,
+      "status": 200,
+      "response_sha256": "291a8cb831936e9d33a5d7eef0811ec6295ef20f1cad59ae690713eca6c95263",
+      "response": {
+        "data": {
+          "algorithm_version": "knowledge-objective-v1",
+          "analysis_run_id": 1,
+          "dimension": "knowledge",
+          "filters": {
+            "from": "2026-09-13T15:59:00.001Z",
+            "knowledge_ids": [
+              1,
+              2
+            ],
+            "student_id": 3,
+            "to": "2026-10-11T15:59:00.001Z"
+          },
+          "generated_at": "2026-10-11T15:59:00.001Z",
+          "metrics": {
+            "answered_count": 2,
+            "completed_knowledge_count": 0,
+            "correct_count": 1,
+            "items": [
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 1,
+                "mastery": 0.5,
+                "title": "知识点1",
+                "wrong_count": 1
+              },
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 2,
+                "mastery": 0.5,
+                "title": "知识点2",
+                "wrong_count": 1
+              }
+            ],
+            "mastery": 0.5,
+            "progress": 0.0,
+            "published_knowledge_count": 2
+          },
+          "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+          "sample_size": 2,
+          "series": [
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-13T16:00:00.000Z",
+              "period_start": "2026-09-13T15:59:00.001Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-20T16:00:00.000Z",
+              "period_start": "2026-09-13T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-27T16:00:00.000Z",
+              "period_start": "2026-09-20T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-04T16:00:00.000Z",
+              "period_start": "2026-09-27T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 2,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 1,
+                    "mastery": 0.5,
+                    "title": "知识点1",
+                    "wrong_count": 1
+                  },
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 0.5,
+                    "title": "知识点2",
+                    "wrong_count": 1
+                  }
+                ],
+                "mastery": 0.5,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-11T15:59:00.001Z",
+              "period_start": "2026-10-04T16:00:00.000Z"
+            }
+          ],
+          "source_until": "2026-10-11T15:59:00.001Z",
+          "unit": {
+            "mastery": "ratio",
+            "progress": "ratio"
+          },
+          "warnings": [
+            "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+          ]
+        },
+        "request_id": "c5381e3024304c3a82b099977f5a441a"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:59:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/analytics?dimension=knowledge&student_id=3",
+      "request": null,
+      "status": 200,
+      "response_sha256": "2962b32ea464e8f12085073a1fda1181c1f7a0c0feaefe86bc7f5b7244633dd7",
+      "response": {
+        "data": {
+          "algorithm_version": "knowledge-objective-v1",
+          "analysis_run_id": 2,
+          "dimension": "knowledge",
+          "filters": {
+            "from": "2026-09-13T15:59:00.001Z",
+            "knowledge_ids": [
+              1,
+              2
+            ],
+            "student_id": 3,
+            "to": "2026-10-11T15:59:00.001Z"
+          },
+          "generated_at": "2026-10-11T15:59:00.001Z",
+          "metrics": {
+            "answered_count": 2,
+            "completed_knowledge_count": 0,
+            "correct_count": 1,
+            "items": [
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 1,
+                "mastery": 0.5,
+                "title": "知识点1",
+                "wrong_count": 1
+              },
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 2,
+                "mastery": 0.5,
+                "title": "知识点2",
+                "wrong_count": 1
+              }
+            ],
+            "mastery": 0.5,
+            "progress": 0.0,
+            "published_knowledge_count": 2
+          },
+          "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+          "sample_size": 2,
+          "series": [
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-13T16:00:00.000Z",
+              "period_start": "2026-09-13T15:59:00.001Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-20T16:00:00.000Z",
+              "period_start": "2026-09-13T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-27T16:00:00.000Z",
+              "period_start": "2026-09-20T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-04T16:00:00.000Z",
+              "period_start": "2026-09-27T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 2,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 1,
+                    "mastery": 0.5,
+                    "title": "知识点1",
+                    "wrong_count": 1
+                  },
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 0.5,
+                    "title": "知识点2",
+                    "wrong_count": 1
+                  }
+                ],
+                "mastery": 0.5,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-11T15:59:00.001Z",
+              "period_start": "2026-10-04T16:00:00.000Z"
+            }
+          ],
+          "source_until": "2026-10-11T15:59:00.001Z",
+          "unit": {
+            "mastery": "ratio",
+            "progress": "ratio"
+          },
+          "warnings": [
+            "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+          ]
+        },
+        "request_id": "3e4451ca172944b583dcf532787a8beb"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-11T15:59:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/analytics/export?analysis_run_id=2&format=csv",
+      "request": null,
+      "status": 200,
+      "response_sha256": "c91901c8cda690aca3caa734d57b3c84c2d9a27708b7f14e17d72c6d407b6a55",
+      "response": "﻿analysis_run_id,2\r\ndimension,knowledge\r\nsource_until,2026-10-11T15:59:00.001Z\r\ngenerated_at,2026-10-11T15:59:00.001Z\r\nalgorithm_version,knowledge-objective-v1\r\nsample_size,2\r\npopulation_basis,objective_answer_events;progress=current_published_knowledge_snapshot\r\nunit,\"{\"\"mastery\"\":\"\"ratio\"\",\"\"progress\"\":\"\"ratio\"\"}\"\r\nwarnings,\"[\"\"自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合\"\"]\"\r\nfilters,\"{\"\"from\"\":\"\"2026-09-13T15:59:00.001Z\"\",\"\"to\"\":\"\"2026-10-11T15:59:00.001Z\"\",\"\"student_id\"\":3,\"\"knowledge_ids\"\":[1,2]}\"\r\nsection,period_start,period_end,answered_count,completed_knowledge_count,correct_count,mastery,progress,published_knowledge_count\r\noverall,,,2,0,1,0.5,0.0,2\r\nseries,2026-09-13T15:59:00.001Z,2026-09-13T16:00:00.000Z,0,0,0,,0.0,2\r\nseries,2026-09-13T16:00:00.000Z,2026-09-20T16:00:00.000Z,0,0,0,,0.0,2\r\nseries,2026-09-20T16:00:00.000Z,2026-09-27T16:00:00.000Z,0,0,0,,0.0,2\r\nseries,2026-09-27T16:00:00.000Z,2026-10-04T16:00:00.000Z,0,0,0,,0.0,2\r\nseries,2026-10-04T16:00:00.000Z,2026-10-11T15:59:00.001Z,2,0,1,0.5,0.0,2\r\nknowledge_items,knowledge_id,title,answered_count,correct_count,wrong_count,mastery\r\nitem,1,知识点1,2,1,1,0.5\r\nitem,2,知识点2,2,1,1,0.5\r\nknowledge_series_items,period_start,period_end,knowledge_id,title,answered_count,correct_count,wrong_count,mastery\r\nseries_item,2026-09-13T15:59:00.001Z,2026-09-13T16:00:00.000Z,1,知识点1,0,0,0,\r\nseries_item,2026-09-13T15:59:00.001Z,2026-09-13T16:00:00.000Z,2,知识点2,0,0,0,\r\nseries_item,2026-09-13T16:00:00.000Z,2026-09-20T16:00:00.000Z,1,知识点1,0,0,0,\r\nseries_item,2026-09-13T16:00:00.000Z,2026-09-20T16:00:00.000Z,2,知识点2,0,0,0,\r\nseries_item,2026-09-20T16:00:00.000Z,2026-09-27T16:00:00.000Z,1,知识点1,0,0,0,\r\nseries_item,2026-09-20T16:00:00.000Z,2026-09-27T16:00:00.000Z,2,知识点2,0,0,0,\r\nseries_item,2026-09-27T16:00:00.000Z,2026-10-04T16:00:00.000Z,1,知识点1,0,0,0,\r\nseries_item,2026-09-27T16:00:00.000Z,2026-10-04T16:00:00.000Z,2,知识点2,0,0,0,\r\nseries_item,2026-10-04T16:00:00.000Z,2026-10-11T15:59:00.001Z,1,知识点1,2,1,1,0.5\r\nseries_item,2026-10-04T16:00:00.000Z,2026-10-11T15:59:00.001Z,2,知识点2,2,1,1,0.5\r\n"
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "admin",
+      "at": "2026-10-12T00:05:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006ADMIN",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "fb38ede3b0546a77de885638b189260ccd29ca5b33cc4c3a22ca3a421aa24712",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "T006ADMIN",
+            "role": "admin",
+            "student_no": "T006ADMIN"
+          }
+        },
+        "request_id": "fca8d5cb9e464d818d232aadeb32002d"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-12T00:05:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006TEACH",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "e8297b7a6c17724f2bb89865ebfccadac9adf82f82a60b1919b6f7be6110fb62",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "T006TEACH",
+            "role": "teacher",
+            "student_no": "T006TEACH"
+          }
+        },
+        "request_id": "a2d2cdd8ef46428d9e7ded94ae3790a0"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-12T00:05:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "724b762dfa7f7a28e465a0404712106e16890522b5da0de95e6a76b5f26cd4e9",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T006STUD1",
+            "role": "student",
+            "student_no": "T006STUD1"
+          }
+        },
+        "request_id": "1a1cb6e7ed3349cbb162a3889da70c47"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "outsider",
+      "at": "2026-10-12T00:05:00+00:00",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T006STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "response_sha256": "8e21096e2736bdfb12f86db492131f0b3c673b80575880d760ef004face77572",
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T006STUD2",
+            "role": "student",
+            "student_no": "T006STUD2"
+          }
+        },
+        "request_id": "5e458d9c348b40f0ab2c5f9d6feb5a3f"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-12T00:05:00+00:00",
+      "method": "PATCH",
+      "path": "/questions/1",
+      "request": {
+        "answer": "B",
+        "knowledge_ids": [
+          2
+        ]
+      },
+      "status": 200,
+      "response_sha256": "a820b452c254656d7a32e72019b11d2914e6272d5936a8be633c4b717513d611",
+      "response": {
+        "data": {
+          "answer": "B",
+          "difficulty": "easy",
+          "explanation": "",
+          "id": 1,
+          "knowledge_ids": [
+            2
+          ],
+          "options": [
+            {
+              "key": "A",
+              "text": "下一条指令地址"
+            },
+            {
+              "key": "B",
+              "text": "当前数据"
+            }
+          ],
+          "practice_available": true,
+          "stem": "PC的作用？",
+          "tolerance": 0.0,
+          "type": "single",
+          "version": 2,
+          "version_id": 5
+        },
+        "request_id": "c14ec2a990e441839d3b767ff6d05abd"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-12T00:05:00+00:00",
+      "method": "PATCH",
+      "path": "/questions/2",
+      "request": {
+        "answer": "B",
+        "knowledge_ids": [
+          2
+        ]
+      },
+      "status": 200,
+      "response_sha256": "78c0895081d27e1ed2cc7268cbc7dce5df7a3a1218d0eddc7d8db207157fd252",
+      "response": {
+        "data": {
+          "answer": "B",
+          "difficulty": "easy",
+          "explanation": "",
+          "id": 2,
+          "knowledge_ids": [
+            2
+          ],
+          "options": [
+            {
+              "key": "A",
+              "text": "下一条指令地址"
+            },
+            {
+              "key": "B",
+              "text": "当前数据"
+            }
+          ],
+          "practice_available": false,
+          "stem": "PC的作用？",
+          "tolerance": 0.0,
+          "type": "single",
+          "version": 2,
+          "version_id": 6
+        },
+        "request_id": "e38c9a03e9584eed9dd2d9eb324a7c72"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-12T00:05:00+00:00",
+      "method": "POST",
+      "path": "/questions/1/practice-attempts",
+      "request": {
+        "question_version_id": 5,
+        "answer": "B"
+      },
+      "status": 201,
+      "response_sha256": "b9588526e15138259bc8860afdea2a746b1070eedbbd9854109f2cd1f43bf4fa",
+      "response": {
+        "data": {
+          "attempt_id": 2,
+          "correct": true,
+          "explanation": "",
+          "question_version_id": 5,
+          "score": 100.0
+        },
+        "request_id": "e3084ee902a74b1cb82b0e530824663a"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-12T00:05:00+00:00",
+      "method": "POST",
+      "path": "/questions/1/practice-attempts",
+      "request": {
+        "question_version_id": 5,
+        "answer": null
+      },
+      "status": 201,
+      "response_sha256": "6e00d0145224eec530ddadc1988c6ebd1b077004a38ce274e2af6e2332a0c184",
+      "response": {
+        "data": {
+          "attempt_id": 3,
+          "correct": false,
+          "explanation": "",
+          "question_version_id": 5,
+          "score": 0.0
+        },
+        "request_id": "857cd7df5cfa4cb5af26ded8239c0243"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-12T00:05:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/analytics?dimension=knowledge&from=2026-10-04T16:00:00Z&to=2026-10-12T00:05:00.001Z",
+      "request": null,
+      "status": 200,
+      "response_sha256": "fd523a294a034bb8c7d704a7184cbede2aaf8f42d4771b68612b85be2a4cb774",
+      "response": {
+        "data": {
+          "algorithm_version": "knowledge-objective-v1",
+          "analysis_run_id": 3,
+          "dimension": "knowledge",
+          "filters": {
+            "from": "2026-10-04T16:00:00.000Z",
+            "knowledge_ids": [
+              1,
+              2
+            ],
+            "student_id": 3,
+            "to": "2026-10-12T00:05:00.001Z"
+          },
+          "generated_at": "2026-10-12T00:05:00.001Z",
+          "metrics": {
+            "answered_count": 3,
+            "completed_knowledge_count": 0,
+            "correct_count": 2,
+            "items": [
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 1,
+                "mastery": 0.5,
+                "title": "知识点1",
+                "wrong_count": 1
+              },
+              {
+                "answered_count": 3,
+                "correct_count": 2,
+                "knowledge_id": 2,
+                "mastery": 0.6666666666666666,
+                "title": "知识点2",
+                "wrong_count": 1
+              }
+            ],
+            "mastery": 0.6666666666666666,
+            "progress": 0.0,
+            "published_knowledge_count": 2
+          },
+          "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+          "sample_size": 3,
+          "series": [
+            {
+              "metrics": {
+                "answered_count": 2,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 1,
+                    "mastery": 0.5,
+                    "title": "知识点1",
+                    "wrong_count": 1
+                  },
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 0.5,
+                    "title": "知识点2",
+                    "wrong_count": 1
+                  }
+                ],
+                "mastery": 0.5,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-11T16:00:00.000Z",
+              "period_start": "2026-10-04T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 1,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 1,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 1.0,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": 1.0,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-12T00:05:00.001Z",
+              "period_start": "2026-10-11T16:00:00.000Z"
+            }
+          ],
+          "source_until": "2026-10-12T00:05:00.001Z",
+          "unit": {
+            "mastery": "ratio",
+            "progress": "ratio"
+          },
+          "warnings": [
+            "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+          ]
+        },
+        "request_id": "335df187d39c45119bdbf0273ffbeaca"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-12T00:05:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/recommendations",
+      "request": null,
+      "status": 200,
+      "response_sha256": "42cab6fc8dab056cc18222436bb5a4ef16161b5b5cd3944cb6a0be5d27f44cbd",
+      "response": {
+        "data": {
+          "algorithm_version": "recommend-v1",
+          "items": [
+            {
+              "knowledge_id": 1,
+              "mastery": 0.5,
+              "question_version_id": null,
+              "reason": "insufficient_sample",
+              "sample_size": 2,
+              "score": 0.6
+            },
+            {
+              "knowledge_id": 2,
+              "mastery": 0.6666666666666666,
+              "question_version_id": 5,
+              "reason": "insufficient_sample",
+              "sample_size": 3,
+              "score": 0.466667
+            }
+          ],
+          "reason": "ok",
+          "source_until": "2026-10-12T00:05:00.001Z"
+        },
+        "request_id": "af2b3c1a6a4245dbb3b37345a635d895"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-12T00:05:00.001000+00:00",
+      "method": "PATCH",
+      "path": "/attempts/1/manual-scores",
+      "request": {
+        "revision": 0,
+        "items": [
+          {
+            "question_version_id": 4,
+            "score": 8,
+            "comment": "受控消费核对"
+          }
+        ]
+      },
+      "status": 200,
+      "response_sha256": "e61a757ce6c9466cf23fdb7d02171d12a24c9b182a5ad00b6126ef927abca4a1",
+      "response": {
+        "data": {
+          "answers": [
+            {
+              "answer": "A",
+              "answered": true,
+              "comment": "",
+              "correct": true,
+              "explanation": "",
+              "grading_status": "graded",
+              "max_score": 10.0,
+              "question_version_id": 2,
+              "score": 10.0,
+              "value": "A"
+            },
+            {
+              "answer": true,
+              "answered": false,
+              "comment": "",
+              "correct": false,
+              "explanation": "",
+              "grading_status": "unanswered",
+              "max_score": 10.0,
+              "question_version_id": 3,
+              "score": 0.0,
+              "value": null
+            },
+            {
+              "answer": "受控参考",
+              "answered": true,
+              "comment": "受控消费核对",
+              "correct": null,
+              "explanation": "",
+              "grading_status": "graded",
+              "max_score": 10.0,
+              "question_version_id": 4,
+              "score": 8.0,
+              "value": "受控简答"
+            }
+          ],
+          "id": 1,
+          "paper_id": 1,
+          "partial_score": 18.0,
+          "revision": 1,
+          "score": 18.0,
+          "status": "graded",
+          "student_id": 3,
+          "submitted_at": "2026-10-11T15:59:00.000Z",
+          "total_points": 30.0
+        },
+        "request_id": "fb6760216b4a4df6a57beb0aceada79b"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-12T00:05:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/analytics?dimension=knowledge&from=2026-10-04T16:00:00Z&to=2026-10-12T00:05:00.001Z",
+      "request": null,
+      "status": 200,
+      "response_sha256": "6ed60e7bf1d2520e28fce71094c65908924b520bcd1a19403441df909648f800",
+      "response": {
+        "data": {
+          "algorithm_version": "knowledge-objective-v1",
+          "analysis_run_id": 4,
+          "dimension": "knowledge",
+          "filters": {
+            "from": "2026-10-04T16:00:00.000Z",
+            "knowledge_ids": [
+              1,
+              2
+            ],
+            "student_id": 3,
+            "to": "2026-10-12T00:05:00.001Z"
+          },
+          "generated_at": "2026-10-12T00:05:00.001Z",
+          "metrics": {
+            "answered_count": 3,
+            "completed_knowledge_count": 0,
+            "correct_count": 2,
+            "items": [
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 1,
+                "mastery": 0.5,
+                "title": "知识点1",
+                "wrong_count": 1
+              },
+              {
+                "answered_count": 3,
+                "correct_count": 2,
+                "knowledge_id": 2,
+                "mastery": 0.6666666666666666,
+                "title": "知识点2",
+                "wrong_count": 1
+              }
+            ],
+            "mastery": 0.6666666666666666,
+            "progress": 0.0,
+            "published_knowledge_count": 2
+          },
+          "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+          "sample_size": 3,
+          "series": [
+            {
+              "metrics": {
+                "answered_count": 2,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 1,
+                    "mastery": 0.5,
+                    "title": "知识点1",
+                    "wrong_count": 1
+                  },
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 0.5,
+                    "title": "知识点2",
+                    "wrong_count": 1
+                  }
+                ],
+                "mastery": 0.5,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-11T16:00:00.000Z",
+              "period_start": "2026-10-04T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 1,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 1,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 1.0,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": 1.0,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-12T00:05:00.001Z",
+              "period_start": "2026-10-11T16:00:00.000Z"
+            }
+          ],
+          "source_until": "2026-10-12T00:05:00.001Z",
+          "unit": {
+            "mastery": "ratio",
+            "progress": "ratio"
+          },
+          "warnings": [
+            "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+          ]
+        },
+        "request_id": "42f459e1ce9b45248e51246075233f2f"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-12T00:05:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/recommendations",
+      "request": null,
+      "status": 200,
+      "response_sha256": "ba326012f1d3afabff728f05bb96222485eb5046e47f812c9bed2c169e136d21",
+      "response": {
+        "data": {
+          "algorithm_version": "recommend-v1",
+          "items": [
+            {
+              "knowledge_id": 1,
+              "mastery": 0.5,
+              "question_version_id": null,
+              "reason": "insufficient_sample",
+              "sample_size": 2,
+              "score": 0.6
+            },
+            {
+              "knowledge_id": 2,
+              "mastery": 0.6666666666666666,
+              "question_version_id": 5,
+              "reason": "insufficient_sample",
+              "sample_size": 3,
+              "score": 0.466667
+            }
+          ],
+          "reason": "ok",
+          "source_until": "2026-10-12T00:05:00.001Z"
+        },
+        "request_id": "13e321e1669449dabd440966a39b6070"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "student",
+      "at": "2026-10-12T00:05:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/analytics?analysis_run_id=1",
+      "request": null,
+      "status": 200,
+      "response_sha256": "3f9bab0d8418c77d5b7356935a0ddd34f7c906519e3ff82afd10cebd3d722840",
+      "response": {
+        "data": {
+          "algorithm_version": "knowledge-objective-v1",
+          "analysis_run_id": 1,
+          "dimension": "knowledge",
+          "filters": {
+            "from": "2026-09-13T15:59:00.001Z",
+            "knowledge_ids": [
+              1,
+              2
+            ],
+            "student_id": 3,
+            "to": "2026-10-11T15:59:00.001Z"
+          },
+          "generated_at": "2026-10-11T15:59:00.001Z",
+          "metrics": {
+            "answered_count": 2,
+            "completed_knowledge_count": 0,
+            "correct_count": 1,
+            "items": [
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 1,
+                "mastery": 0.5,
+                "title": "知识点1",
+                "wrong_count": 1
+              },
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 2,
+                "mastery": 0.5,
+                "title": "知识点2",
+                "wrong_count": 1
+              }
+            ],
+            "mastery": 0.5,
+            "progress": 0.0,
+            "published_knowledge_count": 2
+          },
+          "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+          "sample_size": 2,
+          "series": [
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-13T16:00:00.000Z",
+              "period_start": "2026-09-13T15:59:00.001Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-20T16:00:00.000Z",
+              "period_start": "2026-09-13T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-27T16:00:00.000Z",
+              "period_start": "2026-09-20T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-04T16:00:00.000Z",
+              "period_start": "2026-09-27T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 2,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 1,
+                    "mastery": 0.5,
+                    "title": "知识点1",
+                    "wrong_count": 1
+                  },
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 0.5,
+                    "title": "知识点2",
+                    "wrong_count": 1
+                  }
+                ],
+                "mastery": 0.5,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-11T15:59:00.001Z",
+              "period_start": "2026-10-04T16:00:00.000Z"
+            }
+          ],
+          "source_until": "2026-10-11T15:59:00.001Z",
+          "unit": {
+            "mastery": "ratio",
+            "progress": "ratio"
+          },
+          "warnings": [
+            "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+          ]
+        },
+        "request_id": "a9a699f7636946f1a5dfc5ca1e52f1bb"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-12T00:05:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/analytics?analysis_run_id=2",
+      "request": null,
+      "status": 200,
+      "response_sha256": "057f14a2642f0763e0913f37e9a78418cdf15b485b7d7b0f9c4eba7aee93c97c",
+      "response": {
+        "data": {
+          "algorithm_version": "knowledge-objective-v1",
+          "analysis_run_id": 2,
+          "dimension": "knowledge",
+          "filters": {
+            "from": "2026-09-13T15:59:00.001Z",
+            "knowledge_ids": [
+              1,
+              2
+            ],
+            "student_id": 3,
+            "to": "2026-10-11T15:59:00.001Z"
+          },
+          "generated_at": "2026-10-11T15:59:00.001Z",
+          "metrics": {
+            "answered_count": 2,
+            "completed_knowledge_count": 0,
+            "correct_count": 1,
+            "items": [
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 1,
+                "mastery": 0.5,
+                "title": "知识点1",
+                "wrong_count": 1
+              },
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 2,
+                "mastery": 0.5,
+                "title": "知识点2",
+                "wrong_count": 1
+              }
+            ],
+            "mastery": 0.5,
+            "progress": 0.0,
+            "published_knowledge_count": 2
+          },
+          "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+          "sample_size": 2,
+          "series": [
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-13T16:00:00.000Z",
+              "period_start": "2026-09-13T15:59:00.001Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-20T16:00:00.000Z",
+              "period_start": "2026-09-13T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-27T16:00:00.000Z",
+              "period_start": "2026-09-20T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-04T16:00:00.000Z",
+              "period_start": "2026-09-27T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 2,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 1,
+                    "mastery": 0.5,
+                    "title": "知识点1",
+                    "wrong_count": 1
+                  },
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 0.5,
+                    "title": "知识点2",
+                    "wrong_count": 1
+                  }
+                ],
+                "mastery": 0.5,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-11T15:59:00.001Z",
+              "period_start": "2026-10-04T16:00:00.000Z"
+            }
+          ],
+          "source_until": "2026-10-11T15:59:00.001Z",
+          "unit": {
+            "mastery": "ratio",
+            "progress": "ratio"
+          },
+          "warnings": [
+            "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+          ]
+        },
+        "request_id": "ffedaec77c924b88a4c109dedaf1e624"
+      }
+    },
+    {
+      "transport": "real Flask handler",
+      "actor": "teacher",
+      "at": "2026-10-12T00:05:00.001000+00:00",
+      "method": "GET",
+      "path": "/courses/1/analytics/export?analysis_run_id=2&format=csv",
+      "request": null,
+      "status": 200,
+      "response_sha256": "c91901c8cda690aca3caa734d57b3c84c2d9a27708b7f14e17d72c6d407b6a55",
+      "response": "﻿analysis_run_id,2\r\ndimension,knowledge\r\nsource_until,2026-10-11T15:59:00.001Z\r\ngenerated_at,2026-10-11T15:59:00.001Z\r\nalgorithm_version,knowledge-objective-v1\r\nsample_size,2\r\npopulation_basis,objective_answer_events;progress=current_published_knowledge_snapshot\r\nunit,\"{\"\"mastery\"\":\"\"ratio\"\",\"\"progress\"\":\"\"ratio\"\"}\"\r\nwarnings,\"[\"\"自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合\"\"]\"\r\nfilters,\"{\"\"from\"\":\"\"2026-09-13T15:59:00.001Z\"\",\"\"to\"\":\"\"2026-10-11T15:59:00.001Z\"\",\"\"student_id\"\":3,\"\"knowledge_ids\"\":[1,2]}\"\r\nsection,period_start,period_end,answered_count,completed_knowledge_count,correct_count,mastery,progress,published_knowledge_count\r\noverall,,,2,0,1,0.5,0.0,2\r\nseries,2026-09-13T15:59:00.001Z,2026-09-13T16:00:00.000Z,0,0,0,,0.0,2\r\nseries,2026-09-13T16:00:00.000Z,2026-09-20T16:00:00.000Z,0,0,0,,0.0,2\r\nseries,2026-09-20T16:00:00.000Z,2026-09-27T16:00:00.000Z,0,0,0,,0.0,2\r\nseries,2026-09-27T16:00:00.000Z,2026-10-04T16:00:00.000Z,0,0,0,,0.0,2\r\nseries,2026-10-04T16:00:00.000Z,2026-10-11T15:59:00.001Z,2,0,1,0.5,0.0,2\r\nknowledge_items,knowledge_id,title,answered_count,correct_count,wrong_count,mastery\r\nitem,1,知识点1,2,1,1,0.5\r\nitem,2,知识点2,2,1,1,0.5\r\nknowledge_series_items,period_start,period_end,knowledge_id,title,answered_count,correct_count,wrong_count,mastery\r\nseries_item,2026-09-13T15:59:00.001Z,2026-09-13T16:00:00.000Z,1,知识点1,0,0,0,\r\nseries_item,2026-09-13T15:59:00.001Z,2026-09-13T16:00:00.000Z,2,知识点2,0,0,0,\r\nseries_item,2026-09-13T16:00:00.000Z,2026-09-20T16:00:00.000Z,1,知识点1,0,0,0,\r\nseries_item,2026-09-13T16:00:00.000Z,2026-09-20T16:00:00.000Z,2,知识点2,0,0,0,\r\nseries_item,2026-09-20T16:00:00.000Z,2026-09-27T16:00:00.000Z,1,知识点1,0,0,0,\r\nseries_item,2026-09-20T16:00:00.000Z,2026-09-27T16:00:00.000Z,2,知识点2,0,0,0,\r\nseries_item,2026-09-27T16:00:00.000Z,2026-10-04T16:00:00.000Z,1,知识点1,0,0,0,\r\nseries_item,2026-09-27T16:00:00.000Z,2026-10-04T16:00:00.000Z,2,知识点2,0,0,0,\r\nseries_item,2026-10-04T16:00:00.000Z,2026-10-11T15:59:00.001Z,1,知识点1,2,1,1,0.5\r\nseries_item,2026-10-04T16:00:00.000Z,2026-10-11T15:59:00.001Z,2,知识点2,2,1,1,0.5\r\n"
+    }
+  ],
+  "stages": {
+    "b-first-week": {
+      "values": {
+        "recommendation": {
+          "algorithm_version": "recommend-v1",
+          "items": [
+            {
+              "knowledge_id": 1,
+              "mastery": 0.5,
+              "question_version_id": 1,
+              "reason": "insufficient_sample",
+              "sample_size": 2,
+              "score": 0.6
+            },
+            {
+              "knowledge_id": 2,
+              "mastery": 0.5,
+              "question_version_id": 1,
+              "reason": "insufficient_sample",
+              "sample_size": 2,
+              "score": 0.6
+            }
+          ],
+          "reason": "ok",
+          "source_until": "2026-10-11T15:59:00.001Z"
+        },
+        "knowledge": {
+          "algorithm_version": "knowledge-objective-v1",
+          "analysis_run_id": 1,
+          "dimension": "knowledge",
+          "filters": {
+            "from": "2026-09-13T15:59:00.001Z",
+            "knowledge_ids": [
+              1,
+              2
+            ],
+            "student_id": 3,
+            "to": "2026-10-11T15:59:00.001Z"
+          },
+          "generated_at": "2026-10-11T15:59:00.001Z",
+          "metrics": {
+            "answered_count": 2,
+            "completed_knowledge_count": 0,
+            "correct_count": 1,
+            "items": [
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 1,
+                "mastery": 0.5,
+                "title": "知识点1",
+                "wrong_count": 1
+              },
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 2,
+                "mastery": 0.5,
+                "title": "知识点2",
+                "wrong_count": 1
+              }
+            ],
+            "mastery": 0.5,
+            "progress": 0.0,
+            "published_knowledge_count": 2
+          },
+          "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+          "sample_size": 2,
+          "series": [
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-13T16:00:00.000Z",
+              "period_start": "2026-09-13T15:59:00.001Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-20T16:00:00.000Z",
+              "period_start": "2026-09-13T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-27T16:00:00.000Z",
+              "period_start": "2026-09-20T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-04T16:00:00.000Z",
+              "period_start": "2026-09-27T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 2,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 1,
+                    "mastery": 0.5,
+                    "title": "知识点1",
+                    "wrong_count": 1
+                  },
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 0.5,
+                    "title": "知识点2",
+                    "wrong_count": 1
+                  }
+                ],
+                "mastery": 0.5,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-11T15:59:00.001Z",
+              "period_start": "2026-10-04T16:00:00.000Z"
+            }
+          ],
+          "source_until": "2026-10-11T15:59:00.001Z",
+          "unit": {
+            "mastery": "ratio",
+            "progress": "ratio"
+          },
+          "warnings": [
+            "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+          ]
+        }
+      },
+      "facts": {
+        "question": [
+          {
+            "id": 1,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 1
+          },
+          {
+            "id": 2,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 0
+          },
+          {
+            "id": 3,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 0
+          },
+          {
+            "id": 4,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 0
+          }
+        ],
+        "question_version": [
+          {
+            "id": 1,
+            "question_id": 1,
+            "version": 1,
+            "type": "single",
+            "stem": "PC的作用？",
+            "options_json": "[{\"key\":\"A\",\"text\":\"下一条指令地址\"},{\"key\":\"B\",\"text\":\"当前数据\"}]",
+            "answer_json": "\"A\"",
+            "explanation": "",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 1
+          },
+          {
+            "id": 2,
+            "question_id": 2,
+            "version": 1,
+            "type": "single",
+            "stem": "PC的作用？",
+            "options_json": "[{\"key\":\"A\",\"text\":\"下一条指令地址\"},{\"key\":\"B\",\"text\":\"当前数据\"}]",
+            "answer_json": "\"A\"",
+            "explanation": "",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          },
+          {
+            "id": 3,
+            "question_id": 3,
+            "version": 1,
+            "type": "boolean",
+            "stem": "PC的作用？",
+            "options_json": "[]",
+            "answer_json": "true",
+            "explanation": "",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          },
+          {
+            "id": 4,
+            "question_id": 4,
+            "version": 1,
+            "type": "short",
+            "stem": "PC的作用？",
+            "options_json": "[]",
+            "answer_json": "\"受控参考\"",
+            "explanation": "",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          }
+        ],
+        "question_knowledge": [
+          {
+            "question_version_id": 1,
+            "knowledge_id": 1
+          },
+          {
+            "question_version_id": 1,
+            "knowledge_id": 2
+          },
+          {
+            "question_version_id": 2,
+            "knowledge_id": 1
+          },
+          {
+            "question_version_id": 2,
+            "knowledge_id": 2
+          },
+          {
+            "question_version_id": 3,
+            "knowledge_id": 2
+          },
+          {
+            "question_version_id": 4,
+            "knowledge_id": 1
+          }
+        ],
+        "paper": [
+          {
+            "id": 1,
+            "course_id": 1,
+            "title": "两周混合来源测验",
+            "kind": "quiz",
+            "status": "published",
+            "confidential": 1,
+            "confidentiality_note": "受控未公开题",
+            "start_at": "2026-10-11T15:55:00.000Z",
+            "end_at": "2026-10-11T16:10:00.000Z",
+            "review_at": null,
+            "seed": null,
+            "algorithm_version": null,
+            "generation_snapshot_id": null
+          }
+        ],
+        "paper_item": [
+          {
+            "paper_id": 1,
+            "question_version_id": 2,
+            "question_id": 2,
+            "position": 1,
+            "points_hundredths": 1000
+          },
+          {
+            "paper_id": 1,
+            "question_version_id": 3,
+            "question_id": 3,
+            "position": 2,
+            "points_hundredths": 1000
+          },
+          {
+            "paper_id": 1,
+            "question_version_id": 4,
+            "question_id": 4,
+            "position": 3,
+            "points_hundredths": 1000
+          }
+        ],
+        "paper_participant": [
+          {
+            "paper_id": 1,
+            "student_id": 3
+          }
+        ],
+        "attempt": [
+          {
+            "id": 1,
+            "paper_id": 1,
+            "student_id": 3,
+            "status": "partial",
+            "score_hundredths": null,
+            "partial_score_hundredths": 1000,
+            "revision": 0,
+            "submitted_at": "2026-10-11T15:59:00.000Z"
+          }
+        ],
+        "answer": [
+          {
+            "id": 1,
+            "attempt_id": 1,
+            "question_version_id": 2,
+            "value_json": "\"A\"",
+            "score_hundredths": 1000,
+            "answered": 1,
+            "graded_by": null,
+            "comment": ""
+          },
+          {
+            "id": 2,
+            "attempt_id": 1,
+            "question_version_id": 3,
+            "value_json": "null",
+            "score_hundredths": 0,
+            "answered": 0,
+            "graded_by": null,
+            "comment": ""
+          },
+          {
+            "id": 3,
+            "attempt_id": 1,
+            "question_version_id": 4,
+            "value_json": "\"受控简答\"",
+            "score_hundredths": null,
+            "answered": 1,
+            "graded_by": null,
+            "comment": ""
+          }
+        ],
+        "practice_attempt": [
+          {
+            "id": 1,
+            "student_id": 3,
+            "question_version_id": 1,
+            "answer_json": "\"B\"",
+            "answered": 1,
+            "correct": 0,
+            "score_hundredths": 0,
+            "created_at": "2026-10-11T15:58:00.000Z"
+          }
+        ],
+        "wrong_question": [
+          {
+            "id": 1,
+            "student_id": 3,
+            "question_id": 1,
+            "last_attempt_type": "practice",
+            "last_attempt_id": 1,
+            "resolved": 0
+          }
+        ],
+        "generation_snapshot": [],
+        "analysis_run": [
+          {
+            "id": 1,
+            "course_id": 1,
+            "creator_id": 3,
+            "scope": "self",
+            "subject_student_id": 3,
+            "kind": "knowledge",
+            "algorithm_version": "knowledge-objective-v1",
+            "parameters_json": "{\"from\": \"2026-09-13T15:59:00.001Z\", \"to\": \"2026-10-11T15:59:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}",
+            "source_until": "2026-10-11T15:59:00.001Z",
+            "generated_at": "2026-10-11T15:59:00.001Z",
+            "sample_size": 2,
+            "result_json": "{\"dimension\": \"knowledge\", \"sample_size\": 2, \"metrics\": {\"answered_count\": 2, \"correct_count\": 1, \"mastery\": 0.5, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}]}, \"series\": [{\"period_start\": \"2026-09-13T15:59:00.001Z\", \"period_end\": \"2026-09-13T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-13T16:00:00.000Z\", \"period_end\": \"2026-09-20T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-20T16:00:00.000Z\", \"period_end\": \"2026-09-27T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-27T16:00:00.000Z\", \"period_end\": \"2026-10-04T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-10-04T16:00:00.000Z\", \"period_end\": \"2026-10-11T15:59:00.001Z\", \"metrics\": {\"answered_count\": 2, \"correct_count\": 1, \"mastery\": 0.5, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}]}}], \"source_until\": \"2026-10-11T15:59:00.001Z\", \"algorithm_version\": \"knowledge-objective-v1\", \"population_basis\": \"objective_answer_events;progress=current_published_knowledge_snapshot\", \"unit\": {\"mastery\": \"ratio\", \"progress\": \"ratio\"}, \"warnings\": [\"自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合\"], \"generated_at\": \"2026-10-11T15:59:00.001Z\", \"filters\": {\"from\": \"2026-09-13T15:59:00.001Z\", \"to\": \"2026-10-11T15:59:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}, \"analysis_run_id\": 1}",
+            "input_snapshot_json": "{\"knowledge\": [{\"id\": 1, \"title\": \"知识点1\", \"content_revision\": 1}, {\"id\": 2, \"title\": \"知识点2\", \"content_revision\": 1}], \"progress\": [], \"samples\": [{\"source\": \"answer\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 2, \"event_at\": \"2026-10-11T15:59:00.000Z\", \"correct\": 1, \"knowledge_ids\": [1, 2]}, {\"source\": \"practice\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 1, \"event_at\": \"2026-10-11T15:58:00.000Z\", \"correct\": 0, \"knowledge_ids\": [1, 2]}], \"subject_student_id\": 3}",
+            "model_status": null,
+            "model_parameters_json": null,
+            "created_at": "2026-10-11T15:59:00.001Z"
+          },
+          {
+            "id": 2,
+            "course_id": 1,
+            "creator_id": 2,
+            "scope": "student",
+            "subject_student_id": 3,
+            "kind": "knowledge",
+            "algorithm_version": "knowledge-objective-v1",
+            "parameters_json": "{\"from\": \"2026-09-13T15:59:00.001Z\", \"to\": \"2026-10-11T15:59:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}",
+            "source_until": "2026-10-11T15:59:00.001Z",
+            "generated_at": "2026-10-11T15:59:00.001Z",
+            "sample_size": 2,
+            "result_json": "{\"dimension\": \"knowledge\", \"sample_size\": 2, \"metrics\": {\"answered_count\": 2, \"correct_count\": 1, \"mastery\": 0.5, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}]}, \"series\": [{\"period_start\": \"2026-09-13T15:59:00.001Z\", \"period_end\": \"2026-09-13T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-13T16:00:00.000Z\", \"period_end\": \"2026-09-20T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-20T16:00:00.000Z\", \"period_end\": \"2026-09-27T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-27T16:00:00.000Z\", \"period_end\": \"2026-10-04T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-10-04T16:00:00.000Z\", \"period_end\": \"2026-10-11T15:59:00.001Z\", \"metrics\": {\"answered_count\": 2, \"correct_count\": 1, \"mastery\": 0.5, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}]}}], \"source_until\": \"2026-10-11T15:59:00.001Z\", \"algorithm_version\": \"knowledge-objective-v1\", \"population_basis\": \"objective_answer_events;progress=current_published_knowledge_snapshot\", \"unit\": {\"mastery\": \"ratio\", \"progress\": \"ratio\"}, \"warnings\": [\"自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合\"], \"generated_at\": \"2026-10-11T15:59:00.001Z\", \"filters\": {\"from\": \"2026-09-13T15:59:00.001Z\", \"to\": \"2026-10-11T15:59:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}, \"analysis_run_id\": 2}",
+            "input_snapshot_json": "{\"knowledge\": [{\"id\": 1, \"title\": \"知识点1\", \"content_revision\": 1}, {\"id\": 2, \"title\": \"知识点2\", \"content_revision\": 1}], \"progress\": [], \"samples\": [{\"source\": \"answer\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 2, \"event_at\": \"2026-10-11T15:59:00.000Z\", \"correct\": 1, \"knowledge_ids\": [1, 2]}, {\"source\": \"practice\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 1, \"event_at\": \"2026-10-11T15:58:00.000Z\", \"correct\": 0, \"knowledge_ids\": [1, 2]}], \"subject_student_id\": 3}",
+            "model_status": null,
+            "model_parameters_json": null,
+            "created_at": "2026-10-11T15:59:00.001Z"
+          }
+        ],
+        "audit_event": [
+          {
+            "id": 1,
+            "actor_id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1,
+            "request_id": "a8b52672a85f4589a1be7f40880c33be",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 2,
+            "actor_id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2,
+            "request_id": "e785d747515f473581c454818b289ebc",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 3,
+            "actor_id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "461799218c314e13929d75843eb73029",
+            "before_summary": null,
+            "after_summary": "{\"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 4,
+            "actor_id": 3,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "fbcf36787e654b0d94c1c95da1d04960",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 5,
+            "actor_id": 4,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "2aacd9c96fd842119505822244f10b60",
+            "before_summary": null,
+            "after_summary": "{\"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 6,
+            "actor_id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "263b5594481b4bf0bd03e7fe2ad5b98d",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 7,
+            "actor_id": 1,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1,
+            "request_id": "0f3d009a68d14913b4a68f710c382bb7",
+            "before_summary": null,
+            "after_summary": "{\"teacher_id\": 2}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 8,
+            "actor_id": 2,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3,
+            "request_id": "5c865cd917be4bdb8dbfdf74a429fcf6",
+            "before_summary": null,
+            "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 9,
+            "actor_id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1,
+            "request_id": "f2e6fdcaaed04e81bec35e432168de8c",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 10,
+            "actor_id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2,
+            "request_id": "04b6bc5e329f4d6bb884b96954f523bb",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 11,
+            "actor_id": 3,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "31f361d6eae34100a5916542a09d66ac",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 12,
+            "actor_id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "da48aad548c64a25a3c4d0762c0cceb5",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 13,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 1,
+            "request_id": "1825aa86a32b4b35b2cb5274406c7ab0",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 1}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 14,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 2,
+            "request_id": "a99a608ff1c94ad3850675396ba39e70",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 2}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 15,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 3,
+            "request_id": "22039f23d96c4d1583220818f59ca718",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 3}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 16,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 4,
+            "request_id": "2c4ccb2e9356429e91808c43d68a8a41",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 4}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 17,
+            "actor_id": 2,
+            "action": "paper.create",
+            "object_type": "paper",
+            "object_id": 1,
+            "request_id": "12b9f6f3c9fe4b56b4a4d87d406bf950",
+            "before_summary": null,
+            "after_summary": "{\"kind\": \"quiz\", \"item_count\": 3}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 18,
+            "actor_id": 2,
+            "action": "paper.publish",
+            "object_type": "paper",
+            "object_id": 1,
+            "request_id": "3e849ff5535846d08a38edc3c151c4aa",
+            "before_summary": "{\"status\": \"draft\"}",
+            "after_summary": "{\"status\": \"published\", \"participant_count\": 1, \"start_at\": \"2026-10-11T15:55:00.000Z\", \"end_at\": \"2026-10-11T16:10:00.000Z\"}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 19,
+            "actor_id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1,
+            "request_id": "0a9103702fb547a3815a76851d0c90bd",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 20,
+            "actor_id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2,
+            "request_id": "a40d3656d02943deb5e690f4d1eb94dc",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 21,
+            "actor_id": 3,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "e3b632bb73f14aa9b17a27d985909d08",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 22,
+            "actor_id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "6927123baece428290ab28cc242954ef",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 23,
+            "actor_id": 3,
+            "action": "practice.submit",
+            "object_type": "practice_attempt",
+            "object_id": 1,
+            "request_id": "1b99c69ba6094eb38be117351993049c",
+            "before_summary": null,
+            "after_summary": "{\"question_version_id\": 1, \"answered\": true, \"correct\": false}",
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 24,
+            "actor_id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1,
+            "request_id": "7d7003212bd6402f9c2226fab40d25e2",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:59:00.000Z"
+          },
+          {
+            "id": 25,
+            "actor_id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2,
+            "request_id": "8e9b8cc830e0432ca0eaf104dab9590b",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:59:00.000Z"
+          },
+          {
+            "id": 26,
+            "actor_id": 3,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "6001ed399ed045f8a6ad8a1a465b3014",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:59:00.000Z"
+          },
+          {
+            "id": 27,
+            "actor_id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "56a055b7429c465b922c80bb8794abaf",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:59:00.000Z"
+          },
+          {
+            "id": 28,
+            "actor_id": 3,
+            "action": "attempt.submit",
+            "object_type": "attempt",
+            "object_id": 1,
+            "request_id": "16218fabc2ef45a99ab199094787203b",
+            "before_summary": null,
+            "after_summary": "{\"paper_id\": 1, \"status\": \"partial\", \"answer_count\": 3}",
+            "created_at": "2026-10-11T15:59:00.000Z"
+          }
+        ],
+        "foreign_key_check": []
+      }
+    },
+    "b-second-week": {
+      "values": {
+        "knowledge": {
+          "algorithm_version": "knowledge-objective-v1",
+          "analysis_run_id": 3,
+          "dimension": "knowledge",
+          "filters": {
+            "from": "2026-10-04T16:00:00.000Z",
+            "knowledge_ids": [
+              1,
+              2
+            ],
+            "student_id": 3,
+            "to": "2026-10-12T00:05:00.001Z"
+          },
+          "generated_at": "2026-10-12T00:05:00.001Z",
+          "metrics": {
+            "answered_count": 3,
+            "completed_knowledge_count": 0,
+            "correct_count": 2,
+            "items": [
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 1,
+                "mastery": 0.5,
+                "title": "知识点1",
+                "wrong_count": 1
+              },
+              {
+                "answered_count": 3,
+                "correct_count": 2,
+                "knowledge_id": 2,
+                "mastery": 0.6666666666666666,
+                "title": "知识点2",
+                "wrong_count": 1
+              }
+            ],
+            "mastery": 0.6666666666666666,
+            "progress": 0.0,
+            "published_knowledge_count": 2
+          },
+          "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+          "sample_size": 3,
+          "series": [
+            {
+              "metrics": {
+                "answered_count": 2,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 1,
+                    "mastery": 0.5,
+                    "title": "知识点1",
+                    "wrong_count": 1
+                  },
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 0.5,
+                    "title": "知识点2",
+                    "wrong_count": 1
+                  }
+                ],
+                "mastery": 0.5,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-11T16:00:00.000Z",
+              "period_start": "2026-10-04T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 1,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 1,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 1.0,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": 1.0,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-12T00:05:00.001Z",
+              "period_start": "2026-10-11T16:00:00.000Z"
+            }
+          ],
+          "source_until": "2026-10-12T00:05:00.001Z",
+          "unit": {
+            "mastery": "ratio",
+            "progress": "ratio"
+          },
+          "warnings": [
+            "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+          ]
+        },
+        "recommendation": {
+          "algorithm_version": "recommend-v1",
+          "items": [
+            {
+              "knowledge_id": 1,
+              "mastery": 0.5,
+              "question_version_id": null,
+              "reason": "insufficient_sample",
+              "sample_size": 2,
+              "score": 0.6
+            },
+            {
+              "knowledge_id": 2,
+              "mastery": 0.6666666666666666,
+              "question_version_id": 5,
+              "reason": "insufficient_sample",
+              "sample_size": 3,
+              "score": 0.466667
+            }
+          ],
+          "reason": "ok",
+          "source_until": "2026-10-12T00:05:00.001Z"
+        },
+        "old_knowledge": {
+          "algorithm_version": "knowledge-objective-v1",
+          "analysis_run_id": 1,
+          "dimension": "knowledge",
+          "filters": {
+            "from": "2026-09-13T15:59:00.001Z",
+            "knowledge_ids": [
+              1,
+              2
+            ],
+            "student_id": 3,
+            "to": "2026-10-11T15:59:00.001Z"
+          },
+          "generated_at": "2026-10-11T15:59:00.001Z",
+          "metrics": {
+            "answered_count": 2,
+            "completed_knowledge_count": 0,
+            "correct_count": 1,
+            "items": [
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 1,
+                "mastery": 0.5,
+                "title": "知识点1",
+                "wrong_count": 1
+              },
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 2,
+                "mastery": 0.5,
+                "title": "知识点2",
+                "wrong_count": 1
+              }
+            ],
+            "mastery": 0.5,
+            "progress": 0.0,
+            "published_knowledge_count": 2
+          },
+          "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+          "sample_size": 2,
+          "series": [
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-13T16:00:00.000Z",
+              "period_start": "2026-09-13T15:59:00.001Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-20T16:00:00.000Z",
+              "period_start": "2026-09-13T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-27T16:00:00.000Z",
+              "period_start": "2026-09-20T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-04T16:00:00.000Z",
+              "period_start": "2026-09-27T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 2,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 1,
+                    "mastery": 0.5,
+                    "title": "知识点1",
+                    "wrong_count": 1
+                  },
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 0.5,
+                    "title": "知识点2",
+                    "wrong_count": 1
+                  }
+                ],
+                "mastery": 0.5,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-11T15:59:00.001Z",
+              "period_start": "2026-10-04T16:00:00.000Z"
+            }
+          ],
+          "source_until": "2026-10-11T15:59:00.001Z",
+          "unit": {
+            "mastery": "ratio",
+            "progress": "ratio"
+          },
+          "warnings": [
+            "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+          ]
+        },
+        "old_teacher": {
+          "algorithm_version": "knowledge-objective-v1",
+          "analysis_run_id": 2,
+          "dimension": "knowledge",
+          "filters": {
+            "from": "2026-09-13T15:59:00.001Z",
+            "knowledge_ids": [
+              1,
+              2
+            ],
+            "student_id": 3,
+            "to": "2026-10-11T15:59:00.001Z"
+          },
+          "generated_at": "2026-10-11T15:59:00.001Z",
+          "metrics": {
+            "answered_count": 2,
+            "completed_knowledge_count": 0,
+            "correct_count": 1,
+            "items": [
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 1,
+                "mastery": 0.5,
+                "title": "知识点1",
+                "wrong_count": 1
+              },
+              {
+                "answered_count": 2,
+                "correct_count": 1,
+                "knowledge_id": 2,
+                "mastery": 0.5,
+                "title": "知识点2",
+                "wrong_count": 1
+              }
+            ],
+            "mastery": 0.5,
+            "progress": 0.0,
+            "published_knowledge_count": 2
+          },
+          "population_basis": "objective_answer_events;progress=current_published_knowledge_snapshot",
+          "sample_size": 2,
+          "series": [
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-13T16:00:00.000Z",
+              "period_start": "2026-09-13T15:59:00.001Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-20T16:00:00.000Z",
+              "period_start": "2026-09-13T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-09-27T16:00:00.000Z",
+              "period_start": "2026-09-20T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 0,
+                "completed_knowledge_count": 0,
+                "correct_count": 0,
+                "items": [
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 1,
+                    "mastery": null,
+                    "title": "知识点1",
+                    "wrong_count": 0
+                  },
+                  {
+                    "answered_count": 0,
+                    "correct_count": 0,
+                    "knowledge_id": 2,
+                    "mastery": null,
+                    "title": "知识点2",
+                    "wrong_count": 0
+                  }
+                ],
+                "mastery": null,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-04T16:00:00.000Z",
+              "period_start": "2026-09-27T16:00:00.000Z"
+            },
+            {
+              "metrics": {
+                "answered_count": 2,
+                "completed_knowledge_count": 0,
+                "correct_count": 1,
+                "items": [
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 1,
+                    "mastery": 0.5,
+                    "title": "知识点1",
+                    "wrong_count": 1
+                  },
+                  {
+                    "answered_count": 2,
+                    "correct_count": 1,
+                    "knowledge_id": 2,
+                    "mastery": 0.5,
+                    "title": "知识点2",
+                    "wrong_count": 1
+                  }
+                ],
+                "mastery": 0.5,
+                "progress": 0.0,
+                "published_knowledge_count": 2
+              },
+              "period_end": "2026-10-11T15:59:00.001Z",
+              "period_start": "2026-10-04T16:00:00.000Z"
+            }
+          ],
+          "source_until": "2026-10-11T15:59:00.001Z",
+          "unit": {
+            "mastery": "ratio",
+            "progress": "ratio"
+          },
+          "warnings": [
+            "自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合"
+          ]
+        },
+        "quiz_id": 1
+      },
+      "facts": {
+        "question": [
+          {
+            "id": 1,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 1
+          },
+          {
+            "id": 2,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 0
+          },
+          {
+            "id": 3,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 0
+          },
+          {
+            "id": 4,
+            "course_id": 1,
+            "archived": 0,
+            "ever_public": 0
+          }
+        ],
+        "question_version": [
+          {
+            "id": 1,
+            "question_id": 1,
+            "version": 1,
+            "type": "single",
+            "stem": "PC的作用？",
+            "options_json": "[{\"key\":\"A\",\"text\":\"下一条指令地址\"},{\"key\":\"B\",\"text\":\"当前数据\"}]",
+            "answer_json": "\"A\"",
+            "explanation": "",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 1
+          },
+          {
+            "id": 2,
+            "question_id": 2,
+            "version": 1,
+            "type": "single",
+            "stem": "PC的作用？",
+            "options_json": "[{\"key\":\"A\",\"text\":\"下一条指令地址\"},{\"key\":\"B\",\"text\":\"当前数据\"}]",
+            "answer_json": "\"A\"",
+            "explanation": "",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          },
+          {
+            "id": 3,
+            "question_id": 3,
+            "version": 1,
+            "type": "boolean",
+            "stem": "PC的作用？",
+            "options_json": "[]",
+            "answer_json": "true",
+            "explanation": "",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          },
+          {
+            "id": 4,
+            "question_id": 4,
+            "version": 1,
+            "type": "short",
+            "stem": "PC的作用？",
+            "options_json": "[]",
+            "answer_json": "\"受控参考\"",
+            "explanation": "",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          },
+          {
+            "id": 5,
+            "question_id": 1,
+            "version": 2,
+            "type": "single",
+            "stem": "PC的作用？",
+            "options_json": "[{\"key\":\"A\",\"text\":\"下一条指令地址\"},{\"key\":\"B\",\"text\":\"当前数据\"}]",
+            "answer_json": "\"B\"",
+            "explanation": "",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 1
+          },
+          {
+            "id": 6,
+            "question_id": 2,
+            "version": 2,
+            "type": "single",
+            "stem": "PC的作用？",
+            "options_json": "[{\"key\":\"A\",\"text\":\"下一条指令地址\"},{\"key\":\"B\",\"text\":\"当前数据\"}]",
+            "answer_json": "\"B\"",
+            "explanation": "",
+            "difficulty": "easy",
+            "tolerance": 0.0,
+            "practice_available": 0
+          }
+        ],
+        "question_knowledge": [
+          {
+            "question_version_id": 1,
+            "knowledge_id": 1
+          },
+          {
+            "question_version_id": 1,
+            "knowledge_id": 2
+          },
+          {
+            "question_version_id": 2,
+            "knowledge_id": 1
+          },
+          {
+            "question_version_id": 2,
+            "knowledge_id": 2
+          },
+          {
+            "question_version_id": 3,
+            "knowledge_id": 2
+          },
+          {
+            "question_version_id": 4,
+            "knowledge_id": 1
+          },
+          {
+            "question_version_id": 5,
+            "knowledge_id": 2
+          },
+          {
+            "question_version_id": 6,
+            "knowledge_id": 2
+          }
+        ],
+        "paper": [
+          {
+            "id": 1,
+            "course_id": 1,
+            "title": "两周混合来源测验",
+            "kind": "quiz",
+            "status": "published",
+            "confidential": 1,
+            "confidentiality_note": "受控未公开题",
+            "start_at": "2026-10-11T15:55:00.000Z",
+            "end_at": "2026-10-11T16:10:00.000Z",
+            "review_at": null,
+            "seed": null,
+            "algorithm_version": null,
+            "generation_snapshot_id": null
+          }
+        ],
+        "paper_item": [
+          {
+            "paper_id": 1,
+            "question_version_id": 2,
+            "question_id": 2,
+            "position": 1,
+            "points_hundredths": 1000
+          },
+          {
+            "paper_id": 1,
+            "question_version_id": 3,
+            "question_id": 3,
+            "position": 2,
+            "points_hundredths": 1000
+          },
+          {
+            "paper_id": 1,
+            "question_version_id": 4,
+            "question_id": 4,
+            "position": 3,
+            "points_hundredths": 1000
+          }
+        ],
+        "paper_participant": [
+          {
+            "paper_id": 1,
+            "student_id": 3
+          }
+        ],
+        "attempt": [
+          {
+            "id": 1,
+            "paper_id": 1,
+            "student_id": 3,
+            "status": "graded",
+            "score_hundredths": 1800,
+            "partial_score_hundredths": 1800,
+            "revision": 1,
+            "submitted_at": "2026-10-11T15:59:00.000Z"
+          }
+        ],
+        "answer": [
+          {
+            "id": 1,
+            "attempt_id": 1,
+            "question_version_id": 2,
+            "value_json": "\"A\"",
+            "score_hundredths": 1000,
+            "answered": 1,
+            "graded_by": null,
+            "comment": ""
+          },
+          {
+            "id": 2,
+            "attempt_id": 1,
+            "question_version_id": 3,
+            "value_json": "null",
+            "score_hundredths": 0,
+            "answered": 0,
+            "graded_by": null,
+            "comment": ""
+          },
+          {
+            "id": 3,
+            "attempt_id": 1,
+            "question_version_id": 4,
+            "value_json": "\"受控简答\"",
+            "score_hundredths": 800,
+            "answered": 1,
+            "graded_by": 2,
+            "comment": "受控消费核对"
+          }
+        ],
+        "practice_attempt": [
+          {
+            "id": 1,
+            "student_id": 3,
+            "question_version_id": 1,
+            "answer_json": "\"B\"",
+            "answered": 1,
+            "correct": 0,
+            "score_hundredths": 0,
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 2,
+            "student_id": 3,
+            "question_version_id": 5,
+            "answer_json": "\"B\"",
+            "answered": 1,
+            "correct": 1,
+            "score_hundredths": 10000,
+            "created_at": "2026-10-12T00:05:00.000Z"
+          },
+          {
+            "id": 3,
+            "student_id": 3,
+            "question_version_id": 5,
+            "answer_json": "null",
+            "answered": 0,
+            "correct": 0,
+            "score_hundredths": 0,
+            "created_at": "2026-10-12T00:05:00.000Z"
+          }
+        ],
+        "wrong_question": [
+          {
+            "id": 1,
+            "student_id": 3,
+            "question_id": 1,
+            "last_attempt_type": "practice",
+            "last_attempt_id": 1,
+            "resolved": 1
+          }
+        ],
+        "generation_snapshot": [],
+        "analysis_run": [
+          {
+            "id": 1,
+            "course_id": 1,
+            "creator_id": 3,
+            "scope": "self",
+            "subject_student_id": 3,
+            "kind": "knowledge",
+            "algorithm_version": "knowledge-objective-v1",
+            "parameters_json": "{\"from\": \"2026-09-13T15:59:00.001Z\", \"to\": \"2026-10-11T15:59:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}",
+            "source_until": "2026-10-11T15:59:00.001Z",
+            "generated_at": "2026-10-11T15:59:00.001Z",
+            "sample_size": 2,
+            "result_json": "{\"dimension\": \"knowledge\", \"sample_size\": 2, \"metrics\": {\"answered_count\": 2, \"correct_count\": 1, \"mastery\": 0.5, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}]}, \"series\": [{\"period_start\": \"2026-09-13T15:59:00.001Z\", \"period_end\": \"2026-09-13T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-13T16:00:00.000Z\", \"period_end\": \"2026-09-20T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-20T16:00:00.000Z\", \"period_end\": \"2026-09-27T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-27T16:00:00.000Z\", \"period_end\": \"2026-10-04T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-10-04T16:00:00.000Z\", \"period_end\": \"2026-10-11T15:59:00.001Z\", \"metrics\": {\"answered_count\": 2, \"correct_count\": 1, \"mastery\": 0.5, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}]}}], \"source_until\": \"2026-10-11T15:59:00.001Z\", \"algorithm_version\": \"knowledge-objective-v1\", \"population_basis\": \"objective_answer_events;progress=current_published_knowledge_snapshot\", \"unit\": {\"mastery\": \"ratio\", \"progress\": \"ratio\"}, \"warnings\": [\"自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合\"], \"generated_at\": \"2026-10-11T15:59:00.001Z\", \"filters\": {\"from\": \"2026-09-13T15:59:00.001Z\", \"to\": \"2026-10-11T15:59:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}, \"analysis_run_id\": 1}",
+            "input_snapshot_json": "{\"knowledge\": [{\"id\": 1, \"title\": \"知识点1\", \"content_revision\": 1}, {\"id\": 2, \"title\": \"知识点2\", \"content_revision\": 1}], \"progress\": [], \"samples\": [{\"source\": \"answer\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 2, \"event_at\": \"2026-10-11T15:59:00.000Z\", \"correct\": 1, \"knowledge_ids\": [1, 2]}, {\"source\": \"practice\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 1, \"event_at\": \"2026-10-11T15:58:00.000Z\", \"correct\": 0, \"knowledge_ids\": [1, 2]}], \"subject_student_id\": 3}",
+            "model_status": null,
+            "model_parameters_json": null,
+            "created_at": "2026-10-11T15:59:00.001Z"
+          },
+          {
+            "id": 2,
+            "course_id": 1,
+            "creator_id": 2,
+            "scope": "student",
+            "subject_student_id": 3,
+            "kind": "knowledge",
+            "algorithm_version": "knowledge-objective-v1",
+            "parameters_json": "{\"from\": \"2026-09-13T15:59:00.001Z\", \"to\": \"2026-10-11T15:59:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}",
+            "source_until": "2026-10-11T15:59:00.001Z",
+            "generated_at": "2026-10-11T15:59:00.001Z",
+            "sample_size": 2,
+            "result_json": "{\"dimension\": \"knowledge\", \"sample_size\": 2, \"metrics\": {\"answered_count\": 2, \"correct_count\": 1, \"mastery\": 0.5, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}]}, \"series\": [{\"period_start\": \"2026-09-13T15:59:00.001Z\", \"period_end\": \"2026-09-13T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-13T16:00:00.000Z\", \"period_end\": \"2026-09-20T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-20T16:00:00.000Z\", \"period_end\": \"2026-09-27T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-09-27T16:00:00.000Z\", \"period_end\": \"2026-10-04T16:00:00.000Z\", \"metrics\": {\"answered_count\": 0, \"correct_count\": 0, \"mastery\": null, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}]}}, {\"period_start\": \"2026-10-04T16:00:00.000Z\", \"period_end\": \"2026-10-11T15:59:00.001Z\", \"metrics\": {\"answered_count\": 2, \"correct_count\": 1, \"mastery\": 0.5, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}]}}], \"source_until\": \"2026-10-11T15:59:00.001Z\", \"algorithm_version\": \"knowledge-objective-v1\", \"population_basis\": \"objective_answer_events;progress=current_published_knowledge_snapshot\", \"unit\": {\"mastery\": \"ratio\", \"progress\": \"ratio\"}, \"warnings\": [\"自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合\"], \"generated_at\": \"2026-10-11T15:59:00.001Z\", \"filters\": {\"from\": \"2026-09-13T15:59:00.001Z\", \"to\": \"2026-10-11T15:59:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}, \"analysis_run_id\": 2}",
+            "input_snapshot_json": "{\"knowledge\": [{\"id\": 1, \"title\": \"知识点1\", \"content_revision\": 1}, {\"id\": 2, \"title\": \"知识点2\", \"content_revision\": 1}], \"progress\": [], \"samples\": [{\"source\": \"answer\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 2, \"event_at\": \"2026-10-11T15:59:00.000Z\", \"correct\": 1, \"knowledge_ids\": [1, 2]}, {\"source\": \"practice\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 1, \"event_at\": \"2026-10-11T15:58:00.000Z\", \"correct\": 0, \"knowledge_ids\": [1, 2]}], \"subject_student_id\": 3}",
+            "model_status": null,
+            "model_parameters_json": null,
+            "created_at": "2026-10-11T15:59:00.001Z"
+          },
+          {
+            "id": 3,
+            "course_id": 1,
+            "creator_id": 3,
+            "scope": "self",
+            "subject_student_id": 3,
+            "kind": "knowledge",
+            "algorithm_version": "knowledge-objective-v1",
+            "parameters_json": "{\"from\": \"2026-10-04T16:00:00.000Z\", \"to\": \"2026-10-12T00:05:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}",
+            "source_until": "2026-10-12T00:05:00.001Z",
+            "generated_at": "2026-10-12T00:05:00.001Z",
+            "sample_size": 3,
+            "result_json": "{\"dimension\": \"knowledge\", \"sample_size\": 3, \"metrics\": {\"answered_count\": 3, \"correct_count\": 2, \"mastery\": 0.6666666666666666, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 3, \"correct_count\": 2, \"wrong_count\": 1, \"mastery\": 0.6666666666666666}]}, \"series\": [{\"period_start\": \"2026-10-04T16:00:00.000Z\", \"period_end\": \"2026-10-11T16:00:00.000Z\", \"metrics\": {\"answered_count\": 2, \"correct_count\": 1, \"mastery\": 0.5, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}]}}, {\"period_start\": \"2026-10-11T16:00:00.000Z\", \"period_end\": \"2026-10-12T00:05:00.001Z\", \"metrics\": {\"answered_count\": 1, \"correct_count\": 1, \"mastery\": 1.0, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 1, \"correct_count\": 1, \"wrong_count\": 0, \"mastery\": 1.0}]}}], \"source_until\": \"2026-10-12T00:05:00.001Z\", \"algorithm_version\": \"knowledge-objective-v1\", \"population_basis\": \"objective_answer_events;progress=current_published_knowledge_snapshot\", \"unit\": {\"mastery\": \"ratio\", \"progress\": \"ratio\"}, \"warnings\": [\"自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合\"], \"generated_at\": \"2026-10-12T00:05:00.001Z\", \"filters\": {\"from\": \"2026-10-04T16:00:00.000Z\", \"to\": \"2026-10-12T00:05:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}, \"analysis_run_id\": 3}",
+            "input_snapshot_json": "{\"knowledge\": [{\"id\": 1, \"title\": \"知识点1\", \"content_revision\": 1}, {\"id\": 2, \"title\": \"知识点2\", \"content_revision\": 1}], \"progress\": [], \"samples\": [{\"source\": \"answer\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 2, \"event_at\": \"2026-10-11T15:59:00.000Z\", \"correct\": 1, \"knowledge_ids\": [1, 2]}, {\"source\": \"practice\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 1, \"event_at\": \"2026-10-11T15:58:00.000Z\", \"correct\": 0, \"knowledge_ids\": [1, 2]}, {\"source\": \"practice\", \"sample_id\": 2, \"student_id\": 3, \"question_version_id\": 5, \"event_at\": \"2026-10-12T00:05:00.000Z\", \"correct\": 1, \"knowledge_ids\": [2]}], \"subject_student_id\": 3}",
+            "model_status": null,
+            "model_parameters_json": null,
+            "created_at": "2026-10-12T00:05:00.001Z"
+          },
+          {
+            "id": 4,
+            "course_id": 1,
+            "creator_id": 3,
+            "scope": "self",
+            "subject_student_id": 3,
+            "kind": "knowledge",
+            "algorithm_version": "knowledge-objective-v1",
+            "parameters_json": "{\"from\": \"2026-10-04T16:00:00.000Z\", \"to\": \"2026-10-12T00:05:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}",
+            "source_until": "2026-10-12T00:05:00.001Z",
+            "generated_at": "2026-10-12T00:05:00.001Z",
+            "sample_size": 3,
+            "result_json": "{\"dimension\": \"knowledge\", \"sample_size\": 3, \"metrics\": {\"answered_count\": 3, \"correct_count\": 2, \"mastery\": 0.6666666666666666, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 3, \"correct_count\": 2, \"wrong_count\": 1, \"mastery\": 0.6666666666666666}]}, \"series\": [{\"period_start\": \"2026-10-04T16:00:00.000Z\", \"period_end\": \"2026-10-11T16:00:00.000Z\", \"metrics\": {\"answered_count\": 2, \"correct_count\": 1, \"mastery\": 0.5, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 2, \"correct_count\": 1, \"wrong_count\": 1, \"mastery\": 0.5}]}}, {\"period_start\": \"2026-10-11T16:00:00.000Z\", \"period_end\": \"2026-10-12T00:05:00.001Z\", \"metrics\": {\"answered_count\": 1, \"correct_count\": 1, \"mastery\": 1.0, \"completed_knowledge_count\": 0, \"published_knowledge_count\": 2, \"progress\": 0.0, \"items\": [{\"knowledge_id\": 1, \"title\": \"知识点1\", \"answered_count\": 0, \"correct_count\": 0, \"wrong_count\": 0, \"mastery\": null}, {\"knowledge_id\": 2, \"title\": \"知识点2\", \"answered_count\": 1, \"correct_count\": 1, \"wrong_count\": 0, \"mastery\": 1.0}]}}], \"source_until\": \"2026-10-12T00:05:00.001Z\", \"algorithm_version\": \"knowledge-objective-v1\", \"population_basis\": \"objective_answer_events;progress=current_published_knowledge_snapshot\", \"unit\": {\"mastery\": \"ratio\", \"progress\": \"ratio\"}, \"warnings\": [\"自报完成进度不代表掌握度；日期只筛选作答，进度取当前发布集合\"], \"generated_at\": \"2026-10-12T00:05:00.001Z\", \"filters\": {\"from\": \"2026-10-04T16:00:00.000Z\", \"to\": \"2026-10-12T00:05:00.001Z\", \"student_id\": 3, \"knowledge_ids\": [1, 2]}, \"analysis_run_id\": 4}",
+            "input_snapshot_json": "{\"knowledge\": [{\"id\": 1, \"title\": \"知识点1\", \"content_revision\": 1}, {\"id\": 2, \"title\": \"知识点2\", \"content_revision\": 1}], \"progress\": [], \"samples\": [{\"source\": \"answer\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 2, \"event_at\": \"2026-10-11T15:59:00.000Z\", \"correct\": 1, \"knowledge_ids\": [1, 2]}, {\"source\": \"practice\", \"sample_id\": 1, \"student_id\": 3, \"question_version_id\": 1, \"event_at\": \"2026-10-11T15:58:00.000Z\", \"correct\": 0, \"knowledge_ids\": [1, 2]}, {\"source\": \"practice\", \"sample_id\": 2, \"student_id\": 3, \"question_version_id\": 5, \"event_at\": \"2026-10-12T00:05:00.000Z\", \"correct\": 1, \"knowledge_ids\": [2]}], \"subject_student_id\": 3}",
+            "model_status": null,
+            "model_parameters_json": null,
+            "created_at": "2026-10-12T00:05:00.001Z"
+          }
+        ],
+        "audit_event": [
+          {
+            "id": 1,
+            "actor_id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1,
+            "request_id": "a8b52672a85f4589a1be7f40880c33be",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 2,
+            "actor_id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2,
+            "request_id": "e785d747515f473581c454818b289ebc",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 3,
+            "actor_id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "461799218c314e13929d75843eb73029",
+            "before_summary": null,
+            "after_summary": "{\"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 4,
+            "actor_id": 3,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "fbcf36787e654b0d94c1c95da1d04960",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 5,
+            "actor_id": 4,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "2aacd9c96fd842119505822244f10b60",
+            "before_summary": null,
+            "after_summary": "{\"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 6,
+            "actor_id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "263b5594481b4bf0bd03e7fe2ad5b98d",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 7,
+            "actor_id": 1,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1,
+            "request_id": "0f3d009a68d14913b4a68f710c382bb7",
+            "before_summary": null,
+            "after_summary": "{\"teacher_id\": 2}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 8,
+            "actor_id": 2,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3,
+            "request_id": "5c865cd917be4bdb8dbfdf74a429fcf6",
+            "before_summary": null,
+            "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+            "created_at": "2026-10-13T12:00:00.000Z"
+          },
+          {
+            "id": 9,
+            "actor_id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1,
+            "request_id": "f2e6fdcaaed04e81bec35e432168de8c",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 10,
+            "actor_id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2,
+            "request_id": "04b6bc5e329f4d6bb884b96954f523bb",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 11,
+            "actor_id": 3,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "31f361d6eae34100a5916542a09d66ac",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 12,
+            "actor_id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "da48aad548c64a25a3c4d0762c0cceb5",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 13,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 1,
+            "request_id": "1825aa86a32b4b35b2cb5274406c7ab0",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 1}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 14,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 2,
+            "request_id": "a99a608ff1c94ad3850675396ba39e70",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 2}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 15,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 3,
+            "request_id": "22039f23d96c4d1583220818f59ca718",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 3}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 16,
+            "actor_id": 2,
+            "action": "question.create",
+            "object_type": "question",
+            "object_id": 4,
+            "request_id": "2c4ccb2e9356429e91808c43d68a8a41",
+            "before_summary": null,
+            "after_summary": "{\"version_id\": 4}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 17,
+            "actor_id": 2,
+            "action": "paper.create",
+            "object_type": "paper",
+            "object_id": 1,
+            "request_id": "12b9f6f3c9fe4b56b4a4d87d406bf950",
+            "before_summary": null,
+            "after_summary": "{\"kind\": \"quiz\", \"item_count\": 3}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 18,
+            "actor_id": 2,
+            "action": "paper.publish",
+            "object_type": "paper",
+            "object_id": 1,
+            "request_id": "3e849ff5535846d08a38edc3c151c4aa",
+            "before_summary": "{\"status\": \"draft\"}",
+            "after_summary": "{\"status\": \"published\", \"participant_count\": 1, \"start_at\": \"2026-10-11T15:55:00.000Z\", \"end_at\": \"2026-10-11T16:10:00.000Z\"}",
+            "created_at": "2026-10-11T15:50:00.000Z"
+          },
+          {
+            "id": 19,
+            "actor_id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1,
+            "request_id": "0a9103702fb547a3815a76851d0c90bd",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 20,
+            "actor_id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2,
+            "request_id": "a40d3656d02943deb5e690f4d1eb94dc",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 21,
+            "actor_id": 3,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "e3b632bb73f14aa9b17a27d985909d08",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 22,
+            "actor_id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "6927123baece428290ab28cc242954ef",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 23,
+            "actor_id": 3,
+            "action": "practice.submit",
+            "object_type": "practice_attempt",
+            "object_id": 1,
+            "request_id": "1b99c69ba6094eb38be117351993049c",
+            "before_summary": null,
+            "after_summary": "{\"question_version_id\": 1, \"answered\": true, \"correct\": false}",
+            "created_at": "2026-10-11T15:58:00.000Z"
+          },
+          {
+            "id": 24,
+            "actor_id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1,
+            "request_id": "7d7003212bd6402f9c2226fab40d25e2",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:59:00.000Z"
+          },
+          {
+            "id": 25,
+            "actor_id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2,
+            "request_id": "8e9b8cc830e0432ca0eaf104dab9590b",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:59:00.000Z"
+          },
+          {
+            "id": 26,
+            "actor_id": 3,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "6001ed399ed045f8a6ad8a1a465b3014",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:59:00.000Z"
+          },
+          {
+            "id": 27,
+            "actor_id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "56a055b7429c465b922c80bb8794abaf",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-11T15:59:00.000Z"
+          },
+          {
+            "id": 28,
+            "actor_id": 3,
+            "action": "attempt.submit",
+            "object_type": "attempt",
+            "object_id": 1,
+            "request_id": "16218fabc2ef45a99ab199094787203b",
+            "before_summary": null,
+            "after_summary": "{\"paper_id\": 1, \"status\": \"partial\", \"answer_count\": 3}",
+            "created_at": "2026-10-11T15:59:00.000Z"
+          },
+          {
+            "id": 29,
+            "actor_id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1,
+            "request_id": "fca8d5cb9e464d818d232aadeb32002d",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-12T00:05:00.000Z"
+          },
+          {
+            "id": 30,
+            "actor_id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2,
+            "request_id": "a2d2cdd8ef46428d9e7ded94ae3790a0",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-12T00:05:00.000Z"
+          },
+          {
+            "id": 31,
+            "actor_id": 3,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3,
+            "request_id": "1a1cb6e7ed3349cbb162a3889da70c47",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-12T00:05:00.000Z"
+          },
+          {
+            "id": 32,
+            "actor_id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4,
+            "request_id": "5e458d9c348b40f0ab2c5f9d6feb5a3f",
+            "before_summary": null,
+            "after_summary": null,
+            "created_at": "2026-10-12T00:05:00.000Z"
+          },
+          {
+            "id": 33,
+            "actor_id": 2,
+            "action": "question.version",
+            "object_type": "question",
+            "object_id": 1,
+            "request_id": "c14ec2a990e441839d3b767ff6d05abd",
+            "before_summary": "{\"version_id\": 1}",
+            "after_summary": "{\"version_id\": 5}",
+            "created_at": "2026-10-12T00:05:00.000Z"
+          },
+          {
+            "id": 34,
+            "actor_id": 2,
+            "action": "question.version",
+            "object_type": "question",
+            "object_id": 2,
+            "request_id": "e38c9a03e9584eed9dd2d9eb324a7c72",
+            "before_summary": "{\"version_id\": 2}",
+            "after_summary": "{\"version_id\": 6}",
+            "created_at": "2026-10-12T00:05:00.000Z"
+          },
+          {
+            "id": 35,
+            "actor_id": 3,
+            "action": "practice.submit",
+            "object_type": "practice_attempt",
+            "object_id": 2,
+            "request_id": "e3084ee902a74b1cb82b0e530824663a",
+            "before_summary": null,
+            "after_summary": "{\"question_version_id\": 5, \"answered\": true, \"correct\": true}",
+            "created_at": "2026-10-12T00:05:00.000Z"
+          },
+          {
+            "id": 36,
+            "actor_id": 3,
+            "action": "practice.submit",
+            "object_type": "practice_attempt",
+            "object_id": 3,
+            "request_id": "857cd7df5cfa4cb5af26ded8239c0243",
+            "before_summary": null,
+            "after_summary": "{\"question_version_id\": 5, \"answered\": false, \"correct\": false}",
+            "created_at": "2026-10-12T00:05:00.000Z"
+          },
+          {
+            "id": 37,
+            "actor_id": 2,
+            "action": "attempt.manual_scores",
+            "object_type": "attempt",
+            "object_id": 1,
+            "request_id": "fb6760216b4a4df6a57beb0aceada79b",
+            "before_summary": "{\"revision\": 0, \"items\": [{\"question_version_id\": 4, \"score_hundredths\": null, \"comment\": \"\", \"graded_by\": null}]}",
+            "after_summary": "{\"revision\": 1, \"items\": [{\"question_version_id\": 4, \"score_hundredths\": 800, \"comment\": \"受控消费核对\", \"graded_by\": 2}], \"status\": \"graded\", \"partial_score_hundredths\": 1800}",
+            "created_at": "2026-10-12T00:05:00.001Z"
+          }
+        ],
+        "foreign_key_check": []
+      }
+    }
+  }
+}

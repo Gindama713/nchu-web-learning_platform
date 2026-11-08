@@ -1,0 +1,7 @@
+test_generated_quiz_attempts_classified_scores_and_two_immutable_snapshots (tests.test_consumption_seams.ConsumptionSeamsTest.test_generated_quiz_attempts_classified_scores_and_two_immutable_snapshots) ... ok
+test_recommendation_practice_wrong_facts_and_saved_knowledge (tests.test_consumption_seams.ConsumptionSeamsTest.test_recommendation_practice_wrong_facts_and_saved_knowledge) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 5.336s
+
+OK

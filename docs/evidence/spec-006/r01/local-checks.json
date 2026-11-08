@@ -1,0 +1,32 @@
+{
+  "matrix_rows": 131,
+  "changed_rows": [
+    "SPEC-006/R01",
+    "SPEC-008/R01"
+  ],
+  "unchanged_rows": 129,
+  "local": {
+    "通过": 80,
+    "阻断": 51
+  },
+  "integration": {
+    "通过": 59,
+    "阻断": 72
+  },
+  "history_head_tested_attachments_preserved": true,
+  "code_diff_from_tested": "",
+  "screenshots_visually_checked": [
+    "chrome-prestart.png",
+    "chrome-reviewed.png",
+    "chrome-student-resources.png",
+    "chrome-unreviewed.png",
+    "msedge-prestart.png",
+    "msedge-reviewed.png",
+    "msedge-student-resources.png",
+    "msedge-unreviewed.png"
+  ],
+  "report_links_checked": 27,
+  "six_required_document_links_checked_in_batches_of_three": true,
+  "ruff": "passed",
+  "diff_check": "passed"
+}

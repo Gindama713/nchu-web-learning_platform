@@ -1,0 +1,1355 @@
+{
+  "test": "test_r01_imported_quiz_old_question_version_and_unreviewed_answers",
+  "requests": [
+    {
+      "method": "POST",
+      "path": "/courses",
+      "status": 201,
+      "body": {
+        "data": {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "C02a CPU"
+        },
+        "request_id": "6ce13c25ad50466fa4506549aa9017ac"
+      },
+      "bytes": 117,
+      "sha256": "ee59972597c1efc47fb72020a541fee9adfaeb073ef4d620744dc65b2f497812"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/members",
+      "status": 201,
+      "body": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 3
+        },
+        "request_id": "157a7a0e31fe4fd4850e87aa877edf80"
+      },
+      "bytes": 109,
+      "sha256": "1fd662305a0f53c18772b01d958732da9ecc8cc290065b5aa7e8ad3e3d1d5b03"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/chapters",
+      "status": 201,
+      "body": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        },
+        "request_id": "396dc1f3697d4f7abc642fe1a604c427"
+      },
+      "bytes": 115,
+      "sha256": "06c07c5bfe599ca8ac96b6b4607e340289c169a6f70bf8e4f84c795e582497ca"
+    },
+    {
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "status": 201,
+      "body": {
+        "data": {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点1"
+        },
+        "request_id": "3d54793905ca48c59bf9962f7fe38b08"
+      },
+      "bytes": 223,
+      "sha256": "8665901225509299852f6d46f10bebd0c7406486cc3fdf843e834122f9e5d5e9"
+    },
+    {
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "status": 201,
+      "body": {
+        "data": {
+          "chapter_id": 1,
+          "content": "教学正文",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "知识点2"
+        },
+        "request_id": "983aff865e044d509db2152bb87517ae"
+      },
+      "bytes": 223,
+      "sha256": "a1fbce89994a4bb08017bbda72b7831ba26cff86da2bf6ddc10766fd512da14d"
+    },
+    {
+      "method": "POST multipart",
+      "path": "/courses/1/resources",
+      "status": 201,
+      "body": {
+        "data": {
+          "id": 1,
+          "kind": "question_bank",
+          "resource_id": 1,
+          "sha256": "908e3a534eedb7d9d963dc521d62580fad596b0b8b38f77c23729f7ecefbd381",
+          "size": 176,
+          "title": "R01源文件",
+          "version": 1
+        },
+        "request_id": "54a28f7b5f4e4d41a858eead9fc31310"
+      },
+      "bytes": 236,
+      "sha256": "faffc28fae21a1dccb08d14f892cc4f94b74a15a9f74021a5876090dbc714a20"
+    },
+    {
+      "method": "POST",
+      "path": "/resources/1/question-imports",
+      "status": 201,
+      "body": {
+        "data": {
+          "count": 1,
+          "import_id": 1,
+          "question_version_ids": [
+            1
+          ]
+        },
+        "request_id": "ba4d04c11c494124be3e60e4988b29a7"
+      },
+      "bytes": 110,
+      "sha256": "ea0ebb902c199d948a106aaabb7d143f5289ea9fb735a6d124d819a5e44607e4"
+    },
+    {
+      "method": "GET",
+      "path": "/courses/1/questions",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "answer": true,
+            "difficulty": "easy",
+            "explanation": "R01_SECRET_EXPLANATION",
+            "id": 1,
+            "knowledge_ids": [
+              1
+            ],
+            "options": [],
+            "practice_available": false,
+            "stem": "R01 PC保存指令地址？",
+            "tolerance": 0.0,
+            "type": "boolean",
+            "version": 1,
+            "version_id": 1
+          }
+        ],
+        "page": 1,
+        "page_size": 20,
+        "request_id": "3a381f13767a4a1cbfbbc393b598b5fc",
+        "total": 1
+      },
+      "bytes": 353,
+      "sha256": "d0a3b81c865371a4dbb3bb2230d9b74720724c048fcfb66b775d6f276869251f"
+    },
+    {
+      "method": "PATCH",
+      "path": "/questions/1",
+      "status": 200,
+      "body": {
+        "data": {
+          "answer": true,
+          "difficulty": "easy",
+          "explanation": "R01_SECRET_EXPLANATION",
+          "id": 1,
+          "knowledge_ids": [
+            1
+          ],
+          "options": [],
+          "practice_available": false,
+          "stem": "R01题目第二版",
+          "tolerance": 0.0,
+          "type": "boolean",
+          "version": 2,
+          "version_id": 2
+        },
+        "request_id": "4ca47341b4e8479d83ad521b6f067802"
+      },
+      "bytes": 302,
+      "sha256": "ebc93d4a40f50c145f48471412ef06b57d3c1b7cb46fa26981729f5f81236038"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/papers",
+      "status": 201,
+      "body": {
+        "data": {
+          "algorithm_version": null,
+          "confidential": true,
+          "confidentiality_note": null,
+          "end_at": null,
+          "generation_snapshot_id": null,
+          "id": 1,
+          "items": [
+            {
+              "answer": true,
+              "difficulty": "easy",
+              "explanation": "R01_SECRET_EXPLANATION",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [],
+              "points": 10.0,
+              "position": 1,
+              "practice_available": false,
+              "question_version_id": 1,
+              "stem": "R01 PC保存指令地址？",
+              "tolerance": 0.0,
+              "type": "boolean",
+              "version": 1,
+              "version_id": 1
+            }
+          ],
+          "kind": "quiz",
+          "participant_count": 0,
+          "review_at": null,
+          "seed": null,
+          "start_at": null,
+          "status": "draft",
+          "title": "R01导入随堂测",
+          "total_points": 10.0,
+          "window_state": null
+        },
+        "request_id": "8226cb7b395441dfbab87aca7c962eac"
+      },
+      "bytes": 686,
+      "sha256": "22192a3b7385f7b78cb21b649cafcb09c12ca7336cbfdccc0a1ed85eaf0eb39a"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/quizzes",
+      "status": 201,
+      "body": {
+        "data": {
+          "algorithm_version": null,
+          "confidential": true,
+          "confidentiality_note": "未公开且非简单复制",
+          "end_at": "2026-10-13T12:20:00.000Z",
+          "generation_snapshot_id": null,
+          "id": 1,
+          "kind": "quiz",
+          "paper_id": 1,
+          "participant_count": 1,
+          "review_at": null,
+          "seed": null,
+          "start_at": "2026-10-13T12:10:00.000Z",
+          "status": "upcoming",
+          "title": "R01导入随堂测",
+          "total_points": 10.0,
+          "window_state": "upcoming"
+        },
+        "request_id": "7e72e8f83ec24b29ab8e955dd95959c3"
+      },
+      "bytes": 483,
+      "sha256": "e2b2aa7a564976beb0dfebb0983ab6e0889002bf8e87162472a9f82d1d6e6027"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/preparations",
+      "status": 201,
+      "body": {
+        "data": {
+          "course_id": 1,
+          "id": 1,
+          "knowledge_ids": [
+            1
+          ],
+          "published_at": null,
+          "question_version_ids": [],
+          "quiz_ids": [
+            1
+          ],
+          "replaces_id": null,
+          "resource_version_ids": [],
+          "scheduled_at": null,
+          "source_id": null,
+          "status": "draft",
+          "title": "R01备课",
+          "withdraw_reason": null,
+          "withdrawn_at": null
+        },
+        "request_id": "dfaed192a7b84eb096075ad82d4c2274"
+      },
+      "bytes": 329,
+      "sha256": "acd6455b94cdba80d927ca77e77a55d50f3f5ff9ecd4a10a0881473ebfdab896"
+    },
+    {
+      "method": "POST",
+      "path": "/preparations/1/publish",
+      "status": 200,
+      "body": {
+        "data": {
+          "course_id": 1,
+          "id": 1,
+          "knowledge_ids": [
+            1
+          ],
+          "published_at": "2026-10-13T12:00:00.000Z",
+          "question_version_ids": [],
+          "quiz_ids": [
+            1
+          ],
+          "replaces_id": null,
+          "resource_version_ids": [],
+          "scheduled_at": null,
+          "source_id": null,
+          "status": "published",
+          "title": "R01备课",
+          "withdraw_reason": null,
+          "withdrawn_at": null
+        },
+        "request_id": "f5d19b05708a45cda358555cc964b8a0"
+      },
+      "bytes": 355,
+      "sha256": "78a6dd399750d133519d0b050dc395df81d0f1696a5abe541458630bc63f3a60"
+    },
+    {
+      "method": "GET",
+      "path": "/preparations/1",
+      "status": 200,
+      "body": {
+        "data": {
+          "course_id": 1,
+          "id": 1,
+          "knowledge_ids": [
+            1
+          ],
+          "published_at": "2026-10-13T12:00:00.000Z",
+          "question_version_ids": [],
+          "quiz_ids": [
+            1
+          ],
+          "quizzes": [
+            {
+              "end_at": "2026-10-13T12:20:00.000Z",
+              "id": 1,
+              "start_at": "2026-10-13T12:10:00.000Z",
+              "title": "R01导入随堂测"
+            }
+          ],
+          "replaces_id": null,
+          "resource_version_ids": [],
+          "scheduled_at": null,
+          "source_id": null,
+          "status": "published",
+          "title": "R01备课",
+          "withdraw_reason": null,
+          "withdrawn_at": null
+        },
+        "request_id": "93d44883bea845c8afd47284f80bf37b"
+      },
+      "bytes": 494,
+      "sha256": "a32917b5eff602e9157416b3cf004de1c02e652e51e65d4b53d4e18c5ed4f576"
+    },
+    {
+      "method": "GET",
+      "path": "/courses/1/preparations",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "course_id": 1,
+            "id": 1,
+            "knowledge_ids": [
+              1
+            ],
+            "published_at": "2026-10-13T12:00:00.000Z",
+            "question_version_ids": [],
+            "quiz_ids": [
+              1
+            ],
+            "quizzes": [
+              {
+                "end_at": "2026-10-13T12:20:00.000Z",
+                "id": 1,
+                "start_at": "2026-10-13T12:10:00.000Z",
+                "title": "R01导入随堂测"
+              }
+            ],
+            "replaces_id": null,
+            "resource_version_ids": [],
+            "scheduled_at": null,
+            "source_id": null,
+            "status": "published",
+            "title": "R01备课",
+            "withdraw_reason": null,
+            "withdrawn_at": null
+          }
+        ],
+        "page": 1,
+        "page_size": 20,
+        "request_id": "cfdfca8e992d443080d7d662adef3b7d",
+        "total": 1
+      },
+      "bytes": 530,
+      "sha256": "fcfc2bbd36204464495bfd0f5ba4dcd648fa121f3c672be9b8ffbbb175a276a7"
+    },
+    {
+      "method": "GET",
+      "path": "/papers/1",
+      "status": 200,
+      "body": {
+        "data": {
+          "confidential": true,
+          "end_at": "2026-10-13T12:20:00.000Z",
+          "id": 1,
+          "kind": "quiz",
+          "review_at": null,
+          "start_at": "2026-10-13T12:10:00.000Z",
+          "status": "published",
+          "title": "R01导入随堂测",
+          "total_points": 10.0,
+          "window_state": "upcoming"
+        },
+        "request_id": "8eca68793a2c41a3ace8a161bb88a615"
+      },
+      "bytes": 302,
+      "sha256": "91fcd47109ae026751197506d84abdb0ec8e58a7154a035d5d4bf40eaf4f233c"
+    },
+    {
+      "method": "PATCH",
+      "path": "/questions/1",
+      "status": 409,
+      "body": {
+        "error": {
+          "code": "QUESTION_RESERVED",
+          "details": {},
+          "message": "题目仍被试卷保护，不能公开或再次发布"
+        },
+        "request_id": "7f57b12cc46d4bdda19585153ef55981"
+      },
+      "bytes": 221,
+      "sha256": "60a99879632c0c15e58acb36a7cc10c9e468c7c8984c8c7021f1bb2bf8cf41df"
+    },
+    {
+      "method": "PATCH",
+      "path": "/questions/1",
+      "status": 409,
+      "body": {
+        "error": {
+          "code": "QUESTION_RESERVED",
+          "details": {},
+          "message": "题目仍被试卷保护，不能公开或再次发布"
+        },
+        "request_id": "fc1eb8ab1fef493f91a7345222774a83"
+      },
+      "bytes": 221,
+      "sha256": "65e03634c439dbc0bed518676e0e055cbb0126761ae6b432a646b2d37ab9d2b1"
+    },
+    {
+      "method": "POST",
+      "path": "/courses/1/preparations",
+      "status": 201,
+      "body": {
+        "data": {
+          "course_id": 1,
+          "id": 2,
+          "knowledge_ids": [
+            1
+          ],
+          "published_at": null,
+          "question_version_ids": [
+            1
+          ],
+          "quiz_ids": [],
+          "replaces_id": null,
+          "resource_version_ids": [],
+          "scheduled_at": null,
+          "source_id": null,
+          "status": "draft",
+          "title": "R01备课",
+          "withdraw_reason": null,
+          "withdrawn_at": null
+        },
+        "request_id": "f6aa0e6b1de542be968a0aec0a4029d6"
+      },
+      "bytes": 329,
+      "sha256": "400b2dddb87de900e3c0a9bc9989e9c3819a6f8f74ceae48d959c80a4df56e67"
+    },
+    {
+      "method": "POST",
+      "path": "/preparations/2/publish",
+      "status": 404,
+      "body": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {
+            "ids": [
+              1
+            ]
+          },
+          "message": "Related question_version not found in this course"
+        },
+        "request_id": "37576dc1907345f393d3c111066ab828"
+      },
+      "bytes": 163,
+      "sha256": "56aa710c3d3f5390f0b4d575e64e430f3a07505a1b50b9e44f2b3f7e5f700cab"
+    },
+    {
+      "method": "POST",
+      "path": "/quizzes/1/attempts",
+      "status": 201,
+      "body": {
+        "data": {
+          "answers": [
+            {
+              "answered": true,
+              "comment": "",
+              "correct": false,
+              "grading_status": "graded",
+              "max_score": 10.0,
+              "question_version_id": 1,
+              "score": 0.0,
+              "value": false
+            }
+          ],
+          "id": 1,
+          "paper_id": 1,
+          "partial_score": 0.0,
+          "revision": 0,
+          "score": 0.0,
+          "status": "graded",
+          "student_id": 3,
+          "submitted_at": "2026-10-13T12:11:00.000Z",
+          "total_points": 10.0
+        },
+        "request_id": "5a148de537834121b2ff7e19a5ea98c0"
+      },
+      "bytes": 371,
+      "sha256": "8b2bd293e64fca92fe7f17ab3451ed848963975f798588a6dc6e73361067bcfc"
+    },
+    {
+      "method": "GET",
+      "path": "/papers/1",
+      "status": 200,
+      "body": {
+        "data": {
+          "confidential": true,
+          "end_at": "2026-10-13T12:20:00.000Z",
+          "id": 1,
+          "items": [
+            {
+              "difficulty": "easy",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [],
+              "points": 10.0,
+              "position": 1,
+              "practice_available": false,
+              "question_version_id": 1,
+              "stem": "R01 PC保存指令地址？",
+              "tolerance": 0.0,
+              "type": "boolean",
+              "version": 1,
+              "version_id": 1
+            }
+          ],
+          "kind": "quiz",
+          "review_at": null,
+          "start_at": "2026-10-13T12:10:00.000Z",
+          "status": "published",
+          "title": "R01导入随堂测",
+          "total_points": 10.0,
+          "window_state": "closed"
+        },
+        "request_id": "5dc544faf87d4662bcc0edd1c6cf7ec8"
+      },
+      "bytes": 568,
+      "sha256": "672cb29df7f236818d1022b711d57058188511a1230f865a4bdcfb6de0ada2c6"
+    },
+    {
+      "method": "GET",
+      "path": "/attempts/1",
+      "status": 200,
+      "body": {
+        "data": {
+          "answers": [
+            {
+              "answered": true,
+              "comment": "",
+              "correct": false,
+              "grading_status": "graded",
+              "max_score": 10.0,
+              "question_version_id": 1,
+              "score": 0.0,
+              "value": false
+            }
+          ],
+          "id": 1,
+          "paper_id": 1,
+          "partial_score": 0.0,
+          "revision": 0,
+          "score": 0.0,
+          "status": "graded",
+          "student_id": 3,
+          "submitted_at": "2026-10-13T12:11:00.000Z",
+          "total_points": 10.0
+        },
+        "request_id": "1a411d1e7d4a491d992117cf2a01dba6"
+      },
+      "bytes": 371,
+      "sha256": "a2fa65c62387610825656d5b5dcf28156247caa3e534b9503a17e9b3f50a9735"
+    },
+    {
+      "method": "GET",
+      "path": "/users/me/wrong-questions",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "answer_visible": false,
+            "can_practice": false,
+            "difficulty": "easy",
+            "id": 1,
+            "knowledge_ids": [
+              1
+            ],
+            "last_attempt_id": 1,
+            "last_attempt_type": "paper",
+            "options": [],
+            "practice_available": false,
+            "question_id": 1,
+            "question_version_id": 1,
+            "resolved": false,
+            "stem": "R01 PC保存指令地址？",
+            "tolerance": 0.0,
+            "type": "boolean",
+            "version": 1,
+            "version_id": 1,
+            "wrong_count": 1
+          }
+        ],
+        "page": 1,
+        "page_size": 20,
+        "request_id": "1e7bb60060aa4e04ae6fc52bae1d0bb6",
+        "total": 1
+      },
+      "bytes": 465,
+      "sha256": "8c58398ec4f282f3c040dae83939474afaeb3584a3181358148e14ea8c377a02"
+    },
+    {
+      "method": "GET",
+      "path": "/courses/1/questions",
+      "status": 200,
+      "body": {
+        "data": [],
+        "page": 1,
+        "page_size": 20,
+        "request_id": "c249de01a1224d2da93b48a4af783987",
+        "total": 0
+      },
+      "bytes": 94,
+      "sha256": "6afa3e9bb09bed2cb58b84c0f11be7ba35c7c8ef1b0933033616066ea5b14b5b"
+    },
+    {
+      "method": "GET",
+      "path": "/preparations/1",
+      "status": 200,
+      "body": {
+        "data": {
+          "course_id": 1,
+          "id": 1,
+          "knowledge_ids": [
+            1
+          ],
+          "published_at": "2026-10-13T12:00:00.000Z",
+          "question_version_ids": [],
+          "quiz_ids": [
+            1
+          ],
+          "quizzes": [
+            {
+              "end_at": "2026-10-13T12:20:00.000Z",
+              "id": 1,
+              "start_at": "2026-10-13T12:10:00.000Z",
+              "title": "R01导入随堂测"
+            }
+          ],
+          "replaces_id": null,
+          "resource_version_ids": [],
+          "scheduled_at": null,
+          "source_id": null,
+          "status": "published",
+          "title": "R01备课",
+          "withdraw_reason": null,
+          "withdrawn_at": null
+        },
+        "request_id": "20e6a583019642d093b6a6da1aef64e3"
+      },
+      "bytes": 494,
+      "sha256": "c986dcc76f0974d4dda7e466db187b806b8b8a83026972cfa041cda031e3172a"
+    },
+    {
+      "method": "GET",
+      "path": "/courses/1/preparations",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "course_id": 1,
+            "id": 1,
+            "knowledge_ids": [
+              1
+            ],
+            "published_at": "2026-10-13T12:00:00.000Z",
+            "question_version_ids": [],
+            "quiz_ids": [
+              1
+            ],
+            "quizzes": [
+              {
+                "end_at": "2026-10-13T12:20:00.000Z",
+                "id": 1,
+                "start_at": "2026-10-13T12:10:00.000Z",
+                "title": "R01导入随堂测"
+              }
+            ],
+            "replaces_id": null,
+            "resource_version_ids": [],
+            "scheduled_at": null,
+            "source_id": null,
+            "status": "published",
+            "title": "R01备课",
+            "withdraw_reason": null,
+            "withdrawn_at": null
+          }
+        ],
+        "page": 1,
+        "page_size": 20,
+        "request_id": "6f545431999a4b168672720b69566286",
+        "total": 1
+      },
+      "bytes": 530,
+      "sha256": "0c5c85df93acb4661433cb83115220b12d237820d96d26b2e27bccfdb79bd486"
+    },
+    {
+      "method": "POST",
+      "path": "/quizzes/1/review",
+      "status": 200,
+      "body": {
+        "data": {
+          "review_published_at": "2026-10-13T12:21:00.000Z"
+        },
+        "request_id": "c98a836519174e90b1e91d76b15166f7"
+      },
+      "bytes": 108,
+      "sha256": "6b47675d21b6e4ec91c7fed4f865efad7edb3db6325cf46eac2ff66094c12605"
+    },
+    {
+      "method": "GET",
+      "path": "/papers/1",
+      "status": 200,
+      "body": {
+        "data": {
+          "confidential": true,
+          "end_at": "2026-10-13T12:20:00.000Z",
+          "id": 1,
+          "items": [
+            {
+              "answer": true,
+              "difficulty": "easy",
+              "explanation": "R01_SECRET_EXPLANATION",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [],
+              "points": 10.0,
+              "position": 1,
+              "practice_available": false,
+              "question_version_id": 1,
+              "stem": "R01 PC保存指令地址？",
+              "tolerance": 0.0,
+              "type": "boolean",
+              "version": 1,
+              "version_id": 1
+            }
+          ],
+          "kind": "quiz",
+          "review_at": "2026-10-13T12:21:00.000Z",
+          "start_at": "2026-10-13T12:10:00.000Z",
+          "status": "published",
+          "title": "R01导入随堂测",
+          "total_points": 10.0,
+          "window_state": "closed"
+        },
+        "request_id": "1ca96171700c4a9aba20d476529b8d59"
+      },
+      "bytes": 643,
+      "sha256": "d053b203e9f66afcdfe39521cf1e82c9ed8c9a3f14a108ebeade2729e0aad610"
+    }
+  ],
+  "checkpoints": [
+    {
+      "label": "closed unreviewed imported quiz",
+      "db": {
+        "counts": {
+          "question": 1,
+          "question_version": 2,
+          "question_knowledge": 2,
+          "question_import": 1,
+          "idempotency_record": 2,
+          "audit_event": 17,
+          "resource_event": 0,
+          "preparation": 2,
+          "preparation_resource": 0,
+          "preparation_quiz": 1,
+          "paper": 1,
+          "paper_participant": 1,
+          "attempt": 1,
+          "answer": 1
+        },
+        "imports": [
+          {
+            "id": 1,
+            "resource_version_id": 1,
+            "actor_id": 2,
+            "count": 1
+          }
+        ],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          }
+        ],
+        "papers": [
+          {
+            "id": 1,
+            "status": "published",
+            "start_at": "2026-10-13T12:10:00.000Z",
+            "end_at": "2026-10-13T12:20:00.000Z",
+            "review_at": null
+          }
+        ],
+        "preparations": [
+          {
+            "id": 1,
+            "status": "published"
+          },
+          {
+            "id": 2,
+            "status": "draft"
+          }
+        ],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.question_import",
+            "object_type": "question_import",
+            "object_id": 1
+          },
+          {
+            "id": 11,
+            "action": "question.version",
+            "object_type": "question",
+            "object_id": 1
+          },
+          {
+            "id": 12,
+            "action": "paper.create",
+            "object_type": "paper",
+            "object_id": 1
+          },
+          {
+            "id": 13,
+            "action": "paper.publish",
+            "object_type": "paper",
+            "object_id": 1
+          },
+          {
+            "id": 14,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 1
+          },
+          {
+            "id": 15,
+            "action": "preparation.publish",
+            "object_type": "preparation",
+            "object_id": 1
+          },
+          {
+            "id": 16,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 2
+          },
+          {
+            "id": 17,
+            "action": "attempt.submit",
+            "object_type": "attempt",
+            "object_id": 1
+          }
+        ],
+        "idempotency": [
+          {
+            "operation": "resource_question_import",
+            "resource_type": "question_import",
+            "resource_id": 1,
+            "response_status": 201
+          },
+          {
+            "operation": "paper_attempt",
+            "resource_type": "attempt",
+            "resource_id": 1,
+            "response_status": 201
+          }
+        ],
+        "foreign_key_check": []
+      }
+    },
+    {
+      "label": "explicit review releases original imported version",
+      "db": {
+        "counts": {
+          "question": 1,
+          "question_version": 2,
+          "question_knowledge": 2,
+          "question_import": 1,
+          "idempotency_record": 2,
+          "audit_event": 18,
+          "resource_event": 0,
+          "preparation": 2,
+          "preparation_resource": 0,
+          "preparation_quiz": 1,
+          "paper": 1,
+          "paper_participant": 1,
+          "attempt": 1,
+          "answer": 1
+        },
+        "imports": [
+          {
+            "id": 1,
+            "resource_version_id": 1,
+            "actor_id": 2,
+            "count": 1
+          }
+        ],
+        "resources": [
+          {
+            "id": 1,
+            "kind": "question_bank",
+            "visibility": "teacher_only"
+          }
+        ],
+        "versions": [
+          {
+            "id": 1,
+            "resource_id": 1,
+            "version": 1,
+            "file_id": 1
+          }
+        ],
+        "papers": [
+          {
+            "id": 1,
+            "status": "published",
+            "start_at": "2026-10-13T12:10:00.000Z",
+            "end_at": "2026-10-13T12:20:00.000Z",
+            "review_at": "2026-10-13T12:21:00.000Z"
+          }
+        ],
+        "preparations": [
+          {
+            "id": 1,
+            "status": "published"
+          },
+          {
+            "id": 2,
+            "status": "draft"
+          }
+        ],
+        "audit": [
+          {
+            "id": 1,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 1
+          },
+          {
+            "id": 2,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 2
+          },
+          {
+            "id": 3,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 4,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 3
+          },
+          {
+            "id": 5,
+            "action": "user.register",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 6,
+            "action": "auth.login",
+            "object_type": "user",
+            "object_id": 4
+          },
+          {
+            "id": 7,
+            "action": "course.create",
+            "object_type": "course",
+            "object_id": 1
+          },
+          {
+            "id": 8,
+            "action": "course.member_add",
+            "object_type": "course_member",
+            "object_id": 3
+          },
+          {
+            "id": 9,
+            "action": "resource.create",
+            "object_type": "resource",
+            "object_id": 1
+          },
+          {
+            "id": 10,
+            "action": "resource.question_import",
+            "object_type": "question_import",
+            "object_id": 1
+          },
+          {
+            "id": 11,
+            "action": "question.version",
+            "object_type": "question",
+            "object_id": 1
+          },
+          {
+            "id": 12,
+            "action": "paper.create",
+            "object_type": "paper",
+            "object_id": 1
+          },
+          {
+            "id": 13,
+            "action": "paper.publish",
+            "object_type": "paper",
+            "object_id": 1
+          },
+          {
+            "id": 14,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 1
+          },
+          {
+            "id": 15,
+            "action": "preparation.publish",
+            "object_type": "preparation",
+            "object_id": 1
+          },
+          {
+            "id": 16,
+            "action": "preparation.create",
+            "object_type": "preparation",
+            "object_id": 2
+          },
+          {
+            "id": 17,
+            "action": "attempt.submit",
+            "object_type": "attempt",
+            "object_id": 1
+          },
+          {
+            "id": 18,
+            "action": "quiz.review",
+            "object_type": "paper",
+            "object_id": 1
+          }
+        ],
+        "idempotency": [
+          {
+            "operation": "resource_question_import",
+            "resource_type": "question_import",
+            "resource_id": 1,
+            "response_status": 201
+          },
+          {
+            "operation": "paper_attempt",
+            "resource_type": "attempt",
+            "resource_id": 1,
+            "response_status": 201
+          }
+        ],
+        "foreign_key_check": []
+      }
+    }
+  ],
+  "final_db": {
+    "counts": {
+      "question": 1,
+      "question_version": 2,
+      "question_knowledge": 2,
+      "question_import": 1,
+      "idempotency_record": 2,
+      "audit_event": 18,
+      "resource_event": 0,
+      "preparation": 2,
+      "preparation_resource": 0,
+      "preparation_quiz": 1,
+      "paper": 1,
+      "paper_participant": 1,
+      "attempt": 1,
+      "answer": 1
+    },
+    "imports": [
+      {
+        "id": 1,
+        "resource_version_id": 1,
+        "actor_id": 2,
+        "count": 1
+      }
+    ],
+    "resources": [
+      {
+        "id": 1,
+        "kind": "question_bank",
+        "visibility": "teacher_only"
+      }
+    ],
+    "versions": [
+      {
+        "id": 1,
+        "resource_id": 1,
+        "version": 1,
+        "file_id": 1
+      }
+    ],
+    "papers": [
+      {
+        "id": 1,
+        "status": "published",
+        "start_at": "2026-10-13T12:10:00.000Z",
+        "end_at": "2026-10-13T12:20:00.000Z",
+        "review_at": "2026-10-13T12:21:00.000Z"
+      }
+    ],
+    "preparations": [
+      {
+        "id": 1,
+        "status": "published"
+      },
+      {
+        "id": 2,
+        "status": "draft"
+      }
+    ],
+    "audit": [
+      {
+        "id": 1,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 1
+      },
+      {
+        "id": 2,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 2
+      },
+      {
+        "id": 3,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 3
+      },
+      {
+        "id": 4,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 3
+      },
+      {
+        "id": 5,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 4
+      },
+      {
+        "id": 6,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 4
+      },
+      {
+        "id": 7,
+        "action": "course.create",
+        "object_type": "course",
+        "object_id": 1
+      },
+      {
+        "id": 8,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 3
+      },
+      {
+        "id": 9,
+        "action": "resource.create",
+        "object_type": "resource",
+        "object_id": 1
+      },
+      {
+        "id": 10,
+        "action": "resource.question_import",
+        "object_type": "question_import",
+        "object_id": 1
+      },
+      {
+        "id": 11,
+        "action": "question.version",
+        "object_type": "question",
+        "object_id": 1
+      },
+      {
+        "id": 12,
+        "action": "paper.create",
+        "object_type": "paper",
+        "object_id": 1
+      },
+      {
+        "id": 13,
+        "action": "paper.publish",
+        "object_type": "paper",
+        "object_id": 1
+      },
+      {
+        "id": 14,
+        "action": "preparation.create",
+        "object_type": "preparation",
+        "object_id": 1
+      },
+      {
+        "id": 15,
+        "action": "preparation.publish",
+        "object_type": "preparation",
+        "object_id": 1
+      },
+      {
+        "id": 16,
+        "action": "preparation.create",
+        "object_type": "preparation",
+        "object_id": 2
+      },
+      {
+        "id": 17,
+        "action": "attempt.submit",
+        "object_type": "attempt",
+        "object_id": 1
+      },
+      {
+        "id": 18,
+        "action": "quiz.review",
+        "object_type": "paper",
+        "object_id": 1
+      }
+    ],
+    "idempotency": [
+      {
+        "operation": "resource_question_import",
+        "resource_type": "question_import",
+        "resource_id": 1,
+        "response_status": 201
+      },
+      {
+        "operation": "paper_attempt",
+        "resource_type": "attempt",
+        "resource_id": 1,
+        "response_status": 201
+      }
+    ],
+    "foreign_key_check": []
+  }
+}

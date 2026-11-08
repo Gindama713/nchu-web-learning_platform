@@ -1,0 +1,204 @@
+{
+  "date": "2026-10-17 Asia/Shanghai",
+  "baseline": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "feature": "feature/spec-010b-i03-subchain",
+  "workspace_initial": {
+    "branch": "feature/spec-006-resource-integration",
+    "head": "dbd32e65db1d6d371adcfe4b06889a24e7490e24",
+    "dirty_paths": []
+  },
+  "prs": {
+    "27": {
+      "metadata": {
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/27",
+        "number": 27,
+        "state": "open",
+        "merged": false,
+        "merged_at": null,
+        "draft": false,
+        "base": "develop",
+        "base_sha": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+        "head": "feature/spec-010b-knowledge-analysis",
+        "head_sha": "7096b496504f62181f60987062b1397bdb96a937",
+        "merge_commit_sha": "a4ed987609132694c08c59650f92721abc223e0d"
+      },
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/27",
+        "title": "Gindama713/nchu-web-learning_platform Issue #27 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/27",
+        "display_title": "Gindama713/nchu-web-learning_platform Issue #27 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "review_threads": {
+        "review_threads": []
+      },
+      "actual_merge": null,
+      "ci_merge_ref_is_not_actual_merge": true
+    },
+    "28": {
+      "metadata": {
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/28",
+        "number": 28,
+        "state": "open",
+        "merged": false,
+        "merged_at": null,
+        "draft": false,
+        "base": "develop",
+        "base_sha": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+        "head": "feature/spec-010b-c12c-materials",
+        "head_sha": "8111c5395d8b7cf33205065c77490593e07ed045",
+        "merge_commit_sha": "b4a44411a719c490de01942ff5a4d251f007d8a6"
+      },
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/28",
+        "title": "Gindama713/nchu-web-learning_platform Issue #28 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/28",
+        "display_title": "Gindama713/nchu-web-learning_platform Issue #28 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "review_threads": {
+        "review_threads": []
+      },
+      "actual_merge": null,
+      "ci_merge_ref_is_not_actual_merge": true
+    },
+    "29": {
+      "metadata": {
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/29",
+        "number": 29,
+        "state": "open",
+        "merged": false,
+        "merged_at": null,
+        "draft": false,
+        "base": "develop",
+        "base_sha": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+        "head": "feature/spec-008-preparation-integration",
+        "head_sha": "b56141f2e060d1ec5464d58d52f6f735c445d56c",
+        "merge_commit_sha": "5b67d9bc10a44cce388172a1e79001e2d5f90343"
+      },
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/29",
+        "title": "Gindama713/nchu-web-learning_platform Issue #29 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/29",
+        "display_title": "Gindama713/nchu-web-learning_platform Issue #29 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "review_threads": {
+        "review_threads": []
+      },
+      "actual_merge": null,
+      "ci_merge_ref_is_not_actual_merge": true
+    },
+    "30": {
+      "metadata": {
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/30",
+        "number": 30,
+        "state": "open",
+        "merged": false,
+        "merged_at": null,
+        "draft": false,
+        "base": "develop",
+        "base_sha": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+        "head": "feature/spec-006-resource-integration",
+        "head_sha": "dbd32e65db1d6d371adcfe4b06889a24e7490e24",
+        "merge_commit_sha": "9042da8e688d275abc3366b81e5ecf064e92826c"
+      },
+      "comments": {
+        "comments": [],
+        "url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/30",
+        "title": "Gindama713/nchu-web-learning_platform Issue #30 comments",
+        "display_url": "https://github.com/Gindama713/nchu-web-learning_platform/issues/30",
+        "display_title": "Gindama713/nchu-web-learning_platform Issue #30 comments"
+      },
+      "reviews": {
+        "reviews": []
+      },
+      "review_threads": {
+        "review_threads": []
+      },
+      "actual_merge": null,
+      "ci_merge_ref_is_not_actual_merge": true
+    }
+  },
+  "actual_merges": [
+    {
+      "number": 18,
+      "title": "feat(spec-009): 实验辅助模块",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "actual_merge": "53d9a2a4db9aa715c8951a99a25005b497b38024",
+      "develop_ancestor_exit": 0
+    },
+    {
+      "number": 19,
+      "title": "feat(spec-003): 教学资源模块",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "actual_merge": "991566cbdb84a036259363d43b89a16dc52cdbed",
+      "develop_ancestor_exit": 0
+    },
+    {
+      "number": 20,
+      "title": "feat(spec-004): preparation units with links, copy, publish and withdraw",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "actual_merge": "4399cb8138c3f56f23c535f23fe2a5af1d819998",
+      "develop_ancestor_exit": 0
+    },
+    {
+      "number": 21,
+      "title": "feat(spec-007): classroom demo sessions with six built-in scene engines",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "actual_merge": "d3e0e3325a2892097780b23ca3092140adcccfd3",
+      "develop_ancestor_exit": 0
+    },
+    {
+      "number": 22,
+      "title": "feat(spec-017): experiment wiring simulation engine, API and correctness fixes",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "actual_merge": "5eea466ec2a9b9f23cc4ccf9f1548d16545b43d1",
+      "develop_ancestor_exit": 0
+    },
+    {
+      "number": 23,
+      "title": "feat(spec-010c): wiring completion rate and error analytics",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "actual_merge": "6ec4c53f6130b3ad3f17b52c757afbf2c0e39b66",
+      "develop_ancestor_exit": 0
+    },
+    {
+      "number": 24,
+      "title": "feat(spec-015): knowledge graph with prerequisite reachability and cycle detection",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:33Z",
+      "actual_merge": "eaaf043f16e1725886a83166b33c13867ef368dc",
+      "develop_ancestor_exit": 0
+    },
+    {
+      "number": 26,
+      "title": "整合第二次课堂提交：组员功能与实验箱连线",
+      "merged": true,
+      "merged_at": "2026-10-16T05:50:31Z",
+      "actual_merge": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+      "develop_ancestor_exit": 0
+    }
+  ],
+  "fixed_ci_reused": {
+    "27": 38896062651,
+    "28": 38904433916,
+    "29": 38907219999,
+    "30": 38909993594
+  }
+}

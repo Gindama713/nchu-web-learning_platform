@@ -1,0 +1,249 @@
+{
+  "group": "g24201710",
+  "started": "2026-11-01 17:08:49 中国标准时间",
+  "scenarios": [
+    {
+      "base": "http://127.0.0.1:5173",
+      "verdict": "通过",
+      "trace": [
+        {
+          "at": "2026-11-01T09:08:49.865Z",
+          "actor": "教师",
+          "method": "GET",
+          "path": "/who",
+          "status": 200,
+          "ms": 16.2,
+          "error": null
+        },
+        {
+          "at": "2026-11-01T09:08:49.893Z",
+          "actor": "教师",
+          "method": "GET",
+          "path": "/help",
+          "status": 200,
+          "ms": 28.3,
+          "error": null
+        },
+        {
+          "at": "2026-11-01T09:08:50.192Z",
+          "actor": "教师",
+          "method": "POST",
+          "path": "/api/v1/auth/login",
+          "status": 200,
+          "ms": 298.2,
+          "error": null
+        },
+        {
+          "at": "2026-11-01T09:08:50.211Z",
+          "actor": "教师",
+          "method": "GET",
+          "path": "/api/v1/courses",
+          "status": 200,
+          "ms": 19.5,
+          "error": null
+        },
+        {
+          "at": "2026-11-01T09:08:50.237Z",
+          "actor": "教师",
+          "method": "POST",
+          "path": "/api/v1/courses/15/attendance-tasks",
+          "status": 201,
+          "ms": 26.2,
+          "error": null
+        },
+        {
+          "at": "2026-11-01T09:08:50.557Z",
+          "actor": "学生",
+          "method": "POST",
+          "path": "/api/v1/auth/login",
+          "status": 200,
+          "ms": 291.6,
+          "error": null
+        },
+        {
+          "at": "2026-11-01T09:08:50.581Z",
+          "actor": "学生",
+          "method": "POST",
+          "path": "/api/v1/attendance-tasks/51/check-ins",
+          "status": 422,
+          "ms": 24.2,
+          "error": "INVALID_ATTENDANCE_CODE"
+        },
+        {
+          "at": "2026-11-01T09:08:50.604Z",
+          "actor": "学生",
+          "method": "POST",
+          "path": "/api/v1/attendance-tasks/51/check-ins",
+          "status": 201,
+          "ms": 23.2,
+          "error": null
+        },
+        {
+          "at": "2026-11-01T09:08:50.633Z",
+          "actor": "学生",
+          "method": "POST",
+          "path": "/api/v1/attendance-tasks/51/check-ins",
+          "status": 200,
+          "ms": 29.0,
+          "error": null
+        },
+        {
+          "at": "2026-11-01T09:08:50.660Z",
+          "actor": "教师",
+          "method": "POST",
+          "path": "/api/v1/attendance-tasks/51/close",
+          "status": 200,
+          "ms": 26.2,
+          "error": null
+        },
+        {
+          "at": "2026-11-01T09:08:50.679Z",
+          "actor": "教师",
+          "method": "GET",
+          "path": "/api/v1/courses/15/attendance-records?task_id=51&page_size=100",
+          "status": 200,
+          "ms": 19.8,
+          "error": null
+        }
+      ],
+      "steps": {
+        "who": {
+          "status": 200,
+          "detail": {
+            "accounts": {
+              "student": "学号/学号（密码默认与学号相同）",
+              "teacher": "teacher/teacher（学号输入 teacher，密码 teacher）"
+            },
+            "class_name": "242017班",
+            "group_name": "计算机组成原理组",
+            "group_no": "g24201710",
+            "leader": {
+              "name": "姜苏豪",
+              "student_no": "24201718"
+            },
+            "member_count": 4,
+            "members": [
+              {
+                "name": "姜苏豪",
+                "role": "组长",
+                "student_no": "24201718"
+              },
+              {
+                "name": "黄俊诚",
+                "role": "组员",
+                "student_no": "24201716"
+              },
+              {
+                "name": "罗浩铭",
+                "role": "组员",
+                "student_no": "24201723"
+              },
+              {
+                "name": "石佰合",
+                "role": "组员",
+                "student_no": "24201737"
+              }
+            ],
+            "project": "计算机组成原理课程学习系统（中央处理器）",
+            "student_nos": [
+              "24201718",
+              "24201716",
+              "24201723",
+              "24201737"
+            ]
+          }
+        },
+        "help": {
+          "status": 200,
+          "detail": {
+            "modules": 24,
+            "endpoints": 132
+          }
+        },
+        "teacher_login": {
+          "status": 200,
+          "detail": {
+            "active": 1,
+            "id": 53,
+            "name": "演示教师",
+            "role": "teacher",
+            "student_no": "teacher"
+          }
+        },
+        "courses": {
+          "status": 200,
+          "detail": [
+            {
+              "id": 15,
+              "title": "计算机组成原理 · 课堂点到（第10周）"
+            }
+          ]
+        },
+        "create_task": {
+          "status": 201,
+          "detail": {
+            "task_id": 51,
+            "code": "197897",
+            "status": "open"
+          }
+        },
+        "student_login": {
+          "status": 200,
+          "detail": {
+            "active": 1,
+            "id": 149,
+            "name": "黄俊诚",
+            "role": "student",
+            "student_no": "24201716"
+          }
+        },
+        "checkin_bad_code": {
+          "status": 422,
+          "detail": {
+            "期望": "422 INVALID_ATTENDANCE_CODE",
+            "实际": "INVALID_ATTENDANCE_CODE"
+          }
+        },
+        "checkin": {
+          "status": 201,
+          "detail": {
+            "checked_at": "2026-11-01T09:08:50.592Z",
+            "id": 229,
+            "source": "checkin",
+            "status": "present",
+            "student_id": 149,
+            "task_id": 51
+          }
+        },
+        "checkin_repeat": {
+          "status": 200,
+          "detail": {
+            "期望": "不新增记录，返回同一条记录",
+            "实际": {
+              "首次记录": 229,
+              "重复记录": 229,
+              "是否新增": false
+            }
+          }
+        },
+        "close_task": {
+          "status": 200,
+          "detail": {
+            "counts": {
+              "absent": 159,
+              "late": 0,
+              "leave": 0,
+              "present": 1
+            }
+          }
+        },
+        "records": {
+          "status": 200,
+          "detail": {
+            "total": 160
+          }
+        }
+      }
+    }
+  ]
+}

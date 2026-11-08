@@ -1,0 +1,300 @@
+{
+  "tested_head": "dfb23271b470a93d557a2695fed0e04caf59d0d2",
+  "dirty_paths": [
+    "?? scripts/verify_r01_browsers.py",
+    "?? scripts/verify_r01_handlers.py",
+    "?? tests/test_resource_question_integration.py"
+  ],
+  "layer": "real socket HTTP + resource/quiz UI; helper bootstrap via handlers, TEST_NOW only",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.41",
+      "requests": [
+        {
+          "path": "/courses/1/chapters",
+          "status": 201,
+          "body": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "R01"
+            },
+            "request_id": "eb03a72517034024a5518296a98d8f70"
+          },
+          "bytes": 115,
+          "sha256": "1c222193484bf2084f6365a44f97ac2fa8940bdc7d65938e20fdafdb9978f4a4"
+        },
+        {
+          "path": "/chapters/1/knowledge-points",
+          "status": 201,
+          "body": {
+            "data": {
+              "chapter_id": 1,
+              "content": "真实知识",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "R01知识"
+            },
+            "request_id": "b2b00c85250340069e4ef77b0a2f314e"
+          },
+          "bytes": 219,
+          "sha256": "8d81bb109c48781eab349d885ae24748c474717f741b6a29b66dff9d022d5296"
+        },
+        {
+          "path": "/courses/1/resources",
+          "status": 201,
+          "body": {
+            "data": {
+              "id": 1,
+              "kind": "question_bank",
+              "resource_id": 1,
+              "sha256": "5ad57439dbf2e4e407bb8b80e828110e12c26d9918d8f871cf8282f00667ef9b",
+              "size": 357,
+              "title": "R01题库源文件",
+              "version": 1
+            },
+            "request_id": "ff4cfa0643774832ae71ee0d7455aaee"
+          },
+          "bytes": 248,
+          "sha256": "b6927e7f7125214f7d454e9c943bbe43d645db227073b4db41f11e3702e75afc"
+        },
+        {
+          "path": "/resources/1/question-imports",
+          "status": 400,
+          "body": {
+            "error": {
+              "code": "VALIDATION_ERROR",
+              "details": {},
+              "message": "题目[1]：判断答案须为JSON布尔"
+            },
+            "request_id": "3254314a445f4aa88946fa33ba13d4b7"
+          },
+          "bytes": 185,
+          "sha256": "cd8a32f6591df66aae2a3c66c62b844b72ce209bc5a03e2c4cd1b59f77a09f2f"
+        },
+        {
+          "path": "/resources/1/versions",
+          "status": 201,
+          "body": {
+            "data": {
+              "change_note": null,
+              "created_at": "2026-10-16T13:36:00.000Z",
+              "id": 2,
+              "kind": "question_bank",
+              "resource_id": 1,
+              "sha256": "908e3a534eedb7d9d963dc521d62580fad596b0b8b38f77c23729f7ecefbd381",
+              "size": 176,
+              "title": "R01题库源文件",
+              "version": 2
+            },
+            "request_id": "59118f94685a4207bba966a90cbe6b85"
+          },
+          "bytes": 307,
+          "sha256": "c1376eaa49a71d2809aae468e1d108fed2fc62bc7a5be15cdb93262013647135"
+        }
+      ],
+      "checkpoints": [
+        {
+          "label": "before invalid UI import",
+          "db": {
+            "counts": {
+              "question": 0,
+              "question_version": 0,
+              "question_knowledge": 0,
+              "question_import": 0,
+              "idempotency_record": 0,
+              "audit_event": 8,
+              "resource_event": 0,
+              "preparation": 0,
+              "preparation_resource": 0,
+              "preparation_quiz": 0,
+              "paper": 0,
+              "paper_participant": 0,
+              "attempt": 0,
+              "answer": 0
+            },
+            "imports": [],
+            "resources": [
+              {
+                "id": 1,
+                "kind": "question_bank",
+                "visibility": "teacher_only"
+              }
+            ],
+            "versions": [
+              {
+                "id": 1,
+                "resource_id": 1,
+                "version": 1,
+                "file_id": 1
+              }
+            ],
+            "papers": [],
+            "preparations": [],
+            "audit": [
+              {
+                "id": 1,
+                "action": "auth.login",
+                "object_type": "user",
+                "object_id": 1
+              },
+              {
+                "id": 2,
+                "action": "auth.login",
+                "object_type": "user",
+                "object_id": 2
+              },
+              {
+                "id": 3,
+                "action": "user.register",
+                "object_type": "user",
+                "object_id": 3
+              },
+              {
+                "id": 4,
+                "action": "course.create",
+                "object_type": "course",
+                "object_id": 1
+              },
+              {
+                "id": 5,
+                "action": "course.member_add",
+                "object_type": "course_member",
+                "object_id": 3
+              },
+              {
+                "id": 6,
+                "action": "auth.login",
+                "object_type": "user",
+                "object_id": 2
+              },
+              {
+                "id": 7,
+                "action": "auth.login",
+                "object_type": "user",
+                "object_id": 3
+              },
+              {
+                "id": 8,
+                "action": "resource.create",
+                "object_type": "resource",
+                "object_id": 1
+              }
+            ],
+            "idempotency": [],
+            "foreign_key_check": []
+          }
+        },
+        {
+          "label": "after invalid UI import",
+          "db": {
+            "counts": {
+              "question": 0,
+              "question_version": 0,
+              "question_knowledge": 0,
+              "question_import": 0,
+              "idempotency_record": 0,
+              "audit_event": 8,
+              "resource_event": 0,
+              "preparation": 0,
+              "preparation_resource": 0,
+              "preparation_quiz": 0,
+              "paper": 0,
+              "paper_participant": 0,
+              "attempt": 0,
+              "answer": 0
+            },
+            "imports": [],
+            "resources": [
+              {
+                "id": 1,
+                "kind": "question_bank",
+                "visibility": "teacher_only"
+              }
+            ],
+            "versions": [
+              {
+                "id": 1,
+                "resource_id": 1,
+                "version": 1,
+                "file_id": 1
+              }
+            ],
+            "papers": [],
+            "preparations": [],
+            "audit": [
+              {
+                "id": 1,
+                "action": "auth.login",
+                "object_type": "user",
+                "object_id": 1
+              },
+              {
+                "id": 2,
+                "action": "auth.login",
+                "object_type": "user",
+                "object_id": 2
+              },
+              {
+                "id": 3,
+                "action": "user.register",
+                "object_type": "user",
+                "object_id": 3
+              },
+              {
+                "id": 4,
+                "action": "course.create",
+                "object_type": "course",
+                "object_id": 1
+              },
+              {
+                "id": 5,
+                "action": "course.member_add",
+                "object_type": "course_member",
+                "object_id": 3
+              },
+              {
+                "id": 6,
+                "action": "auth.login",
+                "object_type": "user",
+                "object_id": 2
+              },
+              {
+                "id": 7,
+                "action": "auth.login",
+                "object_type": "user",
+                "object_id": 3
+              },
+              {
+                "id": 8,
+                "action": "resource.create",
+                "object_type": "resource",
+                "object_id": 1
+              }
+            ],
+            "idempotency": [],
+            "foreign_key_check": []
+          }
+        }
+      ],
+      "checks": []
+    }
+  ],
+  "page_errors": [],
+  "status": "failed",
+  "error_type": "AssertionError",
+  "locations": [
+    "main:223",
+    "verify:112",
+    "to_have_count:22534",
+    "_sync:115",
+    "to_have_count:465",
+    "_expect_impl:128",
+    "_record_soft_or_raise:60"
+  ]
+}

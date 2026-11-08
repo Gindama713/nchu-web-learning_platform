@@ -1,0 +1,7 @@
+test_generated_homework_exam_cross_paper_scores_and_saved_snapshots (tests.test_mixed_consumption.MixedConsumptionTest.test_generated_homework_exam_cross_paper_scores_and_saved_snapshots) ... ok
+test_mixed_practice_quiz_versions_recommendation_and_weekly_knowledge (tests.test_mixed_consumption.MixedConsumptionTest.test_mixed_practice_quiz_versions_recommendation_and_weekly_knowledge) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 11.369s
+
+OK

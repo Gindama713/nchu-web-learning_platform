@@ -4,7 +4,8 @@ export default [
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
-      globals: { document: 'readonly', fetch: 'readonly', console: 'readonly' },
+      globals: { document: 'readonly', fetch: 'readonly', console: 'readonly',
+        window: 'readonly', crypto: 'readonly', FormData: 'readonly' },
     },
     rules: {
       'no-unused-vars': 'error',

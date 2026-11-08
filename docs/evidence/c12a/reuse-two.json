@@ -1,0 +1,155 @@
+[
+  {
+    "id": "EKB",
+    "source": "docs/evidence/spec-010b/browsers/report.json",
+    "source_ref": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+    "sha256": "02f2b48f0c7c1eb9d74036f9c1bcee840e5bc0a3870de3d5a95c4f6b43b37f3c",
+    "tested_head": "29ade52f8ef27eeb7f287dd7f41ab35aaa83b88e",
+    "dirty": [],
+    "status": "passed",
+    "browsers": [
+      {
+        "channel": "chrome",
+        "version": "155.0.8059.40",
+        "checks": [
+          "real_student_4_answers_3_correct_75_percent_progress_and_export403",
+          "reload_restores_exact_student_snapshot_id",
+          "teacher_selected_student_matches_page_and_real_csv_formula_escape",
+          "frozen_3_expected_2_submitted_1_missing_1_partial_graded_zero_old_json_csv_survive_grade_and_reload",
+          "new_query_reflects_grade40_percent_single_paper8_points_80_percent",
+          "delayed_real_http_dropped_after_filter_change_exam_empty_unknown",
+          "unavailable_old_id_clears_report_explicit_restore_original_id_only",
+          "390px_knowledge_and_scores_tables_scroll_without_document_overflow",
+          "logout_login_restores_creator_original_score_snapshot",
+          "real_member_revocation_blocks_old_selected_snapshot_and_csv404"
+        ],
+        "page_errors": [],
+        "result": "passed"
+      },
+      {
+        "channel": "msedge",
+        "version": "155.0.4283.45",
+        "checks": [
+          "real_student_4_answers_3_correct_75_percent_progress_and_export403",
+          "reload_restores_exact_student_snapshot_id",
+          "teacher_selected_student_matches_page_and_real_csv_formula_escape",
+          "frozen_3_expected_2_submitted_1_missing_1_partial_graded_zero_old_json_csv_survive_grade_and_reload",
+          "new_query_reflects_grade40_percent_single_paper8_points_80_percent",
+          "delayed_real_http_dropped_after_filter_change_exam_empty_unknown",
+          "unavailable_old_id_clears_report_explicit_restore_original_id_only",
+          "390px_knowledge_and_scores_tables_scroll_without_document_overflow",
+          "logout_login_restores_creator_original_score_snapshot",
+          "real_member_revocation_blocks_old_selected_snapshot_and_csv404"
+        ],
+        "page_errors": [],
+        "result": "passed"
+      }
+    ],
+    "checks": null,
+    "compared_paths": [
+      "backend/models/knowledge_analysis.py",
+      "backend/models/score_analysis.py",
+      "frontend/js/analytics-view.js"
+    ],
+    "changed_scoped_paths": [
+      "frontend/js/analytics-view.js"
+    ],
+    "reuse_boundary": "只复用原断言范围；夹具不得冒充真实005；010B时间/加载显示以B12和UI12为准"
+  },
+  {
+    "id": "EQB",
+    "source": "docs/evidence/spec-010b/quiz-browsers/report.json",
+    "source_ref": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+    "sha256": "3e9847b26a8a29232edac1986ab9342fa73ef4e229fc89b554af96a2b2e7501a",
+    "tested_head": "d1063a47a11721aa0c25b95de562cffe0a194866",
+    "dirty": [],
+    "status": "passed",
+    "browsers": [
+      {
+        "channel": "chrome",
+        "version": "150.0.7871.47",
+        "checks": [
+          "dedicated_publish_submit_partial_blank_missing_and_real_statistics_ui_omission_denominator",
+          "teacher_student_knowledge50_actual_answer_denominator_differs_from_quiz16_7_and_statistics403",
+          "quiz_scores_frozen3_2_1_partial_excluded_graded_zero_and_csv",
+          "real_manual_grade_and_explicit_review_ui_release_fixed_answers_wrong_entry",
+          "original_score_id_reload_and_knowledge_id_restore_keep_json_csv_after_grade_review_390px",
+          "new_quiz_query22_5_percent_and_relogin_original_score_id_csv"
+        ],
+        "page_errors": [],
+        "result": "passed"
+      },
+      {
+        "channel": "msedge",
+        "version": "155.0.4283.45",
+        "checks": [
+          "dedicated_publish_submit_partial_blank_missing_and_real_statistics_ui_omission_denominator",
+          "teacher_student_knowledge50_actual_answer_denominator_differs_from_quiz16_7_and_statistics403",
+          "quiz_scores_frozen3_2_1_partial_excluded_graded_zero_and_csv",
+          "real_manual_grade_and_explicit_review_ui_release_fixed_answers_wrong_entry",
+          "original_score_id_reload_and_knowledge_id_restore_keep_json_csv_after_grade_review_390px",
+          "new_quiz_query22_5_percent_and_relogin_original_score_id_csv"
+        ],
+        "page_errors": [],
+        "result": "passed"
+      }
+    ],
+    "checks": null,
+    "compared_paths": [
+      "backend/models/knowledge_analysis.py",
+      "backend/models/score_analysis.py",
+      "frontend/js/analytics-view.js"
+    ],
+    "changed_scoped_paths": [],
+    "reuse_boundary": "只复用原断言范围；夹具不得冒充真实005；010B时间/加载显示以B12和UI12为准"
+  },
+  {
+    "id": "E013",
+    "source": "docs/evidence/spec-013/c09-browsers/browser-results.json",
+    "source_ref": "f9c49b19c59053be2b171e0b7f2a35d1e050e57e",
+    "sha256": "9c861e4ce3a5888c9f5734e25438bb0ad141d320f4a2974a4d5b44f8650633f9",
+    "tested_head": "641d6aeb2cb116478de0b0c5599de7606272b9b3",
+    "dirty": [],
+    "status": "passed",
+    "browsers": [
+      {
+        "channel": "chrome",
+        "version": "150.0.7871.47",
+        "status": "passed",
+        "checks": [
+          "real UI first generation: draft, exact 334/334/333, signed64 seed, fixed versions/coverage",
+          "new question/version/real practice answer: UI replay exact; student has no generation entry",
+          "390px result and replay form without horizontal overflow",
+          "real 422 failure keeps parameters, gives corrective guidance, removes previous result",
+          "generated quiz uses existing explicit publish flow; frozen roster, no automatic review"
+        ],
+        "page_errors": [],
+        "course_id": 1
+      },
+      {
+        "channel": "msedge",
+        "version": "155.0.4283.45",
+        "status": "passed",
+        "checks": [
+          "real UI first generation: draft, exact 334/334/333, signed64 seed, fixed versions/coverage",
+          "new question/version/real practice answer: UI replay exact; student has no generation entry",
+          "390px result and replay form without horizontal overflow",
+          "real 422 failure keeps parameters, gives corrective guidance, removes previous result",
+          "generated quiz uses existing explicit publish flow; frozen roster, no automatic review"
+        ],
+        "page_errors": [],
+        "course_id": 2
+      }
+    ],
+    "checks": null,
+    "compared_paths": [
+      "backend/models/generation_input.py",
+      "backend/models/generation_solver.py",
+      "backend/models/generated_paper.py",
+      "frontend/js/generation-view.js",
+      "frontend/js/paper-view.js"
+    ],
+    "changed_scoped_paths": [],
+    "reuse_boundary": "只复用原断言范围；夹具不得冒充真实005；010B时间/加载显示以B12和UI12为准"
+  }
+]
