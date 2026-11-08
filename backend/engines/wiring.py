@@ -578,8 +578,12 @@ def replay(panel, actions, base_state=None):
 # ---------- 功能测试 ----------
 
 def run_functional_tests(panel, state):
-    """对提交快照运行服务端功能断言，返回 {passed, results}。"""
-    code = panel["code"]
+    """对提交快照运行服务端功能断言，返回 {passed, results}。
+
+    仅 EXP-01/02/03 等带 code 的面板有内置断言；
+    普通连线面板（无 code，如开关→LED）结构校验通过即视为通过。
+    """
+    code = panel.get("code")
     results = []
     passed = True
 
