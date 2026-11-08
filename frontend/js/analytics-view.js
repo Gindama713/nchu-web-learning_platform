@@ -23,6 +23,7 @@ const attendanceLabels = {
   paired_count: '有效配对人数',
   missing_performance_count: '缺成绩人数',
 }
+const scoreKinds = { homework: '作业', exam: '考试', quiz: '随堂测' }
 const correlationNotes = {
   ok: '',
   insufficient_pairs: '有效配对不足 3 人，按 C02 返回无相关系数。',
@@ -246,7 +247,7 @@ export const AnalyticsView = {
         : keys
       const title = attendance ? '考勤与学习表现（010A）'
         : value.dimension === 'knowledge' ? '知识分析'
-          : value.dimension === 'grading' ? '电路评测分析' : `分类成绩 / ${m.kind}`
+          : value.dimension === 'grading' ? '电路评测分析' : `分类成绩 / ${scoreKinds[m.kind] ?? m.kind}`
       const basis = attendance ? '按已关闭考勤任务的冻结参与人统计，出勤含迟到；成绩只取已评分试卷'
         : value.dimension === 'knowledge' ? '按实际客观作答去重；进度取原查询时的发布集合'
           : value.dimension === 'grading' ? '按实验版本开始时间选任务；每名学生每个版本取最新一次有效成绩，运行可靠性另计'
@@ -284,7 +285,6 @@ export const AnalyticsView = {
         props.user.role === 'teacher' && input('学生编号（留空全班）', filters.student_id, v => { filters.student_id = v }, 'number'),
         filters.dimension === 'scores' && select('成绩类别', filters.kind, v => { filters.kind = v; filters.paper_id = '' }, [['homework', '作业'], ['exam', '考试'], ['quiz', '随堂测']]),
         filters.dimension === 'scores' && input('试卷编号（留空本类别全部）', filters.paper_id, v => { filters.paper_id = v }, 'number'),
-        filters.dimension === 'attendance' && input('参与计算的测评卷 ID（可选，逗号分隔）', filters.paper_ids, v => { filters.paper_ids = v }),
         filters.dimension === 'attendance' && input('参与计算的测评卷 ID（可选，逗号分隔）', filters.paper_ids, v => { filters.paper_ids = v }),
       ]), button('查询统计', () => run(query), !course.value),
       h('div', { class: 'analytics-restore' }, [input('原快照编号', runId.value, v => { runId.value = v }, 'number'), button('恢复原快照', () => run(restore), !course.value || !runId.value)]),

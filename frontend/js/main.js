@@ -267,6 +267,7 @@ createApp({
         { student_no: auth.student_no, password: auth.password })
       clearCourse()
       user.value = data.user
+      account.name = data.user.name
       csrf.value = data.csrf_token
       auth.password = ''
       await refreshCourses()
@@ -848,9 +849,9 @@ createApp({
           <input id="username" v-model.trim="auth.student_no" maxlength="20" autocomplete="username" placeholder="例如 24201718" required></label>
         <label v-if="authMode === 'register'" class="auth-field"><span>姓名</span>
           <input v-model.trim="auth.name" maxlength="50" autocomplete="name" placeholder="与名单一致" required></label>
-        <label class="auth-field"><span>密码</span>
+        <label v-if="authMode === 'login'" class="auth-field"><span>密码</span>
           <input id="password" v-model="auth.password" type="password" placeholder="与学号相同"
-            :autocomplete="authMode === 'login' ? 'current-password' : 'new-password'" required></label>
+            autocomplete="current-password" required></label>
         <button id="login" class="auth-submit" type="submit">{{ authMode === 'login' ? '登 录' : '注册并登录' }}</button>
         </form>
         <p class="auth-msg" role="status" aria-live="polite">{{ message }}</p>

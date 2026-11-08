@@ -136,9 +136,9 @@ async function mount(t, role = 'student', overrides = {}) {
     if (path === '/api/v1/courses/1/wiring-attempts?experiment_version_id=3&page=1&page_size=50') {
       return okData(fixture.attempts)
     }
-    if (path === '/api/v1/wiring-attempts/12/actions?after_seq=0&page=1&page_size=200') {
+    if (path === '/api/v1/wiring-attempts/12/actions?after_seq=0&page=1&page_size=100') {
       return okData({ items: fixture.history, latest_seq: fixture.attempt.latest_seq,
-        next_after_seq: fixture.attempt.latest_seq, page: 1, page_size: 200, total: fixture.history.length })
+        next_after_seq: fixture.attempt.latest_seq, page: 1, page_size: 100, total: fixture.history.length })
     }
     if (options?.method === 'PUT' && path === '/api/v1/wiring-attempts/12') {
       const payload = JSON.parse(options.body)

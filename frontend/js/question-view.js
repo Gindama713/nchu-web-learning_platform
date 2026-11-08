@@ -1,6 +1,22 @@
 import { h, onMounted, reactive, ref } from 'vue'
 import { difficulties, emptyQuestion, QuestionClient, questionPayload, questionTypes } from './question-client.js'
 
+// Keep the selected answer key aligned with option edits so the editor cannot
+// submit a stale key that the server then rejects as invalid.
+export function updateOptionKey(form, index, value) {
+  const option = form.options[index]
+  const previous = option.key
+  option.key = value
+  if (form.type === 'single' && previous && form.answer === previous) form.answer = value
+  if (form.type === 'multiple') form.answer = form.answer.map(key => key === previous ? value : key)
+}
+
+export function removeOption(form, index) {
+  const [removed] = form.options.splice(index, 1)
+  if (form.type === 'single' && form.answer === removed.key) form.answer = ''
+  if (form.type === 'multiple') form.answer = form.answer.filter(key => key !== removed.key)
+}
+
 export const QuestionBankView = {
   props: { user: { type: Object, required: true } },
   setup(props) {
@@ -98,9 +114,9 @@ export const QuestionBankView = {
         field('难度', select(form.difficulty, value => { form.difficulty = value }, difficulties)),
         choice && h('fieldset', [h('legend', '选项（2至8项，key须唯一）'),
           ...form.options.map((option, index) => h('div', { class: 'question-option', key: index }, [
-            field(`选项 ${index + 1} key`, text(option.key, value => { option.key = value }, { required: true, maxlength: 20 })),
+            field(`选项 ${index + 1} key`, text(option.key, value => { updateOptionKey(form, index, value) }, { required: true, maxlength: 20 })),
             field(`选项 ${index + 1} 内容`, text(option.text, value => { option.text = value }, { required: true, maxlength: 5000 })),
-            button('移除选项', () => { form.options.splice(index, 1) }, { disabled: busy.value || form.options.length <= 2 }),
+            button('移除选项', () => { removeOption(form, index) }, { disabled: busy.value || form.options.length <= 2 }),
           ])),
           button('添加选项', () => { form.options.push({ key: '', text: '' }) }, { disabled: busy.value || form.options.length >= 8 }),
         ]),
