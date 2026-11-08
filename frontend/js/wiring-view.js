@@ -9,7 +9,13 @@ const ACTIONS = {
   step: '单步', reset: '复位', undo: '撤销', redo: '重做',
 }
 const PHASES = { 0: '取指', 1: '译码', 2: '执行' }
-const when = value => (value ? value.slice(0, 16).replace('T', ' ') : '—')
+// 与连线统计（SPEC-010C）一致：后端存 UTC，展示统一按 Asia/Shanghai。
+const shanghaiFormat = new globalThis.Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Shanghai',
+  year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+const when = value => {
+  const date = new Date(value ?? '')
+  return value && Number.isFinite(date.getTime()) ? shanghaiFormat.format(date) : '—'
+}
 let wireSeq = 0
 
 const newWireId = () => `w-${Date.now().toString(36)}-${(wireSeq += 1)}`
@@ -31,6 +37,7 @@ export const WiringView = {
     const versionId = ref('')
     const items = ref([])
     const total = ref(0)
+    const page = ref(1)
     const current = ref(null)
     const localState = ref(null)
     const pending = ref([])
@@ -71,6 +78,7 @@ export const WiringView = {
       versionId.value = ''
       items.value = []
       total.value = 0
+      page.value = 1
       closeDetail()
     }
 
@@ -93,6 +101,8 @@ export const WiringView = {
         notice.value = success
       } catch (failure) {
         error.value = failure.message
+        // 与备课单元视图（SPEC-004）一致：会话失效时重置登录态，避免停留在假登录状态。
+        if (failure.status === 401 || failure.code === 'UNAUTHENTICATED') resetAuth()
       } finally {
         busy.value = false
       }
@@ -110,7 +120,7 @@ export const WiringView = {
       items.value = []
       total.value = 0
       if (!courseId.value || !versionId.value) return
-      const result = await api.attempts(courseId.value, versionId.value)
+      const result = await api.attempts(courseId.value, versionId.value, page.value)
       items.value = result.data
       total.value = result.total
     }
@@ -498,12 +508,20 @@ export const WiringView = {
       session.value && h('label', { class: 'wiring-version' }, ['实验 ',
         select(versions.value.map(version => [String(version.id),
           `${version.experiment?.code ?? ''} ${version.title}`.trim()]),
-        versionId.value, value => { versionId.value = value; run(loadAttempts) }, '请选择已发布实验')]),
+        versionId.value, value => { versionId.value = value; page.value = 1; run(loadAttempts) }, '请选择已发布实验')]),
       session.value && !versions.value.length && h('p', '当前课程暂无支持连线的已发布实验。'),
       session.value && versionId.value && h('h3', `连线记录（${total.value}）`),
       session.value && versionId.value && (items.value.length
         ? attemptsRows()
         : h('p', teacher() ? '该实验还没有学生的连线记录。' : '还没有连线记录，可发起新连线。')),
+      session.value && versionId.value && total.value > 50
+        && h('div', { class: 'actions wiring-pager' }, [
+          button('上一页', () => { page.value -= 1; run(loadAttempts) },
+            { class: 'secondary', disabled: busy.value || page.value <= 1 }),
+          h('span', `第 ${page.value} 页 / 共 ${Math.ceil(total.value / 50)} 页`),
+          button('下一页', () => { page.value += 1; run(loadAttempts) },
+            { class: 'secondary', disabled: busy.value || page.value >= Math.ceil(total.value / 50) }),
+        ]),
       session.value && !teacher() && versionId.value
         && button('发起连线', () => run(createAttempt, '连线已创建'), { class: 'secondary' }),
       current.value && detail(),
