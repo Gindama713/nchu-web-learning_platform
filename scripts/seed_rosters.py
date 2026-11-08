@@ -123,15 +123,16 @@ def import_rosters(database, paths, reset_passwords="none", ensure_demo=True):
         now = _stamp()
         touched = set()
         for row in rows:
-            existing = db.execute("SELECT id,name,role FROM user WHERE student_no=?",
+            existing = db.execute("SELECT id,name,role,class_name FROM user WHERE student_no=?",
                                   (row["student_no"],)).fetchone()
             if existing:
                 if existing["role"] != "student":
                     raise RosterError(f"学号 {row['student_no']} 已被非学生账号占用")
                 touched.add(existing["id"])
-                if existing["name"] != row["name"]:
-                    db.execute("UPDATE user SET name=?,updated_at=? WHERE id=?",
-                               (row["name"], now, existing["id"]))
+                class_name = row["class_name"] or existing["class_name"]
+                if existing["name"] != row["name"] or existing["class_name"] != class_name:
+                    db.execute("UPDATE user SET name=?,class_name=?,updated_at=? WHERE id=?",
+                               (row["name"], class_name, now, existing["id"]))
                     counts["updated"] += 1
                 else:
                     counts["unchanged"] += 1
@@ -142,9 +143,10 @@ def import_rosters(database, paths, reset_passwords="none", ensure_demo=True):
                     counts["password_reset"] += 1
             else:
                 cursor = db.execute(
-                    "INSERT INTO user(student_no,name,password_hash,role,active,created_at,updated_at) "
-                    "VALUES(?,?,?,'student',1,?,?)",
-                    (row["student_no"], row["name"], generate_password_hash(row["student_no"]), now, now))
+                    "INSERT INTO user(student_no,name,class_name,password_hash,role,active,created_at,updated_at) "
+                    "VALUES(?,?,?,?,'student',1,?,?)",
+                    (row["student_no"], row["name"], row["class_name"] or None,
+                     generate_password_hash(row["student_no"]), now, now))
                 touched.add(cursor.lastrowid)
                 counts["created"] += 1
 

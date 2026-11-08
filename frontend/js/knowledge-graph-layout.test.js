@@ -40,6 +40,23 @@ test('孤立节点保留在第 0 层', () => {
   assert.ok(placed.has(9))
 })
 
+test('孤立节点排到底部横排，主图边保持水平向右', () => {
+  const { placed, width, height } = layoutGraph(
+    [node(1), node(2), ...[3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map(id => node(id))],
+    [edge(1, 2)],
+  )
+  // 主图两列各自独占，纵向对齐 → 箭头水平向右
+  assert.equal(placed.get(1).y, placed.get(2).y)
+  assert.ok(placed.get(2).x > placed.get(1).x)
+  // 孤立节点在同一水平带上，位于主图下方
+  for (let id = 3; id <= 12; id += 1) {
+    assert.equal(placed.get(id).y, placed.get(3).y)
+    assert.ok(placed.get(id).y > placed.get(1).y + NODE_H)
+  }
+  assert.ok(placed.get(12).x + NODE_W <= width)
+  assert.ok(placed.get(3).y + NODE_H <= height)
+})
+
 test('成环时节点不丢，标记 hasCycle', () => {
   const { placed, hasCycle } = layoutGraph([node(1), node(2)], [edge(1, 2), edge(2, 1)])
   assert.equal(hasCycle, true)
