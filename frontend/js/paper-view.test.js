@@ -278,6 +278,7 @@ test('teacher statistics shows nulls and pending; explicit review refreshes orig
   const { root, fixture } = await mount(t, 'teacher', true)
   await openQuiz(root, fixture)
   await find(root, 'button', '刷新逐题统计').props.onClick(); await flush()
+  assert.match(content(root), /统计截至：2026-10-13 22:00:00 \(Asia\/Shanghai\)/)
   assert.match(content(root), /应交 2 · 已交 1 · 缺交 1 · 客观正确率 —/)
   assert.match(content(root), /已定分 0 · 待批 1 · 正确数 — · 正确率 — · 均分 —/)
   await find(root, 'button', '发布讲评并开放答案').props.onClick(); await flush()
