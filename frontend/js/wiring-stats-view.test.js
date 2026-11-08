@@ -90,7 +90,7 @@ test('teacher boot queries wiring dimension and renders metrics, errors and seri
   const view = await mount(t, 'teacher')
   assert.deepEqual(view.fixture.queries, ['/api/v1/courses/1/analytics?dimension=wiring'])
   const text = content(view.root)
-  assert.match(text, /原快照 #5 · 连线统计/)
+  assert.match(text, /第 5 次分析快照 · 连线统计/)
   assert.match(text, /应做人数3/)
   assert.match(text, /完成人数2/)
   assert.match(text, /66\.67%/)
@@ -108,10 +108,10 @@ test('empty sample shows explicit zero-state instead of a blank page', async t =
   const view = await mount(t, 'teacher', { analytics: EMPTY })
   const text = content(view.root)
   assert.match(text, /有效样本 0/)
-  assert.match(text, /无有效样本，完成率显示无数据。/)
+  assert.match(text, /这段时间没有已发布的连线实验，暂时没有可统计的数据。/)
   assert.match(text, /完成率无数据/)
   assert.match(text, /本区间没有校验错误记录。/)
-  assert.match(text, /原快照 #6 · 连线统计/)
+  assert.match(text, /第 6 次分析快照 · 连线统计/)
 })
 
 test('saved pointer restores the previous wiring snapshot on boot', async t => {
@@ -122,7 +122,7 @@ test('saved pointer restores the previous wiring snapshot on boot', async t => {
   }
   const view = await mount(t, 'teacher')
   assert.equal(view.fixture.restored, '/api/v1/courses/1/analytics?analysis_run_id=7')
-  assert.match(content(view.root), /原快照 #7 · 连线统计/)
+  assert.match(content(view.root), /第 7 次分析快照 · 连线统计/)
   assert.deepEqual(view.fixture.queries, [])
 })
 

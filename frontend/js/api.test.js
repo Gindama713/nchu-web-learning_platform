@@ -25,3 +25,23 @@ test('write requests send JSON with the CSRF token and session cookie', async ()
     globalThis.fetch = original
   }
 })
+
+test('failed requests carry status and backend code so callers can retry CSRF', async () => {
+  const original = globalThis.fetch
+  try {
+    globalThis.fetch = async () => ({
+      ok: false,
+      status: 403,
+      json: async () => ({ error: { code: 'CSRF_FAILED', message: 'Invalid CSRF token' } }),
+    })
+    await assert.rejects(apiRequest('/attendance', 'POST', {}, 'stale'), { code: 'CSRF_FAILED', status: 403 })
+    globalThis.fetch = async () => ({
+      ok: false,
+      status: 422,
+      json: async () => ({ error: { code: 'INVALID_ATTENDANCE_CODE', message: '签到码不对' } }),
+    })
+    await assert.rejects(readApi('/x'), { code: 'INVALID_ATTENDANCE_CODE', status: 422 })
+  } finally {
+    globalThis.fetch = original
+  }
+})

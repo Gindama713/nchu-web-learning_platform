@@ -1,4 +1,4 @@
-import { computed, createApp, onMounted, reactive, ref } from 'vue'
+import { computed, createApp, nextTick, onMounted, reactive, ref } from 'vue'
 import { apiRequest, readApi } from './api.js'
 import { QuestionBankView } from './question-view.js'
 import { PaperView } from './paper-view.js'
@@ -77,7 +77,9 @@ createApp({
       const slot = taskStats.value.get(id)
       return slot ? slot.present + slot.late : 0
     }
-    const totalOf = id => taskStats.value.get(id)?.total ?? 0
+    // 应到人数优先用任务上冻结的 participants；拿不到才退回记录条数，
+    // 否则进行中的任务会把「只来了 1 个人」算成 100%。
+    const totalOf = id => tasks.value.find(item => item.id === id)?.participants ?? taskStats.value.get(id)?.total ?? 0
     const rateOf = id => {
       const total = totalOf(id)
       return total ? Math.round((attendedOf(id) / total) * 100) : 0
@@ -150,8 +152,14 @@ createApp({
     const memberNo = ref('')
     const taskForm = reactive({ title: '', start_at: '', late_at: '', end_at: '' })
     const check = reactive({ task_id: '', code: '', reason: '', mode: 'code' })
-    // 手势签到：enrolled 表示是否已设置图案；first 暂存第一次画的图案等确认
-    const gesture = reactive({ enrolled: false, updated_at: null, first: null, hint: '按住并划过至少 4 个点。' })
+    // 手势签到：图案由老师开课时定一次（画两遍确认），学生端只负责照着画。
+    const taskPattern = reactive({ pattern: null, first: null, hint: '可选：画一个图案作为这次课的手势口令，全班照着它签到。' })
+    // 学生点座位后弹出的签到浮层：签到码 / 手势二选一，用哪个由老师开课时决定
+    const checkInSheet = reactive({ open: false, task: null, mode: 'code', code: '', hint: '', error: '' })
+    // 签到结果：toast 三秒后自动消失，notice 一直留在座位图上方
+    const checkInToast = ref('')
+    const checkInNotice = ref(null)
+    let toastTimer = 0
     const analysisFilter = reactive({ from: '', to: '', paper_ids: '' })
     // 课堂点到座位图：一整张平面网格，四个班混排在同一间教室里
     const seatData = ref(null)
@@ -160,6 +168,9 @@ createApp({
     const room = ref(null)
     const roomForm = reactive({ name: '', template: 'custom', rows: 10, cols: 12, aisle_every: 0 })
     let courseEpoch = 0
+    // 切课时先清空再拉数据，中间那一瞬间任务数是 0，概览里会闪「0 → 2」。
+    // 加载期间改成显示省略号，等数据到了再出数字。
+    const courseBusy = ref(false)
 
     function clearCourse() {
       courseEpoch += 1
@@ -180,7 +191,11 @@ createApp({
       check.code = ''
       check.reason = ''
       check.mode = 'code'
-      gesture.first = null
+      taskPattern.first = null
+      checkInSheet.open = false
+      checkInSheet.task = null
+      checkInSheet.error = ''
+      checkInNotice.value = null
       memberNo.value = ''
       analysisFilter.from = ''
       analysisFilter.to = ''
@@ -195,7 +210,23 @@ createApp({
         message.value = error.message
       }
     }
-    const write = (path, method, payload, headers) => apiRequest(path, method, payload, csrf.value, headers)
+    // 后端重启/会话轮换后，页面手里的 CSRF 值会失效：读接口照常 200，
+    // 所有写操作却 403 CSRF_FAILED，界面上看着就是「点了没反应」。
+    // 碰到这种情况重新取一次 token 再试一遍，用户不用重新登录。
+    async function refreshCsrf() {
+      const data = await readApi('/api/v1/auth/session')
+      if (data?.csrf_token) csrf.value = data.csrf_token
+      return data
+    }
+    async function write(path, method, payload, headers) {
+      try {
+        return await apiRequest(path, method, payload, csrf.value, headers)
+      } catch (error) {
+        if (error.code !== 'CSRF_FAILED') throw error
+        await refreshCsrf()
+        return apiRequest(path, method, payload, csrf.value, headers)
+      }
+    }
     async function refreshCourses() {
       const currentUser = user.value
       const [courseRows, peopleRows, noticeRows] = await Promise.all([
@@ -215,14 +246,13 @@ createApp({
       if (!id || currentUser.role === 'admin') return
       const base = `/api/v1/courses/${id}`
       const teacher = currentUser.role === 'teacher'
-      const [taskRows, leaveRows, recordRows, warningRows, memberRows, roomRow, gestureRow] = await Promise.all([
+      const [taskRows, leaveRows, recordRows, warningRows, memberRows, roomRow] = await Promise.all([
         readApi(`${base}/attendance-tasks?page_size=100`),
         readApi(`${base}/leave-requests?page_size=100`),
         readApi(`${base}/attendance-records?page_size=100`),
         teacher ? readApi(`${base}/warnings?page_size=100`) : Promise.resolve([]),
         teacher ? readApi(`${base}/members?page_size=100`) : Promise.resolve([]),
         teacher ? readApi(`${base}/classroom`) : Promise.resolve(null),
-        currentUser.role === 'student' ? readApi('/api/v1/auth/gesture') : Promise.resolve(null),
       ])
       if (courseEpoch !== epoch || courseId.value !== id || user.value !== currentUser) return
       tasks.value = taskRows
@@ -231,14 +261,6 @@ createApp({
       warnings.value = warningRows
       members.value = memberRows
       if (roomRow) syncRoom(roomRow)
-      if (gestureRow) {
-        gesture.enrolled = gestureRow.enrolled
-        gesture.updated_at = gestureRow.updated_at
-        // 已录入时先提醒会被覆盖，否则学生一进来随手画两下就把旧图案换掉了
-        if (gesture.enrolled && !gesture.first) {
-          gesture.hint = '已设置图案。要更换就再连画两次新图案，不想换就别在这里画。'
-        }
-      }
     }
     async function session() {
       try {
@@ -310,12 +332,45 @@ createApp({
           : null
       })
     }
+    // 座位图从任务卡里下拉展开：展开/收起都走 CSS grid-rows 过渡，先挂载再翻 open 类
+    const seatOpen = ref(null)
+    const seatDrop = ref(false)
+    let seatTimer = 0
+    async function toggleSeats(taskId) {
+      window.clearTimeout(seatTimer)
+      if (seatOpen.value === taskId) {
+        seatDrop.value = false
+        seatTimer = window.setTimeout(() => {
+          if (seatOpen.value === taskId && !seatDrop.value) seatOpen.value = null
+        }, 260)
+        return
+      }
+      seatOpen.value = taskId
+      seatDrop.value = false
+      await loadSeats(taskId)
+      await nextTick()
+      window.requestAnimationFrame(() => { seatDrop.value = true })
+    }
     const seatList = computed(() => seatData.value?.seats ?? [])
     // 我在图上的那一个座位；教师看的时候为 null
     const mySeat = computed(() => {
       if (user.value?.role !== 'student') return null
       return seatList.value.find(seat => seat.student_id === user.value.id) ?? null
     })
+    // 这次课我签到了没有：优先看考勤记录，其次看座位格子上的状态。
+    // 已签到就不该再弹签到面板——换座位、点格子都只当普通操作。
+    const CHECKED = ['present', 'late', 'leave']
+    const myRecord = computed(() => {
+      const taskId = seatData.value?.task?.id
+      return taskId ? records.value.find(item => item.task_id === taskId) ?? null : null
+    })
+    // 座位图是刚拉回来的，状态比列表里的 records 新；只要图正开着这张任务，就以图上的状态为准。
+    // 否则「后端把记录清了，页面还留着旧 records」会让按钮消失、点座位也不弹签到。
+    const isCheckedIn = taskId => {
+      if (taskId && seatData.value?.task?.id === taskId && mySeat.value) return CHECKED.includes(mySeat.value.status)
+      return CHECKED.includes(records.value.find(item => item.task_id === taskId)?.status)
+    }
+    const checkedIn = computed(() => isCheckedIn(seatData.value?.task?.id) || CHECKED.includes(myRecord.value?.status))
     const seatStats = computed(() => {
       const counts = { present: 0, late: 0, leave: 0, absent: 0, pending: 0 }
       seatList.value.forEach(seat => { counts[seat.status] = (counts[seat.status] ?? 0) + 1 })
@@ -367,7 +422,12 @@ createApp({
     async function sitHere(cell) {
       if (seatSwap.busy || user.value?.role !== 'student') return
       const seat = seatOccupiedBy(cell)
-      if (seat && seat.student_id === user.value.id) { seatDetail.value = seat; return }
+      if (seat && seat.student_id === user.value.id) {
+        // 点自己的座位：没签到就直接弹签到；签过了只看座位详情，不再弹
+        seatDetail.value = seat
+        if (!checkedIn.value) openCheckIn(seatData.value?.task)
+        return
+      }
       if (seat) {
         if (mySwap.value) { message.value = '你已经有一个换位申请在等答复了，先撤回再申请。'; return }
         const yes = window.confirm(`申请和 ${seat.name}（${seatLabel(seat)}）换座位？对方有 ${seatSwap.ttl} 分钟答复时间。`)
@@ -382,16 +442,20 @@ createApp({
         return
       }
       if (!courseId.value) return
-      const yes = window.confirm(`坐到 ${cell.row} 排 ${cell.col} 座？`)
-      if (!yes) return
+      // 不再弹「坐这里？」二次确认：点空位就是坐下，坐下立刻弹签到面板，
+      // 学生从头到尾只点两下（座位 → 签到），中间不夹对话框。
       seatSwap.busy = true
+      let seated = false
       await act(async () => {
         await write('/api/v1/courses/' + courseId.value + '/me/seat', 'PUT',
           { group_no: cell.row, seat_no: cell.col })
         if (seatData.value) await loadSeats(seatData.value.task.id)
         await loadSwaps()
-      }, `已换到 ${cell.row} 排 ${cell.col} 座。`)
+        seated = true
+      }, `已坐到 ${cell.row} 排 ${cell.col} 座。`)
       seatSwap.busy = false
+      // 已经签过到了，换座位只是换位置，不再弹签到
+      if (seated && !checkedIn.value) openCheckIn(seatData.value?.task)
     }
     async function answerSwap(row, accept) {
       if (!row || seatSwap.busy) return
@@ -534,9 +598,29 @@ createApp({
     async function selectCourse(id) {
       clearCourse()
       courseId.value = Number(id)
-      await act(refreshCourse, '课程已加载。')
+      courseBusy.value = true
+      try {
+        await act(refreshCourse, '课程已加载。')
+      } finally {
+        courseBusy.value = false
+      }
       // 换位申请是按课程查的，切课后重新拉一次
       if (user.value?.role === 'student') await act(loadSwaps, '')
+    }
+    // 概览里的统计块：点一下就跳到对应分区，省得去下面找按钮
+    function jump(name, anchor) {
+      tab.value = name
+      if (!anchor) return
+      // 页签是 v-if，先等一帧让目标节点出现再滚
+      window.requestAnimationFrame(() => window.setTimeout(() => {
+        document.getElementById(anchor)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 0))
+    }
+    // 点课程卡片 = 进入这门课的考勤：要切课先切，然后直接落到「考勤与学情」。
+    // 只有一门课时原来那句「点击卡片切换」点了毫无反应，现在卡片一律是入口。
+    async function enterCourse(id) {
+      if (Number(id) !== courseId.value) await selectCourse(id)
+      tab.value = 'stats'
     }
     async function createCourse() {
       await act(async () => {
@@ -592,9 +676,17 @@ createApp({
         const epoch = courseEpoch
         const payload = Object.fromEntries(Object.entries(taskForm).map(([key, value]) =>
           [key, key === 'title' ? value : new Date(value).toISOString()]))
+        // 手势口令是老师开课时定的一次性课堂口令，跟着任务一起发布；
+        // 不画就是这次课不开手势签到，学生只填签到码。
+        if (taskPattern.pattern) payload.pattern = taskPattern.pattern
         const data = await write(`/api/v1/courses/${id}/attendance-tasks`, 'POST', payload)
         if (courseEpoch === epoch && courseId.value === id) {
           secretCode.value = data.code
+          if (taskPattern.pattern) {
+            taskPattern.pattern = null
+            taskPattern.first = null
+            taskPattern.hint = '可选：画一个图案作为这次课的手势口令，全班照着它签到。'
+          }
           await refreshCourse()
         }
       }, '任务已创建；明文签到码仅显示本次。')
@@ -623,56 +715,127 @@ createApp({
         await refreshCourse()
       }, '签到成功。')
     }
-    // 手势图案：录入要连画两次确认，签到则松手即提交
-    async function enrollGesture(pattern, pad) {
+    // 老师开课时定手势口令：连画两次确认，创建任务时随 payload 一起提交
+    function captureTaskPattern(pattern, pad) {
       if (pattern.length < 4) {
-        gesture.first = null
-        gesture.hint = '至少连接 4 个点，请重画。'
-        return
-      }
-      if (!gesture.first) {
-        gesture.first = pattern
-        gesture.hint = '请再画一次同样的图案确认。'
-        return
-      }
-      if (gesture.first.join('-') !== pattern.join('-')) {
-        gesture.first = null
-        gesture.hint = '两次不一致，请重新开始。'
+        taskPattern.first = null
+        taskPattern.hint = '至少连接 4 个点，请重画。'
         pad?.reset()
         return
       }
-      await act(async () => {
-        await write('/api/v1/auth/gesture', 'PUT', { pattern })
-        gesture.first = null
-        gesture.enrolled = true
-        gesture.hint = '手势图案已保存，以后可以画它签到。'
+      if (!taskPattern.first) {
+        taskPattern.first = pattern
+        taskPattern.hint = '请再画一次同样的图案确认。'
         pad?.reset()
-      })
+        return
+      }
+      if (taskPattern.first.join('-') !== pattern.join('-')) {
+        taskPattern.first = null
+        taskPattern.hint = '两次不一致，请重新开始。'
+        pad?.reset()
+        return
+      }
+      taskPattern.pattern = pattern
+      taskPattern.first = null
+      taskPattern.hint = `已记下这次课的手势口令（${pattern.length} 个点），点「创建」时一起发布。`
+      pad?.reset()
+    }
+    // Z 字形：左上 → 右上 → 对角 → 左下 → 右下，7 个点
+    function useZPattern() {
+      taskPattern.pattern = [0, 1, 2, 4, 6, 7, 8]
+      taskPattern.first = null
+      taskPattern.hint = '已用 Z 字形（0-1-2-4-6-7-8）作为这次课的手势口令。'
+    }
+    function clearTaskPattern() {
+      taskPattern.pattern = null
+      taskPattern.first = null
+      taskPattern.hint = '已清除。这次课只发签到码。'
+    }
+    // 点座位就把签到弹出来：签到方式由老师开课时决定，学生只需要照做
+    function openCheckIn(task) {
+      if (!task) return
+      checkInSheet.task = task
+      checkInSheet.mode = 'code'
+      checkInSheet.code = ''
+      checkInSheet.error = ''
+      checkInSheet.open = true
+      // 请假是同一节课的事，跟着这张任务走
+      check.task_id = task.id
+      check.reason = ''
+    }
+    // 后端错误码翻成学生看得懂的话；认不出来才退回后端原文
+    const CHECK_IN_ERRORS = {
+      INVALID_ATTENDANCE_CODE: '签到码不对，再看一下老师给的 6 位数字',
+      INVALID_GESTURE: '图案不对，照着老师画的那条再划一遍',
+      GESTURE_NOT_ENABLED: '这次课没开手势签到，请用签到码',
+      STATE_CONFLICT: '这次签到已经结束了',
+      RATE_LIMITED: '试的次数太多了，等一分钟再试',
+    }
+    const checkInErrorText = error => CHECK_IN_ERRORS[error.code]
+      ?? (error.status === 429 ? CHECK_IN_ERRORS.RATE_LIMITED : error.message || '签到失败，请重试')
+    // 成功之后：顶部消息 + 三秒 toast + 座位图上方的常驻绿条
+    function flash(text) {
+      checkInToast.value = text
+      window.clearTimeout(toastTimer)
+      toastTimer = window.setTimeout(() => { checkInToast.value = '' }, 3000)
+    }
+    function showCheckInDone(task) {
+      const seat = mySeat.value
+      checkInNotice.value = {
+        taskId: task?.id ?? null,
+        title: task?.title ?? '',
+        seat: seat ? seatLabel(seat) : '',
+        time: seat?.checked_at ? shortTime(seat.checked_at) : shortTime(new Date().toISOString()),
+        status: seat ? seatText(seat.status) : '已到',
+      }
+      flash(seat ? `签到成功 · ${seatLabel(seat)}` : '签到成功')
+    }
+    async function checkInFromSheet() {
+      if (!checkInSheet.task) return
+      const task = checkInSheet.task
+      checkInSheet.error = ''
+      try {
+        await write(`/api/v1/attendance-tasks/${task.id}/check-ins`, 'POST', { code: checkInSheet.code })
+      } catch (error) {
+        // 失败不关弹层：把原因写在弹层里，改一下就能再提交
+        checkInSheet.error = checkInErrorText(error)
+        return
+      }
+      checkInSheet.code = ''
+      checkInSheet.open = false
+      await refreshCourse()
+      // 座位格子的状态也要跟着刷，否则签到成功还写着「未签到」；
+      // 顺手把座位数据拉一次，任务行直接签到时 toast 也能带上座位号
+      await loadSeats(seatData.value?.task?.id ?? task.id)
+      showCheckInDone(task)
     }
     async function checkInByGesture(pattern, pad) {
-      if (!check.task_id) {
-        message.value = '请先选择要点到的任务。'
+      const taskId = checkInSheet.task?.id || check.task_id
+      if (!taskId) {
+        message.value = '先点一个座位再签到。'
         pad?.reset()
         return
       }
-      await act(async () => {
-        await write(`/api/v1/attendance-tasks/${check.task_id}/check-ins`, 'POST', { pattern })
-        await refreshCourse()
-        // 成功后不擦图案：让学生看到自己刚画的那一笔，下次按下时会自动清空
-      }, '手势签到成功。')
-    }
-    async function clearGesture() {
-      await act(async () => {
-        await write('/api/v1/auth/gesture', 'DELETE')
-        gesture.enrolled = false
-        gesture.first = null
-        gesture.hint = '已清除手势图案，可以重新设置。'
-      })
+      const task = checkInSheet.task
+      checkInSheet.error = ''
+      try {
+        await write(`/api/v1/attendance-tasks/${taskId}/check-ins`, 'POST', { pattern })
+      } catch (error) {
+        checkInSheet.error = checkInErrorText(error)
+        pad?.reset()
+        return
+      }
+      await refreshCourse()
+      await loadSeats(seatData.value?.task?.id ?? taskId)
+      checkInSheet.open = false
+      // 成功后不擦图案：让学生看到自己刚画的那一笔，下次按下时会自动清空
+      showCheckInDone(task)
     }
     async function leave() {
       await act(async () => {
         await write(`/api/v1/attendance-tasks/${check.task_id}/leave-requests`, 'POST', { reason: check.reason })
         check.reason = ''
+        if (checkInSheet.open) checkInSheet.open = false
         await refreshCourse()
       }, '请假已提交。')
     }
@@ -808,25 +971,37 @@ createApp({
       await pollIncoming()
       window.setInterval(pollIncoming, 20000)
       window.setInterval(() => { seatSwap.now = Date.now() }, 1000)
+      // 切回这个页面时补一次刷新：后台数据（老师结算、管理员重置演示数据）变了，
+      // 页面还留着旧 records，就会变成「我明明没签到，按钮却不见了」。
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState !== 'visible' || !user.value || !courseId.value) return
+        refreshCourse().then(() => (seatData.value && seatOpen.value ? loadSeats(seatData.value.task.id) : null))
+          .catch(() => {})
+      })
     })
     return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, authMode, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       demoStudentNo, fillTeacher, fillStudent,
       seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses, mySeat,
+      seatOpen, seatDrop, toggleSeats,
+      courseBusy, jump, enterCourse,
       seatSwap, mySwap, swapLeft, swapText, seatCellTitle, sitHere, answerSwap, cancelSwap, loadSwaps, pollIncoming,
       classColor, seatRosters, sourceText, seatLabel, seatSlot, room, roomForm, applyPreset, saveRoom, autoSeat, unseat,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
-      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect, gesture, enrollGesture, checkInByGesture, clearGesture }
+      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect,
+      taskPattern, captureTaskPattern, useZPattern, clearTaskPattern,
+      checkInSheet, openCheckIn, checkInFromSheet, checkInByGesture,
+      checkedIn, isCheckedIn, checkInNotice, checkInToast }
   },
   template: `
     <main :class="['page', user ? '' : 'page-auth']">
-      <header v-if="user" class="hero compact"><p class="eyebrow">g24201710 · 计算机组成原理</p>
+      <header v-if="user" class="hero compact"><p class="eyebrow">{{ user.student_no }} · 计算机组成原理</p>
         <h1>中央处理器课程学习系统</h1><p role="status" aria-live="polite">{{ message }}</p>
         <button type="button" @click="logout">退出</button></header>
       <section v-if="!user" class="auth">
         <aside class="auth-side">
         <span class="auth-logo" aria-hidden="true">计</span>
-        <p class="auth-eyebrow">g24201710 · 2024 级计算机科学与技术</p>
+        <p class="auth-eyebrow">2024 级计算机科学与技术</p>
         <h1>中央处理器<br>课程学习系统</h1>
         <p class="auth-lead">课堂点到、座位图、练习与评测，一个入口。</p>
         <ul class="auth-points">
@@ -885,12 +1060,12 @@ createApp({
 
         <template v-if="tab === 'course'">
         <section class="card"><h2>课程概览</h2><p>{{ user.name }} · {{ user.role }}</p>
-        <p class="course-count">共 {{ courses.length }} 门课程，点击卡片切换</p>
+        <p class="course-count">共 {{ courses.length }} 门课程，点卡片直接进考勤</p>
         <div class="course-grid">
         <button v-for="course in courses" :key="course.id" type="button"
         :class="['course-card', { active: courseId === course.id }]"
         :style="'--cover:' + coverOf(course.id)"
-        @click="selectCourse(course.id)">
+        @click="user.role === 'admin' ? selectCourse(course.id) : enterCourse(course.id)">
         <span class="course-cover">
         <span class="course-initial">{{ String(course.id).padStart(2, '0') }}</span>
         <span v-if="courseId === course.id" class="course-check">当前</span>
@@ -904,10 +1079,19 @@ createApp({
         <p v-if="!courses.length">暂无课程。</p>
         <template v-if="courseId">
         <div class="course-summary">
-        <div class="sum-tile"><span>课程成员</span><strong>{{ members.length }}</strong></div>
-        <div class="sum-tile"><span>考勤任务</span><strong>{{ tasks.length }}</strong></div>
-        <div class="sum-tile"><span>待批请假</span><strong>{{ leaves.filter(item => item.status === 'pending').length }}</strong></div>
-        <div class="sum-tile"><span>未读通知</span><strong>{{ notifications.filter(item => !item.read_at).length }}</strong></div>
+        <button type="button" class="sum-tile" title="查看考勤与学情" @click="jump('stats')">
+        <span>{{ user.role === 'teacher' ? '课程成员' : '进行中任务' }}</span>
+        <strong>{{ courseBusy ? '…' : (user.role === 'teacher' ? members.length : tasks.filter(item => item.status === 'open').length) }}</strong>
+        </button>
+        <button type="button" class="sum-tile" title="查看考勤与学情" @click="jump('stats')">
+        <span>考勤任务</span><strong>{{ courseBusy ? '…' : tasks.length }}</strong>
+        </button>
+        <button type="button" class="sum-tile" title="查看考勤与学情" @click="jump('stats')">
+        <span>待批请假</span><strong>{{ courseBusy ? '…' : leaves.filter(item => item.status === 'pending').length }}</strong>
+        </button>
+        <button type="button" class="sum-tile" title="跳到通知列表" @click="jump('course', 'notices')">
+        <span>未读通知</span><strong>{{ notifications.filter(item => !item.read_at).length }}</strong>
+        </button>
         </div>
         <p class="course-hint">课程的具体功能按场景分在下面几个分区里，点按钮直接跳转：</p>
         <div class="actions">
@@ -931,7 +1115,7 @@ createApp({
         <ul class="rows"><li v-for="person in people" :key="person.id">{{ person.name }} · {{ person.student_no }} · {{ person.role }}
         <button v-if="person.role === 'student'" type="button" class="secondary" @click="promote(person)">设为教师</button>
         <button v-if="person.role !== 'admin' && person.active" type="button" class="secondary" @click="deactivate(person)">停用</button></li></ul></section>
-        <section class="card"><h2>通知</h2><ul class="rows"><li v-for="item in notifications" :key="item.id">{{ item.title }} · {{ item.read_at ? '已读' : '未读' }}
+        <section id="notices" class="card"><h2>通知</h2><ul class="rows"><li v-for="item in notifications" :key="item.id">{{ item.title }} · {{ item.read_at ? '已读' : '未读' }}
         <button v-if="!item.read_at" type="button" class="secondary" @click="markRead(item.id)">标记已读</button></li></ul></section>
         <section class="card"><h2>账号设置</h2>
         <p class="account-hint">姓名会显示在成员列表与统计里；改密码需要先验证当前密码，修改后其他设备会被退出登录。</p>
@@ -995,55 +1179,54 @@ createApp({
         <div class="att-task-head">
         <strong>{{ item.title }}</strong>
         <span :class="['att-badge', item.status]">{{ item.status === 'open' ? '进行中' : '已结算' }}</span>
+        <span v-if="item.has_gesture" class="att-badge gesture">手势签到</span>
         <span class="att-time">截止 {{ shortTime(item.end_at) }}</span>
         </div>
+        <p v-if="checkInNotice && checkInNotice.taskId === item.id" class="checkin-notice" role="status">
+        <b>签到成功</b>
+        <span>{{ checkInNotice.title }}</span>
+        <span v-if="checkInNotice.seat">{{ checkInNotice.seat }}</span>
+        <span>{{ checkInNotice.time }}</span>
+        <span class="checkin-notice-status">{{ checkInNotice.status }}</span>
+        <button type="button" class="secondary" @click="checkInNotice = null">知道了</button></p>
         <template v-if="user.role === 'teacher'">
         <div class="att-bar"><i :class="rateOf(item.id) >= 80 ? 'good' : rateOf(item.id) > 0 ? 'mid' : 'low'" :style="'width:' + rateOf(item.id) + '%'"></i></div>
         <p class="att-meta">到勤 {{ attendedOf(item.id) }} / {{ totalOf(item.id) }} 人次<b>{{ rateOf(item.id) }}%</b></p>
         </template>
         <p v-else class="att-meta">我的状态：{{ seatText(myStatusOf(item.id)) }}</p>
         <div class="att-actions">
-        <button type="button" class="secondary" @click="loadSeats(item.id)">{{ user.role === 'teacher' ? '教室座位图' : '看看我坐哪' }}</button>
+        <button type="button" class="seat-trigger" :class="{ open: seatOpen === item.id }"
+          :aria-expanded="seatOpen === item.id" :aria-controls="'seat-' + item.id" @click="toggleSeats(item.id)">
+        <svg class="seat-ico" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="4" width="5" height="5" rx="1.3"></rect><rect x="9.5" y="4" width="5" height="5" rx="1.3"></rect><rect x="16" y="4" width="5" height="5" rx="1.3"></rect>
+        <rect x="3" y="10.5" width="5" height="5" rx="1.3"></rect><rect x="9.5" y="10.5" width="5" height="5" rx="1.3"></rect><rect x="16" y="10.5" width="5" height="5" rx="1.3"></rect>
+        <rect x="3" y="17" width="5" height="4" rx="1.3"></rect><rect x="9.5" y="17" width="5" height="4" rx="1.3"></rect><rect x="16" y="17" width="5" height="4" rx="1.3"></rect>
+        </svg>
+        <span>{{ seatOpen === item.id ? '收起座位图' : (user.role === 'teacher' ? '教室座位图' : '看看我坐哪') }}</span>
+        <svg class="seat-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+        </button>
+        <button v-if="user.role === 'student' && item.status === 'open' && !isCheckedIn(item.id)"
+          type="button" class="att-checkin-cta" @click="openCheckIn(item)">签到</button>
         <template v-if="user.role === 'teacher'">
         <button v-if="item.status === 'open'" type="button" class="secondary" @click="rotate(item.id)">轮换码</button>
         <button v-if="item.status === 'open'" type="button" @click="close(item.id)">结算</button>
         </template>
         </div>
-        </li>
-        </ul>
-        <p v-if="!tasks.length">还没有考勤任务。</p>
-
-        <details v-if="user.role === 'teacher'" class="att-panel">
-        <summary>教室设置（{{ room ? room.name + ' · ' + roomForm.rows + ' 排 × ' + roomForm.cols + ' 座' : '加载中' }}）</summary>
-        <div v-if="room" class="room-presets">
-        <button v-for="preset in room.presets" :key="preset.template" type="button" class="secondary"
-          @click="applyPreset(preset)">{{ preset.label }} · {{ preset.rows }} 排 × {{ preset.cols }} 座</button>
-        </div>
-        <form v-if="room" class="inline-form" @submit.prevent="saveRoom">
-        <label>教室名称 <input v-model.trim="roomForm.name" maxlength="40" required></label>
-        <label>排数 <input v-model.number="roomForm.rows" type="number" min="1" :max="room.limits.rows" required></label>
-        <label>每排座位 <input v-model.number="roomForm.cols" type="number" min="1" :max="room.limits.cols" required></label>
-        <label>过道间隔 <input v-model.number="roomForm.aisle_every" type="number" min="0" :max="room.limits.aisle_every"></label>
-        <button>保存教室</button></form>
-        <p v-if="room" class="att-meta">容量 {{ room.capacity }} 座　学生 {{ room.students }} 人　已排座 {{ room.seated }} 人　未排 {{ room.unseated }} 人</p>
-        <div v-if="room" class="att-actions">
-        <button type="button" @click="autoSeat">一键按班排座</button>
-        <span class="att-meta">按班级顺序整排起排，四个班各占一段连续排；教室不够时会直接报错而不是硬塞。</span>
-        </div>
-        </details>
-
-        <div v-if="seatData" class="seatmap">
+        <div v-if="seatOpen === item.id" :id="'seat-' + item.id" class="att-seat-drop" :class="{ open: seatDrop }">
+        <div class="att-seat-inner">
+        <div v-if="seatData && seatData.task.id === item.id" class="seatmap">
         <div class="seatmap-head">
-        <strong>教室座位图 · {{ seatData.task.title }}</strong>
+        <strong>教室座位图</strong>
         <span class="seatmap-room">{{ seatData.classroom.name }}　{{ seatData.classroom.rows }} 排 × {{ seatData.classroom.cols }} 座<template
           v-if="seatData.grid.rows > seatData.classroom.rows || seatData.grid.cols > seatData.classroom.cols"><b class="seatmap-warn">这张任务的座位快照还是 {{ seatData.grid.rows }} 排 × {{ seatData.grid.cols }} 座，图上已按快照撑开</b></template></span>
-        <span>应到 {{ seatList.length }}　已到 {{ seatStats.present + seatStats.late }}　迟到 {{ seatStats.late }}　请假 {{ seatStats.leave }}　缺勤 {{ seatStats.absent }}　未签到 {{ seatStats.pending }}</span>
+        <span>已选座 {{ seatList.length }}　未选座 {{ seatData.unseated || 0 }}　已到 {{ seatStats.present + seatStats.late }}　迟到 {{ seatStats.late }}　请假 {{ seatStats.leave }}　缺勤 {{ seatStats.absent }}　未签到 {{ seatStats.pending }}</span>
         </div>
-        <p v-if="mySeat" class="seatmap-mine"><b>我坐这里</b>座位 {{ seatLabel(mySeat) }}　{{ mySeat.student_no }} {{ mySeat.name }}　{{ mySeat.class_name }}　状态：{{ seatText(mySeat.status) }}</p>
-        <p v-else-if="user.role === 'student'" class="seatmap-mine empty"><b>没有我的座位</b>这张图里没有排到你的座位，找任课老师确认一下。</p>
+        <p v-if="mySeat" class="seatmap-mine"><b>我坐这里</b>座位 {{ seatLabel(mySeat) }}　{{ mySeat.student_no }} {{ mySeat.name }}　{{ mySeat.class_name }}　状态：{{ seatText(mySeat.status) }}
+        <button v-if="!checkedIn" type="button" class="secondary" @click="openCheckIn(seatData.task)">签到</button></p>
+        <p v-else-if="user.role === 'student'" class="seatmap-mine empty"><b>我还没选座</b>教室现在是空的，点下面任意空位就能坐这里。</p>
         <p v-if="mySwap" class="swap-strip"><b>换位申请中</b>申请和 {{ mySwap.target_name }} 换座，等对方答复，剩余 <i>{{ swapLeft(mySwap) }}</i>
         <button type="button" class="secondary" @click="cancelSwap(mySwap)">撤回</button></p>
-        <p v-if="user.role === 'student' && seatData" class="att-meta">点空位直接坐过去；点同学会向对方发换位申请，对方 {{ seatSwap.ttl }} 分钟内答复，超时作废。</p>
+        <p v-if="user.role === 'student' && seatData" class="att-meta">点空位就坐下，坐下会顺手弹出签到面板（填签到码或画手势看老师这次课开的是哪种）；签到成功后不再弹面板，之后换座位直接点空位就行；点同学的格子是发换位申请，对方 {{ seatSwap.ttl }} 分钟内答复。</p>
         <div class="seatmap-legend">
         <span v-for="name in seatClasses" :key="name"><i class="chip" :style="{ background: classColor(name) }"></i>{{ name }}</span>
         <span class="legend-gap"></span>
@@ -1075,7 +1258,8 @@ createApp({
         座位 {{ seatLabel(seatDetail) }}　{{ seatDetail.student_no }} {{ seatDetail.name }}　{{ seatDetail.class_name }}　状态：{{ seatText(seatDetail.status) }}　签到时间：{{ seatDetail.checked_at ? shortTime(seatDetail.checked_at) : '—' }}　方式：{{ sourceText(seatDetail.source) }}
         <button type="button" class="secondary" @click="seatDetail = null">关闭</button>
         </p>
-        <p v-if="seatData.unseated" class="seatmap-detail">另有 {{ seatData.unseated }} 名应到学生没有排座，请先在上面的「教室设置」里一键排座。</p>
+        <p v-if="seatData.unseated && user.role === 'teacher'" class="seatmap-detail">另有 {{ seatData.unseated }} 名应到学生没有排座，可以先在上面的「教室设置」里一键排座，也可以让学生自己点空位选座。</p>
+        <p v-else-if="seatData.unseated && user.role === 'student'" class="seatmap-detail">还有 {{ seatData.unseated }} 位同学没有选座。</p>
 
         <div v-if="user.role === 'teacher'" class="seat-rosters">
         <div class="roster-col">
@@ -1117,6 +1301,32 @@ createApp({
         </div>
         </div>
         </div>
+        <p v-else-if="seatOpen === item.id" class="seatmap-fallback">座位图没加载出来。点上面的「签到」一样能签到，也可以刷新页面再试。</p>
+        </div>
+        </div>
+
+        </li>
+        </ul>
+        <p v-if="!tasks.length">还没有考勤任务。</p>
+
+        <details v-if="user.role === 'teacher'" class="att-panel">
+        <summary>教室设置（{{ room ? room.name + ' · ' + roomForm.rows + ' 排 × ' + roomForm.cols + ' 座' : '加载中' }}）</summary>
+        <div v-if="room" class="room-presets">
+        <button v-for="preset in room.presets" :key="preset.template" type="button" class="secondary"
+          @click="applyPreset(preset)">{{ preset.label }} · {{ preset.rows }} 排 × {{ preset.cols }} 座</button>
+        </div>
+        <form v-if="room" class="inline-form" @submit.prevent="saveRoom">
+        <label>教室名称 <input v-model.trim="roomForm.name" maxlength="40" required></label>
+        <label>排数 <input v-model.number="roomForm.rows" type="number" min="1" :max="room.limits.rows" required></label>
+        <label>每排座位 <input v-model.number="roomForm.cols" type="number" min="1" :max="room.limits.cols" required></label>
+        <label>过道间隔 <input v-model.number="roomForm.aisle_every" type="number" min="0" :max="room.limits.aisle_every"></label>
+        <button>保存教室</button></form>
+        <p v-if="room" class="att-meta">容量 {{ room.capacity }} 座　学生 {{ room.students }} 人　已排座 {{ room.seated }} 人　未排 {{ room.unseated }} 人</p>
+        <div v-if="room" class="att-actions">
+        <button type="button" @click="autoSeat">一键按班排座</button>
+        <span class="att-meta">按班级顺序整排起排，四个班各占一段连续排；教室不够时会直接报错而不是硬塞。</span>
+        </div>
+        </details>
 
         <details v-if="user.role === 'teacher'" class="att-panel">
         <summary>发布考勤任务</summary>
@@ -1125,30 +1335,19 @@ createApp({
         <label>开始 <input v-model="taskForm.start_at" type="datetime-local" required></label>
         <label>迟到起点 <input v-model="taskForm.late_at" type="datetime-local" required></label>
         <label>结束 <input v-model="taskForm.end_at" type="datetime-local" required></label><button>创建</button></form>
+        <div class="task-pattern">
+        <p class="task-pattern-head">手势签到口令
+        <b :class="taskPattern.pattern ? 'set' : 'unset'">{{ taskPattern.pattern ? '已设置，随任务一起发布' : '未设置，这次课只用签到码' }}</b></p>
+        <p class="att-meta">{{ taskPattern.hint }}</p>
+        <gesture-pad ref="taskPad" label="老师设置本次课的手势口令" :preview="taskPattern.pattern" @done="captureTaskPattern($event, $refs.taskPad)" />
+        <div class="att-actions">
+        <button type="button" class="secondary" @click="useZPattern">用 Z 字形（测试数据）</button>
+        <button v-if="taskPattern.pattern" type="button" class="secondary" @click="clearTaskPattern">清除口令</button>
+        </div>
+        </div>
         </details>
 
-        <form v-if="user.role === 'student' && tasks.length" class="inline-form att-checkin" @submit.prevent="check.mode === 'code' && checkIn()">
-        <label>任务 <select v-model="check.task_id" required><option value="">请选择</option><option v-for="item in tasks" :key="item.id" :value="item.id">{{ item.title }}</option></select></label>
-        <span class="check-modes" role="group" aria-label="签到方式">
-        <button type="button" :class="{ active: check.mode === 'code' }" @click="check.mode = 'code'">签到码</button>
-        <button type="button" :class="{ active: check.mode === 'gesture' }" @click="check.mode = 'gesture'">手势图案</button>
-        </span>
-        <label v-if="check.mode === 'code'">签到码 <input v-model.trim="check.code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" required></label>
-        <button v-if="check.mode === 'code'">签到</button></form>
-        <div v-if="user.role === 'student' && tasks.length && check.mode === 'gesture'" class="gesture-checkin">
-        <p class="pad-step">① 签到：画一遍你设置过的图案</p>
-        <gesture-pad ref="checkPad" :disabled="!check.task_id" @done="checkInByGesture($event, $refs.checkPad)" />
-        <p class="att-meta">{{ !check.task_id ? '先在上面选择要点到的任务。' : gesture.enrolled ? '按住并划过你自己设置的手势图案，松手即签到。' : '你还没有设置手势图案，先在下面的「② 设置 / 更换图案」里设一个。' }}</p>
-        </div>
-        <details v-if="user.role === 'student'" class="att-panel">
-        <summary>② 设置 / 更换图案（{{ gesture.enrolled ? '已设置' : '未设置' }}）</summary>
-        <p class="att-meta">{{ gesture.hint }}</p>
-        <gesture-pad ref="enrollPad" @done="enrollGesture($event, $refs.enrollPad)" />
-        <div v-if="gesture.enrolled" class="att-actions">
-        <button type="button" class="secondary" @click="clearGesture">清除手势图案</button></div>
-        </details>
-        <form v-if="user.role === 'student' && check.task_id" class="inline-form" @submit.prevent="leave">
-        <label>请假理由 <input v-model.trim="check.reason" maxlength="500" required></label><button class="secondary">申请请假</button></form>
+        <p v-if="user.role === 'student' && tasks.length" class="att-meta">签到：点任务的「看看我坐哪」打开座位图，点自己的座位（或先坐到一个空位）就会弹出面板，按老师这次课开的方式填签到码或画手势。</p>
 
         <h3>请假记录</h3>
         <ul class="att-leaves">
@@ -1195,8 +1394,8 @@ createApp({
         </details>
         </section>
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />
-        <WarningView :key="'warning:' + user.id" :user="user" />
-        <WiringStatsView v-if="user.role !== 'admin'" :key="'wiring-stats:' + user.id + ':' + user.role" :user="user" />
+        <WarningView v-if="user.role === 'teacher'" :key="'warning:' + user.id" :user="user" />
+        <WiringStatsView v-if="user.role === 'teacher'" :key="'wiring-stats:' + user.id" :user="user" />
         </template>
       </template>
       </template>
@@ -1215,5 +1414,40 @@ createApp({
         </div>
         </div>
       </div>
+      <div v-if="checkInSheet.open && checkInSheet.task" class="checkin-modal" role="dialog" aria-modal="true"
+        aria-labelledby="checkin-title" @click.self="checkInSheet.open = false">
+        <div class="checkin-dialog">
+        <p class="checkin-eyebrow">{{ checkInSheet.task.title }}</p>
+        <h3 id="checkin-title">{{ checkInSheet.task.has_gesture ? '签到 · 签到码或手势' : '签到' }}</h3>
+        <p class="checkin-when">{{ shortTime(checkInSheet.task.start_at) }} 开始
+        <template v-if="checkInSheet.task.status === 'open'">　进行中</template>
+        <template v-else>　已结束</template>
+        <template v-if="mySeat">　你坐 {{ seatLabel(mySeat) }}</template></p>
+        <p v-if="!checkInSheet.task.has_gesture" class="att-meta">老师这次课只开了签到码，问老师要 6 位数字。</p>
+        <div v-else class="check-modes" role="group" aria-label="签到方式">
+        <button type="button" :class="{ active: checkInSheet.mode === 'code' }" @click="checkInSheet.mode = 'code'">签到码</button>
+        <button type="button" :class="{ active: checkInSheet.mode === 'gesture' }" @click="checkInSheet.mode = 'gesture'">手势图案</button>
+        </div>
+        <p v-if="checkInSheet.error" class="checkin-error" role="alert">{{ checkInSheet.error }}</p>
+        <form v-if="checkInSheet.mode === 'code'" class="checkin-form" @submit.prevent="checkInFromSheet">
+        <label>6 位签到码
+        <input v-model.trim="checkInSheet.code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" required></label>
+        <button>签到</button></form>
+        <div v-else class="checkin-gesture">
+        <p class="pad-step">照着老师课上画的图案划一遍，松手即签到</p>
+        <gesture-pad ref="sheetPad" label="照着老师的手势口令签到" @done="checkInByGesture($event, $refs.sheetPad)" />
+        </div>
+        <details class="checkin-leave">
+        <summary>今天来不了？申请请假</summary>
+        <form class="inline-form" @submit.prevent="leave">
+        <input v-model.trim="check.reason" maxlength="500" placeholder="请假理由（必填）" aria-label="请假理由" required>
+        <button class="secondary">提交请假</button></form>
+        </details>
+        <div class="checkin-actions">
+        <button type="button" class="secondary" @click="checkInSheet.open = false">关闭</button></div>
+        </div>
+      </div>
+
+      <div v-if="checkInToast" class="checkin-toast" role="status">{{ checkInToast }}</div>
     </main>`,
 }).mount('#app')

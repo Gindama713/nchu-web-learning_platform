@@ -24,14 +24,17 @@ from backend.shared.api import (
 )
 from backend.shared.auth import course_access, require_user
 from backend.shared.db import get_db, write
-from backend.shared.gesture import pattern_matches, pattern_text
+from backend.shared.gesture import pattern_hash, pattern_matches, pattern_text
 
 bp = Blueprint("attendance", __name__)
 
 
 def task_json(row):
-    return {key: row[key] for key in
+    data = {key: row[key] for key in
             ("id", "course_id", "title", "start_at", "late_at", "end_at", "status", "code_expires_at")}
+    # 手势图案本身（含哈希）不出接口，只告诉前端这次课开没开手势签到。
+    data["has_gesture"] = bool(row["gesture_hash"])
+    return data
 
 
 def record_json(row):
@@ -71,11 +74,13 @@ def one_time(data, status=200):
 
 @bp.post("/courses/<int:course_id>/attendance-tasks")
 def create_task(course_id):
-    data = body(("title", "start_at", "late_at", "end_at"))
+    data = body(("title", "start_at", "late_at", "end_at"), allowed=("pattern",))
     title = text_field(data["title"], "title")
     start, late, end = (parse_time(data[key], key) for key in ("start_at", "late_at", "end_at"))
     if not start <= late <= end or start == end:
         raise ApiError(400, "VALIDATION_ERROR", "Expected start_at <= late_at <= end_at and start_at < end_at")
+    # 手势图案由老师开课时定一次，全班画同一个；不传就是这次课不开手势签到。
+    gesture = pattern_hash(data["pattern"]) if "pattern" in data else None
     with write() as db:
         course_access(course_id, teacher=True)
         students = db.execute("SELECT m.user_id FROM course_member m JOIN user u ON u.id=m.user_id "
@@ -85,10 +90,10 @@ def create_task(course_id):
             raise ApiError(422, "EMPTY_PARTICIPANTS", "Course has no active students")
         code, timestamp = new_code(), stamp()
         cursor = db.execute("INSERT INTO attendance_task(course_id,title,start_at,late_at,end_at,"
-                            "code_hash,code_expires_at,status,created_at,updated_at) "
-                            "VALUES(?,?,?,?,?, ?,?,'open',?,?)",
+                            "code_hash,code_expires_at,status,gesture_hash,created_at,updated_at) "
+                            "VALUES(?,?,?,?,?, ?,?,'open',?,?,?)",
                             (course_id, title, stamp(start), stamp(late), stamp(end),
-                             code_hash(code), stamp(end), timestamp, timestamp))
+                             code_hash(code), stamp(end), gesture, timestamp, timestamp))
         task_id = cursor.lastrowid
         db.executemany("INSERT INTO attendance_participant(task_id,student_id) VALUES(?,?)",
                        [(task_id, row["user_id"]) for row in students])
@@ -118,15 +123,25 @@ def list_tasks(course_id):
     total = db.execute("SELECT COUNT(*) FROM attendance_task" + where, params).fetchone()[0]
     rows = db.execute("SELECT * FROM attendance_task" + where + " ORDER BY id DESC LIMIT ? OFFSET ?",
                       (*params, size, (page - 1) * size)).fetchall()
-    return paged([task_json(row) for row in rows], total, page, size)
+    # 应到人数：任务发布时冻结的参与者。没有它，进行中的任务只能按已有记录算分母，
+    # 133 人的班只来了 1 个也会显示「到勤 1 / 1 = 100%」。
+    counts = {}
+    if rows:
+        marks = ",".join("?" * len(rows))
+        counts = dict(db.execute(
+            f"SELECT task_id,COUNT(*) FROM attendance_participant WHERE task_id IN ({marks}) GROUP BY task_id",
+            [row["id"] for row in rows]).fetchall())
+    return paged([{**task_json(row), "participants": counts.get(row["id"], 0)} for row in rows],
+                 total, page, size)
 
 
 @bp.post("/attendance-tasks/<int:task_id>/check-ins")
 def check_in(task_id):
     """签到：签到码与手势图案二选一。
 
-    签到码是老师课上念的公共码，手势图案是学生自己的图形密码。两者都能
-    完成一次签到，记录里的 source 区分是哪种，座位图名单据此标注。
+    签到码是老师开课时随机生成的公共码，手势图案是老师同一次开课时画在任务上的
+    图形口令——两者都由老师决定，学生只能照着填/照着重画。记录里的 source
+    区分是哪种，座位图名单据此标注。
     """
     user = require_user()
     if user["role"] != "student":
@@ -160,10 +175,10 @@ def check_in(task_id):
         if task["status"] != "open" or not task["start_at"] <= timestamp < task["end_at"]:
             raise ApiError(409, "STATE_CONFLICT", "Attendance window is closed")
         if by_gesture:
-            stored = db.execute("SELECT gesture_hash FROM user WHERE id=?", (user["id"],)).fetchone()["gesture_hash"]
+            # 图案是老师开课时定在任务上的，学生照着画；任务没设就是这次课没开手势签到。
+            stored = task["gesture_hash"]
             if not stored:
-                raise ApiError(422, "GESTURE_NOT_ENROLLED",
-                               "还没有设置手势图案，请先在「我的手势签到」里画一次")
+                raise ApiError(422, "GESTURE_NOT_ENABLED", "这次课没有开手势签到，请用签到码")
             valid = pattern_matches(stored, data["pattern"])
         else:
             valid = hmac.compare_digest(code_hash(supplied), task["code_hash"])

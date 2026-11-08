@@ -2,7 +2,8 @@
 
 学生在座位图上点一个位置：
 
-- **空位** → `PUT /courses/<id>/me/seat` 直接坐过去，不需要谁批准；
+- **空位** → `PUT /courses/<id>/me/seat` 直接坐过去；教室是空的、本人还没排座时，
+  这一次点击就是首次选座（插 `class_seat` 并补点到快照），不需要谁批准；
 - **有人** → `POST /courses/<id>/seat-swaps` 向对方发起申请，对方登录后弹窗答复，
   15 分钟不答复自动作废。
 
@@ -85,19 +86,40 @@ def seat_holder(db, course_id, group_no, seat_no):
 
 
 def sync_snapshots(db, course_id, student_id, group_no, seat_no):
-    """把新坐标同步到该课程已生成的点到座位快照，否则座位图会停在旧位置。"""
+    """把新坐标同步到该课程已生成的点到座位快照，否则座位图会停在旧位置。
+
+    教室清空后由学生自助选座时，这个人在快照里还没有行，光 UPDATE 不会有任何效果，
+    所以补一段 INSERT：只给「本人是该任务参与者、但还没有快照行」的任务补，
+    不会把无关任务的人塞进座位图。
+    """
     db.execute(
         "UPDATE attendance_seat SET group_no=?, seat_no=? WHERE student_id=? AND task_id IN "
         "(SELECT id FROM attendance_task WHERE course_id=?)",
         (group_no, seat_no, student_id, course_id),
     )
+    db.execute(
+        "INSERT INTO attendance_seat(task_id,student_id,group_no,seat_no) "
+        "SELECT p.task_id,p.student_id,?,? FROM attendance_participant p "
+        "JOIN attendance_task t ON t.id=p.task_id "
+        "WHERE t.course_id=? AND p.student_id=? AND NOT EXISTS "
+        "(SELECT 1 FROM attendance_seat s WHERE s.task_id=p.task_id AND s.student_id=p.student_id)",
+        (group_no, seat_no, course_id, student_id),
+    )
 
 
 def apply_seat(db, course_id, student_id, group_no, seat_no):
     timestamp = stamp()
-    db.execute("UPDATE class_seat SET group_no=?, seat_no=?, updated_at=? "
-               "WHERE course_id=? AND student_id=?",
-               (group_no, seat_no, timestamp, course_id, student_id))
+    updated = db.execute("UPDATE class_seat SET group_no=?, seat_no=?, updated_at=? "
+                         "WHERE course_id=? AND student_id=?",
+                         (group_no, seat_no, timestamp, course_id, student_id))
+    if not updated.rowcount:
+        # 教室是空的、学生还没排过座：第一次点空位就是「选座」，插一行而不是报 404。
+        class_name = db.execute(
+            "SELECT COALESCE(class_name,'未分班') FROM user WHERE id=?", (student_id,)).fetchone()[0]
+        db.execute(
+            "INSERT INTO class_seat(course_id,student_id,class_name,group_no,seat_no,created_at,updated_at) "
+            "VALUES(?,?,?,?,?,?,?)",
+            (course_id, student_id, class_name, group_no, seat_no, timestamp, timestamp))
     sync_snapshots(db, course_id, student_id, group_no, seat_no)
 
 
@@ -159,7 +181,11 @@ def load_request(db, course_id, swap_id):
 
 @bp.put("/courses/<int:course_id>/me/seat")
 def move_to_seat(course_id):
-    """坐到空位上。目标位置有人时不要静默顶掉，让前端改走换位申请。"""
+    """坐到空位上。目标位置有人时不要静默顶掉，让前端改走换位申请。
+
+    教室还没排座时，本人第一次点空位算「选座」：插入 class_seat 并补齐点到快照，
+    而不是要求先由教师一键排座。
+    """
     data = body(required=("group_no", "seat_no"))
     group_no = positive_int(data["group_no"], "group_no")
     seat_no = positive_int(data["seat_no"], "seat_no")
@@ -167,13 +193,11 @@ def move_to_seat(course_id):
         expire_stale(db)
         user = require_student(course_id)
         mine = member_seat(db, course_id, user["id"])
-        if not mine:
-            raise ApiError(404, "NOT_SEATED", "你还没有座位，先找老师排座")
         room = ensure_classroom(db, course_id)
         if group_no > room["rows"] or seat_no > room["cols"]:
             raise ApiError(422, "OUT_OF_RANGE",
                            f"座位超出教室范围：最多 {room['rows']} 排、{room['cols']} 座")
-        if mine["group_no"] == group_no and mine["seat_no"] == seat_no:
+        if mine and mine["group_no"] == group_no and mine["seat_no"] == seat_no:
             return result({"student_id": user["id"], "group_no": group_no, "seat_no": seat_no,
                            "moved": False, "cancelled": 0})
         holder = seat_holder(db, course_id, group_no, seat_no)
@@ -182,7 +206,8 @@ def move_to_seat(course_id):
         cancelled = cancel_pending_for(db, user["id"])
         apply_seat(db, course_id, user["id"], group_no, seat_no)
         audit("seat.move", "course_member", user["id"],
-              before={"group_no": mine["group_no"], "seat_no": mine["seat_no"]},
+              # 首次选座时还没有旧座位，before 留空，别在这一步把请求打成 500
+              before={"group_no": mine["group_no"], "seat_no": mine["seat_no"]} if mine else None,
               after={"course_id": course_id, "group_no": group_no, "seat_no": seat_no})
     return result({"student_id": user["id"], "group_no": group_no, "seat_no": seat_no,
                    "moved": True, "cancelled": cancelled})
