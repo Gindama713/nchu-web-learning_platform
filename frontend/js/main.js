@@ -133,6 +133,7 @@ createApp({
     const people = ref([])
     const courseId = ref(null)
     const members = ref([])
+    const membersTotal = ref(0)
     const tasks = ref([])
     const leaves = ref([])
     const records = ref([])
@@ -165,6 +166,7 @@ createApp({
       courseEpoch += 1
       courseId.value = null
       members.value = []
+      membersTotal.value = 0
       tasks.value = []
       leaves.value = []
       records.value = []
@@ -196,6 +198,21 @@ createApp({
       }
     }
     const write = (path, method, payload, headers) => apiRequest(path, method, payload, csrf.value, headers)
+    // 成员上限 100 一页，超过就继续拉，否则页面人数和列表会在大班被截断。
+    async function readAll(path) {
+      const rows = []
+      let page = 1
+      for (;;) {
+        const response = await fetch(`${path}${path.includes('?') ? '&' : '?'}page=${page}&page_size=100`)
+        const body = await response.json()
+        if (!response.ok) throw new Error(body.error?.message ?? `HTTP ${response.status}`)
+        const data = body.data ?? []
+        rows.push(...data)
+        const total = body.total ?? rows.length
+        if (!data.length || rows.length >= total) return { rows, total }
+        page++
+      }
+    }
     async function refreshCourses() {
       const currentUser = user.value
       const [courseRows, peopleRows, noticeRows] = await Promise.all([
@@ -215,12 +232,12 @@ createApp({
       if (!id || currentUser.role === 'admin') return
       const base = `/api/v1/courses/${id}`
       const teacher = currentUser.role === 'teacher'
-      const [taskRows, leaveRows, recordRows, warningRows, memberRows, roomRow, gestureRow] = await Promise.all([
+      const [taskRows, leaveRows, recordRows, warningRows, memberPage, roomRow, gestureRow] = await Promise.all([
         readApi(`${base}/attendance-tasks?page_size=100`),
         readApi(`${base}/leave-requests?page_size=100`),
         readApi(`${base}/attendance-records?page_size=100`),
         teacher ? readApi(`${base}/warnings?page_size=100`) : Promise.resolve([]),
-        teacher ? readApi(`${base}/members?page_size=100`) : Promise.resolve([]),
+        teacher ? readAll(`${base}/members`) : Promise.resolve({ rows: [], total: 0 }),
         teacher ? readApi(`${base}/classroom`) : Promise.resolve(null),
         currentUser.role === 'student' ? readApi('/api/v1/auth/gesture') : Promise.resolve(null),
       ])
@@ -229,7 +246,8 @@ createApp({
       leaves.value = leaveRows
       records.value = recordRows
       warnings.value = warningRows
-      members.value = memberRows
+      members.value = memberPage.rows
+      membersTotal.value = memberPage.total
       if (roomRow) syncRoom(roomRow)
       if (gestureRow) {
         gesture.enrolled = gestureRow.enrolled
@@ -809,7 +827,7 @@ createApp({
       window.setInterval(pollIncoming, 20000)
       window.setInterval(() => { seatSwap.now = Date.now() }, 1000)
     })
-    return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, tasks, leaves, records, warnings, notifications, analysis,
+    return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, membersTotal, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, authMode, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       demoStudentNo, fillTeacher, fillStudent,
       seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses, mySeat,
@@ -830,7 +848,7 @@ createApp({
         <h1>中央处理器<br>课程学习系统</h1>
         <p class="auth-lead">课堂点到、座位图、练习与评测，一个入口。</p>
         <ul class="auth-points">
-        <li><b>四班同堂</b>133 人一张座位图，按班分段排座，登录就能看到自己坐哪。</li>
+        <li><b>四班同堂</b>四个班共用一张座位图，按班分段排座，登录就能看到自己坐哪。</li>
         <li><b>两种点到</b>签到码或者手势图案，学生自己挑一种。</li>
         <li><b>随堂留痕</b>练习、错题、讲评自动归档，不用另外记。</li>
         </ul>
@@ -904,7 +922,7 @@ createApp({
         <p v-if="!courses.length">暂无课程。</p>
         <template v-if="courseId">
         <div class="course-summary">
-        <div class="sum-tile"><span>课程成员</span><strong>{{ members.length }}</strong></div>
+        <div v-if="user.role === 'teacher'" class="sum-tile"><span>课程成员</span><strong>{{ membersTotal }}</strong></div>
         <div class="sum-tile"><span>考勤任务</span><strong>{{ tasks.length }}</strong></div>
         <div class="sum-tile"><span>待批请假</span><strong>{{ leaves.filter(item => item.status === 'pending').length }}</strong></div>
         <div class="sum-tile"><span>未读通知</span><strong>{{ notifications.filter(item => !item.read_at).length }}</strong></div>
@@ -1171,11 +1189,11 @@ createApp({
         <p v-if="!leaves.length">暂无请假记录。</p>
 
         <details v-if="user.role === 'teacher'" class="att-panel">
-        <summary>课程成员（{{ members.length }}）与加入</summary>
+        <summary>课程成员（{{ membersTotal }}）与加入</summary>
         <form class="inline-form" @submit.prevent="addMember">
         <label>学生完整学号 <input v-model.trim="memberNo" required></label><button>加入课程</button></form>
         <ul class="rows"><li v-for="member in members" :key="member.user_id">
-        {{ member.name }} · {{ member.student_no }} · {{ member.member_role }} · {{ member.active ? '在课' : '已移出' }}
+        {{ member.name }} · {{ member.student_no }}<template v-if="member.class_name"> · {{ member.class_name }}</template> · {{ member.member_role }} · {{ member.active ? '在课' : '已移出' }}
         <button v-if="member.member_role === 'student' && member.active" type="button" class="secondary"
         @click="removeMember(member.user_id)">移出课程</button></li></ul>
         </details>
