@@ -135,6 +135,27 @@ class WiringLifecycleTest(WiringApiBase):
         self.assertEqual(saved["revision"], 1)
         self.assertEqual(saved["latest_seq"], 2)
 
+    def test_malformed_action_payload_returns_400(self):
+        # RE-001 回归：动作缺必填 payload 键必须 400 VALIDATION_ERROR，不能以 KeyError 500 冒泡
+        _, ver = self.setup_experiment("EXP-01")
+        attempt = self.create_attempt(ver["id"])
+        state = attempt["state"]
+        bad_actions = [
+            {"type": "disconnect", "payload": {"id": "w-bad", "from_terminal": "t1", "to_terminal": "t2"}},
+            {"type": "disconnect", "payload": {}},
+            {"type": "connect", "payload": {"from_terminal": "t1", "to_terminal": "t2"}},
+            {"type": "set_input", "payload": {"value": 1}},
+            {"type": "step", "payload": "not-an-object"},
+        ]
+        for bad in bad_actions:
+            self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
+                      {"revision": 0, "state": state, "actions": [bad]}, 400)
+        # 引擎重放对历史脏数据同样兜底：直接调用 replay 不抛异常
+        from backend.engines import wiring as wiring_engine
+        dirty = [{"type": "disconnect", "payload": {}}, {"type": "connect", "payload": {}}]
+        clean = wiring_engine.replay(_make_panel("EXP-01"), dirty)
+        self.assertEqual(clean["wires"], [])
+
 
 class WiringValidationTest(WiringApiBase):
     def test_terminal_not_found(self):

@@ -528,19 +528,27 @@ def replay(panel, actions, base_state=None):
     for action in actions:
         atype = action["type"]
         payload = action.get("payload", {})
+        if not isinstance(payload, dict):
+            continue  # 历史脏数据防御：非法 payload 跳过重放，不能让 KeyError 变 500（RE-001）
         if atype == "connect":
             wire = payload
+            if not isinstance(wire.get("id"), str) or not wire["id"]:
+                continue
             state["wires"] = [w for w in state["wires"] if w["id"] != wire["id"]]
             state["wires"].append(wire)
             undo_stack.append(("disconnect", {"wire_id": wire["id"]}))
         elif atype == "disconnect":
-            wire_id = payload["wire_id"]
+            wire_id = payload.get("wire_id")
+            if not isinstance(wire_id, str) or not wire_id:
+                continue
             removed = [w for w in state["wires"] if w["id"] == wire_id]
             state["wires"] = [w for w in state["wires"] if w["id"] != wire_id]
             if removed:
                 undo_stack.append(("connect", removed[0]))
         elif atype == "set_input":
-            tid = payload["terminal_id"]
+            tid = payload.get("terminal_id")
+            if not isinstance(tid, str) or not tid or "value" not in payload:
+                continue
             old = state["inputs"].get(tid)
             state["inputs"][tid] = payload["value"]
             undo_stack.append(("set_input", {"terminal_id": tid, "value": old}))
