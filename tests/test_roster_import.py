@@ -57,6 +57,7 @@ class RosterImportTest(TestCase):
         second = import_rosters(self.database, [path], ensure_demo=False)
         self.assertEqual((second["created"], second["updated"], second["unchanged"]), (0, 0, 2))
         self.assertEqual(self.count("SELECT COUNT(*) FROM user WHERE role='student'"), 2)
+        self.assertEqual(self.count("SELECT COUNT(*) FROM user WHERE class_name='242017班'"), 2)
         self.assertEqual(self.login("24209001", "24209001").status_code, 200)
         self.assertEqual(self.login("24209001", "wrong-password").status_code, 401)
 
