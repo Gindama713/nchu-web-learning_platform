@@ -178,6 +178,15 @@ test('分类成绩的同卷平均分显示为分，百分比显示为百分号',
   button(root, '查询统计').props.onClick(); await flush()
   assert.match(content(root), /同卷平均分8\.00 分/)
   assert.match(content(root), /平均百分比80\.00%/)
+  assert.match(content(root), /分类成绩 \/ 作业/)
+  assert.doesNotMatch(content(root), /分类成绩 \/ homework/)
+})
+
+test('考勤筛选只渲染一个测评卷编号输入', async t => {
+  const { root } = await mount(t)
+  change(root, '统计维度', 'attendance'); await flush()
+  const inputs = all(root).filter(n => n.type === 'input' && n.props['aria-label'] === '参与计算的测评卷 ID（可选，逗号分隔）')
+  assert.equal(inputs.length, 1)
 })
 
 test('identity switch invalidates late result; students never receive export controls', async t => {
