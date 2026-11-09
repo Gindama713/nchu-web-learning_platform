@@ -1,0 +1,1645 @@
+{
+  "generated_at": "2026-11-09T14:51:22+00:00",
+  "scenario": "both",
+  "total": 118,
+  "passed": 118,
+  "failed": 0,
+  "by_scene": {
+    "empty": [
+      50,
+      50
+    ],
+    "seeded": [
+      50,
+      50
+    ],
+    "frontend": [
+      18,
+      18
+    ]
+  },
+  "coverage": [
+    [
+      "L01",
+      "登录与会话",
+      "健康检查 db_ready / grader_ready",
+      "无"
+    ],
+    [
+      "L02",
+      "登录与会话",
+      "教师登录返回会话与 CSRF",
+      "user"
+    ],
+    [
+      "L03",
+      "登录与会话",
+      "会话恢复",
+      "session"
+    ],
+    [
+      "L04",
+      "登录与会话",
+      "学生登录",
+      "user"
+    ],
+    [
+      "L05",
+      "登录与会话",
+      "未登录访问受保护接口被拒",
+      "session"
+    ],
+    [
+      "L06",
+      "登录与会话",
+      "CSRF 来源校验",
+      "session"
+    ],
+    [
+      "L07",
+      "登录与会话",
+      "退出后会话失效",
+      "session"
+    ],
+    [
+      "L08",
+      "登录与会话",
+      "登录后课程列表可用",
+      "course"
+    ],
+    [
+      "L09",
+      "登录与会话",
+      "后台数据就绪判定（bootstrap）",
+      "全部业务表"
+    ],
+    [
+      "L10",
+      "登录与会话",
+      "缺失项逐项列出（归因依据）",
+      "全部业务表"
+    ],
+    [
+      "R01",
+      "SPEC-003 教学资源",
+      "资源列表",
+      "course / resource"
+    ],
+    [
+      "R02",
+      "SPEC-003 教学资源",
+      "教师上传资源",
+      "course"
+    ],
+    [
+      "R03",
+      "SPEC-003 教学资源",
+      "按课程/类型检索",
+      "course / resource"
+    ],
+    [
+      "R04",
+      "SPEC-003 教学资源",
+      "授权下载并比对字节",
+      "course / resource_version"
+    ],
+    [
+      "R05",
+      "SPEC-003 教学资源",
+      "缺少 intent/event_id 的下载被拒",
+      "course / resource_version"
+    ],
+    [
+      "R06",
+      "SPEC-003 教学资源",
+      "学生越权上传被拒",
+      "course"
+    ],
+    [
+      "R07",
+      "SPEC-003 教学资源",
+      "更新生成新版本且旧引用仍可访问",
+      "course / resource_version"
+    ],
+    [
+      "R08",
+      "SPEC-003 教学资源",
+      "真实访问事件汇总",
+      "course / access_event"
+    ],
+    [
+      "E01",
+      "SPEC-009 实验辅助",
+      "实验列表",
+      "course / experiment"
+    ],
+    [
+      "E02",
+      "SPEC-009 实验辅助",
+      "学生可见已发布实验",
+      "course / experiment_version"
+    ],
+    [
+      "E03",
+      "SPEC-009 实验辅助",
+      "实验指导含目标/步骤/说明",
+      "experiment_version"
+    ],
+    [
+      "E04",
+      "SPEC-009 实验辅助",
+      "两类提交入口（wiring / circuit）",
+      "experiment_version"
+    ],
+    [
+      "E05",
+      "SPEC-009 实验辅助",
+      "发布闸门：未配测试集不得发布",
+      "test_suite"
+    ],
+    [
+      "E06",
+      "SPEC-009 实验辅助",
+      "本人历史版本",
+      "submission"
+    ],
+    [
+      "E07",
+      "SPEC-009 实验辅助",
+      "发布窗口与冻结名单",
+      "experiment_participant"
+    ],
+    [
+      "G01",
+      "SPEC-018 电路评测",
+      "固定 JAR 与评测就绪",
+      "无（本地 JAR）"
+    ],
+    [
+      "G02",
+      "SPEC-018 电路评测",
+      "judge profile 配置与指纹",
+      "judge_profile"
+    ],
+    [
+      "G03",
+      "SPEC-018 电路评测",
+      "正例/反例参考文件",
+      "reference_file"
+    ],
+    [
+      "G04",
+      "SPEC-018 电路评测",
+      "测试集 8 个计分组",
+      "test_case"
+    ],
+    [
+      "G05",
+      "SPEC-018 电路评测",
+      "测试集真引擎验证（正例全过/反例失败）",
+      "test_suite_validation"
+    ],
+    [
+      "G06",
+      "SPEC-018 电路评测",
+      "测试集发布",
+      "test_suite"
+    ],
+    [
+      "G07",
+      "SPEC-018 电路评测",
+      "学生提交正确 .circ → accepted 100",
+      "grading_run"
+    ],
+    [
+      "G08",
+      "SPEC-018 电路评测",
+      "学生提交错误 .circ → 部分给分",
+      "grading_run"
+    ],
+    [
+      "G09",
+      "SPEC-018 电路评测",
+      "非 .circ 预检拒绝",
+      "grading_run"
+    ],
+    [
+      "G10",
+      "SPEC-018 电路评测",
+      "顶层电路名不符拒绝",
+      "grading_run"
+    ],
+    [
+      "G11",
+      "SPEC-018 电路评测",
+      "学生报告脱敏",
+      "grading_run"
+    ],
+    [
+      "G12",
+      "SPEC-018 电路评测",
+      "重评生成新的 run",
+      "grading_run"
+    ],
+    [
+      "G13",
+      "SPEC-018 电路评测",
+      "空向量/零用例不得判满分",
+      "无（纯函数契约）"
+    ],
+    [
+      "A01",
+      "SPEC-010D 评测分析",
+      "教师查看评测统计",
+      "grading_run"
+    ],
+    [
+      "A02",
+      "SPEC-010D 评测分析",
+      "通过率与分数分布",
+      "grading_run"
+    ],
+    [
+      "A03",
+      "SPEC-010D 评测分析",
+      "system_error 排除正确率分母",
+      "grading_run"
+    ],
+    [
+      "A04",
+      "SPEC-010D 评测分析",
+      "学生 scope=self",
+      "grading_run"
+    ],
+    [
+      "A05",
+      "SPEC-010D 评测分析",
+      "学生查他人统计被拒",
+      "grading_run"
+    ],
+    [
+      "A06",
+      "SPEC-010D 评测分析",
+      "重评分组可区分",
+      "grading_run"
+    ],
+    [
+      "C01",
+      "电路模拟与控制",
+      "电路实验台 spec 与就绪状态",
+      "全部业务表（仅就绪标记）"
+    ],
+    [
+      "C02",
+      "电路模拟与控制",
+      "芯片/引脚/正交导线/用例定义完整性",
+      "无（静态定义）"
+    ],
+    [
+      "C03",
+      "电路模拟与控制",
+      "7485 全组合后端表与 compute 一致",
+      "无（静态功能表）"
+    ],
+    [
+      "C04",
+      "电路模拟与控制",
+      "74181 全组合与 74181 引擎一致",
+      "无（静态功能表）"
+    ],
+    [
+      "C05",
+      "电路模拟与控制",
+      "前后端模拟内核全组合逐行一致",
+      "无（静态功能表）"
+    ],
+    [
+      "C06",
+      "电路模拟与控制",
+      "验证用例期望与权威求值一致",
+      "无（静态功能表）"
+    ],
+    [
+      "C07",
+      "电路模拟与控制",
+      "前端组件双场景 16 项交互测试",
+      "仅就绪标记"
+    ],
+    [
+      "C08",
+      "电路模拟与控制",
+      "后台数据缺失时电路控制仍可用",
+      "无（静态定义）"
+    ]
+  ],
+  "results": [
+    {
+      "id": "L01",
+      "scene": "empty",
+      "module": "登录与会话",
+      "feature": "健康检查 db_ready / grader_ready",
+      "expected": "health 200，db_ready=true，grader_ready=true",
+      "actual": "HTTP 200 db=True grader=True jar_ok=True",
+      "passed": true,
+      "dependency": "无",
+      "usable": true
+    },
+    {
+      "id": "L02",
+      "scene": "empty",
+      "module": "登录与会话",
+      "feature": "教师登录返回会话与 CSRF",
+      "expected": "教师登录 200 且返回 csrf_token",
+      "actual": "HTTP 200 csrf=有",
+      "passed": true,
+      "dependency": "user",
+      "usable": true
+    },
+    {
+      "id": "L03",
+      "scene": "empty",
+      "module": "登录与会话",
+      "feature": "会话恢复",
+      "expected": "会话恢复 200 且学号一致",
+      "actual": "HTTP 200 user=teacher",
+      "passed": true,
+      "dependency": "session",
+      "usable": true
+    },
+    {
+      "id": "L04",
+      "scene": "empty",
+      "module": "登录与会话",
+      "feature": "学生登录",
+      "expected": "学生登录 200",
+      "actual": "HTTP 200 role=student",
+      "passed": true,
+      "dependency": "user",
+      "usable": true
+    },
+    {
+      "id": "L05",
+      "scene": "empty",
+      "module": "登录与会话",
+      "feature": "未登录访问受保护接口被拒",
+      "expected": "未登录 GET /courses → 401",
+      "actual": "HTTP 401",
+      "passed": true,
+      "dependency": "session",
+      "usable": true
+    },
+    {
+      "id": "L06",
+      "scene": "empty",
+      "module": "登录与会话",
+      "feature": "CSRF 来源校验",
+      "expected": "写请求缺 Origin → 403 CSRF_FAILED",
+      "actual": "HTTP 403 code=CSRF_FAILED",
+      "passed": true,
+      "dependency": "session",
+      "usable": true
+    },
+    {
+      "id": "L07",
+      "scene": "empty",
+      "module": "登录与会话",
+      "feature": "退出后会话失效",
+      "expected": "退出后 /auth/session → 401",
+      "actual": "退出 HTTP 204，之后 session HTTP 401",
+      "passed": true,
+      "dependency": "session",
+      "usable": true
+    },
+    {
+      "id": "L08",
+      "scene": "empty",
+      "module": "登录与会话",
+      "feature": "登录后课程列表可用",
+      "expected": "课程列表：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 200 课程数=0",
+      "passed": true,
+      "dependency": "course",
+      "usable": false
+    },
+    {
+      "id": "L09",
+      "scene": "empty",
+      "module": "登录与会话",
+      "feature": "后台数据就绪判定（bootstrap）",
+      "expected": "bootstrap 200；data_ready=false",
+      "actual": "HTTP 200 data_ready=False 缺失 8 项",
+      "passed": true,
+      "dependency": "全部业务表",
+      "usable": false
+    },
+    {
+      "id": "L10",
+      "scene": "empty",
+      "module": "登录与会话",
+      "feature": "缺失项逐项列出（归因依据）",
+      "expected": "就绪清单覆盖 8 张业务表，空库逐项列出缺失原因",
+      "actual": "HTTP 200 检查 8 项，缺失 8 项",
+      "passed": true,
+      "dependency": "全部业务表",
+      "usable": true
+    },
+    {
+      "id": "R01",
+      "scene": "empty",
+      "module": "SPEC-003 教学资源",
+      "feature": "资源列表",
+      "expected": "资源列表：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 条数=0",
+      "passed": true,
+      "dependency": "course / resource",
+      "usable": false
+    },
+    {
+      "id": "R02",
+      "scene": "empty",
+      "module": "SPEC-003 教学资源",
+      "feature": "教师上传资源",
+      "expected": "教师上传资源：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "course",
+      "usable": false
+    },
+    {
+      "id": "R03",
+      "scene": "empty",
+      "module": "SPEC-003 教学资源",
+      "feature": "按课程/类型检索",
+      "expected": "按课程/类型检索：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 kind=guide 命中 0 条",
+      "passed": true,
+      "dependency": "course / resource",
+      "usable": false
+    },
+    {
+      "id": "R04",
+      "scene": "empty",
+      "module": "SPEC-003 教学资源",
+      "feature": "授权下载并比对字节",
+      "expected": "授权下载：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404",
+      "passed": true,
+      "dependency": "course / resource_version",
+      "usable": false
+    },
+    {
+      "id": "R05",
+      "scene": "empty",
+      "module": "SPEC-003 教学资源",
+      "feature": "缺少 intent/event_id 的下载被拒",
+      "expected": "缺 intent/event_id 的下载一律 400（参数校验先于数据查询，两场景一致）",
+      "actual": "HTTP 400 错误码=VALIDATION_ERROR",
+      "passed": true,
+      "dependency": "course / resource_version",
+      "usable": true
+    },
+    {
+      "id": "R06",
+      "scene": "empty",
+      "module": "SPEC-003 教学资源",
+      "feature": "学生越权上传被拒",
+      "expected": "空库明确 404；正常库学生上传 → 403",
+      "actual": "HTTP 404",
+      "passed": true,
+      "dependency": "course",
+      "usable": false
+    },
+    {
+      "id": "R07",
+      "scene": "empty",
+      "module": "SPEC-003 教学资源",
+      "feature": "更新生成新版本且旧引用仍可访问",
+      "expected": "版本更新与旧引用：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "新版本 HTTP 404，旧版本 HTTP 404",
+      "passed": true,
+      "dependency": "course / resource_version",
+      "usable": false
+    },
+    {
+      "id": "R08",
+      "scene": "empty",
+      "module": "SPEC-003 教学资源",
+      "feature": "真实访问事件汇总",
+      "expected": "访问事件汇总：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 含 download=False",
+      "passed": true,
+      "dependency": "course / access_event",
+      "usable": false
+    },
+    {
+      "id": "E01",
+      "scene": "empty",
+      "module": "SPEC-009 实验辅助",
+      "feature": "实验列表",
+      "expected": "实验列表：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 实验数=0",
+      "passed": true,
+      "dependency": "course / experiment",
+      "usable": false
+    },
+    {
+      "id": "E02",
+      "scene": "empty",
+      "module": "SPEC-009 实验辅助",
+      "feature": "学生可见已发布实验",
+      "expected": "学生可见已发布实验：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 可见 0 个",
+      "passed": true,
+      "dependency": "course / experiment_version",
+      "usable": false
+    },
+    {
+      "id": "E03",
+      "scene": "empty",
+      "module": "SPEC-009 实验辅助",
+      "feature": "实验指导含目标/步骤/说明",
+      "expected": "实验指导字段：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 objectives/instructions=缺",
+      "passed": true,
+      "dependency": "experiment_version",
+      "usable": false
+    },
+    {
+      "id": "E04",
+      "scene": "empty",
+      "module": "SPEC-009 实验辅助",
+      "feature": "两类提交入口（wiring / circuit）",
+      "expected": "两类提交入口：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 modes=None",
+      "passed": true,
+      "dependency": "experiment_version",
+      "usable": false
+    },
+    {
+      "id": "E05",
+      "scene": "empty",
+      "module": "SPEC-009 实验辅助",
+      "feature": "发布闸门：未配测试集不得发布",
+      "expected": "空库明确 404；正常库未配测试集的草稿发布被拒",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "test_suite",
+      "usable": false
+    },
+    {
+      "id": "E06",
+      "scene": "empty",
+      "module": "SPEC-009 实验辅助",
+      "feature": "本人历史版本",
+      "expected": "本人历史版本/提交记录：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 提交 0 条",
+      "passed": true,
+      "dependency": "submission",
+      "usable": false
+    },
+    {
+      "id": "E07",
+      "scene": "empty",
+      "module": "SPEC-009 实验辅助",
+      "feature": "发布窗口与冻结名单",
+      "expected": "空库无冻结名单；正常库冻结名单含提交学生",
+      "actual": "experiment_participant 0 行",
+      "passed": true,
+      "dependency": "experiment_participant",
+      "usable": false
+    },
+    {
+      "id": "G01",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "固定 JAR 与评测就绪",
+      "expected": "固定 JAR 存在且 sha256 可校验（jar_ok=True）",
+      "actual": "JAR 54448596 字节，grader_ready 由 health 断言",
+      "passed": true,
+      "dependency": "无（本地 JAR）",
+      "usable": true
+    },
+    {
+      "id": "G02",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "judge profile 配置与指纹",
+      "expected": "judge profile 配置：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "judge_profile 0 行，sha=",
+      "passed": true,
+      "dependency": "judge_profile",
+      "usable": false
+    },
+    {
+      "id": "G03",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "正例/反例参考文件",
+      "expected": "正例/反例参考文件：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "reference_file 0 行",
+      "passed": true,
+      "dependency": "reference_file",
+      "usable": false
+    },
+    {
+      "id": "G04",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "测试集 8 个计分组",
+      "expected": "测试集 8 个计分组：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "test_case 0 行，分组 0 个",
+      "passed": true,
+      "dependency": "test_case",
+      "usable": false
+    },
+    {
+      "id": "G05",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "测试集真引擎验证（正例全过/反例失败）",
+      "expected": "测试集真引擎验证：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "validation 0 行",
+      "passed": true,
+      "dependency": "test_suite_validation",
+      "usable": false
+    },
+    {
+      "id": "G06",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "测试集发布",
+      "expected": "测试集发布：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "published 测试集 0 个",
+      "passed": true,
+      "dependency": "test_suite",
+      "usable": false
+    },
+    {
+      "id": "G07",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "学生提交正确 .circ → accepted 100",
+      "expected": "空库明确 404；正常库 accepted / 100.0 / 11 通过",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "G08",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "学生提交错误 .circ → 部分给分",
+      "expected": "空库明确 404；正常库 wrong_answer / 87.5 / 10 通过（部分给分）",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "G09",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "非 .circ 预检拒绝",
+      "expected": "空库明确 404；正常库非 .circ → 400 且明确错误码",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "G10",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "顶层电路名不符拒绝",
+      "expected": "空库明确 404；正常库顶层名不符 → 400 INVALID_CIRCUIT",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "G11",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "学生报告脱敏",
+      "expected": "空库明确 404；正常库学生报告不含内部路径/快照/worker token",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "G12",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "重评生成新的 run",
+      "expected": "空库明确 404；正常库重评生成 retry_of 新 run",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "G13",
+      "scene": "empty",
+      "module": "SPEC-018 电路评测",
+      "feature": "空向量/零用例不得判满分",
+      "expected": "零用例/无输出列不得被判满分（两场景一致）",
+      "actual": "空汇总解析=None，无输出列向量=None",
+      "passed": true,
+      "dependency": "无（纯函数契约）",
+      "usable": true
+    },
+    {
+      "id": "A01",
+      "scene": "empty",
+      "module": "SPEC-010D 评测分析",
+      "feature": "教师查看评测统计",
+      "expected": "教师评测统计：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "A02",
+      "scene": "empty",
+      "module": "SPEC-010D 评测分析",
+      "feature": "通过率与分数分布",
+      "expected": "通过率与分数分布：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "A03",
+      "scene": "empty",
+      "module": "SPEC-010D 评测分析",
+      "feature": "system_error 排除正确率分母",
+      "expected": "空库明确 404；正常库 system_error 单独成项、不并入正确率分母",
+      "actual": "HTTP 404 code=NOT_FOUND",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "A04",
+      "scene": "empty",
+      "module": "SPEC-010D 评测分析",
+      "feature": "学生 scope=self",
+      "expected": "学生 scope=self：空库返回明确的 404/空列表，并有数据缺失引导",
+      "actual": "HTTP 404 student_id=None",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "A05",
+      "scene": "empty",
+      "module": "SPEC-010D 评测分析",
+      "feature": "学生查他人统计被拒",
+      "expected": "空库明确 404；正常库学生查他人统计被拒",
+      "actual": "HTTP 404",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "A06",
+      "scene": "empty",
+      "module": "SPEC-010D 评测分析",
+      "feature": "重评分组可区分",
+      "expected": "空库无重评记录；正常库重评 run 带 reason 标记可单独分组",
+      "actual": "reason 非空的重评 run 0 条",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": false
+    },
+    {
+      "id": "C01",
+      "scene": "empty",
+      "module": "电路模拟与控制",
+      "feature": "电路实验台 spec 与就绪状态",
+      "expected": "spec 200；两个实验；data_ready=false",
+      "actual": "HTTP 200 实验 2 个 data_ready=False",
+      "passed": true,
+      "dependency": "全部业务表（仅就绪标记）",
+      "usable": true
+    },
+    {
+      "id": "C02",
+      "scene": "empty",
+      "module": "电路模拟与控制",
+      "feature": "芯片/引脚/正交导线/用例定义完整性",
+      "expected": "芯片/引脚/正交导线/用例定义齐全（两场景一致）",
+      "actual": "HTTP 200 几何问题 0 处",
+      "passed": true,
+      "dependency": "无（静态定义）",
+      "usable": true
+    },
+    {
+      "id": "C03",
+      "scene": "empty",
+      "module": "电路模拟与控制",
+      "feature": "7485 全组合后端表与 compute 一致",
+      "expected": "7485 全 2048 组合表与 compute 抽样一致（两场景一致）",
+      "actual": "HTTP 200 行数=2048 抽样不符=0",
+      "passed": true,
+      "dependency": "无（静态功能表）",
+      "usable": true
+    },
+    {
+      "id": "C04",
+      "scene": "empty",
+      "module": "电路模拟与控制",
+      "feature": "74181 全组合与 74181 引擎一致",
+      "expected": "74181 全 512 组合表与 compute 抽样一致（两场景一致）",
+      "actual": "HTTP 200 行数=512 抽样不符=0",
+      "passed": true,
+      "dependency": "无（静态功能表）",
+      "usable": true
+    },
+    {
+      "id": "C06",
+      "scene": "empty",
+      "module": "电路模拟与控制",
+      "feature": "验证用例期望与权威求值一致",
+      "expected": "每个验证用例的期望值与后端权威求值一致（两场景一致）",
+      "actual": "HTTP 200 校验 5 个用例，不符 0 项 []",
+      "passed": true,
+      "dependency": "无（静态功能表）",
+      "usable": true
+    },
+    {
+      "id": "C08",
+      "scene": "empty",
+      "module": "电路模拟与控制",
+      "feature": "后台数据缺失时电路控制仍可用",
+      "expected": "数据缺失时电路定义仍完整、模拟/开关/验算不依赖业务表（两场景一致）",
+      "actual": "HTTP 200 实验 2 个，引脚 33 个",
+      "passed": true,
+      "dependency": "无（静态定义）",
+      "usable": true
+    },
+    {
+      "id": "L01",
+      "scene": "seeded",
+      "module": "登录与会话",
+      "feature": "健康检查 db_ready / grader_ready",
+      "expected": "health 200，db_ready=true，grader_ready=true",
+      "actual": "HTTP 200 db=True grader=True jar_ok=True",
+      "passed": true,
+      "dependency": "无",
+      "usable": true
+    },
+    {
+      "id": "L02",
+      "scene": "seeded",
+      "module": "登录与会话",
+      "feature": "教师登录返回会话与 CSRF",
+      "expected": "教师登录 200 且返回 csrf_token",
+      "actual": "HTTP 200 csrf=有",
+      "passed": true,
+      "dependency": "user",
+      "usable": true
+    },
+    {
+      "id": "L03",
+      "scene": "seeded",
+      "module": "登录与会话",
+      "feature": "会话恢复",
+      "expected": "会话恢复 200 且学号一致",
+      "actual": "HTTP 200 user=teacher",
+      "passed": true,
+      "dependency": "session",
+      "usable": true
+    },
+    {
+      "id": "L04",
+      "scene": "seeded",
+      "module": "登录与会话",
+      "feature": "学生登录",
+      "expected": "学生登录 200",
+      "actual": "HTTP 200 role=student",
+      "passed": true,
+      "dependency": "user",
+      "usable": true
+    },
+    {
+      "id": "L05",
+      "scene": "seeded",
+      "module": "登录与会话",
+      "feature": "未登录访问受保护接口被拒",
+      "expected": "未登录 GET /courses → 401",
+      "actual": "HTTP 401",
+      "passed": true,
+      "dependency": "session",
+      "usable": true
+    },
+    {
+      "id": "L06",
+      "scene": "seeded",
+      "module": "登录与会话",
+      "feature": "CSRF 来源校验",
+      "expected": "写请求缺 Origin → 403 CSRF_FAILED",
+      "actual": "HTTP 403 code=CSRF_FAILED",
+      "passed": true,
+      "dependency": "session",
+      "usable": true
+    },
+    {
+      "id": "L07",
+      "scene": "seeded",
+      "module": "登录与会话",
+      "feature": "退出后会话失效",
+      "expected": "退出后 /auth/session → 401",
+      "actual": "退出 HTTP 204，之后 session HTTP 401",
+      "passed": true,
+      "dependency": "session",
+      "usable": true
+    },
+    {
+      "id": "L08",
+      "scene": "seeded",
+      "module": "登录与会话",
+      "feature": "登录后课程列表可用",
+      "expected": "课程列表：200 且有数据",
+      "actual": "HTTP 200 课程数=1",
+      "passed": true,
+      "dependency": "course",
+      "usable": true
+    },
+    {
+      "id": "L09",
+      "scene": "seeded",
+      "module": "登录与会话",
+      "feature": "后台数据就绪判定（bootstrap）",
+      "expected": "bootstrap 200；data_ready=true",
+      "actual": "HTTP 200 data_ready=True 缺失 0 项",
+      "passed": true,
+      "dependency": "全部业务表",
+      "usable": true
+    },
+    {
+      "id": "L10",
+      "scene": "seeded",
+      "module": "登录与会话",
+      "feature": "缺失项逐项列出（归因依据）",
+      "expected": "就绪清单覆盖 8 张业务表，空库逐项列出缺失原因",
+      "actual": "HTTP 200 检查 8 项，缺失 0 项",
+      "passed": true,
+      "dependency": "全部业务表",
+      "usable": true
+    },
+    {
+      "id": "R01",
+      "scene": "seeded",
+      "module": "SPEC-003 教学资源",
+      "feature": "资源列表",
+      "expected": "资源列表：200 且有数据",
+      "actual": "HTTP 200 条数=1",
+      "passed": true,
+      "dependency": "course / resource",
+      "usable": true
+    },
+    {
+      "id": "R02",
+      "scene": "seeded",
+      "module": "SPEC-003 教学资源",
+      "feature": "教师上传资源",
+      "expected": "教师上传资源：200 且有数据",
+      "actual": "HTTP 201 resource_id=2",
+      "passed": true,
+      "dependency": "course",
+      "usable": true
+    },
+    {
+      "id": "R03",
+      "scene": "seeded",
+      "module": "SPEC-003 教学资源",
+      "feature": "按课程/类型检索",
+      "expected": "按课程/类型检索：200 且有数据",
+      "actual": "HTTP 200 kind=guide 命中 2 条",
+      "passed": true,
+      "dependency": "course / resource",
+      "usable": true
+    },
+    {
+      "id": "R04",
+      "scene": "seeded",
+      "module": "SPEC-003 教学资源",
+      "feature": "授权下载并比对字节",
+      "expected": "授权下载：200 且有数据",
+      "actual": "HTTP 200 字节一致=True",
+      "passed": true,
+      "dependency": "course / resource_version",
+      "usable": true
+    },
+    {
+      "id": "R05",
+      "scene": "seeded",
+      "module": "SPEC-003 教学资源",
+      "feature": "缺少 intent/event_id 的下载被拒",
+      "expected": "缺 intent/event_id 的下载一律 400（参数校验先于数据查询，两场景一致）",
+      "actual": "HTTP 400 错误码=VALIDATION_ERROR",
+      "passed": true,
+      "dependency": "course / resource_version",
+      "usable": true
+    },
+    {
+      "id": "R06",
+      "scene": "seeded",
+      "module": "SPEC-003 教学资源",
+      "feature": "学生越权上传被拒",
+      "expected": "空库明确 404；正常库学生上传 → 403",
+      "actual": "HTTP 403",
+      "passed": true,
+      "dependency": "course",
+      "usable": true
+    },
+    {
+      "id": "R07",
+      "scene": "seeded",
+      "module": "SPEC-003 教学资源",
+      "feature": "更新生成新版本且旧引用仍可访问",
+      "expected": "版本更新与旧引用：200 且有数据",
+      "actual": "新版本 HTTP 201，旧版本 HTTP 200 内容一致=True",
+      "passed": true,
+      "dependency": "course / resource_version",
+      "usable": true
+    },
+    {
+      "id": "R08",
+      "scene": "seeded",
+      "module": "SPEC-003 教学资源",
+      "feature": "真实访问事件汇总",
+      "expected": "访问事件汇总：200 且有数据",
+      "actual": "HTTP 200 含 download=True",
+      "passed": true,
+      "dependency": "course / access_event",
+      "usable": true
+    },
+    {
+      "id": "E01",
+      "scene": "seeded",
+      "module": "SPEC-009 实验辅助",
+      "feature": "实验列表",
+      "expected": "实验列表：200 且有数据",
+      "actual": "HTTP 200 实验数=1",
+      "passed": true,
+      "dependency": "course / experiment",
+      "usable": true
+    },
+    {
+      "id": "E02",
+      "scene": "seeded",
+      "module": "SPEC-009 实验辅助",
+      "feature": "学生可见已发布实验",
+      "expected": "学生可见已发布实验：200 且有数据",
+      "actual": "HTTP 200 可见 1 个",
+      "passed": true,
+      "dependency": "course / experiment_version",
+      "usable": true
+    },
+    {
+      "id": "E03",
+      "scene": "seeded",
+      "module": "SPEC-009 实验辅助",
+      "feature": "实验指导含目标/步骤/说明",
+      "expected": "实验指导字段：200 且有数据",
+      "actual": "HTTP 200 objectives/instructions=齐",
+      "passed": true,
+      "dependency": "experiment_version",
+      "usable": true
+    },
+    {
+      "id": "E04",
+      "scene": "seeded",
+      "module": "SPEC-009 实验辅助",
+      "feature": "两类提交入口（wiring / circuit）",
+      "expected": "两类提交入口：200 且有数据",
+      "actual": "HTTP 200 modes=['wiring', 'circuit']",
+      "passed": true,
+      "dependency": "experiment_version",
+      "usable": true
+    },
+    {
+      "id": "E05",
+      "scene": "seeded",
+      "module": "SPEC-009 实验辅助",
+      "feature": "发布闸门：未配测试集不得发布",
+      "expected": "空库明确 404；正常库未配测试集的草稿发布被拒",
+      "actual": "HTTP 409 code=STATE_CONFLICT",
+      "passed": true,
+      "dependency": "test_suite",
+      "usable": true
+    },
+    {
+      "id": "E06",
+      "scene": "seeded",
+      "module": "SPEC-009 实验辅助",
+      "feature": "本人历史版本",
+      "expected": "本人历史版本/提交记录：200 且有数据",
+      "actual": "HTTP 200 提交 2 条",
+      "passed": true,
+      "dependency": "submission",
+      "usable": true
+    },
+    {
+      "id": "E07",
+      "scene": "seeded",
+      "module": "SPEC-009 实验辅助",
+      "feature": "发布窗口与冻结名单",
+      "expected": "空库无冻结名单；正常库冻结名单含提交学生",
+      "actual": "experiment_participant 2 行",
+      "passed": true,
+      "dependency": "experiment_participant",
+      "usable": true
+    },
+    {
+      "id": "G01",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "固定 JAR 与评测就绪",
+      "expected": "固定 JAR 存在且 sha256 可校验（jar_ok=True）",
+      "actual": "JAR 54448596 字节，grader_ready 由 health 断言",
+      "passed": true,
+      "dependency": "无（本地 JAR）",
+      "usable": true
+    },
+    {
+      "id": "G02",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "judge profile 配置与指纹",
+      "expected": "judge profile 配置：200 且有数据",
+      "actual": "judge_profile 1 行，sha=e741a62ae468",
+      "passed": true,
+      "dependency": "judge_profile",
+      "usable": true
+    },
+    {
+      "id": "G03",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "正例/反例参考文件",
+      "expected": "正例/反例参考文件：200 且有数据",
+      "actual": "reference_file 2 行",
+      "passed": true,
+      "dependency": "reference_file",
+      "usable": true
+    },
+    {
+      "id": "G04",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "测试集 8 个计分组",
+      "expected": "测试集 8 个计分组：200 且有数据",
+      "actual": "test_case 11 行，分组 8 个",
+      "passed": true,
+      "dependency": "test_case",
+      "usable": true
+    },
+    {
+      "id": "G05",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "测试集真引擎验证（正例全过/反例失败）",
+      "expected": "测试集真引擎验证：200 且有数据",
+      "actual": "status=passed result={'reference': 'all_passed', 'negative': 'functional_failure'}",
+      "passed": true,
+      "dependency": "test_suite_validation",
+      "usable": true
+    },
+    {
+      "id": "G06",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "测试集发布",
+      "expected": "测试集发布：200 且有数据",
+      "actual": "published 测试集 1 个",
+      "passed": true,
+      "dependency": "test_suite",
+      "usable": true
+    },
+    {
+      "id": "G07",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "学生提交正确 .circ → accepted 100",
+      "expected": "空库明确 404；正常库 accepted / 100.0 / 11 通过",
+      "actual": "status=accepted score=100.0 passed=11/11 error=None",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "G08",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "学生提交错误 .circ → 部分给分",
+      "expected": "空库明确 404；正常库 wrong_answer / 87.5 / 10 通过（部分给分）",
+      "actual": "status=wrong_answer score=87.5 passed=10/11 error=None",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "G09",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "非 .circ 预检拒绝",
+      "expected": "空库明确 404；正常库非 .circ → 400 且明确错误码",
+      "actual": "HTTP 400 code=VALIDATION_ERROR",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "G10",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "顶层电路名不符拒绝",
+      "expected": "空库明确 404；正常库顶层名不符 → 400 INVALID_CIRCUIT",
+      "actual": "HTTP 400 code=VALIDATION_ERROR",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "G11",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "学生报告脱敏",
+      "expected": "空库明确 404；正常库学生报告不含内部路径/快照/worker token",
+      "actual": "HTTP 200 敏感字段 []",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "G12",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "重评生成新的 run",
+      "expected": "空库明确 404；正常库重评生成 retry_of 新 run",
+      "actual": "HTTP 202 新 run #3 status=queued，reason 标记 1 条",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "G13",
+      "scene": "seeded",
+      "module": "SPEC-018 电路评测",
+      "feature": "空向量/零用例不得判满分",
+      "expected": "零用例/无输出列不得被判满分（两场景一致）",
+      "actual": "空汇总解析=None，无输出列向量=None",
+      "passed": true,
+      "dependency": "无（纯函数契约）",
+      "usable": true
+    },
+    {
+      "id": "A01",
+      "scene": "seeded",
+      "module": "SPEC-010D 评测分析",
+      "feature": "教师查看评测统计",
+      "expected": "教师评测统计：200 且有数据",
+      "actual": "HTTP 200 维度字段 ['algorithm_version', 'analysis_run_id', 'dimension', 'filters', 'generated_at', 'metrics']",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "A02",
+      "scene": "seeded",
+      "module": "SPEC-010D 评测分析",
+      "feature": "通过率与分数分布",
+      "expected": "通过率与分数分布：200 且有数据",
+      "actual": "HTTP 200 指标 ['accepted_count', 'pass_rate', 'mean_score', 'score_bins', 'run_count', 'system_error_count']，score_bins 5 档，pass_rate=0.0",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "A03",
+      "scene": "seeded",
+      "module": "SPEC-010D 评测分析",
+      "feature": "system_error 排除正确率分母",
+      "expected": "空库明确 404；正常库 system_error 单独成项、不并入正确率分母",
+      "actual": "注入 system_error 前 sample_size/pass_rate=(1, 0.0)，注入后=(1, 0.0)，独立成项=True",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "A04",
+      "scene": "seeded",
+      "module": "SPEC-010D 评测分析",
+      "feature": "学生 scope=self",
+      "expected": "学生 scope=self：200 且有数据",
+      "actual": "HTTP 200 student_id=2",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "A05",
+      "scene": "seeded",
+      "module": "SPEC-010D 评测分析",
+      "feature": "学生查他人统计被拒",
+      "expected": "空库明确 404；正常库学生查他人统计被拒",
+      "actual": "HTTP 403",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "A06",
+      "scene": "seeded",
+      "module": "SPEC-010D 评测分析",
+      "feature": "重评分组可区分",
+      "expected": "空库无重评记录；正常库重评 run 带 reason 标记可单独分组",
+      "actual": "reason 非空的重评 run 1 条",
+      "passed": true,
+      "dependency": "grading_run",
+      "usable": true
+    },
+    {
+      "id": "C01",
+      "scene": "seeded",
+      "module": "电路模拟与控制",
+      "feature": "电路实验台 spec 与就绪状态",
+      "expected": "spec 200；两个实验；data_ready=true",
+      "actual": "HTTP 200 实验 2 个 data_ready=True",
+      "passed": true,
+      "dependency": "全部业务表（仅就绪标记）",
+      "usable": true
+    },
+    {
+      "id": "C02",
+      "scene": "seeded",
+      "module": "电路模拟与控制",
+      "feature": "芯片/引脚/正交导线/用例定义完整性",
+      "expected": "芯片/引脚/正交导线/用例定义齐全（两场景一致）",
+      "actual": "HTTP 200 几何问题 0 处",
+      "passed": true,
+      "dependency": "无（静态定义）",
+      "usable": true
+    },
+    {
+      "id": "C03",
+      "scene": "seeded",
+      "module": "电路模拟与控制",
+      "feature": "7485 全组合后端表与 compute 一致",
+      "expected": "7485 全 2048 组合表与 compute 抽样一致（两场景一致）",
+      "actual": "HTTP 200 行数=2048 抽样不符=0",
+      "passed": true,
+      "dependency": "无（静态功能表）",
+      "usable": true
+    },
+    {
+      "id": "C04",
+      "scene": "seeded",
+      "module": "电路模拟与控制",
+      "feature": "74181 全组合与 74181 引擎一致",
+      "expected": "74181 全 512 组合表与 compute 抽样一致（两场景一致）",
+      "actual": "HTTP 200 行数=512 抽样不符=0",
+      "passed": true,
+      "dependency": "无（静态功能表）",
+      "usable": true
+    },
+    {
+      "id": "C06",
+      "scene": "seeded",
+      "module": "电路模拟与控制",
+      "feature": "验证用例期望与权威求值一致",
+      "expected": "每个验证用例的期望值与后端权威求值一致（两场景一致）",
+      "actual": "HTTP 200 校验 5 个用例，不符 0 项 []",
+      "passed": true,
+      "dependency": "无（静态功能表）",
+      "usable": true
+    },
+    {
+      "id": "C08",
+      "scene": "seeded",
+      "module": "电路模拟与控制",
+      "feature": "后台数据缺失时电路控制仍可用",
+      "expected": "数据缺失时电路定义仍完整、模拟/开关/验算不依赖业务表（两场景一致）",
+      "actual": "HTTP 200 实验 2 个，引脚 33 个",
+      "passed": true,
+      "dependency": "无（静态定义）",
+      "usable": true
+    },
+    {
+      "id": "F01",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "登录后后台数据缺失时页面给出归因引导",
+      "expected": "出现「后台数据未初始化」提示并列出缺失项；电路图与开关仍渲染；无渲染异常",
+      "actual": "引导可见、开关 11 个、无异常",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F02",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "后台数据正常时不误报缺失",
+      "expected": "不出现缺失引导条；状态卡显示「后台数据正常」",
+      "actual": "缺失引导已隐藏，状态卡为「后台数据正常」",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F03",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "电路控制界面视觉元素与参考图一致",
+      "expected": "芯片文字、导线、开关、指示灯、接地符号数量与 spec 定义一致",
+      "actual": "开关 11 / 灯 3 / 导线 15 全部正交",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F04",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "电路控制：开关切换 0/1 并刷新输出",
+      "expected": "A3 开关 aria-pressed 由 false 变 true，输出关系/反馈同步变化",
+      "actual": "aria-pressed true → false；反馈含 A3",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F05",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "电路控制：复位",
+      "expected": "输入复位为 A=B=0，反馈含「已复位」",
+      "actual": "A=B=0，反馈含「已复位」",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F06",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "电路控制：载入用例",
+      "expected": "点击用例后该行高亮，输入变为用例值",
+      "actual": "用例「A=2, B=11」已载入并高亮",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F07",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "电路模拟：验算当前用例",
+      "expected": "默认用例验算通过，反馈含「验算通过」",
+      "actual": "默认用例（A=9,B=3）验算通过",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F08",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "电路控制：提交与记录",
+      "expected": "提交后记录表新增 1 行且状态为「通过」",
+      "actual": "提交记录 1 行，状态「通过」，得分 100",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F09",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "进度环与完成提示",
+      "expected": "3 个用例全部提交后出现「本实验已通过」",
+      "actual": "3/3 用例通过，提示条出现",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F10",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "验证说明分页控件",
+      "expected": "点击「下一步」后页码变为 2 / 3",
+      "actual": "验证说明 2/3",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F11",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "电路图缩放",
+      "expected": "点击「放大」后反馈含缩放百分比",
+      "actual": "缩放 110%",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F12",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "多实验切换（74181 + 7400）",
+      "expected": "芯片 74181/7400 出现，开关数量与 74181 spec 一致，输出读数含 F[3:0]",
+      "actual": "74181/7400 已渲染，开关 14 个",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F13",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "控制位只读约束",
+      "expected": "点击 S3 提示「只读」，输入不被改写",
+      "actual": "S3 只读反馈正确",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F14",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "控件可访问性",
+      "expected": "所有开关具备 aria-label / aria-pressed，键盘事件已绑定",
+      "actual": "11 个开关均具备 ARIA 与键盘支持",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F15",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "电路模拟数值正确性",
+      "expected": "7485 全 2048 组合三路互斥完备；74181 全 512 组合 F=(A±B)&15",
+      "actual": "7485 2048 组 + 74181 512 组全部自洽",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "F16",
+      "scene": "frontend",
+      "module": "电路模拟与控制（前端组件）",
+      "feature": "后端不可用降级",
+      "expected": "出现「读取电路定义失败」提示与「重新加载」按钮",
+      "actual": "错误引导可见，无渲染异常",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "C07",
+      "scene": "frontend",
+      "module": "电路模拟与控制",
+      "feature": "前端组件双场景 16 项交互测试",
+      "expected": "前端组件双场景 16 项全部通过",
+      "actual": "node --test 退出码 0；TAP 16 条；结果文件 16 项，通过 16 项",
+      "passed": true,
+      "dependency": "仅就绪标记",
+      "usable": true
+    },
+    {
+      "id": "C05",
+      "scene": "frontend",
+      "module": "电路模拟与控制",
+      "feature": "前后端模拟内核全组合逐行一致",
+      "expected": "7485 2048 组合 + 74181 512 组合前后端逐行一致",
+      "actual": "7485 前端 2048 行 / 后端 2048 行，sha256 一致；74181 前端 512 行 / 后端 512 行，sha256 一致",
+      "passed": true,
+      "dependency": "无（静态功能表）",
+      "usable": true
+    }
+  ],
+  "attribution": {
+    "login_ok_both_scenes": true,
+    "bootstrap_detects_missing": true,
+    "data_dependent_checks": 42,
+    "unusable_in_empty": 32,
+    "recovered_after_seeding": 32,
+    "data_free_circuit_features": 6,
+    "verdict": "登录后「资源/实验/评测/统计看不到内容」确定由后台业务数据缺失导致：登录与会话在两场景都成功；空库 bootstrap 明确列出缺失的 8 类数据；补齐数据后这些功能全部恢复；电路模拟与电路控制不依赖业务表，两场景均可用。修复前页面缺少提示、看起来像功能坏掉，属前端缺陷，已补就绪引导与空态卡片，因此当前版本在数据缺失场景下不再有功能差错。"
+  },
+  "acceptance": true
+}

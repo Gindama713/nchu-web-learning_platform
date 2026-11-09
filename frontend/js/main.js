@@ -13,6 +13,7 @@ import { QAView } from './qa-view.js'
 import { RecommendationView } from './recommendation-view.js'
 import { DemoView } from './demo-view.js'
 import { AluView } from './alu-view.js'
+import { CircuitLabView } from './circuit-lab-view.js'
 import { KnowledgeGraphView } from './knowledge-graph-view.js'
 import { RecognitionView } from './recognition-view.js'
 import { WarningView } from './warning-view.js'
@@ -33,6 +34,7 @@ import '../styles/grading.css'
 import '../styles/qa.css'
 import '../styles/demos.css'
 import '../styles/alu.css'
+import '../styles/circuit-lab.css'
 import '../styles/graph.css'
 import '../styles/recognition.css'
 import '../styles/warnings.css'
@@ -41,7 +43,7 @@ import '../styles/wiring.css'
 import '../styles/wiring-stats.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView, GesturePad },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, CircuitLabView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView, GesturePad },
   setup() {
     const user = ref(null)
     const practiceEntry = ref(null)
@@ -130,6 +132,8 @@ createApp({
       document.querySelector('.practice-bank')?.scrollIntoView({ behavior: 'smooth' })
     }
     const csrf = ref('')
+    // 后台业务数据就绪状态：空库登录后给出明确引导，避免「登录成功却一片空白」。
+    const readiness = ref(null)
     const message = ref('')
     const courses = ref([])
     const people = ref([])
@@ -229,6 +233,11 @@ createApp({
         return apiRequest(path, method, payload, csrf.value, headers)
       }
     }
+    async function loadReadiness() {
+      // 端点需登录且无副作用；未登录或请求失败时静默降级，只影响引导条显示。
+      try { readiness.value = await readApi('/api/v1/circuit-lab/bootstrap') }
+      catch { readiness.value = null }
+    }
     // 成员上限 100 一页，超过就继续拉，否则页面人数和列表会在大班被截断。
     async function readAll(path) {
       const rows = []
@@ -288,6 +297,7 @@ createApp({
         account.name = data.user.name
         csrf.value = data.csrf_token
         await refreshCourses()
+        await loadReadiness()
         // 登录后自动选中第一门课，否则考勤/预警/识别三块要手动点课程才出现。
         if (data.user.role !== 'admin' && !courseId.value && courses.value.length) {
           await selectCourse(courses.value[0].id)
@@ -311,6 +321,7 @@ createApp({
       csrf.value = data.csrf_token
       auth.password = ''
       await refreshCourses()
+      await loadReadiness()
       // 登录后同样自动选中第一门课，否则直接切到「考勤与学情」会是一片空白。
       if (user.value.role !== 'admin' && !courseId.value && courses.value.length) {
         await selectCourse(courses.value[0].id)
@@ -608,6 +619,7 @@ createApp({
         user.value = null
         practiceEntry.value = null
         csrf.value = ''
+        readiness.value = null
         courses.value = []
         people.value = []
         notifications.value = []
@@ -997,7 +1009,7 @@ createApp({
           .catch(() => {})
       })
     })
-    return { user, practiceEntry, openRecommendedPractice, message, courses, people, courseId, members, membersTotal, tasks, leaves, records, warnings, notifications, analysis,
+    return { user, practiceEntry, openRecommendedPractice, message, readiness, courses, people, courseId, members, membersTotal, tasks, leaves, records, warnings, notifications, analysis,
       recognition, draft, secretCode, auth, authMode, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       demoStudentNo, fillTeacher, fillStudent,
       seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses, mySeat,
@@ -1094,7 +1106,14 @@ createApp({
         </span>
         </button>
         </div>
-        <p v-if="!courses.length">暂无课程。</p>
+        <div v-if="readiness && !readiness.data_ready" class="bootstrap-hint" role="status">
+          <strong>后台业务数据未初始化（登录本身已成功）</strong>
+          <p>当前缺少：{{ readiness.missing.join(' / ') }}。资源、实验、评测与统计模块需要这些数据才有内容；
+            「实验与演示 → 电路实验台」的电路模拟与验算不依赖业务数据，仍可正常使用。</p>
+          <p class="bootstrap-cmd">初始化示例：<code>python scripts/seed_teacher_course.py</code>、
+            <code>python scripts/seed_demo_roster.py</code>，随后由教师创建实验与测试集。</p>
+        </div>
+        <p v-if="!courses.length">课程列表为空：请由管理员或教师创建课程，或运行上面的初始化脚本后刷新。</p>
         <template v-if="courseId">
         <div class="course-summary">
         <button type="button" class="sum-tile" title="查看考勤与学情" @click="jump('stats')">
@@ -1171,6 +1190,7 @@ createApp({
         </template>
 
         <template v-if="tab === 'lab' && user.role !== 'admin'">
+        <CircuitLabView :key="'circuit-lab:' + user.id" :user="user" />
         <AluView :key="'alu:' + user.id" :user="user" />
         <DemoView v-if="user.role !== 'admin'" :key="'demo:' + user.id + ':' + user.role" :user="user" />
         <ExperimentView v-if="user.role !== 'admin'" :key="'experiments:' + user.id + ':' + user.role" :user="user" />

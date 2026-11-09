@@ -725,3 +725,10 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
   .tabbar { gap: 4px; padding: 5px; }
   .tabbar button { padding: 8px 10px; font-size: .82rem; }
 }
+
+/* 后台业务数据缺失时的登录引导（避免登录成功却一片空白） */
+.bootstrap-hint { margin: 12px 0; padding: 12px 14px; border-radius: 9px; background: #fff7e4; border: 1px solid #ecd297; border-left: 4px solid #e0a93b; font-size: .84rem; color: #755517; line-height: 1.7; }
+.bootstrap-hint strong { display: block; margin-bottom: 4px; color: #6b4a0d; }
+.bootstrap-hint p { margin: 4px 0; }
+.bootstrap-hint code { background: rgb(0 0 0 / 7%); padding: 1px 5px; border-radius: 4px; font-size: .8rem; }
+.bootstrap-cmd { opacity: .85; }

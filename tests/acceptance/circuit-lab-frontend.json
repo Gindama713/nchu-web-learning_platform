@@ -1,0 +1,130 @@
+[
+  {
+    "id": "F01",
+    "feature": "登录后后台数据缺失时页面给出归因引导",
+    "expected": "出现「后台数据未初始化」提示并列出缺失项；电路图与开关仍渲染；无渲染异常",
+    "actual": "引导可见、开关 11 个、无异常",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F02",
+    "feature": "后台数据正常时不误报缺失",
+    "expected": "不出现缺失引导条；状态卡显示「后台数据正常」",
+    "actual": "缺失引导已隐藏，状态卡为「后台数据正常」",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F03",
+    "feature": "电路控制界面视觉元素与参考图一致",
+    "expected": "芯片文字、导线、开关、指示灯、接地符号数量与 spec 定义一致",
+    "actual": "开关 11 / 灯 3 / 导线 15 全部正交",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F04",
+    "feature": "电路控制：开关切换 0/1 并刷新输出",
+    "expected": "A3 开关 aria-pressed 由 false 变 true，输出关系/反馈同步变化",
+    "actual": "aria-pressed true → false；反馈含 A3",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F05",
+    "feature": "电路控制：复位",
+    "expected": "输入复位为 A=B=0，反馈含「已复位」",
+    "actual": "A=B=0，反馈含「已复位」",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F06",
+    "feature": "电路控制：载入用例",
+    "expected": "点击用例后该行高亮，输入变为用例值",
+    "actual": "用例「A=2, B=11」已载入并高亮",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F07",
+    "feature": "电路模拟：验算当前用例",
+    "expected": "默认用例验算通过，反馈含「验算通过」",
+    "actual": "默认用例（A=9,B=3）验算通过",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F08",
+    "feature": "电路控制：提交与记录",
+    "expected": "提交后记录表新增 1 行且状态为「通过」",
+    "actual": "提交记录 1 行，状态「通过」，得分 100",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F09",
+    "feature": "进度环与完成提示",
+    "expected": "3 个用例全部提交后出现「本实验已通过」",
+    "actual": "3/3 用例通过，提示条出现",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F10",
+    "feature": "验证说明分页控件",
+    "expected": "点击「下一步」后页码变为 2 / 3",
+    "actual": "验证说明 2/3",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F11",
+    "feature": "电路图缩放",
+    "expected": "点击「放大」后反馈含缩放百分比",
+    "actual": "缩放 110%",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F12",
+    "feature": "多实验切换（74181 + 7400）",
+    "expected": "芯片 74181/7400 出现，开关数量与 74181 spec 一致，输出读数含 F[3:0]",
+    "actual": "74181/7400 已渲染，开关 14 个",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F13",
+    "feature": "控制位只读约束",
+    "expected": "点击 S3 提示「只读」，输入不被改写",
+    "actual": "S3 只读反馈正确",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F14",
+    "feature": "控件可访问性",
+    "expected": "所有开关具备 aria-label / aria-pressed，键盘事件已绑定",
+    "actual": "11 个开关均具备 ARIA 与键盘支持",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F15",
+    "feature": "电路模拟数值正确性",
+    "expected": "7485 全 2048 组合三路互斥完备；74181 全 512 组合 F=(A±B)&15",
+    "actual": "7485 2048 组 + 74181 512 组全部自洽",
+    "passed": true,
+    "scene": "frontend"
+  },
+  {
+    "id": "F16",
+    "feature": "后端不可用降级",
+    "expected": "出现「读取电路定义失败」提示与「重新加载」按钮",
+    "actual": "错误引导可见，无渲染异常",
+    "passed": true,
+    "scene": "frontend"
+  }
+]
