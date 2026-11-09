@@ -220,7 +220,7 @@ export const KnowledgeGraphView = {
           }, courses.value.map(course => h('option', { value: String(course.id) }, course.title ?? `课程 ${course.id}`)))]),
           h('button', {
             type: 'button', class: 'secondary', disabled: busy.value || rootId.value === null,
-            onClick: () => run(resetRoot),
+            onClick: () => resetRoot(),
           }, '显示全部'),
           h('button', {
             type: 'button', class: 'secondary',
@@ -262,7 +262,9 @@ export const KnowledgeGraphView = {
                 value: form.type,
                 onChange: event => { form.type = event.target.value },
               }, Object.entries(edgeTypes).map(([key, name]) => h('option', { value: key }, name)))]),
-              h('button', { type: 'button', disabled: busy.value, onClick: () => run(addEdge) }, '添加'),
+              // addEdge/resetRoot 内部已用 run 包装（busy/错误/提示），外层再包一层
+              // 会撞上 busy 守卫变成静默空操作：点击后既不发请求也无任何反馈。
+              h('button', { type: 'button', disabled: busy.value, onClick: () => addEdge() }, '添加'),
             ]),
           h('p', { class: 'graph-hint' }, '先修关系不允许成环，也不允许跨课程；重复添加同一条关系不会重复写入。'),
         ]),

@@ -4,7 +4,14 @@ import { PreparationClient } from './preparation-client.js'
 
 const STATUS = { draft: '草稿', published: '已发布', withdrawn: '已撤回' }
 const WINDOW = { upcoming: '未开始', open: '进行中', closed: '已结束' }
-const localValue = value => (value ? value.slice(0, 16) : '')
+// 与连线统计（SPEC-010C）一致：后端存 UTC，展示/编辑统一按 Asia/Shanghai（+08:00）。
+const shanghaiFormat = new globalThis.Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Shanghai',
+  year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' })
+const toShanghaiInput = value => {
+  const date = new Date(value ?? '')
+  return value && Number.isFinite(date.getTime()) ? shanghaiFormat.format(date).replace(' ', 'T') : ''
+}
+const fromShanghaiInput = value => (value ? new Date(`${value}+08:00`).toISOString() : null)
 const short = (text, size = 24) => (text && text.length > size ? `${text.slice(0, size)}…` : text ?? '')
 
 export const PreparationView = {
@@ -108,7 +115,7 @@ export const PreparationView = {
 
     function openEdit(item) {
       edit[item.id] = {
-        title: item.title, scheduled_at: localValue(item.scheduled_at), ...linkData(item),
+        title: item.title, scheduled_at: toShanghaiInput(item.scheduled_at), ...linkData(item),
       }
     }
 
@@ -125,7 +132,7 @@ export const PreparationView = {
         question_version_ids: collect(form.question_version_ids),
         quiz_ids: collect(form.quiz_ids),
       }
-      if (form.scheduled_at) data.scheduled_at = new Date(form.scheduled_at).toISOString()
+      if (form.scheduled_at) data.scheduled_at = fromShanghaiInput(form.scheduled_at)
       await api.create(courseId.value, data)
       Object.assign(form, {
         title: '', scheduled_at: '', knowledge_ids: [], resource_version_ids: [],
@@ -138,7 +145,7 @@ export const PreparationView = {
       const draft = edit[item.id]
       if (!draft.title.trim()) throw new Error('请填写备课标题')
       const data = { title: draft.title.trim(), ...linkData(draft) }
-      data.scheduled_at = draft.scheduled_at ? new Date(draft.scheduled_at).toISOString() : null
+      data.scheduled_at = fromShanghaiInput(draft.scheduled_at)
       await api.update(item.id, data)
       delete edit[item.id]
       await loadList()
@@ -294,7 +301,7 @@ export const PreparationView = {
           h('div', [
             h('strong', item.title),
             h('span', ` · ${statusText(item)} · ${
-              item.scheduled_at?.slice(0, 16).replace('T', ' ') ?? '无排期'}`),
+              toShanghaiInput(item.scheduled_at).replace('T', ' ') || '无排期'}`),
             teacher() && h('span', ` · 关联 ${linkCount(item)}`),
           ]),
           !teacher() && quizCell(item),

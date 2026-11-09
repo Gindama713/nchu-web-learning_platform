@@ -146,7 +146,7 @@ export const PaperView = {
             { disabled: busy.value || item.window_state !== 'closed' })]),
         !item.review_at && h('p', '截止后才可发布讲评。发布将向参与学生开放标准答案与解析。'),
         stats && h('div', [
-          h('p', `统计截至：${stats.source_until}`),
+          h('p', `统计截至：${paperTime(stats.source_until)}`),
           h('p', `应交 ${stats.expected_count} · 已交 ${stats.submitted_count} · 缺交 ${stats.missing_count} · 客观正确率 ${rate(stats.objective_correct_rate)}`),
           h('p', '漏答计入客观正确率分母；均分只计已定分；“—”表示无样本或不适用。多选各选项比例之和可以超过100%。'),
           h('ol', { class: 'paper-items' }, stats.questions.map((q, index) => h('li', { key: q.question_version_id }, [

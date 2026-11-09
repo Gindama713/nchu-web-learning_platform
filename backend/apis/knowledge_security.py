@@ -1,6 +1,7 @@
 """Consume SPEC-001 authentication without implementing identity or sessions."""
 
 from importlib import import_module
+from urllib.parse import urlparse
 
 from flask import current_app, request
 
@@ -21,7 +22,10 @@ class SharedSessionSecurity:
 
     def verify_write_request(self):
         expected = current_app.config.get("APP_ORIGIN")
-        if not expected or request.headers.get("Origin") != expected:
+        origin = request.headers.get("Origin")
+        # 与 app.py 的 trusted_origin 同口径：课堂部署 IP 不固定，
+        # Origin 与本次请求 Host 同源也放行，避免局域网访问时写入全部 403（DEF-001）。
+        if not expected or not (origin == expected or urlparse(origin).netloc == request.host):
             raise KnowledgeError(403, "CSRF_FAILED", "来源不受信任")
         try:
             self.check_csrf()

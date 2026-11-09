@@ -13,6 +13,7 @@ from backend.shared.api import (
     ApiError,
     audit,
     body,
+    non_negative_int,
     now,
     page_args,
     paged,
@@ -29,6 +30,13 @@ bp = Blueprint("wiring", __name__)
 MAX_ACTIONS_PER_SAVE = 500
 MAX_ACTIONS_TOTAL = 10000
 VALIDATOR_VERSION = "wiring-struct-v1"
+# 动作重放（engines.wiring.replay）会直接读这些键。缺失时不能等引擎 KeyError
+# 冒泡成 500（RE-001），在重放前统一挡成 400。undo/redo/step/reset 无必填键。
+ACTION_REQUIRED_FIELDS = {
+    "connect": ("id",),
+    "disconnect": ("wire_id",),
+    "set_input": ("terminal_id", "value"),
+}
 
 
 def _row(db, table, rid):
@@ -143,6 +151,15 @@ def save_attempt(aid):
         raise ApiError(400, "VALIDATION_ERROR", "actions must be a list")
     if len(actions) > MAX_ACTIONS_PER_SAVE:
         raise ApiError(400, "VALIDATION_ERROR", f"too many actions (max {MAX_ACTIONS_PER_SAVE})")
+    for act in actions:
+        if not isinstance(act, dict) or not isinstance(act.get("type"), str):
+            raise ApiError(400, "VALIDATION_ERROR", "each action requires a string type")
+        payload = act.get("payload", {})
+        if not isinstance(payload, dict):
+            raise ApiError(400, "VALIDATION_ERROR", "action payload must be an object")
+        for field in ACTION_REQUIRED_FIELDS.get(act["type"], ()):
+            if field not in payload:
+                raise ApiError(400, "VALIDATION_ERROR", f"{act['type']} payload missing {field}")
     with write() as db:
         row = _attempt_row(db, aid)
         if not row:
@@ -267,8 +284,6 @@ def submit_attempt(aid):
 def list_actions(aid):
     user = require_user()
     page, size = page_args()
-    if size > 500:
-        raise ApiError(400, "VALIDATION_ERROR", "page_size must be at most 500")
     after_seq = request.args.get("after_seq")
     db = get_db()
     row = _attempt_row(db, aid)
@@ -285,7 +300,8 @@ def list_actions(aid):
     params = [aid]
     if after_seq is not None:
         where.append("seq>?")
-        params.append(positive_int(after_seq, "after_seq"))
+        # 0 表示从头拉取（seq 从 1 开始），与前端 wiring-client 的默认参数一致。
+        params.append(non_negative_int(after_seq, "after_seq"))
     where_sql = " WHERE " + " AND ".join(where)
     total = db.execute("SELECT COUNT(*) FROM wiring_action" + where_sql, params).fetchone()[0]
     rows = db.execute(

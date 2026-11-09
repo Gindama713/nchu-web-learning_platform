@@ -84,9 +84,20 @@ export class WiringClient {
 
   version(id) { return this.request(`/experiment-versions/${id}`).then(body => body.data) }
 
-  actions(id, afterSeq = 0) {
-    return this.request(`/wiring-attempts/${id}/actions?after_seq=${afterSeq}&page=1&page_size=200`)
-      .then(body => body.data)
+  async actions(id, afterSeq = 0) {
+    // 动作历史可能超过单页上限 100（shared/api.page_args），循环取全量，
+    // 保证撤销栈重放与历史面板不因分页截断。
+    const items = []
+    let total = 0
+    for (let page = 1; ; page++) {
+      const data = (await this.request(
+        `/wiring-attempts/${id}/actions?after_seq=${afterSeq}&page=${page}&page_size=100`)).data
+      total = data.total
+      items.push(...data.items)
+      if (!data.items.length || items.length >= total) {
+        return { items, latest_seq: data.latest_seq, total }
+      }
+    }
   }
 
   create(versionId) {

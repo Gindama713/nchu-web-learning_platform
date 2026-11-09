@@ -9,6 +9,7 @@ export const PracticeView = {
   setup(props) {
     let api = new PracticeClient(props.user), epoch = 0
     const courses = ref([]), course = ref(''), mode = ref('public'), knowledge = ref(''), tags = ref([])
+    const knowledgeTitles = ref({})
     const rows = ref([]), page = ref(1), total = ref(0), selected = ref(null), value = ref(null)
     const pending = ref(null), result = ref(null), busy = ref(false), error = ref(''), notice = ref('')
     function clear() { rows.value = []; total.value = 0; selected.value = null; value.value = null; pending.value = null; result.value = null }
@@ -38,12 +39,25 @@ export const PracticeView = {
       rows.value = data.data; total.value = data.total
       tags.value = [...new Set([...tags.value, ...data.data.flatMap(item => item.knowledge_ids)])].sort((a, b) => a - b)
     }
+    async function loadKnowledgeTitles(ticket) {
+      knowledgeTitles.value = {}
+      if (!course.value) return
+      try {
+        const points = await api.knowledge(course.value)
+        if (ticket !== epoch) return
+        knowledgeTitles.value = Object.fromEntries(points.map(point => [point.id, point.title]))
+      } catch {
+        // 标题只是筛选器可读性优化，失败时保留“知识点 #id”回退，不阻塞练习。
+      }
+    }
+    const tagLabel = id => knowledgeTitles.value[id] ? `知识点 ${knowledgeTitles.value[id]}` : `知识点 #${id}`
     async function boot(ticket) {
       clear(); courses.value = []
       const available = await api.courses()
       if (ticket !== epoch) return
       courses.value = available
       if (!available.some(c => String(c.id) === course.value)) course.value = available.length ? String(available[0].id) : ''
+      await loadKnowledgeTitles(ticket)
       await load(ticket)
     }
     async function openEntry(ticket) {
@@ -55,6 +69,7 @@ export const PracticeView = {
       if (!available.some(row => String(row.id) === String(entry.courseId))) throw Object.assign(new Error('推荐课程已不可访问。'), { status: 404 })
       courses.value = available; course.value = String(entry.courseId); knowledge.value = String(entry.knowledgeId)
       mode.value = 'public'; page.value = 1
+      await loadKnowledgeTitles(ticket)
       for (;;) {
         await load(ticket)
         if (ticket !== epoch) return
@@ -70,7 +85,8 @@ export const PracticeView = {
       if (props.user.role === 'student') run(openEntry)
     })
     function change(action) {
-      epoch++; busy.value = false; clear(); page.value = 1; action(); run(ticket => load(ticket))
+      epoch++; busy.value = false; clear(); page.value = 1; action()
+      run(async ticket => { await loadKnowledgeTitles(ticket); await load(ticket) })
     }
     function choose(item) {
       if (pending.value) return
@@ -117,7 +133,7 @@ export const PracticeView = {
       busy.value && h('p', { role: 'status' }, '正在加载或保存练习…'),
       error.value && h('p', { role: 'alert' }, error.value), notice.value && h('p', { role: 'status' }, notice.value),
       mode.value === 'public' && select('练习课程', course.value, val => change(() => { course.value = val; tags.value = []; knowledge.value = '' }), courses.value.map(c => [String(c.id), c.title])),
-      select('筛选错题或练习知识标签', knowledge.value, val => change(() => { knowledge.value = val }), [['', '全部标签'], ...tags.value.map(id => [String(id), `知识点 #${id}`])]),
+      select('筛选错题或练习知识标签', knowledge.value, val => change(() => { knowledge.value = val }), [['', '全部标签'], ...tags.value.map(id => [String(id), tagLabel(id)])]),
       h('p', `共 ${total.value} 道${mode.value === 'wrong' ? '错题' : '公开练习题'}`),
       h('ul', { class: 'rows' }, rows.value.map(item => h('li', { key: item.id }, [
         button(`#${item.id} · v${item.version} · ${item.stem}`, () => choose(item), !!pending.value),

@@ -123,10 +123,20 @@ class KnowledgeGraphTest(TestCase):
         self.store.add_edge(1, 1, {"source_id": self.adder, "target_id": self.alu, "type": "prerequisite"})
         self.store.add_edge(1, 1, {"source_id": self.reg, "target_id": self.alu, "type": "prerequisite"})
         self.store.add_edge(1, 1, {"source_id": self.alu, "target_id": self.cpu, "type": "contains"})
-        # 以 ALU 为根：应包含 ALU、加法器、寄存器（先修），但不含 CPU（contains 不算先修路径）
+        # 以 ALU 为根：先修相关的加法器、寄存器与包含关系的 CPU 都算相关节点（DEF-005）
         graph = self.store.knowledge_graph(1, 1, root_id=self.alu)
         related_ids = {n["id"] for n in graph["nodes"]}
-        self.assertEqual(related_ids, {self.alu, self.adder, self.reg})
+        self.assertEqual(related_ids, {self.alu, self.adder, self.reg, self.cpu})
+        edge_types = {(e["source"], e["target"], e["type"]) for e in graph["edges"]}
+        self.assertIn((self.alu, self.cpu, "contains"), edge_types)
+
+    def test_added_contains_edge_visible_in_subgraph(self):
+        # 添加「包含」关系后立刻按根过滤，新后继必须出现在子图里（DEF-005 回归）
+        self.store.add_edge(1, 1, {"source_id": self.alu, "target_id": self.adder, "type": "contains"})
+        graph = self.store.knowledge_graph(1, 1, root_id=self.alu)
+        self.assertIn(self.adder, {n["id"] for n in graph["nodes"]})
+        edge_types = {(e["source"], e["target"], e["type"]) for e in graph["edges"]}
+        self.assertIn((self.alu, self.adder, "contains"), edge_types)
 
     def test_mastery_from_real_progress(self):
         # 学生 2 完成 ALU
