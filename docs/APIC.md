@@ -418,6 +418,20 @@ GET /alu74181/table 一次返回 2×16×16 共 512 条全组合结果，前端�
 GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—15 的整数，op 只接受 add/sub，否则 400 VALIDATION_ERROR。
 
 口径约定：Cn+4 为低有效进位输出，加法结果溢出时该位为 0；减法走 A + B̄ + 1，A 大于等于 B 时最高位有进位、Cn+4 为 0，A 小于 B 时 Cn+4 为 1 表示借位。A=B 为开集电极输出，两数相等时有效。上述结果在 tests/test_alu74181.py 中与整数运算逐组比对，512 组全部一致。
+
+### 13.1 SPEC-009 电路实验台（7485/74181）
+
+电路实验台复用现有实验/评测事实表，不新增迁移。`spec`、`compute`、`table` 为纯计算公开接口，与 `/alu74181/*` 演示接口一致；`bootstrap` 逐表返回就绪状态与记录数，必须登录，避免匿名枚举业务表。空库或迁移未完成时，就绪项 `count=null`、`ready=false`，不把 SQL 原始错误返回客户端。
+
+| 方法与路径 | 入参 | data返回 | 权限/错误 |
+|---|---|---|---|
+| GET /circuit-lab/spec | 无 | `{experiments:[7485/74181 定义],data_ready,missing,chips}`；定义含 pins/wires/cases/control_rows/outputs，前端只渲染不猜坐标 | 公开；只返回 missing 名称，不含各表记录数 |
+| GET /circuit-lab/bootstrap | 无 | `{data_ready,missing,items:[{key,label,count,ready,hint}],total_items,ready_items}`；逐项覆盖 course/course_member/experiment/experiment_version/judge_profile/test_case/grading_run/resource | 登录用户；未登录 401；缺表时该项 count=null、ready=false |
+| GET /circuit-lab/compute | chip=7485：a,b=0—15，i_lt/i_eq/i_gt=0/1 可选；chip=74181：a,b=0—15，op=add/sub | 7485 返回 a/b/级联输入、gt/eq/lt、relation、bits；74181 返回既有加减运算字段 | 公开；仅接受 ASCII 十进制，`--1`/`²`/`1_0`/超长整数/越界均 400 VALIDATION_ERROR；chip 只接受 7485/74181 |
+| GET /circuit-lab/table | chip=7485 或 74181 | `{chip,count,rows}`；7485 为 16×16×2×2×2=2048 行，74181 为 2×16×16=512 行 | 公开；chip 非法 400 VALIDATION_ERROR |
+
+`readiness()` 的就绪判定只看上述既有表是否有记录，不写成绩、不替代 SPEC-018 的真实引擎评测；`data_ready=false` 只解释“登录后看不到业务数据”，电路模拟与真值表仍可用。
+
 ## 14 第10周互测补充接口 SPEC-001/002
 
 ### 14.1 账号与名单

@@ -1,5 +1,11 @@
 # 变更日志与发布回滚手册
 
+## 2026-11-09 电路实验台与数据就绪引导
+
+在 PR #83（`feature/spec-018-circuit-lab`，作者 Stephen-sbh，基于 develop 359a5ad）补 APIC 契约并同步到已含 #80 的 develop。新增 SPEC-009 电路实验台：`/circuit-lab/spec`、`/compute`、`/table` 为纯计算公开接口，`/bootstrap` 需登录并逐表返回 course/course_member/experiment/experiment_version/judge_profile/test_case/grading_run/resource 的记录数与补全建议；空库或迁移未完成时该项 `count=null`、`ready=false`，不回传 SQL 错误文本。前端新增 7485/74181 实验台、真值表/验证用例/提交记录和登录后数据就绪引导条；不新增数据库迁移，也不把 readiness 当作真实评测结果。
+
+合入前将 develop `6d737fc` 合入分支，解决 `frontend/js/main.js` 与 #80 的冲突：保留 #80 的 CSRF 失效重试和座位/签到逻辑，同时加入 #83 的 `loadReadiness`。文档补 APIC 第13.1节；DBD 无 schema 变化。验证：PR #83 head CI 的 `ci-policy/test/build/lint/required` 全 success（develop 无 `ci-grader`），PR 记录的后端 448 项、前端 211 项和双场景验收 118/118 保留在其证据中；合并提交 `6f24b7c` 后的前端 lint/build 与文档检查按本地复核。本 PR 不在 #82 的 main 发布范围内，合入 develop 后仍需下一次 release；未部署、未执行生产迁移。回退 revert 本 PR 即可，不涉及数据库或历史成绩；保留 `tests/acceptance` 证据，不改电路模拟与真值表算法的外部契约。
+
 ## 2026-11-09 第10周签到/座位图与 026 任务级手势
 
 在 PR #80（`feature/week10-attendance-checkin`，基于 develop `359a5ad`）补齐文档并准备合入 develop。026 只给 `attendance_task` 增加 `gesture_hash`：手势图案由教师创建点到任务时通过可选 `pattern` 指定，学生不再自设图案；任务接口返回 `has_gesture`，创建/列表不返回图案或哈希。移除 `/auth/gesture` 的个人设置端点，签到 `POST /attendance-tasks/{id}/check-ins` 以 `code` 或 `pattern` 二选一，任务未开手势返回 422 `GESTURE_NOT_ENABLED`。学生首次在空教室点空位即选座：插 `class_seat` 并为课程已发布任务补 `attendance_seat` 快照，不再要求教师先排座。另含开发环境 SECRET_KEY 落盘、`GET /auth/session` 自动修复旧 CSRF 哈希及前端 CSRF 重试；学情面板收起内部口径、0 样本空态，预警/连线统计只对教师展示。
