@@ -5,7 +5,13 @@ import { WarningClient } from './warning-client.js'
 const REASONS = {
   LOW_OBJECTIVE_RATE: { title: '客观题正确率偏低', level: 'high' },
   RECENT_ATTENDANCE: { title: '考勤连续异常', level: 'mid' },
-  RELATIVE_WEAK_CLUSTER: { title: '班级相对偏弱（KMeans 聚类）', level: 'low' },
+  RELATIVE_WEAK_CLUSTER: { title: '班级内相对偏弱', level: 'low' },
+}
+// 后端报错是英文的，老师看不懂；按错误码翻成人话，认不出来才退回原文
+const ERROR_TEXT = {
+  FORBIDDEN: '这门课你只有查看权限，预警要任课教师才能生成。',
+  UNAUTHORIZED: '登录已过期，重新登录再试。',
+  RATE_LIMITED: '操作太频繁，稍等一下再点。',
 }
 const ATTENDANCE_TEXT = { late: '迟到', absent: '缺勤', present: '出勤', leave: '请假' }
 const runTimeFormat = new globalThis.Intl.DateTimeFormat('zh-CN', {
@@ -78,7 +84,7 @@ export const WarningView = {
       if (busy.value) return
       busy.value = true; error.value = ''; notice.value = ''
       try { await action(); notice.value = success } catch (failure) {
-        error.value = failure.message
+        error.value = ERROR_TEXT[failure.code] ?? failure.message
         if (failure.status === 401) courses.value = []
       } finally { busy.value = false }
     }
@@ -198,8 +204,12 @@ export const WarningView = {
       const handled = items.value.length - pending
       return h('section', { class: 'card warn-card' }, [
         h('h2', {}, '学习预警'),
-        h('p', {}, '证据来自真实客观作答、最近两次考勤与班级相对聚类。预警只用于提示教师，不写处分、不改成绩。'
-        + '聚类需至少 10 名三项分母齐全且客观作答 ≥5 的学生、至少 2 种不同特征行，否则降级为 insufficient_data，只输出有证据的规则提示。'),
+        h('p', {}, '只提示，不处分、不改成绩。点「生成预警批次」，按最近两次考勤和客观题作答算一次。'),
+        h('details', { class: 'warn-scope' }, [
+          h('summary', {}, '什么时候会提示'),
+          h('p', {}, '客观题正确率低于 60%、最近两次考勤连续异常、或在班里相对偏弱时会列出来。'
+            + '班级对比需要至少 10 名数据齐全、客观作答 5 题以上的学生；人数不够就只按前两条规则提示，不做班级排名。'),
+        ]),
 
         h('div', { class: 'inline-form' }, [
           h('label', {}, ['课程', h('select', {

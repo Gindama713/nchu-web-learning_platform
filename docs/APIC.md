@@ -63,9 +63,9 @@ GET /auth/session的expires_at与服务端闲置超时一致。
 
 | 方法与路径 | 入参 | data返回 | 权限/业务错误 |
 |---|---|---|---|
-| POST /courses/{id}/attendance-tasks | title,start_at,late_at,end_at | AttendanceTask:{id,title,start_at,late_at,end_at,status,code_expires_at,code} | T；start≤late≤end且start<end；code仅在本次创建响应一次返回，code_expires_at=end_at |
-| GET /courses/{id}/attendance-tasks | status?，分页 | 任务列表，所有角色均不含code/code_hash/扫码令牌 | L |
-| POST /attendance-tasks/{id}/check-ins | code:6位数字（扫码也解析为该令牌） | AttendanceRecord:{id,status,checked_at} | S；同人重复返回原记录；窗口外409；错误码422 INVALID_ATTENDANCE_CODE；每分钟5次失败限流 |
+| POST /courses/{id}/attendance-tasks | title,start_at,late_at,end_at,pattern? | AttendanceTask:{id,title,start_at,late_at,end_at,status,code_expires_at,code,has_gesture} | T；start≤late≤end且start<end；pattern为4—9个互不重复的0—8点，可选，不传则本次任务不开手势签到；code仅在本次创建响应一次返回，code_expires_at=end_at；任何响应都不返回gesture_hash |
+| GET /courses/{id}/attendance-tasks | status?，分页 | 任务列表，每项含has_gesture与participants（发布时冻结的参与人数），所有角色均不含code/code_hash/gesture_hash/扫码令牌 | L |
+| POST /attendance-tasks/{id}/check-ins | code:6位数字 或 pattern:4—9个0—8点（二选一） | AttendanceRecord:{id,status,checked_at,source} | S；code对应source=checkin，pattern对应gesture；任务未开手势422 GESTURE_NOT_ENABLED，图案错误422 INVALID_GESTURE，签到码错误422 INVALID_ATTENDANCE_CODE，两者同时传或都不传422 VALIDATION_ERROR；同人重复返回原记录；窗口外409；每分钟5次失败限流 |
 | POST /attendance-tasks/{id}/close | 无 | Task及各状态人数 | T；重复关闭返回现态 |
 | POST /attendance-tasks/{id}/rotate-code | 无 | {code,expires_at}及教师扫码内容 | T；只在开放窗口内轮换，一次返回明文，原码立即失效 |
 | POST /attendance-tasks/{id}/leave-requests | reason:1—500 | Leave:{id,status:pending,reason} | S；同任务同学生仅1项有效申请 |
@@ -428,7 +428,9 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 
 `class_seat(course_id, student_id, class_name, group_no, seat_no)` 保存课程内的座位安排，同一班级内「组号-座号」唯一；一个课程可容纳多个班，各班座位互不冲突。
 
-创建点到任务时，按冻结参与人把座位复制进 `attendance_seat(task_id, student_id, group_no, seat_no)`，形成任务级快照；之后调整课程座位表不会改动已发布任务的历史布局。课程尚未排座时快照为空，界面退回名单列表。
+创建点到任务时，按冻结参与人把座位复制进 `attendance_seat(task_id, student_id, group_no, seat_no)`，形成任务级快照；之后调整课程座位表不会改动已发布任务的历史布局。课程尚未排座时快照为空，界面退回名单列表。学生在空教室首次点空位时，`PUT /courses/{id}/me/seat` 会插入 `class_seat`，并为该课程已发布任务中本人尚无快照的行补 `attendance_seat`，不再返回“未排座”。
+
+手势签到由教师创建任务时通过可选 `pattern` 指定，图案只存 `attendance_task.gesture_hash` 哈希；任务列表只返回 `has_gesture`，学生端不再提供自设图案的 `/auth/gesture` 端点。
 
 `GET /attendance-tasks/{id}/seats` 返回 `{task, classes:[{class_name, seats:[{student_id,student_no,name,group_no,seat_no,status,checked_at}]}], unseated}`，`status` 取 present/late/leave/absent，尚无记录时为 pending。学生只能看本人记录的限制不变，该接口沿用任务的课程访问校验。
 
@@ -461,7 +463,7 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 
 | 接口 | 权限 | 说明 |
 |---|---|---|
-| PUT /courses/{id}/me/seat | S | 坐到空位，body `{group_no,seat_no}`；目标有人返回 409 SEAT_TAKEN，越界 422 OUT_OF_RANGE，未排座 404 NOT_SEATED |
+| PUT /courses/{id}/me/seat | S | 坐到空位，body `{group_no,seat_no}`；首次点空位即选座，插 `class_seat` 并补 `attendance_seat` 快照；目标有人返回 409 SEAT_TAKEN，越界 422 OUT_OF_RANGE |
 | POST /courses/{id}/seat-swaps | S | 发起换位申请，body `{target_student_id}`，成功 201；与自己换 409 CANNOT_SWAP_SELF，对方未排座 404 TARGET_NOT_SEATED，已有 pending 409 SWAP_PENDING_EXISTS，对方正在申请自己 409 SWAP_ALREADY_ASKED |
 | GET /courses/{id}/seat-swaps | S | 我发出的、发给我的各最近 10 条，附 `ttl_minutes` |
 | GET /seat-swaps/incoming | S | 跨课程拉「等我答复」的申请，登录后弹窗用 |

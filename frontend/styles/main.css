@@ -78,6 +78,14 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outli
 .sum-tile { display: grid; gap: 2px; padding: 14px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
 .sum-tile span { font-size: .78rem; color: var(--muted); }
 .sum-tile strong { font-size: 1.9rem; line-height: 1.15; color: var(--primary); font-variant-numeric: tabular-nums; }
+/* 概览里的统计块现在是可以点的入口：按钮化之后要自己接管字体与对齐 */
+button.sum-tile {
+  text-align: left; font: inherit; color: inherit; cursor: pointer;
+  transition: border-color .15s ease, box-shadow .15s ease, transform .12s ease;
+}
+button.sum-tile:hover { border-color: var(--primary); box-shadow: 0 6px 16px -12px rgb(43 54 117 / 55%); }
+button.sum-tile:active { transform: translateY(1px); }
+button.sum-tile:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
 .course-hint { color: var(--muted); font-size: .88rem; margin: 4px 0 8px; }
 
 /* 考勤卡片 */
@@ -92,6 +100,7 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outli
 .att-badge.pending { background: #fff4d6; color: #8c5a00; }
 .att-badge.approved { background: #e6f6ea; color: #1c5c2e; }
 .att-badge.rejected { background: #fdecea; color: #8c2b20; }
+.att-badge.gesture { background: #ecefff; color: var(--primary); }
 .att-time { margin-left: auto; color: var(--muted); font-size: .78rem; font-variant-numeric: tabular-nums; }
 .att-bar { height: 10px; border-radius: 8px; background: var(--surface-2); overflow: hidden; }
 .att-bar i.good { background: #2e7d4f; }
@@ -101,6 +110,55 @@ a:focus-visible, summary:focus-visible { outline: 3px solid var(--accent); outli
 .att-meta { margin: 0; color: var(--muted); font-size: .84rem; }
 .att-meta b { color: var(--primary); font-size: 1rem; margin-left: 4px; }
 .att-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+/* 「看看我坐哪」：点一下在任务卡里下拉展开座位图，展开/收起都带动画 */
+.seat-trigger {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 14px 8px 12px; border-radius: 10px;
+  border: 1px solid #cfdcee; background: #fff; color: var(--primary);
+  font: inherit; font-size: .88rem; font-weight: 500; cursor: pointer;
+  transition: border-color .15s, background .15s, box-shadow .15s, transform .15s, color .15s;
+}
+.seat-trigger:hover {
+  border-color: var(--primary); background: #f4f8fd; transform: translateY(-1px);
+  box-shadow: 0 8px 18px -12px rgb(23 59 108 / 60%);
+}
+.seat-trigger:active { transform: translateY(0); }
+.seat-trigger:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.seat-trigger .seat-ico { width: 15px; height: 15px; fill: currentColor; opacity: .75; }
+.seat-trigger .seat-chev {
+  width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.4;
+  stroke-linecap: round; stroke-linejoin: round; opacity: .65;
+  transition: transform .24s ease;
+}
+.seat-trigger.open { background: var(--primary); border-color: var(--primary); color: #fff; }
+.seat-trigger.open .seat-chev { transform: rotate(180deg); opacity: .9; }
+.seat-trigger.open .seat-ico { opacity: .95; }
+.att-seat-drop { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .26s cubic-bezier(.2, .8, .3, 1); }
+.att-seat-drop.open { grid-template-rows: 1fr; }
+.att-seat-inner { overflow: hidden; min-height: 0; }
+.att-seat-inner > .seatmap { margin-top: 6px; }
+.seatmap-fallback {
+  margin: 6px 0 0; padding: 14px 16px; border-radius: 12px;
+  border: 1px dashed var(--line-strong); background: var(--surface-2); color: var(--muted); font-size: .86rem;
+}
+/* 任务行里的签到入口：签到本来就不依赖座位，座位图出问题也不该挡住学生 */
+.att-checkin-cta {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 10px; border: 1px solid var(--primary);
+  background: var(--primary); color: #fff; font: inherit; font-size: .88rem; font-weight: 600;
+  cursor: pointer; transition: background .15s, transform .15s, box-shadow .15s;
+}
+.att-checkin-cta:hover {
+  background: #1b2f5e; transform: translateY(-1px);
+  box-shadow: 0 8px 18px -12px rgb(23 59 108 / 70%);
+}
+.att-checkin-cta:active { transform: translateY(0); }
+.att-checkin-cta:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .att-seat-drop { transition: none; }
+  .seat-trigger { transition: none; }
+  .seat-trigger .seat-chev { transition: none; }
+}
 .att-code { padding: 12px 16px; border-radius: 12px; background: var(--primary); color: #fff; display: flex; flex-wrap: wrap; gap: 12px; align-items: baseline; }
 .att-code strong { font-size: 1.6rem; letter-spacing: .18em; font-variant-numeric: tabular-nums; }
 .att-code small { color: #c8d8ef; font-size: .8rem; }
@@ -509,6 +567,71 @@ input:hover, select:hover, textarea:hover { border-color: #b9c8dd; }
   .swap-dialog { padding: 22px 20px 18px; }
   .swap-actions { flex-direction: column; }
 }
+
+/* 点座位后弹出的签到浮层：签到方式由老师开课决定，学生只负责填码或画手势。 */
+.checkin-modal {
+  position: fixed; inset: 0; z-index: 70; display: grid; place-items: center; padding: 20px;
+  background: rgb(15 32 55 / 55%); backdrop-filter: blur(2px);
+}
+.checkin-dialog {
+  width: min(400px, 100%); display: grid; gap: 12px; padding: 24px 24px 20px;
+  border-radius: 16px; background: #fff; box-shadow: 0 24px 60px -20px rgb(9 24 44 / 55%);
+}
+.checkin-eyebrow { margin: 0; font-size: .78rem; letter-spacing: .04em; color: var(--muted); }
+.checkin-dialog h3 { margin: 0; font-size: 1.2rem; color: var(--brand); }
+.checkin-when { margin: 0; font-size: .82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.checkin-form { display: grid; gap: 10px; }
+.checkin-form label { display: grid; gap: 6px; font-size: .82rem; color: var(--muted); }
+.checkin-form input {
+  padding: 12px 14px; font-size: 1.3rem; letter-spacing: .34em; font-variant-numeric: tabular-nums;
+  text-align: center; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2); color: var(--primary);
+}
+.checkin-form button { padding: 11px; font-size: .92rem; }
+/* 占位符别做成「像已经填好了」的样子：000000 要明显比真实输入浅 */
+.checkin-form input::placeholder { color: #c8cfdd; font-weight: 400; letter-spacing: .3em; }
+/* 失败提示写在弹层里：不关面板，改一下就能再交一次 */
+.checkin-error {
+  margin: 0; padding: 9px 12px; border-radius: 10px; border: 1px solid #f3c9c3;
+  background: #fdecea; color: #8c2b20; font-size: .84rem; line-height: 1.5;
+}
+/* 签到成功：先弹三秒，再在座位图上方留一条常驻的 */
+/* 3 秒 toast 放在底部：座位图上方的绿条要一直看得见，别被它盖住 */
+.checkin-toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 80;
+  padding: 11px 22px; border-radius: 999px; background: #1c5c2e; color: #fff;
+  font-size: .9rem; box-shadow: 0 16px 40px -16px rgb(9 24 44 / 55%);
+  animation: checkin-toast-in .18s ease-out;
+}
+@keyframes checkin-toast-in {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+.checkin-notice {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin: 10px 0 0; padding: 10px 14px; border-radius: 12px;
+  border: 1px solid #bfe3cc; background: #e9f8ef; color: #1c5c2e; font-size: .86rem;
+}
+.checkin-notice b { font-weight: 600; }
+.checkin-notice-status { padding: 1px 10px; border-radius: 999px; background: #cdeed9; font-size: .76rem; }
+.checkin-notice button { margin-left: auto; }
+@media (prefers-reduced-motion: reduce) { .checkin-toast { animation: none; } }
+.checkin-gesture { display: grid; gap: 6px; justify-items: center; }
+.checkin-gesture .gesture-pad { width: 220px; height: 220px; }
+.checkin-leave { border-top: 1px dashed var(--line); padding-top: 10px; }
+.checkin-leave summary { cursor: pointer; font-size: .82rem; color: var(--muted); }
+.checkin-leave .inline-form { margin-top: 8px; }
+.checkin-actions { display: flex; }
+.checkin-actions button { flex: 1 1 0; }
+/* 老师发布任务时的手势口令区 */
+.task-pattern {
+  display: grid; gap: 8px; justify-items: start; margin-top: 14px; padding: 14px;
+  border: 1px dashed var(--line); border-radius: 12px; background: var(--surface-2);
+}
+.task-pattern-head { margin: 0; font-size: .86rem; font-weight: 600; color: var(--primary); display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; }
+.task-pattern-head b { font-size: .76rem; font-weight: 500; padding: 2px 8px; border-radius: 999px; }
+.task-pattern-head b.set { color: #1c7a4a; background: #e6f6ec; }
+.task-pattern-head b.unset { color: var(--muted); background: #eef2f7; }
+.task-pattern .att-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .seatmap-detail button { margin-left: 8px; }
 .seat-rosters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 16px; }
 @media (max-width: 900px) { .seat-rosters { grid-template-columns: 1fr; } }

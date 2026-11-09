@@ -172,6 +172,39 @@ class SeatSwapTest(TestCase):
         self.assertEqual(far.status_code, 422, far.json)
         self.assertEqual(far.json["error"]["code"], "OUT_OF_RANGE")
 
+    def test_empty_classroom_first_pick_creates_seat_and_snapshot(self):
+        """教室还没排座时，学生点空位就是「选座」：课程座位表和点到快照都要补上。"""
+        db = connect(self.path)
+        try:
+            db.execute("DELETE FROM class_seat WHERE course_id=?", (self.course_id,))
+            db.execute("DELETE FROM attendance_seat WHERE task_id=?", (self.task_id,))
+            db.commit()
+        finally:
+            db.close()
+        self.assertIsNone(self.seat_of(self.numbers[0]))
+        self.assertIsNone(self.snapshot_of(self.numbers[0]))
+
+        picked = self.call(self.jia, "PUT", f"/api/v1/courses/{self.course_id}/me/seat",
+                           {"group_no": 3, "seat_no": 4})
+        self.assertEqual(picked.status_code, 200, picked.json)
+        self.assertEqual(self.seat_of(self.numbers[0]), (3, 4))
+        self.assertEqual(self.snapshot_of(self.numbers[0]), (3, 4))
+
+        # 座位图接口要真的看得见这次选座，不能只改了库里的另一张表
+        board = self.jia.get(f"/api/v1/attendance-tasks/{self.task_id}/seats")
+        self.assertEqual(board.status_code, 200, board.json)
+        seats = board.json["data"]["seats"]
+        self.assertEqual(len(seats), 1)
+        self.assertEqual(seats[0]["student_no"], self.numbers[0])
+        self.assertEqual((seats[0]["group_no"], seats[0]["seat_no"]), (3, 4))
+
+        # 第二个人不能把已经被选走的位置抢走
+        taken = self.call(self.yi, "PUT", f"/api/v1/courses/{self.course_id}/me/seat",
+                          {"group_no": 3, "seat_no": 4})
+        self.assertEqual(taken.status_code, 409, taken.json)
+        self.assertEqual(taken.json["error"]["code"], "SEAT_TAKEN")
+        self.assertIsNone(self.seat_of(self.numbers[1]))
+
     # ---- 发起申请 ---------------------------------------------------------
 
     def test_request_notifies_target(self):
