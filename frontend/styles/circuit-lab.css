@@ -1,0 +1,201 @@
+/* SPEC-009 电路实验台：与课堂作品对齐的芯片级电路控制界面。 */
+.clab {
+  display: grid;
+  grid-template-columns: 208px minmax(0, 1fr);
+  gap: 0;
+  background: #f6f8fc;
+  border: 1px solid #dce4ee;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 26px rgb(23 59 108 / 8%);
+}
+
+.clab-side {
+  background: #34313f;
+  color: #e9e7f2;
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 620px;
+}
+.clab-side-title {
+  font-size: .72rem;
+  letter-spacing: .14em;
+  color: #a8a3bd;
+  margin: 14px 8px 4px;
+  text-transform: uppercase;
+}
+.clab-side-title:first-child { margin-top: 2px; }
+.clab-side-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 10px 9px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #d9d6e6;
+  font-size: .84rem;
+  text-align: left;
+  cursor: pointer;
+  line-height: 1.35;
+}
+.clab-side-item:hover { background: rgb(255 255 255 / 8%); }
+.clab-side-item.active { background: #6558d6; color: #fff; box-shadow: 0 3px 10px rgb(101 88 214 / 40%); }
+.clab-side-dot { width: 7px; height: 7px; border-radius: 50%; background: #8e88a6; flex: none; }
+.clab-side-item.active .clab-side-dot { background: #d9ff8c; }
+.clab-legend { list-style: none; margin: 2px 0; padding: 0 8px; display: grid; gap: 8px; font-size: .76rem; color: #bfbacf; }
+.clab-legend li { display: flex; align-items: center; gap: 8px; }
+.clab-legend i { width: 15px; height: 15px; flex: none; border-radius: 3px; }
+.lg-sw { background: #d9e86a; border: 1px solid #4b4b4b; }
+.lg-lamp { border-radius: 50%; background: #e0504a; border: 1px solid #a3302b; }
+.lg-wire { height: 3px; background: #7aa93c; border: 0; border-radius: 2px; }
+.lg-gnd { height: 3px; background: #3f7a2a; border-bottom: 2px solid #3f7a2a; border-radius: 0; }
+.clab-side-status {
+  margin-top: auto;
+  padding: 12px 10px;
+  border-radius: 9px;
+  display: grid;
+  gap: 3px;
+  font-size: .76rem;
+  background: rgb(255 255 255 / 7%);
+  border: 1px solid rgb(255 255 255 / 10%);
+}
+.clab-side-status strong { font-size: .84rem; }
+.clab-side-status.ok strong { color: #a9e6bb; }
+.clab-side-status.warn strong { color: #ffd48a; }
+.clab-side-status span { color: #b9b4c9; }
+
+.clab-main { padding: 16px 18px 20px; min-width: 0; }
+.clab-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.clab-eyebrow { margin: 0 0 3px; font-size: .72rem; letter-spacing: .1em; color: #8b97ad; }
+.clab-head h2 { margin: 0; font-size: 1.12rem; color: #23375a; }
+.clab-tools { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.clab-tool {
+  border: 1px solid #cfd9e9;
+  background: #fff;
+  color: #3c4d67;
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: .76rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.clab-tool:hover:not(:disabled) { border-color: #6558d6; color: #4c40bb; }
+.clab-tool:disabled { opacity: .55; cursor: default; }
+.clab-tool.primary { background: #6558d6; border-color: #6558d6; color: #fff; }
+.clab-tool.primary:hover { background: #5547c6; color: #fff; }
+
+.clab-alert { margin: 12px 0 0; padding: 10px 13px; border-radius: 8px; font-size: .8rem; line-height: 1.6; }
+.clab-alert strong { display: inline-block; margin-right: 6px; }
+.clab-alert p { margin: 5px 0 0; }
+.clab-alert code { background: rgb(0 0 0 / 7%); padding: 1px 5px; border-radius: 4px; font-size: .76rem; }
+.clab-alert.warn { background: #fff6df; border: 1px solid #efd18a; color: #7a5a12; }
+.clab-alert.error { background: #fdecea; border: 1px solid #efb7b1; color: #8d2f28; }
+
+.clab-grid {
+  display: grid;
+  grid-template-columns: 214px minmax(0, 1fr) 236px;
+  gap: 12px;
+  margin-top: 12px;
+  align-items: start;
+}
+.clab-doc, .clab-panel, .clab-canvas {
+  background: #fff;
+  border: 1px solid #e2e8f2;
+  border-radius: 10px;
+  padding: 12px;
+  min-width: 0;
+}
+.clab-progress { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid #eef2f8; }
+.clab-ring { width: 56px; height: 56px; transform: rotate(-90deg); flex: none; }
+.clab-ring-bg { fill: none; stroke: #e9edf5; stroke-width: 6; }
+.clab-ring-fg { fill: none; stroke: #6558d6; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset .35s ease; }
+.clab-progress div { display: grid; gap: 2px; }
+.clab-progress strong { font-size: 1.12rem; color: #23375a; }
+.clab-progress span { font-size: .74rem; color: #7d8aa2; }
+.clab-doc h3, .clab-panel h3 { margin: 12px 0 6px; font-size: .88rem; color: #23375a; }
+.clab-panel h3:first-child { margin-top: 0; }
+.clab-doc-body { font-size: .78rem; line-height: 1.75; color: #5b6a82; margin: 0 0 8px; }
+.clab-hint { font-size: .76rem; line-height: 1.6; color: #96690c; background: #fff8e6; border-left: 3px solid #e6b850; padding: 7px 9px; margin: 0; border-radius: 0 5px 5px 0; }
+.clab-pager { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 14px; color: #8390a6; font-size: .78rem; }
+.clab-pager button { width: 26px; height: 26px; border: 1px solid #dbe3ef; background: #fff; border-radius: 6px; cursor: pointer; color: #5b6a82; }
+.clab-pager button:hover { border-color: #6558d6; color: #4c40bb; }
+.clab-doc-note { margin-top: 10px; padding: 9px; border-radius: 7px; background: #f3f6fc; font-size: .74rem; color: #5b6a82; }
+.clab-doc-note p { margin: 4px 0 0; line-height: 1.65; }
+
+.clab-canvas { padding: 8px 8px 4px; }
+.clab-svg { width: 100%; height: auto; display: block; transition: transform .2s ease; transform-origin: center center; }
+.clab-wire { fill: none; stroke: #7aa93c; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.clab-wire.tone-ground { stroke: #3f7a2a; stroke-width: 2.8; }
+.clab-wire.tone-loop { stroke: #9dba57; stroke-width: 2; }
+.clab-wire.tone-control { stroke: #8fae55; stroke-width: 2; }
+.clab-wire.tone-result { stroke: #6f9f34; }
+.clab-ground line { stroke: #3f7a2a; stroke-width: 2.4; stroke-linecap: round; }
+.clab-chip rect { fill: #403c3c; stroke: #2b2828; stroke-width: 2; }
+.clab-chip-name { fill: #fff; font-size: 24px; font-weight: 700; letter-spacing: .16em; }
+.clab-chip-sub { fill: #c9c2c2; font-size: 11px; letter-spacing: .08em; }
+.clab-switch { cursor: pointer; }
+.clab-switch.readonly { cursor: help; }
+.clab-switch rect { fill: #fff; stroke: #4c4c4c; stroke-width: 2; }
+.clab-switch circle { fill: #3a3a3a; }
+.clab-switch.on rect { fill: #d9e86a; stroke: #6f7c24; }
+.clab-switch.on circle { fill: #2f3a10; }
+.clab-switch:hover rect { stroke: #6558d6; stroke-width: 3; }
+.clab-lamp circle { fill: #fff; stroke: #6b7280; stroke-width: 2; }
+.clab-lamp .clab-lamp-core { fill: #d7dbe2; stroke: none; }
+.clab-lamp.on circle { fill: #f7d7d3; stroke: #c8403a; }
+.clab-lamp.on .clab-lamp-core { fill: #e0403a; }
+.clab-pin-label { fill: #2f5fa8; font-size: 12px; font-weight: 600; }
+.clab-canvas-caption { margin: 0; padding: 4px 0 6px; text-align: center; font-size: .72rem; color: #97a2b5; }
+
+.clab-table { width: 100%; border-collapse: collapse; font-size: .74rem; }
+.clab-table th { text-align: left; color: #6b7b94; font-weight: 600; }
+.clab-table td, .clab-table th { padding: 5px 4px; border-bottom: 1px solid #eef2f8; }
+.clab-table tbody tr:last-child td { border-bottom: 0; }
+.clab-table input, .clab-table select { width: 100%; max-width: 82px; padding: 3px 5px; border: 1px solid #d7dfeb; border-radius: 5px; font-size: .74rem; }
+.clab-hint-cell { color: #98a4b8; white-space: nowrap; }
+.clab-mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: .72rem; color: #40516c; word-break: break-all; }
+.clab-mini-toggle { width: 30px; padding: 3px 0; border: 1px solid #cfd9e9; background: #fff; border-radius: 5px; cursor: pointer; font-size: .72rem; }
+.clab-mini-toggle.on { background: #d9e86a; border-color: #8a9a35; color: #33400d; }
+.clab-link { border: 0; background: none; padding: 0; color: #5145bd; cursor: pointer; font-size: .74rem; text-decoration: underline; }
+.clab-cases tbody tr { cursor: pointer; }
+.clab-cases tbody tr:hover { background: #f5f7fd; }
+.clab-cases tbody tr.picked { background: #eeebff; }
+.clab-badge { display: inline-block; padding: 2px 6px; border-radius: 10px; font-size: .68rem; background: #eef2f8; color: #73819a; }
+.clab-badge.pass { background: #e4f6e9; color: #237a42; }
+.clab-badge.fail { background: #fde9e7; color: #a8352d; }
+.clab-badge.idle { background: #eef2f8; color: #73819a; }
+.clab-outputs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.clab-outputs li { display: flex; justify-content: space-between; align-items: center; background: #f5f7fc; border-radius: 6px; padding: 5px 8px; font-size: .74rem; color: #5b6a82; }
+.clab-outputs b { color: #23375a; font-size: .84rem; }
+.clab-outputs b.hot { color: #d33a33; }
+.clab-panel-note { margin: 9px 0 0; font-size: .74rem; color: #7d8aa2; line-height: 1.6; }
+
+.clab-feedback { margin: 10px 0 0; padding: 8px 12px; border-radius: 7px; font-size: .78rem; line-height: 1.6; }
+.clab-feedback.tone-info { background: #eef3fc; color: #3c5378; }
+.clab-feedback.tone-success { background: #e7f6ec; color: #226b3c; }
+.clab-feedback.tone-warn { background: #fff5df; color: #806010; }
+.clab-feedback.tone-error { background: #fdecea; color: #97332c; }
+.clab-records { margin-top: 12px; background: #fff; border: 1px solid #e2e8f2; border-radius: 10px; padding: 12px; }
+.clab-records h3 { margin: 0 0 8px; font-size: .88rem; color: #23375a; }
+.clab-records .clab-table th { background: #f7f9fd; }
+.clab-records tr.ok { background: #f6fcf8; }
+.clab-records tr.bad { background: #fff7f6; }
+.clab-empty { text-align: center; color: #97a2b5; padding: 14px 0 !important; }
+.clab-passed { margin: 10px 0 0; padding: 10px 13px; border-radius: 8px; background: #e7f6ec; border: 1px solid #a8d8b8; color: #226b3c; font-size: .8rem; }
+
+@media (max-width: 1080px) {
+  .clab { grid-template-columns: 1fr; }
+  .clab-side { min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .clab-side-title, .clab-legend, .clab-side-status { display: none; }
+  .clab-side-item { width: auto; }
+  .clab-grid { grid-template-columns: 1fr 1fr; }
+  .clab-canvas { grid-column: 1 / -1; grid-row: 1; }
+}
+@media (max-width: 680px) {
+  .clab-grid { grid-template-columns: 1fr; }
+  .clab-canvas { grid-column: auto; grid-row: auto; }
+}
