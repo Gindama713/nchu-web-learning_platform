@@ -26,9 +26,9 @@ const attendanceLabels = {
 const scoreKinds = { homework: '作业', exam: '考试', quiz: '随堂测' }
 const correlationNotes = {
   ok: '',
-  insufficient_pairs: '有效配对不足 3 人，按 C02 返回无相关系数。',
-  zero_variance: '到勤率或成绩没有变化（方差为零），按 C03 相关系数无定义。',
-  personal_scope: '当前是学生个人范围，按 AC-05 不计算班级相关性。',
+  insufficient_pairs: '参与配对的人数不足 3 人，这次算不出相关系数。',
+  zero_variance: '到勤率或成绩这段时间没有变化（方差为零），相关系数没有意义。',
+  personal_scope: '当前看的是本人数据，不跟班里比相关性。',
 }
 const ratio = value => value === null || value === undefined ? '无数据' : `${(value * 100).toFixed(2)}%`
 const shown = (key, value) => ['mastery', 'progress', 'pass_rate', 'attendance_rate'].includes(key) ? ratio(value) : value === null || value === undefined
@@ -189,9 +189,9 @@ export const AnalyticsView = {
       // APIC：个人范围 candidate_count/paired_count/missing_performance_count 均为 null，只输出本人指标。
       const personal = m.candidate_count === null || m.candidate_count === undefined
       const pairing = personal
-        ? '配对口径：当前是个人范围，只输出本人到勤与成绩，不计算班级配对与相关性。'
-        : `配对口径：班级 ${m.candidate_count} 名学生中，${m.paired_count ?? 0} 人有已评分成绩参与相关分析，`
-          + `${m.missing_performance_count ?? 0} 人因缺成绩被排除（C04：个人被排除，但班级到勤分母不丢）。`
+        ? '只看你本人的到勤与成绩，不跟班里比。'
+        : `全班 ${m.candidate_count} 人参与统计，其中 ${m.paired_count ?? 0} 人有已评分的成绩、用来算相关，`
+          + `${m.missing_performance_count ?? 0} 人暂时没有成绩（不影响出勤率的计算）。`
       return h('div', [
         h('p', pairing),
         h('p', m.performance_correlation === null || m.performance_correlation === undefined
@@ -245,41 +245,57 @@ export const AnalyticsView = {
       const seriesKeys = attendance
         ? ['expected_count', 'present_count', 'late_count', 'leave_count', 'absent_count', 'attendance_rate']
         : keys
-      const title = attendance ? '考勤与学习表现（010A）'
+      const title = attendance ? '考勤与学习表现'
         : value.dimension === 'knowledge' ? '知识分析'
-          : value.dimension === 'grading' ? '电路评测分析' : `分类成绩 / ${scoreKinds[m.kind] ?? m.kind}`
-      const basis = attendance ? '按已关闭考勤任务的冻结参与人统计，出勤含迟到；成绩只取已评分试卷'
-        : value.dimension === 'knowledge' ? '按实际客观作答去重；进度取原查询时的发布集合'
-          : value.dimension === 'grading' ? '按实验版本开始时间选任务；每名学生每个版本取最新一次有效成绩，运行可靠性另计'
-            : '按试卷开始时间选任务；应交取冻结名单，均分只计已批卷'
-      return h('article', { class: 'analytics-report' }, [h('h3', `原快照 #${value.analysis_run_id} · ${title}`),
-        h('p', `数据截止 ${shanghaiTime(value.source_until)} · 生成 ${shanghaiTime(value.generated_at)}（Asia/Shanghai） · 算法 ${value.algorithm_version}`),
-        h('p', value.filters ? `原筛选 ${shanghaiTime(value.filters.from)} 至 ${shanghaiTime(value.filters.to)}（Asia/Shanghai） · ${value.filters.student_id ? `学生 #${value.filters.student_id}` : '全班'}${value.filters.paper_id ? ` · 试卷 #${value.filters.paper_id}` : ''}` : '历史快照未记录可展示的筛选摘要；以下为原保存结果。'),
-        h('p', `有效样本 ${value.sample_size} · ${basis}`),
-        ...value.warnings.map(w => h('p', w)),
-        m.selected_paper_ids && h('p', `实际试卷：${m.selected_paper_ids.join('、') || '无'}`),
-        value.sample_size === 0 && h('p', { role: 'status' }, attendance
-          ? '本区间没有已关闭的考勤任务或没有冻结参与人，全部指标显示无数据。'
-          : '无有效样本，均分或掌握度显示无数据。'),
+          : value.dimension === 'grading' ? '电路评测分析' : `分类成绩 · ${scoreKinds[m.kind] ?? m.kind}`
+      const basis = attendance ? '按已结束的考勤任务统计，出勤含迟到；成绩只取已评分的卷'
+        : value.dimension === 'knowledge' ? '只统计客观题作答，同一题重复作答算一次；进度取当时的发布范围'
+          : value.dimension === 'grading' ? '每名学生每个实验版本取最新一次有效成绩，运行可靠性另算'
+            : '应交人数取当时的名单，平均分只算已批改的卷'
+      const range = value.filters
+        ? `${shanghaiTime(value.filters.from)} 至 ${shanghaiTime(value.filters.to)}`
+          + `${value.filters.student_id ? ` · 学生 #${value.filters.student_id}` : ' · 全班'}`
+          + `${value.filters.paper_id ? ` · 试卷 #${value.filters.paper_id}` : ''}`
+        : '这次快照没有记录筛选区间'
+      // 算法版本、快照编号、样本口径这些是给核对数据用的，收进折叠区，别摆在结论上面
+      const tech = h('details', { class: 'analytics-tech' }, [
+        h('summary', {}, '数据口径与快照信息'),
+        h('p', {}, `第 ${value.analysis_run_id} 次分析快照 · ${title}`),
+        h('p', {}, `统计区间 ${range}（Asia/Shanghai）`),
+        h('p', {}, `数据截止 ${shanghaiTime(value.source_until)} · 生成于 ${shanghaiTime(value.generated_at)}`),
+        h('p', {}, `有效样本 ${value.sample_size} · ${basis}`),
+        h('p', {}, `算法版本 ${value.algorithm_version}`),
+        m.selected_paper_ids && h('p', {}, `实际试卷：${m.selected_paper_ids.join('、') || '无'}`),
+        ...value.warnings.map(w => h('p', {}, w)),
+      ])
+      return h('article', { class: 'analytics-report' }, [
+        h('h3', title),
+        value.sample_size === 0 && h('p', { class: 'analytics-empty', role: 'status' }, attendance
+          ? '这段时间没有已结束的考勤任务，暂时没有可统计的人次。'
+          : '这段时间没有可统计的记录（无有效样本）。换个时间段或换个维度再查一次。'),
         h('div', { class: 'analytics-metrics' }, keys.map(key => h('div', { class: 'metric-tile' }, [
           h('span', { class: 'metric-label' }, labelSet[key]),
           h('strong', { class: ['metric-value', shown(key, m[key]) === '无数据' ? 'empty' : ''] }, shown(key, m[key])),
         ]))),
         value.dimension === 'scores' && m.mean_score === null && m.selected_paper_ids.length > 1 && h('p', '跨卷原始平均分不适用，请查看平均百分比。'),
-        value.dimension === 'knowledge' ? table('知识点掌握度与错题分布（多标签分别计入，总体按实际作答去重）',
-          ['知识点', '作答', '正确', '错题', '掌握度'], m.items.map(item => [`#${item.knowledge_id} ${item.title}`, item.answered_count, item.correct_count, item.wrong_count, ratio(item.mastery)]))
+        value.dimension === 'knowledge' ? (m.items.length
+          ? table('知识点掌握度与错题', ['知识点', '作答', '正确', '错题', '掌握度'],
+            m.items.map(item => [`#${item.knowledge_id} ${item.title}`, item.answered_count, item.correct_count, item.wrong_count, ratio(item.mastery)]))
+          : value.sample_size === 0 ? null : h('p', { class: 'chart-empty' }, '这段时间还没有知识点作答记录。'))
           : value.dimension === 'grading' ? gradingReport(m)
             : attendance ? attendanceReport(m, value) : bins(m, '人卷次', m.graded_count),
-        table('按上海周一划分的周趋势', ['区间（左闭右开，Asia/Shanghai）', ...seriesKeys.map(key => labelSet[key])], value.series.map(p => [
-          `${shanghaiTime(p.period_start)} — ${shanghaiTime(p.period_end)}`, ...seriesKeys.map(key => shown(key, p.metrics[key]))])),
+        value.sample_size === 0 ? null
+          : table('每周趋势', ['区间（Asia/Shanghai）', ...seriesKeys.map(key => labelSet[key])], value.series.map(p => [
+            `${shanghaiTime(p.period_start)} — ${shanghaiTime(p.period_end)}`, ...seriesKeys.map(key => shown(key, p.metrics[key]))])),
+        tech,
         props.user.role === 'teacher' && button('导出当前快照 CSV', download),
       ])
     }
     return () => props.user.role === 'admin' ? null : h('section', { class: 'card analytics-bank', 'aria-busy': busy.value }, [
-      h('h2', '知识与成绩分析'), h('p', '查询保存本次结果。刷新页面恢复上次快照；重新查询才会更新统计。日期按本机时区输入，最多366天；留空为最近28天。'),
+      h('h2', '知识与成绩分析'), h('p', '选好课程和时间段，点「查询统计」。刷新页面会恢复上次结果，重新查询才更新；时间留空统计最近 28 天。'),
       h('div', { class: 'analytics-filters' }, [
         select('统计课程', course.value, v => { course.value = v; runId.value = '' }, courses.value.map(c => [String(c.id), c.title])),
-        select('统计维度', filters.dimension, v => { filters.dimension = v }, [['knowledge', '知识掌握度、错题与进度'], ['attendance', '考勤与学习表现（010A）'], ['scores', '分类成绩'], ['grading', '电路评测通过率与运行可靠性']]),
+        select('统计维度', filters.dimension, v => { filters.dimension = v }, [['knowledge', '知识掌握度、错题与进度'], ['attendance', '考勤与学习表现'], ['scores', '分类成绩'], ['grading', '电路评测通过率与运行可靠性']]),
         input('统计起始时间', filters.from, v => { filters.from = v }, 'datetime-local'),
         input('统计结束时间', filters.to, v => { filters.to = v }, 'datetime-local'),
         props.user.role === 'teacher' && input('学生编号（留空全班）', filters.student_id, v => { filters.student_id = v }, 'number'),
@@ -287,7 +303,13 @@ export const AnalyticsView = {
         filters.dimension === 'scores' && input('试卷编号（留空本类别全部）', filters.paper_id, v => { filters.paper_id = v }, 'number'),
         filters.dimension === 'attendance' && input('参与计算的测评卷 ID（可选，逗号分隔）', filters.paper_ids, v => { filters.paper_ids = v }),
       ]), button('查询统计', () => run(query), !course.value),
-      h('div', { class: 'analytics-restore' }, [input('原快照编号', runId.value, v => { runId.value = v }, 'number'), button('恢复原快照', () => run(restore), !course.value || !runId.value)]),
+      h('details', { class: 'analytics-restore' }, [
+        h('summary', {}, '按快照编号恢复以前的结果'),
+        h('div', { class: 'analytics-restore-row' }, [
+          input('原快照编号', runId.value, v => { runId.value = v }, 'number'),
+          button('恢复原快照', () => run(restore), !course.value || !runId.value),
+        ]),
+      ]),
       busy.value && h('p', { role: 'status' }, '正在读取统计…'), error.value && h('p', { role: 'alert' }, error.value),
       !data.value && !busy.value && !error.value && h('p', '请选择筛选后查询，或填写原快照编号恢复。'), data.value && report(),
     ])

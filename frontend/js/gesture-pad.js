@@ -15,14 +15,19 @@ export const GesturePad = {
   props: {
     disabled: { type: Boolean, default: false },
     label: { type: String, default: '手势图案' },
+    // 只读预览：老师定了口令 / 学生已经画过一遍时，把图案画在画布上，
+    // 否则画布是空的，看不出刚才定的是哪一笔。
+    preview: { type: Array, default: null },
   },
   emits: ['done'],
   setup(props, { emit }) {
     const picked = ref([])
     const drawing = ref(false)
+    // 自己正在画就以自己的为准，松手后回到预览
+    const shown = computed(() => (picked.value.length ? picked.value : (props.preview ?? [])))
 
-    const points = computed(() => picked.value.map(index => `${DOTS[index].x},${DOTS[index].y}`).join(' '))
-    const isPicked = index => picked.value.includes(index)
+    const points = computed(() => shown.value.map(index => `${DOTS[index].x},${DOTS[index].y}`).join(' '))
+    const isPicked = index => shown.value.includes(index)
 
     function locate(event) {
       const rect = event.currentTarget.getBoundingClientRect()
@@ -66,10 +71,10 @@ export const GesturePad = {
       if (pattern.length) emit('done', pattern)
     }
 
-    return { dots: DOTS, picked, points, isPicked, start, move, finish, reset }
+    return { dots: DOTS, picked, shown, points, isPicked, start, move, finish, reset }
   },
   template: `
-    <div class="gesture-pad" :class="{ active: picked.length, disabled }">
+    <div class="gesture-pad" :class="{ active: shown.length, disabled }">
       <svg viewBox="0 0 300 300" role="application" :aria-label="label"
         @pointerdown.prevent="start" @pointermove.prevent="move"
         @pointerup.prevent="finish" @pointercancel="finish" @pointerleave="finish">

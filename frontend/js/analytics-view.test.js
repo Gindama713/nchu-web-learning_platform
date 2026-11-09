@@ -82,7 +82,7 @@ test('snapshot times and week boundaries display Shanghai across UTC midnight wi
   const original = globalThis.structuredClone(fixture.data)
   button(root, '查询统计').props.onClick(); await flush()
   assert.match(content(root), /数据截止 2026\/10\/15 00:00:00/)
-  assert.match(content(root), /生成 2026\/10\/15 00:00:01（Asia\/Shanghai）/)
+  assert.match(content(root), /生成于 2026\/10\/15 00:00:01/)
   assert.match(content(root), /2026\/10\/14 00:00:00 — 2026\/10\/15 00:00:00/)
   assert.doesNotMatch(content(root), /T16:00:/)
   assert.deepEqual(fixture.data, original)
@@ -178,8 +178,8 @@ test('分类成绩的同卷平均分显示为分，百分比显示为百分号',
   button(root, '查询统计').props.onClick(); await flush()
   assert.match(content(root), /同卷平均分8\.00 分/)
   assert.match(content(root), /平均百分比80\.00%/)
-  assert.match(content(root), /分类成绩 \/ 作业/)
-  assert.doesNotMatch(content(root), /分类成绩 \/ homework/)
+  assert.match(content(root), /分类成绩 · 作业/)
+  assert.doesNotMatch(content(root), /分类成绩 · homework/)
 })
 
 test('考勤筛选只渲染一个测评卷编号输入', async t => {
@@ -224,18 +224,18 @@ const attendance = (id = 31) => ({ analysis_run_id: id, dimension: 'attendance',
     metrics: { expected_count: 9, present_count: 6, late_count: 1, leave_count: 0, absent_count: 2,
       attendance_rate: 0.666667 } }] })
 
-test('考勤维度按冻结名单算分母，并解释 C02 无相关系数的原因', async t => {
+test('考勤维度按冻结名单算分母，并解释算不出相关系数的原因', async t => {
   const { root, fixture, paths } = await mount(t)
   change(root, '统计维度', 'attendance'); await flush()
   fixture.data = attendance()
   button(root, '查询统计').props.onClick(); await flush()
   assert.match(paths.at(-1), /dimension=attendance/)
-  assert.match(content(root), /考勤与学习表现（010A）/)
+  assert.match(content(root), /考勤与学习表现/)
   assert.match(content(root), /应到人次（冻结名单）9/)
   assert.match(content(root), /到勤率（出勤\+迟到）66\.67%/)
   assert.match(content(root), /有效配对人数0/)
   assert.match(content(root), /缺成绩人数6/)
-  assert.match(content(root), /有效配对不足 3 人，按 C02 返回无相关系数/)
+  assert.match(content(root), /参与配对的人数不足 3 人/)
   assert.doesNotMatch(content(root), /应交人卷次/)
 })
 
@@ -257,7 +257,7 @@ test('考勤快照可恢复，不会退回知识维度', async t => {
   control(root, '原快照编号').props.onInput({ target: { value: '31' } }); await flush()
   button(root, '恢复原快照').props.onClick(); await flush()
   assert.match(paths.at(-1), /analysis_run_id=31/)
-  assert.match(content(root), /考勤与学习表现（010A）/)
+  assert.match(content(root), /考勤与学习表现/)
   assert.equal(control(root, '统计维度').props.value, 'attendance')
 })
 
@@ -270,7 +270,7 @@ test('个人范围不显示班级配对，只给本人指标', async t => {
     attendance_rate: 0.5, performance_correlation: null, correlation_reason: 'personal_scope',
     candidate_count: null, paired_count: null, missing_performance_count: null } }
   button(root, '查询统计').props.onClick(); await flush()
-  assert.match(content(root), /当前是个人范围，只输出本人到勤与成绩/)
-  assert.match(content(root), /不计算班级相关性/)
+  assert.match(content(root), /只看你本人的到勤与成绩/)
+  assert.match(content(root), /不跟班里比/)
   assert.doesNotMatch(content(root), /班级 null 名学生/)
 })

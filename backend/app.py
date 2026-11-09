@@ -45,19 +45,49 @@ from backend.shared.catalog import MODULES
 from backend.shared.db import close_db, connect, database_ready, migrate
 
 
+def development_secret(directory):
+    """开发环境把 SECRET_KEY 固定下来，存在数据库旁边。
+
+    CSRF 值是 hmac(SECRET_KEY, session_token)：原来每次启动都随机生成 KEY，
+    重启一次后端，页面手里那个值就和 session 里存的哈希对不上——读接口照常 200，
+    所有写操作却 403 CSRF_FAILED，看起来就是「按钮点了没反应」。
+    这里把生成的 KEY 写到库同级的 dev_secret_key 复用（跟着这份数据走，不跟着代码走）；
+    生产仍然强制走环境变量。
+    """
+    path = os.path.join(directory or "instance", "dev_secret_key")
+    try:
+        with open(path, encoding="utf-8") as handle:
+            saved = handle.read().strip()
+        if len(saved) >= 32:
+            return saved
+    except OSError:
+        pass
+    generated = secrets.token_hex(32)
+    try:
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        with open(path, "w", encoding="utf-8") as handle:
+            handle.write(generated)
+    except OSError:
+        pass
+    return generated
+
+
 def create_app(config=None):
     app = Flask(__name__)
     environment = os.environ.get("APP_ENV", "development")
     secret = os.environ.get("SECRET_KEY")
     origin = os.environ.get("APP_ORIGIN", "http://127.0.0.1:5173")
+    database = os.environ.get("DATABASE_PATH", "instance/app.db")
+    # 配置里已经给了密钥（测试就是这么做的）就不要再去落文件
+    provided_secret = secret or (config or {}).get("SECRET_KEY")
     if environment == "production" and (not secret or len(secret) < 32 or not origin.startswith("https://")):
         raise RuntimeError("Production requires a strong SECRET_KEY and HTTPS APP_ORIGIN")
     app.config.update(
         APP_ENV=environment,
-        SECRET_KEY=secret or secrets.token_hex(32),
+        SECRET_KEY=provided_secret or development_secret(os.path.dirname(database)),
         APP_ORIGIN=origin,
         COOKIE_SECURE=environment == "production",
-        DATABASE_PATH=os.environ.get("DATABASE_PATH", "instance/app.db"),
+        DATABASE_PATH=database,
         UPLOAD_ROOT=os.environ.get("UPLOAD_ROOT", "instance/uploads"),
     )
     if config:

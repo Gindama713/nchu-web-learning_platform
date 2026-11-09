@@ -1,5 +1,11 @@
 # 变更日志与发布回滚手册
 
+## 2026-11-09 第10周签到/座位图与 026 任务级手势
+
+在 PR #80（`feature/week10-attendance-checkin`，基于 develop `359a5ad`）补齐文档并准备合入 develop。026 只给 `attendance_task` 增加 `gesture_hash`：手势图案由教师创建点到任务时通过可选 `pattern` 指定，学生不再自设图案；任务接口返回 `has_gesture`，创建/列表不返回图案或哈希。移除 `/auth/gesture` 的个人设置端点，签到 `POST /attendance-tasks/{id}/check-ins` 以 `code` 或 `pattern` 二选一，任务未开手势返回 422 `GESTURE_NOT_ENABLED`。学生首次在空教室点空位即选座：插 `class_seat` 并为课程已发布任务补 `attendance_seat` 快照，不再要求教师先排座。另含开发环境 SECRET_KEY 落盘、`GET /auth/session` 自动修复旧 CSRF 哈希及前端 CSRF 重试；学情面板收起内部口径、0 样本空态，预警/连线统计只对教师展示。
+
+文档同步 APIC 第3/14节、DBD 第3/8节和 README 迁移说明。验证：PR #80 CI 的 `ci-policy/test/build/lint/required` 均 success（develop 无 `ci-grader`）；`npm test` 195 项、`npx eslint .` 0；后端 `tests.test_gesture` / `tests.test_seat_swap` 通过；PR 记录的无头 Edge 签到与座位图回归保留在其 PR 证据中。该 PR 不在 #82 的 main 发布范围内，合入 develop 后仍需下一次 release；本次未打 tag、未部署、未执行生产迁移。回退 revert 本 PR 提交即可，026 新增列保留、不删除历史签到/座位/作答；`user.gesture_hash` 保留但不再读写，不能把任务手势回退成学生自设。
+
 ## 2026-11-08 第10周登录/名单、座位迁移与发布文档同步
 
 从 `develop@006d4a6`（含 #77/#78）建立 `feature/release-week10-readiness`，补 021 迁移的旧库保数据兜底并同步发布文档。020—025 迁移依次加入 `user.class_name`、班级座位、任务座位快照、教室规模、手势签到、访问日志与换位申请；021 直接重建 `class_seat`，目标库若已排座会被清空。公共 `migrate()` 现在在应用 021 前快照旧表，021 建表后按 `user.class_name` 回填（空值记“未分班”），同一迁移事务内删临时表；021 SQL 与既有校验和不变，023 继续保留座位。新增 `tests/test_week10_seat_migration.py` 覆盖真实旧表数据、班级回填与空班级回退。
@@ -36,7 +42,7 @@ PR #38 首轮全量 CI 暴露一条遗留的备课 404 断言，同时发现 `ci
 
 无数据库迁移、业务判分、保密、队友模块或CI改动。后续修复仍回所属SPEC feature；新PR/head CI、真实评审及实际merge按正式记录与PR核验。未合并、部署、发布或发送协作消息。回退须保留知识/作答/错题/进度/快照/schema一致备份与增量，不删历史、不改旧SQL；本机受控副本不能替代生产恢复、50会话性能或课堂/Gitea验收。
 
-本文件维护规格、发布和恢复规则。版本0.6（2026-11-08 补充第10周变更），记录真实发生的文档、代码与迁移工作；目前无应用发布、生产迁移或回滚演练。
+本文件维护规格、发布和恢复规则。版本0.6（2026-11-08/09 补充第10周变更），记录真实发生的文档、代码与迁移工作；目前无应用发布、生产迁移或回滚演练。
 
 ## 1 变更记录
 
