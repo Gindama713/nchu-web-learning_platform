@@ -138,23 +138,33 @@ export const WiringStatsView = {
       const value = data.value
       const m = value.metrics
       const errors = Object.entries(m.error_counts ?? {})
+      // 算法版本、快照号、样本口径收进折叠区，结论先摆出来
+      const tech = h('details', { class: 'analytics-tech' }, [
+        h('summary', {}, '数据口径与快照信息'),
+        h('p', {}, `第 ${value.analysis_run_id} 次分析快照 · 连线统计`),
+        h('p', {}, `数据截止 ${shanghaiTime(value.source_until)} · 生成于 ${shanghaiTime(value.generated_at)}`),
+        h('p', {}, `有效样本 ${value.sample_size} · 已发布连线实验的参与学生（按人与实验版本去重）`),
+        h('p', {}, `算法版本 ${value.algorithm_version}`),
+        ...(value.warnings ?? []).map(warning => h('p', {}, warning)),
+      ])
       return h('article', { class: 'wiring-stats-report' }, [
-        h('h3', `原快照 #${value.analysis_run_id} · 连线统计`),
-        h('p', `数据截止 ${shanghaiTime(value.source_until)} · 生成 ${shanghaiTime(value.generated_at)}（Asia/Shanghai） · 算法 ${value.algorithm_version}`),
-        h('p', `有效样本 ${value.sample_size} · 统计口径：已发布连线实验的参与学生（按人与实验版本去重）`),
-        ...(value.warnings ?? []).map(warning => h('p', warning)),
-        value.sample_size === 0 && h('p', { role: 'status' }, '无有效样本，完成率显示无数据。'),
+        h('h3', '本次统计结果'),
+        value.sample_size === 0 && h('p', { class: 'analytics-empty', role: 'status' },
+          '这段时间没有已发布的连线实验，暂时没有可统计的数据。'),
         h('dl', { class: 'wiring-stats-metrics' },
           METRICS.flatMap(([key, label]) => [h('dt', label), h('dd', shown(key, m[key]))])),
         errors.length
           ? table('连线校验错误分布（同一提交同版本同错误码只计一次）', ['错误码', '次数'],
             errors.map(([code, count]) => [code, count]))
           : h('p', { role: 'status' }, '本区间没有校验错误记录。'),
-        table('按上海周一划分的连线周趋势', ['周区间（左闭右开，Asia/Shanghai）', ...METRICS.map(([, label]) => label)],
-          value.series.map(period => [
-            `${shanghaiTime(period.period_start)} — ${shanghaiTime(period.period_end)}`,
-            ...METRICS.map(([key]) => shown(key, period.metrics[key])),
-          ])),
+        value.sample_size === 0
+          ? h('p', { class: 'chart-empty' }, '这段时间没有可统计的数据，周趋势先不展示。')
+          : table('按上海周一划分的连线周趋势', ['周区间（左闭右开，Asia/Shanghai）', ...METRICS.map(([, label]) => label)],
+            value.series.map(period => [
+              `${shanghaiTime(period.period_start)} — ${shanghaiTime(period.period_end)}`,
+              ...METRICS.map(([key]) => shown(key, period.metrics[key])),
+            ])),
+        tech,
         button('导出当前快照 CSV', download),
       ])
     }
@@ -165,7 +175,7 @@ export const WiringStatsView = {
         teacher() && button('重新加载', () => run(boot)),
       ]),
       !teacher() && h('p', '连线统计仅对教师开放。'),
-      teacher() && h('p', '统计已发布连线实验的应做人数、完成率、提交次数与校验错误分布。查询保存本次结果；刷新页面恢复上次快照。日期留空为最近28天，最多366天。'),
+      teacher() && h('p', '统计已发布连线实验的应做人数、完成率与校验错误分布。刷新页面会恢复上次结果；时间留空统计最近 28 天。'),
       teacher() && h('div', { class: 'wiring-stats-filters' }, [
         h('label', ['统计课程 ', h('select', {
           'aria-label': '统计课程', value: course.value, disabled: !courses.value.length,
@@ -175,9 +185,12 @@ export const WiringStatsView = {
         input('统计结束时间', filters.to, value => { filters.to = value }, 'datetime-local'),
       ]),
       teacher() && button('查询统计', () => run(query), !course.value),
-      teacher() && h('div', { class: 'wiring-stats-restore' }, [
-        input('原快照编号', runId.value, value => { runId.value = value }, 'number'),
-        button('恢复原快照', () => run(restore), !course.value || !runId.value),
+      teacher() && h('details', { class: 'analytics-restore' }, [
+        h('summary', {}, '按快照编号恢复以前的结果'),
+        h('div', { class: 'analytics-restore-row' }, [
+          input('原快照编号', runId.value, value => { runId.value = value }, 'number'),
+          button('恢复原快照', () => run(restore), !course.value || !runId.value),
+        ]),
       ]),
       busy.value && h('p', { role: 'status' }, '正在读取统计…'),
       error.value && h('p', { role: 'alert' }, error.value),

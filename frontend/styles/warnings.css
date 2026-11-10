@@ -1,4 +1,14 @@
 .warn-card { display: grid; gap: 6px; }
+/* 判定口径折叠起来：结论给老师看，规则细节谁要核再展开 */
+.warn-scope { margin: 2px 0 6px; }
+.warn-scope > summary {
+  cursor: pointer; font-size: .84rem; color: var(--muted); padding: 4px 0; list-style-position: inside;
+}
+.warn-scope > summary:hover { color: var(--primary); }
+.warn-scope p {
+  margin: 8px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--surface-2);
+  border: 1px solid var(--line); font-size: .82rem; color: var(--muted); line-height: 1.6;
+}
 .warn-strip {
   display: flex; flex-wrap: wrap; gap: 16px; align-items: center;
   padding: 12px 14px; border-radius: 12px; background: var(--surface-2);

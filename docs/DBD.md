@@ -1,6 +1,6 @@
 # 中央处理器课程学习系统数据库设计
 
-版本0.6，需求设计已完成团队评审，数据库SQLite；本文为逻辑与约束设计，无建表代码。所有实体按PRD规格及APIC字段实现。每张未特别声明的业务表含id INTEGER主键、created_at TEXT UTC时间；可变表另含updated_at。FK表示外键，NN表示非空，UQ表示唯一，JSON为经应用验证结构后保存的TEXT，不用JSON代替核心外键关系。2026-11-08 补充第10周 schema（`user.class_name`、`gesture_hash`、`class_seat`、`attendance_seat`、`classroom`、`seat_swap_request`、`access_log`），六份主文档基线版本不变。
+版本0.6，需求设计已完成团队评审，数据库SQLite；本文为逻辑与约束设计，无建表代码。所有实体按PRD规格及APIC字段实现。每张未特别声明的业务表含id INTEGER主键、created_at TEXT UTC时间；可变表另含updated_at。FK表示外键，NN表示非空，UQ表示唯一，JSON为经应用验证结构后保存的TEXT，不用JSON代替核心外键关系。2026-11-08 补充第10周 schema（`user.class_name`、`gesture_hash`、`class_seat`、`attendance_seat`、`classroom`、`seat_swap_request`、`access_log`），六份主文档基线版本不变；2026-11-09 追加 026：手势图案改存 `attendance_task.gesture_hash`。
 
 ## 1 数据关系
 
@@ -38,7 +38,7 @@ erDiagram
 
 | 表 | 核心字段及类型 | 约束与用途 |
 |---|---|---|
-| user | student_no TEXT NN UQ；name TEXT NN；password_hash TEXT NN；role TEXT NN；active INTEGER NN；session_version INTEGER NN默认0；class_name TEXT可空；gesture_hash TEXT可空；gesture_updated_at TEXT可空 | role限定student/teacher/admin；active为0/1；仅保存带盐密码哈希；停用/改密增加session_version；class_name为名单导入的班级，未录入为NULL；手势图案只存哈希与更新时间 |
+| user | student_no TEXT NN UQ；name TEXT NN；password_hash TEXT NN；role TEXT NN；active INTEGER NN；session_version INTEGER NN默认0；class_name TEXT可空；gesture_hash TEXT可空；gesture_updated_at TEXT可空 | role限定student/teacher/admin；active为0/1；仅保存带盐密码哈希；停用/改密增加session_version；class_name为名单导入的班级，未录入为NULL；gesture_hash/gesture_updated_at为024遗留列，026起手势改存任务表，不再使用 |
 | session | token_hash TEXT NN UQ；user_id INTEGER FK；csrf_hash TEXT NN；session_version INTEGER NN；expires_at/last_seen_at TEXT NN | Cookie随机令牌只存哈希；过期索引；会话角色从user读取 |
 | course | title TEXT NN；description TEXT；chapters_revision INTEGER NN默认0；teacher_id INTEGER FK user | 一个学期的一个教学班；teacher_id仅负责人属性，授权只认合法active member |
 | course_member | course_id INTEGER FK；user_id INTEGER FK；member_role TEXT；active INTEGER | UQ(course_id,user_id)；role限定student/teacher；访问由active决定；退课不删历史 |
@@ -63,7 +63,7 @@ erDiagram
 | preparation_resource | preparation_id FK；resource_version_id FK | 复合主键两字段，引用固定版本 |
 | preparation_question | preparation_id FK；question_version_id FK | 复合主键两字段 |
 | preparation_quiz | preparation_id FK；paper_id FK paper | 复合主键两字段；paper.kind=quiz且同课程；发布时paper.status=published；关联不复制试卷状态/时间/答案 |
-| attendance_task | course_id FK；title TEXT；start_at/late_at/end_at TEXT；code_hash TEXT；code_expires_at TEXT；status TEXT | start≤late≤end且start<end；status=open/closed；数字码只存哈希；创建/轮换一次返回，所有查询无明文；轮换原码失效 |
+| attendance_task | course_id FK；title TEXT；start_at/late_at/end_at TEXT；code_hash TEXT；code_expires_at TEXT；status TEXT；gesture_hash TEXT可空 | start≤late≤end且start<end；status=open/closed；数字码只存哈希；创建/轮换一次返回，所有查询无明文；轮换原码失效；gesture_hash为026加入的教师任务级手势口令，只存哈希，接口只暴露has_gesture |
 | attendance_record | task_id FK；student_id FK；status TEXT；checked_at TEXT可空；source TEXT | UQ(task_id,student_id)；status=present/late/leave/absent；source=checkin/gesture/approval/close/correction（gesture由024手势签到加入） |
 | leave_request | task_id FK；student_id FK；reason TEXT；status TEXT；reviewer_id FK可空；review_note TEXT；reviewed_at TEXT可空 | UQ(task_id,student_id)；status=pending/approved/rejected；更正审计 |
 | attendance_participant | task_id FK,student_id FK | 复合PK；创建任务事务复制active学生名单；record和leave使用(task_id,student_id)复合FK |
@@ -80,7 +80,7 @@ attendance_task.code_expires_at不得晚于end_at，初次生成有效到end_at�
 | 表 | 核心字段 | 约束与用途 |
 |---|---|---|
 | class_seat | course_id FK；student_id FK；class_name TEXT NN；group_no INTEGER；seat_no INTEGER | UQ(course_id,student_id)、UQ(course_id,class_name,group_no,seat_no)；两坐标均1—40，语义为第几排/第几座；索引(course_id,class_name)。四班共用一张课程平面图。020建立，021加入class_name，023放宽坐标并保留旧数据；021迁移对旧库的保数据规则见§8 |
-| attendance_seat | task_id FK；student_id FK；group_no INTEGER；seat_no INTEGER | UQ(task_id,student_id)；索引task_id。创建点到任务时按冻结参与人复制课程座位，形成任务级快照，后续调座不改历史布局；课程未排座时为空 |
+| attendance_seat | task_id FK；student_id FK；group_no INTEGER；seat_no INTEGER | UQ(task_id,student_id)；索引task_id。创建点到任务时按冻结参与人复制课程座位，形成任务级快照，后续调座不改历史布局；课程未排座时为空。学生在空教室首次选座时，为该课程已发布任务中本人尚无快照的行补插 |
 | classroom | course_id FK UQ；name TEXT；template TEXT；rows INTEGER；cols INTEGER；aisle_every INTEGER NN默认0 | rows/cols为1—40，aisle_every为0—10（0表示不留过道）；课程级教室规模，同一课程多个班共用 |
 | seat_swap_request | course_id FK；requester_id FK；target_id FK；from_group/from_seat/to_group/to_seat INTEGER；status TEXT；created_at；expires_at；responded_at可空 | status=pending/accepted/declined/expired/cancelled；部分唯一索引UNIQUE(requester_id) WHERE status='pending'保证一人最多一条待答复；from/to为发起时坐标快照，答复时校验双方座位未变；默认15分钟未答复失效 |
 | access_log | user_id FK可空；student_no/name/role TEXT可空；method/path TEXT NN；status INTEGER NN；ip TEXT；duration_ms REAL；at TEXT NN | 追加式请求访问日志，响应阶段写入，写入失败不影响业务响应；索引at、(user_id,at)；导出接口自身不记录。与audit_event的关键操作审计互补 |
@@ -200,6 +200,8 @@ grading_run增加部分唯一索引：同submission_id在status IN ('queued','ru
 迁移带版本和校验和，先备份和副本演练。增加字段先兼容旧数据，删除/重命名不得未经数据迁移直接上线。恢复数据库前保留当前状态，明确恢复点之后新增提交的处置；只回退代码不能自动撤销数据库变更，具体见CHG-RB。
 
 020→021 的 `class_seat` 属于旧表重建：021 文件本身仍按已登记校验和执行；公共 `migrate()` 在应用 021 前把 020 旧表快照到临时表，021 建表后按 `user.class_name` 回填（空值记“未分班”），再在同一迁移事务内删除临时表。023 继续用「建新表→搬数据→删旧表→改名」保留 021 的座位。迁移失败整体回滚；已排座的目标库仍须按CHG-RB先备份并演练副本，不能只依赖该兜底。
+
+026 只给 `attendance_task` 增加可空 `gesture_hash`，不删除 024 的 `user.gesture_hash` / `gesture_updated_at`：旧列保留以兼容历史库，应用不再读写；升级仍按公共 `db-upgrade` 执行。
 
 SPEC-005模块迁移的单一定义为`backend/migrations/005_knowledge.sql`：版本取文件stem `005_knowledge`，校验和取SQL文件read_text(encoding="utf-8")的UTF-8 SHA-256，与001候选runner一致（文本读取统一CRLF/LF）。公共runner负责顺序、版本/校验和、重复执行跳过、BEGIN/COMMIT/ROLLBACK及同事务写schema_migration；005 SQL只创建chapter/knowledge_point/bookmark/learning_progress及查询索引，不初始化公共身份或课程。knowledge_migration.py只提供SQL身份及隔离测试的apply辅助，不另建runner。公共runner已随develop f242d2b同步并对接，实际命令为`python -m flask --app backend.app db-upgrade`，受控库重复迁移/校验和拒绝/一致性备份恢复已通过CI；生产迁移和完整备份集尚未验收。005请求只打开现存库、校验已登记迁移，不自动建库或迁移。
 

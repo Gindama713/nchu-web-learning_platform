@@ -1,6 +1,7 @@
 """SPEC-001 identity and administrator endpoints."""
 
 import hashlib
+import hmac
 import re
 import secrets
 import sqlite3
@@ -28,7 +29,6 @@ from backend.shared.auth import (
     require_user,
 )
 from backend.shared.db import get_db, write
-from backend.shared.gesture import pattern_hash
 
 bp = Blueprint("identity", __name__)
 DUMMY_HASH = generate_password_hash("not-a-real-account-password")
@@ -115,8 +115,17 @@ def login():
 @bp.get("/auth/session")
 def session_info():
     user = require_user()
-    expires = get_db().execute("SELECT expires_at FROM session WHERE id=?", (g.session_id,)).fetchone()[0]
-    response = make_response(result({"user": user, "csrf_token": csrf_for(g.session_token),
+    db = get_db()
+    expires = db.execute("SELECT expires_at FROM session WHERE id=?", (g.session_id,)).fetchone()[0]
+    csrf = csrf_for(g.session_token)
+    # SECRET_KEY 换过之后（改了环境变量、或开发环境换了一份密钥），老会话里存的
+    # 哈希是按旧 KEY 算的，页面拿到新值也永远校验不过，表现就是「读正常、写全 403」。
+    # 会话 Cookie 本身就是身份凭证，这里顺手把哈希对齐，用户不用重新登录。
+    # 安全性：CSRF 值只随响应体返回，跨站读不到，GET 也无法触发写操作。
+    digest = hashlib.sha256(csrf.encode()).hexdigest()
+    if not hmac.compare_digest(digest, g.csrf_hash):
+        db.execute("UPDATE session SET csrf_hash=? WHERE id=?", (digest, g.session_id))
+    response = make_response(result({"user": user, "csrf_token": csrf,
                                      "expires_at": expires})[0])
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -135,35 +144,9 @@ def logout():
     return response
 
 
-@bp.get("/auth/gesture")
-def get_gesture():
-    user = require_user()
-    row = get_db().execute("SELECT gesture_hash,gesture_updated_at FROM user WHERE id=?",
-                           (user["id"],)).fetchone()
-    return result({"enrolled": row["gesture_hash"] is not None,
-                   "updated_at": row["gesture_updated_at"]})
-
-
-@bp.put("/auth/gesture")
-def set_gesture():
-    user = require_user()
-    data = body(("pattern",))
-    hashed = pattern_hash(data["pattern"])
-    with write() as db:
-        db.execute("UPDATE user SET gesture_hash=?,gesture_updated_at=?,updated_at=? WHERE id=?",
-                   (hashed, stamp(), stamp(), user["id"]))
-        audit("auth.gesture_set", "user", user["id"])
-    return result({"enrolled": True})
-
-
-@bp.delete("/auth/gesture")
-def clear_gesture():
-    user = require_user()
-    with write() as db:
-        db.execute("UPDATE user SET gesture_hash=NULL,gesture_updated_at=NULL,updated_at=? WHERE id=?",
-                   (stamp(), user["id"]))
-        audit("auth.gesture_clear", "user", user["id"])
-    return result({"enrolled": False})
+# 原来这里有 GET/PUT/DELETE /auth/gesture：学生给自己设一个图形密码。
+# 课堂点到的手势应该由老师开课时统一指定（见 attendance.create_task 的 pattern），
+# 学生自设等于自己给自己发口令，已整体移除。
 
 
 @bp.patch("/users/me")

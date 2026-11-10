@@ -1,0 +1,1164 @@
+{
+  "chips": [
+    "7485",
+    "74181",
+    "7400"
+  ],
+  "data_ready": false,
+  "experiments": [
+    {
+      "cases": [
+        {
+          "expected": {
+            "eq": 0,
+            "gt": 1,
+            "lt": 0
+          },
+          "id": "c1",
+          "inputs": {
+            "A": 9,
+            "B": 3,
+            "I_EQ": 1,
+            "I_GT": 0,
+            "I_LT": 0
+          },
+          "name": "A=9, B=3",
+          "note": "A 大于 B，A>B 灯亮"
+        },
+        {
+          "expected": {
+            "eq": 1,
+            "gt": 0,
+            "lt": 0
+          },
+          "id": "c2",
+          "inputs": {
+            "A": 6,
+            "B": 6,
+            "I_EQ": 1,
+            "I_GT": 0,
+            "I_LT": 0
+          },
+          "name": "A=6, B=6",
+          "note": "相等且级联 A=B=1，A=B 灯亮"
+        },
+        {
+          "expected": {
+            "eq": 0,
+            "gt": 0,
+            "lt": 1
+          },
+          "id": "c3",
+          "inputs": {
+            "A": 2,
+            "B": 11,
+            "I_EQ": 1,
+            "I_GT": 0,
+            "I_LT": 0
+          },
+          "name": "A=2, B=11",
+          "note": "A 小于 B，级联输入应被忽略"
+        }
+      ],
+      "chip": {
+        "h": 110,
+        "label": "7485",
+        "sub": "4 位数值比较器",
+        "w": 460,
+        "x": 150,
+        "y": 230
+      },
+      "control_rows": [
+        {
+          "hint": "0—15",
+          "key": "A",
+          "label": "A[3:0]",
+          "type": "numeric"
+        },
+        {
+          "hint": "0—15",
+          "key": "B",
+          "label": "B[3:0]",
+          "type": "numeric"
+        },
+        {
+          "key": "I_LT",
+          "label": "I(A<B)",
+          "type": "toggle"
+        },
+        {
+          "key": "I_EQ",
+          "label": "I(A=B)",
+          "type": "toggle"
+        },
+        {
+          "key": "I_GT",
+          "label": "I(A>B)",
+          "type": "toggle"
+        }
+      ],
+      "doc": [
+        {
+          "body": "把 A3..A0 与 B3..B0 拨到指定值，观察 A>B / A=B / A<B 三只指示灯。只有一路为高电平；两数相等时输出由级联输入决定。",
+          "hint": "输入已变化，请重新运行并检查比较结果。",
+          "title": "验证 7485 大小比较"
+        },
+        {
+          "body": "保持 A=B，依次改变 I(A<B)、I(A=B)、I(A>B)，观察相等状态如何向低位传递。",
+          "hint": "A=B 时级联输入直接决定输出。",
+          "title": "级联输入的作用"
+        },
+        {
+          "body": "任选一组 A、B 与级联输入，与右侧真值表逐行核对，确认三种关系互斥且完备。",
+          "hint": "任意输入下 gt / eq / lt 恰好一个为 1。",
+          "title": "全组合自检"
+        }
+      ],
+      "ground": {
+        "x": 150,
+        "y": 520
+      },
+      "id": "7485",
+      "outputs": [
+        {
+          "key": "gt",
+          "label": "A>B"
+        },
+        {
+          "key": "eq",
+          "label": "A=B"
+        },
+        {
+          "key": "lt",
+          "label": "A<B"
+        }
+      ],
+      "pins": [
+        {
+          "bit": 3,
+          "group": "A",
+          "id": "A3",
+          "initial": 0,
+          "kind": "switch",
+          "label": "A3",
+          "side": "top",
+          "x": 180,
+          "y": 120
+        },
+        {
+          "bit": 3,
+          "group": "B",
+          "id": "B3",
+          "initial": 0,
+          "kind": "switch",
+          "label": "B3",
+          "side": "top",
+          "x": 238,
+          "y": 120
+        },
+        {
+          "bit": 2,
+          "group": "A",
+          "id": "A2",
+          "initial": 0,
+          "kind": "switch",
+          "label": "A2",
+          "side": "top",
+          "x": 296,
+          "y": 120
+        },
+        {
+          "bit": 2,
+          "group": "B",
+          "id": "B2",
+          "initial": 0,
+          "kind": "switch",
+          "label": "B2",
+          "side": "top",
+          "x": 354,
+          "y": 120
+        },
+        {
+          "bit": 1,
+          "group": "A",
+          "id": "A1",
+          "initial": 0,
+          "kind": "switch",
+          "label": "A1",
+          "side": "top",
+          "x": 412,
+          "y": 120
+        },
+        {
+          "bit": 1,
+          "group": "B",
+          "id": "B1",
+          "initial": 0,
+          "kind": "switch",
+          "label": "B1",
+          "side": "top",
+          "x": 470,
+          "y": 120
+        },
+        {
+          "bit": 0,
+          "group": "A",
+          "id": "A0",
+          "initial": 0,
+          "kind": "switch",
+          "label": "A0",
+          "side": "top",
+          "x": 528,
+          "y": 120
+        },
+        {
+          "bit": 0,
+          "group": "B",
+          "id": "B0",
+          "initial": 0,
+          "kind": "switch",
+          "label": "B0",
+          "side": "top",
+          "x": 586,
+          "y": 120
+        },
+        {
+          "bit": 2,
+          "group": "cascade",
+          "id": "I_LT",
+          "initial": 0,
+          "kind": "switch",
+          "label": "I(A<B)",
+          "side": "bottom",
+          "x": 180,
+          "y": 470
+        },
+        {
+          "bit": 1,
+          "group": "cascade",
+          "id": "I_EQ",
+          "initial": 1,
+          "kind": "switch",
+          "label": "I(A=B)",
+          "side": "bottom",
+          "x": 242,
+          "y": 470
+        },
+        {
+          "bit": 0,
+          "group": "cascade",
+          "id": "I_GT",
+          "initial": 0,
+          "kind": "switch",
+          "label": "I(A>B)",
+          "side": "bottom",
+          "x": 304,
+          "y": 470
+        },
+        {
+          "id": "O_GT",
+          "kind": "lamp",
+          "label": "A>B",
+          "output": "gt",
+          "side": "bottom",
+          "x": 440,
+          "y": 440
+        },
+        {
+          "id": "O_EQ",
+          "kind": "lamp",
+          "label": "A=B",
+          "output": "eq",
+          "side": "bottom",
+          "x": 528,
+          "y": 440
+        },
+        {
+          "id": "O_LT",
+          "kind": "lamp",
+          "label": "A<B",
+          "output": "lt",
+          "side": "bottom",
+          "x": 616,
+          "y": 440
+        }
+      ],
+      "subtitle": "验证 7485 大小比较",
+      "title": "7485 · 4 位数值比较器",
+      "wires": [
+        {
+          "from": "A3",
+          "points": [
+            [
+              180,
+              138
+            ],
+            [
+              180,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "B3",
+          "points": [
+            [
+              238,
+              138
+            ],
+            [
+              238,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "A2",
+          "points": [
+            [
+              296,
+              138
+            ],
+            [
+              296,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "B2",
+          "points": [
+            [
+              354,
+              138
+            ],
+            [
+              354,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "A1",
+          "points": [
+            [
+              412,
+              138
+            ],
+            [
+              412,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "B1",
+          "points": [
+            [
+              470,
+              138
+            ],
+            [
+              470,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "A0",
+          "points": [
+            [
+              528,
+              138
+            ],
+            [
+              528,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "B0",
+          "points": [
+            [
+              586,
+              138
+            ],
+            [
+              586,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "I_LT",
+          "points": [
+            [
+              180,
+              452
+            ],
+            [
+              180,
+              340
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "I_EQ",
+          "points": [
+            [
+              242,
+              452
+            ],
+            [
+              242,
+              340
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "I_GT",
+          "points": [
+            [
+              304,
+              452
+            ],
+            [
+              304,
+              340
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "O_GT",
+          "points": [
+            [
+              440,
+              340
+            ],
+            [
+              440,
+              422
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "O_EQ",
+          "points": [
+            [
+              528,
+              340
+            ],
+            [
+              528,
+              422
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "O_LT",
+          "points": [
+            [
+              616,
+              340
+            ],
+            [
+              616,
+              422
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "gnd",
+          "points": [
+            [
+              150,
+              340
+            ],
+            [
+              150,
+              520
+            ],
+            [
+              616,
+              520
+            ],
+            [
+              616,
+              340
+            ]
+          ],
+          "tone": "ground"
+        }
+      ]
+    },
+    {
+      "cases": [
+        {
+          "expected": {
+            "cn4": 0,
+            "f": 5
+          },
+          "id": "d1",
+          "inputs": {
+            "A": 9,
+            "B": 4,
+            "OP": "sub"
+          },
+          "name": "9 − 4",
+          "note": "无借位，F=0101，Cn+4 为低有效进位输出"
+        },
+        {
+          "expected": {
+            "cn4": 1,
+            "f": 2
+          },
+          "id": "d2",
+          "inputs": {
+            "A": 1,
+            "B": 15,
+            "OP": "sub"
+          },
+          "name": "1 − 15 借位",
+          "note": "补码结果 0x2；Cn+4 变高表示需要借位"
+        }
+      ],
+      "chip": {
+        "h": 110,
+        "label": "74181",
+        "sub": "四位算术逻辑单元",
+        "w": 300,
+        "x": 150,
+        "y": 230
+      },
+      "chip2": {
+        "h": 80,
+        "label": "7400",
+        "sub": "控制译码",
+        "w": 140,
+        "x": 510,
+        "y": 250
+      },
+      "control_rows": [
+        {
+          "hint": "0—15",
+          "key": "A",
+          "label": "A[3:0]",
+          "type": "numeric"
+        },
+        {
+          "hint": "0—15",
+          "key": "B",
+          "label": "B[3:0]",
+          "type": "numeric"
+        },
+        {
+          "key": "S",
+          "label": "S3S2S1S0",
+          "type": "text"
+        },
+        {
+          "key": "M",
+          "label": "M（模式）",
+          "type": "toggle"
+        },
+        {
+          "key": "Cn",
+          "label": "Cn̄（进位输入）",
+          "type": "toggle"
+        },
+        {
+          "key": "OP",
+          "label": "运算",
+          "options": [
+            "add",
+            "sub"
+          ],
+          "type": "choice"
+        }
+      ],
+      "doc": [
+        {
+          "body": "拨动 A3..A0、B3..B0 与 S3..S0 / M / Cn̄，在 F3..F0 上观察结果。减法时 S=0110、M=0、Cn̄=0，芯片内部按 A + B̄ + 1 运算。",
+          "hint": "控制位变化后请重新验算，确认 F 与 Cn+4。",
+          "title": "验证 74181 减法"
+        },
+        {
+          "body": "切换为加法（S=1001、M=0、Cn̄=1），让 A+B 超过 15，观察 Cn+4 变低。",
+          "hint": "15 + 1 会产生最高位进位。",
+          "title": "加法与进位"
+        }
+      ],
+      "ground": {
+        "x": 140,
+        "y": 540
+      },
+      "id": "74181",
+      "outputs": [
+        {
+          "key": "f",
+          "label": "F[3:0]"
+        },
+        {
+          "key": "cn4",
+          "label": "Cn+4"
+        },
+        {
+          "key": "zero",
+          "label": "结果为零"
+        },
+        {
+          "key": "equal",
+          "label": "A=B"
+        }
+      ],
+      "pins": [
+        {
+          "bit": 3,
+          "group": "A",
+          "id": "A3",
+          "initial": 0,
+          "kind": "switch",
+          "label": "A3",
+          "side": "top",
+          "x": 180,
+          "y": 120
+        },
+        {
+          "bit": 2,
+          "group": "A",
+          "id": "A2",
+          "initial": 0,
+          "kind": "switch",
+          "label": "A2",
+          "side": "top",
+          "x": 226,
+          "y": 120
+        },
+        {
+          "bit": 1,
+          "group": "A",
+          "id": "A1",
+          "initial": 0,
+          "kind": "switch",
+          "label": "A1",
+          "side": "top",
+          "x": 272,
+          "y": 120
+        },
+        {
+          "bit": 0,
+          "group": "A",
+          "id": "A0",
+          "initial": 0,
+          "kind": "switch",
+          "label": "A0",
+          "side": "top",
+          "x": 318,
+          "y": 120
+        },
+        {
+          "bit": 3,
+          "group": "B",
+          "id": "B3",
+          "initial": 0,
+          "kind": "switch",
+          "label": "B3",
+          "side": "top",
+          "x": 364,
+          "y": 120
+        },
+        {
+          "bit": 2,
+          "group": "B",
+          "id": "B2",
+          "initial": 0,
+          "kind": "switch",
+          "label": "B2",
+          "side": "top",
+          "x": 410,
+          "y": 120
+        },
+        {
+          "bit": 1,
+          "group": "B",
+          "id": "B1",
+          "initial": 0,
+          "kind": "switch",
+          "label": "B1",
+          "side": "top",
+          "x": 456,
+          "y": 120
+        },
+        {
+          "bit": 0,
+          "group": "B",
+          "id": "B0",
+          "initial": 0,
+          "kind": "switch",
+          "label": "B0",
+          "side": "top",
+          "x": 502,
+          "y": 120
+        },
+        {
+          "bit": 5,
+          "group": "control",
+          "id": "S3",
+          "initial": 0,
+          "kind": "switch",
+          "label": "S3",
+          "side": "bottom",
+          "x": 180,
+          "y": 480
+        },
+        {
+          "bit": 4,
+          "group": "control",
+          "id": "S2",
+          "initial": 0,
+          "kind": "switch",
+          "label": "S2",
+          "side": "bottom",
+          "x": 246,
+          "y": 480
+        },
+        {
+          "bit": 3,
+          "group": "control",
+          "id": "S1",
+          "initial": 0,
+          "kind": "switch",
+          "label": "S1",
+          "side": "bottom",
+          "x": 312,
+          "y": 480
+        },
+        {
+          "bit": 2,
+          "group": "control",
+          "id": "S0",
+          "initial": 0,
+          "kind": "switch",
+          "label": "S0",
+          "side": "bottom",
+          "x": 378,
+          "y": 480
+        },
+        {
+          "bit": 1,
+          "group": "control",
+          "id": "M",
+          "initial": 0,
+          "kind": "switch",
+          "label": "M",
+          "side": "bottom",
+          "x": 444,
+          "y": 480
+        },
+        {
+          "bit": 0,
+          "group": "control",
+          "id": "Cn",
+          "initial": 0,
+          "kind": "switch",
+          "label": "Cn̄",
+          "side": "bottom",
+          "x": 510,
+          "y": 480
+        },
+        {
+          "id": "F3",
+          "kind": "lamp",
+          "label": "F3",
+          "output": "f3",
+          "side": "bottom",
+          "x": 250,
+          "y": 400
+        },
+        {
+          "id": "F2",
+          "kind": "lamp",
+          "label": "F2",
+          "output": "f2",
+          "side": "bottom",
+          "x": 306,
+          "y": 400
+        },
+        {
+          "id": "F1",
+          "kind": "lamp",
+          "label": "F1",
+          "output": "f1",
+          "side": "bottom",
+          "x": 362,
+          "y": 400
+        },
+        {
+          "id": "F0",
+          "kind": "lamp",
+          "label": "F0",
+          "output": "f0",
+          "side": "bottom",
+          "x": 418,
+          "y": 400
+        },
+        {
+          "id": "CN4",
+          "kind": "lamp",
+          "label": "Cn+4",
+          "output": "cn4",
+          "side": "bottom",
+          "x": 570,
+          "y": 400
+        }
+      ],
+      "subtitle": "验证 74181 减法",
+      "title": "74181 + 7400 · 4 位加减运算",
+      "wires": [
+        {
+          "from": "A3",
+          "points": [
+            [
+              180,
+              138
+            ],
+            [
+              180,
+              230
+            ]
+          ],
+          "tone": "address"
+        },
+        {
+          "from": "A2",
+          "points": [
+            [
+              226,
+              138
+            ],
+            [
+              226,
+              230
+            ]
+          ],
+          "tone": "address"
+        },
+        {
+          "from": "A1",
+          "points": [
+            [
+              272,
+              138
+            ],
+            [
+              272,
+              230
+            ]
+          ],
+          "tone": "address"
+        },
+        {
+          "from": "A0",
+          "points": [
+            [
+              318,
+              138
+            ],
+            [
+              318,
+              230
+            ]
+          ],
+          "tone": "address"
+        },
+        {
+          "from": "B3",
+          "points": [
+            [
+              364,
+              138
+            ],
+            [
+              364,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "B2",
+          "points": [
+            [
+              410,
+              138
+            ],
+            [
+              410,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "B1",
+          "points": [
+            [
+              456,
+              138
+            ],
+            [
+              456,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "B0",
+          "points": [
+            [
+              502,
+              138
+            ],
+            [
+              502,
+              230
+            ]
+          ],
+          "tone": "signal"
+        },
+        {
+          "from": "S3",
+          "points": [
+            [
+              180,
+              462
+            ],
+            [
+              180,
+              340
+            ]
+          ],
+          "tone": "control"
+        },
+        {
+          "from": "S2",
+          "points": [
+            [
+              246,
+              462
+            ],
+            [
+              246,
+              340
+            ]
+          ],
+          "tone": "control"
+        },
+        {
+          "from": "S1",
+          "points": [
+            [
+              312,
+              462
+            ],
+            [
+              312,
+              340
+            ]
+          ],
+          "tone": "control"
+        },
+        {
+          "from": "S0",
+          "points": [
+            [
+              378,
+              462
+            ],
+            [
+              378,
+              340
+            ]
+          ],
+          "tone": "control"
+        },
+        {
+          "from": "M",
+          "points": [
+            [
+              444,
+              462
+            ],
+            [
+              444,
+              340
+            ]
+          ],
+          "tone": "control"
+        },
+        {
+          "from": "Cn",
+          "points": [
+            [
+              510,
+              462
+            ],
+            [
+              510,
+              340
+            ]
+          ],
+          "tone": "control"
+        },
+        {
+          "from": "F3",
+          "points": [
+            [
+              250,
+              340
+            ],
+            [
+              250,
+              382
+            ]
+          ],
+          "tone": "result"
+        },
+        {
+          "from": "F2",
+          "points": [
+            [
+              306,
+              340
+            ],
+            [
+              306,
+              382
+            ]
+          ],
+          "tone": "result"
+        },
+        {
+          "from": "F1",
+          "points": [
+            [
+              362,
+              340
+            ],
+            [
+              362,
+              382
+            ]
+          ],
+          "tone": "result"
+        },
+        {
+          "from": "F0",
+          "points": [
+            [
+              418,
+              340
+            ],
+            [
+              418,
+              382
+            ]
+          ],
+          "tone": "result"
+        },
+        {
+          "from": "CN4",
+          "points": [
+            [
+              570,
+              340
+            ],
+            [
+              570,
+              382
+            ]
+          ],
+          "tone": "result"
+        },
+        {
+          "from": "dec_loop",
+          "points": [
+            [
+              180,
+              138
+            ],
+            [
+              140,
+              138
+            ],
+            [
+              140,
+              90
+            ],
+            [
+              660,
+              90
+            ],
+            [
+              660,
+              560
+            ],
+            [
+              140,
+              560
+            ],
+            [
+              140,
+              340
+            ]
+          ],
+          "tone": "loop"
+        },
+        {
+          "from": "gnd",
+          "points": [
+            [
+              140,
+              340
+            ],
+            [
+              140,
+              540
+            ],
+            [
+              150,
+              540
+            ]
+          ],
+          "tone": "ground"
+        }
+      ]
+    }
+  ],
+  "missing": [
+    "课程",
+    "课程参与名单",
+    "实验",
+    "已发布实验版本",
+    "判分配置",
+    "测试用例",
+    "评测记录",
+    "教学资源"
+  ]
+}
