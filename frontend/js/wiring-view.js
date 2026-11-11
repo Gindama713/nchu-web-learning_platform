@@ -42,6 +42,7 @@ export const WiringView = {
     const localState = ref(null)
     const pending = ref([])
     const undoStack = ref([])
+    const redoStack = ref([])
     const connectForm = reactive({ from: '', to: '' })
     const inputForm = reactive({ terminal_id: '', value: '' })
     const feedback = ref(null)
@@ -49,6 +50,7 @@ export const WiringView = {
     const error = ref('')
     const notice = ref('')
     let runTimer = 0
+    let skippedTicks = 0
 
     const teacher = () => session.value?.user.role === 'teacher'
     const attempt = () => current.value?.attempt
@@ -87,8 +89,28 @@ export const WiringView = {
       localState.value = null
       pending.value = []
       undoStack.value = []
+      redoStack.value = []
       feedback.value = null
       stopRun()
+    }
+
+    // AC-05：beforeunload 只覆盖整页刷新；SPA 内换课程/版本/记录同样会丢弃
+    // 未保存动作，必须先确认。确认后清掉本地缓冲，由后续 reload 以服务端
+    // 已保存状态重建，不把未保存画布带到新记录上。
+    function confirmDiscard() {
+      if (!pending.value.length) return true
+      const confirmed = typeof globalThis.confirm !== 'function' ||
+        globalThis.confirm('有未保存的连线动作，确定放弃并离开吗？')
+      if (!confirmed) return false
+      pending.value = []
+      undoStack.value = []
+      redoStack.value = []
+      return true
+    }
+
+    async function reloadWithGuard() {
+      if (!confirmDiscard()) return
+      await reload()
     }
 
     async function run(action, success = '') {
@@ -108,14 +130,20 @@ export const WiringView = {
       }
     }
 
-    async function loadVersions() {
+    async function loadVersions(previousCourseId = courseId.value) {
+      if (!confirmDiscard()) { courseId.value = previousCourseId; return }
       clearCourse()
       if (!courseId.value) return
       versions.value = (await api.versions(courseId.value))
         .filter(version => (version.submission_modes ?? []).includes('wiring'))
     }
 
-    async function loadAttempts() {
+    async function loadAttempts(previousVersionId = versionId.value, previousPage = page.value) {
+      if (!confirmDiscard()) {
+        versionId.value = previousVersionId
+        page.value = previousPage
+        return
+      }
       closeDetail()
       items.value = []
       total.value = 0
@@ -126,6 +154,7 @@ export const WiringView = {
     }
 
     async function boot() {
+      if (!confirmDiscard()) return
       resetAuth()
       const fresh = await api.session()
       api.userId = fresh.user.id
@@ -144,19 +173,24 @@ export const WiringView = {
       current.value.attempt = fresh
       const log = await api.actions(fresh.id)
       current.value.history = log.items
-      // 与后端一致：从初态重放全部动作重建撤销栈，再以服务端已保存状态为准
+      // 与后端一致：从初态重放全部动作重建撤销/重做栈，再以服务端已保存状态为准
       const stack = []
+      const redo = []
       let replayed = initialState(panel())
-      for (const action of log.items) replayed = replayAction(panel(), replayed, action, stack)
+      for (const action of log.items) {
+        replayed = replayAction(panel(), replayed, action, stack, redo)
+      }
       const saved = fresh.state ?? { wires: [], inputs: {} }
       const match = JSON.stringify(replayed.wires) === JSON.stringify(saved.wires ?? []) &&
         JSON.stringify(replayed.inputs) === JSON.stringify(saved.inputs ?? {})
       undoStack.value = match ? stack : []
+      redoStack.value = match ? redo : []
       localState.value = JSON.parse(JSON.stringify(saved))
       pending.value = []
     }
 
     async function openAttempt(row) {
+      if (!confirmDiscard()) return
       const attemptData = await api.attempt(row.id)
       let version = versions.value.find(item => item.id === attemptData.experiment_version_id)
       if (!version) version = await api.version(attemptData.experiment_version_id)
@@ -165,6 +199,7 @@ export const WiringView = {
     }
 
     async function createAttempt() {
+      if (!confirmDiscard()) return
       const created = await api.create(versionId.value)
       await loadAttempts()
       await openAttempt(created)
@@ -174,7 +209,8 @@ export const WiringView = {
       if (readOnly()) throw new Error('当前状态不可编辑')
       const action = { type, payload, client_at: new Date().toISOString() }
       pending.value.push(action)
-      localState.value = replayAction(panel(), localState.value, action, undoStack.value)
+      localState.value = replayAction(panel(), localState.value, action,
+        undoStack.value, redoStack.value)
     }
 
     function doConnect() {
@@ -211,6 +247,11 @@ export const WiringView = {
       commit('undo', {})
     }
 
+    function doRedo() {
+      if (!redoStack.value.length) throw new Error('没有可重做的编辑')
+      commit('redo', {})
+    }
+
     async function persist(extra = []) {
       if (!current.value) return
       const actions = [...pending.value, ...extra]
@@ -224,6 +265,7 @@ export const WiringView = {
       const data = await api.save(row.id, row.revision, state, actions)
       row.revision = data.revision
       undoStack.value = []
+      redoStack.value = []
       await reload()
     }
 
@@ -236,10 +278,18 @@ export const WiringView = {
         notice.value = '已暂停，可继续编辑。'
         return
       }
+      skippedTicks = 0
       runTimer = globalThis.setInterval(() => {
         if (!current.value || attempt()?.status !== 'draft' ||
             localState.value?.halted === 1 || localState.value?.error === 1) {
           stopRun()
+          return
+        }
+        // run() 在 busy 时会直接返回。保存超过一秒时不能静默丢拍，
+        // 明确累计并提示，避免学生以为时钟仍在每拍推进。
+        if (busy.value) {
+          skippedTicks += 1
+          notice.value = `保存耗时超过一个时钟周期，已跳过 ${skippedTicks} 拍；已保存状态未受影响。`
           return
         }
         run(stepOne)
@@ -265,13 +315,33 @@ export const WiringView = {
         event.returnValue = ''
       }
     }
+
+    // AC-08：键盘也能撤销/重做；输入框内不劫持原生 Ctrl+Z。
+    function guardKeydown(event) {
+      if (readOnly() || busy.value || !(event.ctrlKey || event.metaKey)) return
+      const tag = event.target?.tagName
+      if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return
+      if (String(event.key).toLowerCase() !== 'z') return
+      event.preventDefault?.()
+      run(event.shiftKey ? doRedo : doUndo, event.shiftKey ? '已重做' : '已撤销')
+    }
     onMounted(() => {
       run(boot)
-      if (typeof window !== 'undefined') globalThis.window.addEventListener('beforeunload', guardUnload)
+      if (typeof globalThis.window !== 'undefined') {
+        globalThis.window.addEventListener('beforeunload', guardUnload)
+      }
+      if (typeof globalThis.document !== 'undefined') {
+        globalThis.document.addEventListener('keydown', guardKeydown)
+      }
     })
     onUnmounted(() => {
       stopRun()
-      if (typeof window !== 'undefined') globalThis.window.removeEventListener('beforeunload', guardUnload)
+      if (typeof globalThis.window !== 'undefined') {
+        globalThis.window.removeEventListener('beforeunload', guardUnload)
+      }
+      if (typeof globalThis.document !== 'undefined') {
+        globalThis.document.removeEventListener('keydown', guardKeydown)
+      }
     })
 
     const button = (label, action, options = {}) => h('button', {
@@ -356,7 +426,14 @@ export const WiringView = {
           h('label', ['从 ', select(outs, connectForm.from, value => { connectForm.from = value }, '请选择')]),
           h('label', ['到 ', select(ins, connectForm.to, value => { connectForm.to = value }, '请选择')]),
           h('button', { type: 'submit', disabled: busy.value }, '连接'),
-          button('撤销', () => run(doUndo, '已撤销'), { class: 'secondary' }),
+          button('撤销', () => run(doUndo, '已撤销'), {
+            class: 'secondary', 'aria-keyshortcuts': 'Control+Z Meta+Z',
+            title: `撤销上一条编辑（${undoStack.value.length} 条可撤销，Ctrl+Z）`,
+          }),
+          button('重做', () => run(doRedo, '已重做'), {
+            class: 'secondary', 'aria-keyshortcuts': 'Control+Shift+Z Meta+Shift+Z',
+            title: `重做上一条撤销（${redoStack.value.length} 条可重做，Ctrl+Shift+Z）`,
+          }),
         ]),
         wires.length
           ? h('table', { class: 'wiring-wires' }, [
@@ -462,7 +539,7 @@ export const WiringView = {
           ])
           : feedback.value && h('p', '结构校验通过。'),
         resultsTable(),
-        button('重新加载', () => run(reload, '已恢复最新已保存状态'), { class: 'secondary' }),
+        button('重新加载', () => run(reloadWithGuard, '已恢复最新已保存状态'), { class: 'secondary' }),
       ])
     }
 
@@ -496,19 +573,29 @@ export const WiringView = {
     return () => h('section', { class: 'card wiring-module', 'aria-busy': busy.value }, [
       h('div', { class: 'actions' }, [h('h2', '实验箱连线'), button('重新加载', () => run(boot))]),
       error.value && h('p', { class: 'wiring-error', role: 'alert' }, error.value),
-      notice.value && h('p', { class: 'wiring-notice' }, notice.value),
+      notice.value && h('p', { class: 'wiring-notice', role: 'status', 'aria-live': 'polite' }, notice.value),
       !session.value && h('p', '正在加载…'),
       session.value && h('label', { class: 'wiring-course' }, ['课程 ',
         h('select', {
           value: courseId.value, disabled: busy.value,
-          onChange: event => { courseId.value = event.target.value; run(loadVersions) },
+          onChange: event => {
+            const previous = courseId.value
+            courseId.value = event.target.value
+            run(() => loadVersions(previous))
+          },
         }, courses.value.map(course => h('option', {
           value: String(course.id), key: course.id,
         }, course.title)))]),
       session.value && h('label', { class: 'wiring-version' }, ['实验 ',
         select(versions.value.map(version => [String(version.id),
           `${version.experiment?.code ?? ''} ${version.title}`.trim()]),
-        versionId.value, value => { versionId.value = value; page.value = 1; run(loadAttempts) }, '请选择已发布实验')]),
+        versionId.value, value => {
+          const previous = versionId.value
+          const previousPage = page.value
+          versionId.value = value
+          page.value = 1
+          run(() => loadAttempts(previous, previousPage))
+        }, '请选择已发布实验')]),
       session.value && !versions.value.length && h('p', '当前课程暂无支持连线的已发布实验。'),
       session.value && versionId.value && h('h3', `连线记录（${total.value}）`),
       session.value && versionId.value && (items.value.length
@@ -516,10 +603,17 @@ export const WiringView = {
         : h('p', teacher() ? '该实验还没有学生的连线记录。' : '还没有连线记录，可发起新连线。')),
       session.value && versionId.value && total.value > 50
         && h('div', { class: 'actions wiring-pager' }, [
-          button('上一页', () => { page.value -= 1; run(loadAttempts) },
-            { class: 'secondary', disabled: busy.value || page.value <= 1 }),
+          button('上一页', () => {
+            const previous = page.value
+            page.value -= 1
+            run(() => loadAttempts(versionId.value, previous))
+          }, { class: 'secondary', disabled: busy.value || page.value <= 1 }),
           h('span', `第 ${page.value} 页 / 共 ${Math.ceil(total.value / 50)} 页`),
-          button('下一页', () => { page.value += 1; run(loadAttempts) },
+          button('下一页', () => {
+            const previous = page.value
+            page.value += 1
+            run(() => loadAttempts(versionId.value, previous))
+          },
             { class: 'secondary', disabled: busy.value || page.value >= Math.ceil(total.value / 50) }),
         ]),
       session.value && !teacher() && versionId.value

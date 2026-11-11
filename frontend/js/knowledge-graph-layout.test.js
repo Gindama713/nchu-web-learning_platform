@@ -85,6 +85,20 @@ test('边路径从右缘出发、左缘收口', () => {
   assert.match(path, new RegExp(`300 ${100 + NODE_H / 2}$`))
 })
 
+test('长链布局用游标遍历且孤立节点带 isolated 标记', () => {
+  const nodes = Array.from({ length: 1200 }, (_, index) => node(index + 1))
+  const edges = nodes.slice(1).map((item, index) => edge(index + 1, index + 2))
+  const { placed, layers, hasCycle } = layoutGraph(nodes, edges)
+  assert.equal(layers, 1200)
+  assert.equal(placed.get(1200).layer, 1199)
+  assert.equal(placed.get(1).isolated, false)
+  assert.equal(hasCycle, false)
+
+  const withIsolated = layoutGraph([...nodes, node(9999)], edges)
+  assert.equal(withIsolated.placed.get(9999).isolated, true)
+  assert.equal(withIsolated.placed.get(9999).layer, 0)
+})
+
 test('标题截断保留省略号', () => {
   assert.equal(truncate('短标题'), '短标题')
   assert.equal(truncate('这是一个非常非常长的知识点标题', 8), '这是一个非常非常…')

@@ -1,7 +1,7 @@
 // Pure simulation tests for the EXP-01/EXP-02 style panels (AC-03/AC-08).
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { initialState, propagate, resetSim, stepSim } from './wiring-sim.js'
+import { initialState, propagate, replayAction, resetSim, stepSim } from './wiring-sim.js'
 
 const EXP01 = {
   components: [
@@ -83,6 +83,33 @@ test('unwired LED reads Z and undriven ALU input propagates X (AC-08)', () => {
   assert.equal(values.get('alu_b'), 'Z')
   assert.equal(values.get('alu_y'), 'X')
   assert.equal(values.get('led_y_in'), 'Z')
+})
+
+test('undo then redo re-applies the wire, and a new edit clears the redo stack', () => {
+  const wire = { id: 'w1', from_terminal: 'sw_a_out', to_terminal: 'alu_a' }
+  const undo = []
+  const redo = []
+  let state = { ...initialState(EXP01), wires: [] }
+  state = replayAction(EXP01, state, { type: 'connect', payload: wire }, undo, redo)
+  assert.equal(state.wires.length, 1)
+  state = replayAction(EXP01, state, { type: 'undo', payload: {} }, undo, redo)
+  assert.equal(state.wires.length, 0)
+  assert.equal(redo.length, 1)
+  state = replayAction(EXP01, state, { type: 'redo', payload: {} }, undo, redo)
+  assert.deepEqual(state.wires.map(item => item.id), ['w1'])
+
+  const undo2 = []
+  const redo2 = []
+  let other = { ...initialState(EXP01), wires: [] }
+  other = replayAction(EXP01, other, { type: 'connect', payload: wire }, undo2, redo2)
+  other = replayAction(EXP01, other, { type: 'undo', payload: {} }, undo2, redo2)
+  other = replayAction(EXP01, other, {
+    type: 'set_input', payload: { terminal_id: 'sw_a_out', value: 7 },
+  }, undo2, redo2)
+  assert.equal(redo2.length, 0)
+  other = replayAction(EXP01, other, { type: 'redo', payload: {} }, undo2, redo2)
+  assert.equal(other.wires.length, 0)
+  assert.equal(other.inputs.sw_a_out, 7)
 })
 
 test('REG8 latches D on step and holds when disabled (AC-03/AC-04)', () => {
