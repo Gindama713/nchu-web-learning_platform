@@ -30,7 +30,12 @@ def response(data):
         row([key, data[key]])
     row(['filters', data.get('filters')])
     metrics = data['metrics']
-    keys = [key for key in metrics if key not in ('items', 'score_bins', 'suites')]
+    # SPEC-010D grading 维度的 selected_version_ids 是筛选条件快照，不是统计指标。
+    # 只在该维度排除，其余维度 CSV 列保持不变。
+    excluded = ('items', 'score_bins', 'suites')
+    if data['dimension'] == 'grading':
+        excluded += ('selected_version_ids',)
+    keys = [key for key in metrics if key not in excluded]
     # Explicit keys rather than JSON object order (Flask may sort response keys).
     keys.sort()
     row(['section', 'period_start', 'period_end', *keys])
