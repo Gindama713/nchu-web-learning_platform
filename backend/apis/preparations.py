@@ -97,7 +97,7 @@ def _serialize(db, row, role, user_id=None):
     return item
 
 
-def _assert_same_course(db, course_id, table, column, ids, extra_where=""):
+def _assert_same_course(db, course_id, table, ids, extra_where=""):
     if not ids:
         return
     placeholders = ",".join("?" * len(ids))
@@ -134,19 +134,19 @@ def _resource_table_exists(db):
 
 
 def _validate_links(db, course_id, knowledge_ids, resource_ids, question_ids, quiz_ids, for_publish=False):
-    _assert_same_course(db, course_id, "knowledge_point", "id", knowledge_ids,
+    _assert_same_course(db, course_id, "knowledge_point", knowledge_ids,
                         " AND k.published=1" if for_publish else "")
     if resource_ids:
         if not _resource_table_exists(db):
             raise ApiError(503, "RESOURCE_MODULE_NOT_READY",
                            "Resource module (SPEC-003) is not available yet")
-        _assert_same_course(db, course_id, "resource_version", "id", resource_ids,
+        _assert_same_course(db, course_id, "resource_version", resource_ids,
                             " AND r.visibility='students'" if for_publish else "")
     if question_ids:
         extra = " AND qv.practice_available=1 AND qv.type IN ('single','multiple','boolean','numeric')" if for_publish else ""
-        _assert_same_course(db, course_id, "question_version", "id", question_ids, extra)
+        _assert_same_course(db, course_id, "question_version", question_ids, extra)
     if quiz_ids:
-        _assert_same_course(db, course_id, "paper", "id", quiz_ids, " AND kind='quiz'")
+        _assert_same_course(db, course_id, "paper", quiz_ids, " AND kind='quiz'")
         if for_publish:
             placeholders = ",".join("?" * len(quiz_ids))
             unpublished = db.execute(

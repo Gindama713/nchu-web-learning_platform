@@ -214,15 +214,32 @@ def wiring_facts(db, course_id, start, end, cutoff):
         db.execute("COMMIT")
         return {"versions": wiring_versions, "participants": participants,
                 "attempts": attempts, "validations": validations}
-    except BaseException:
+    except Exception:
         db.execute("ROLLBACK")
         raise
 
 
+def _version_end_at(value):
+    """把 end_at 解析成 UTC 时刻；历史脏值（无时区、格式错误）返回 None 并跳过。"""
+    try:
+        return parse_time(value, "end_at")
+    except ApiError:
+        return None
+
+
 def wiring_interval_metrics(snapshot, start, end):
-    """计算区间内连线指标。start/end 为 ISO 字符串，按 experiment_version.end_at 筛选。"""
-    versions = [v for v in snapshot["versions"]
-                if v.get("end_at") and start <= v["end_at"] < end]
+    """计算区间内连线指标。按 experiment_version.end_at 的真实时刻归区间。
+
+    不能裸比字符串：同样时刻写成 +08:00、+00:00、带/不带毫秒时字典序不同，
+    会把 10 月底的截止误判到 11 月（010C 父 AC-01 复算一致性）。
+    """
+    lower = parse_time(start, "from")
+    upper = parse_time(end, "to")
+    versions = []
+    for version in snapshot["versions"]:
+        boundary = _version_end_at(version.get("end_at"))
+        if boundary is not None and lower <= boundary < upper:
+            versions.append(version)
     vid_set = {v["id"] for v in versions}
     participants = [p for p in snapshot["participants"] if p["experiment_version_id"] in vid_set]
     assigned = len({(p["experiment_version_id"], p["student_id"]) for p in participants})

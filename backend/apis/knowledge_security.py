@@ -25,7 +25,12 @@ class SharedSessionSecurity:
         origin = request.headers.get("Origin")
         # 与 app.py 的 trusted_origin 同口径：课堂部署 IP 不固定，
         # Origin 与本次请求 Host 同源也放行，避免局域网访问时写入全部 403（DEF-001）。
-        if not expected or not (origin == expected or urlparse(origin).netloc == request.host):
+        # 代价：Host 由客户端提供，反向代理必须固定 Host 头；否则同源比较可被伪造。
+        # 因此只接受 http/https 且不带 userinfo 的绝对 Origin，并保留第二道 CSRF token。
+        parsed = urlparse(origin or "")
+        same_host = (parsed.scheme in ("http", "https") and not parsed.username
+                     and not parsed.password and parsed.netloc == request.host)
+        if not expected or not (origin == expected or same_host):
             raise KnowledgeError(403, "CSRF_FAILED", "来源不受信任")
         try:
             self.check_csrf()
