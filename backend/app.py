@@ -265,4 +265,9 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=False)
+    # 课堂演示要让同学用手机访问：HOST=0.0.0.0 对外监听（默认仍只本机）。
+    # threaded 必须开：不开的话 Werkzeug 单线程，一个请求处理完才接下一个，
+    # 全班同时刷新会在 socket 层排长队，跟数据库无关也会「卡住」。
+    app.run(host=os.environ.get("HOST", "127.0.0.1"),
+            port=int(os.environ.get("PORT", "5000")),
+            debug=False, threaded=True)
