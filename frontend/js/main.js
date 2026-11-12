@@ -192,6 +192,11 @@ createApp({
       secretCode.value = ''
       seatData.value = null
       seatDetail.value = null
+      // 换账号或切课时必须把座位图收起：否则 seatOpen 还指向上一个人的任务，
+      // 而 seatData 已经清空，新用户一进考勤页就会看到「座位图没加载出来」。
+      window.clearTimeout(seatTimer)
+      seatOpen.value = null
+      seatDrop.value = false
       room.value = null
       check.task_id = ''
       check.code = ''
