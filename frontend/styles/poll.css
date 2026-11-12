@@ -99,11 +99,11 @@
 .poll-accuracy { font-size: .8rem; color: #1c5c2e; font-variant-numeric: tabular-nums; }
 
 .poll-dist { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
-.poll-dist li { display: grid; grid-template-columns: minmax(120px, 1.1fr) minmax(80px, 2fr) auto;
+.poll-dist li { display: grid; grid-template-columns: minmax(158px, 1.35fr) minmax(70px, 1.5fr) auto;
   align-items: center; gap: 10px; font-size: .84rem; }
 .poll-dist-label { color: var(--primary); }
 .poll-dist-label em { margin-left: 6px; padding: 0 7px; border-radius: 999px; font-style: normal;
-  font-size: .7rem; background: #e6f3ea; color: #1c5c2e; }
+  font-size: .7rem; white-space: nowrap; background: #e6f3ea; color: #1c5c2e; }
 .poll-dist-label em.mine { background: #e8eefb; color: #2f6fd0; }
 .poll-bar { height: 10px; border-radius: 999px; background: #eef2f8; overflow: hidden; }
 .poll-bar i { display: block; height: 100%; background: #7ea6dd; border-radius: 999px;
@@ -128,7 +128,7 @@
   background: rgb(15 32 55 / 48%); backdrop-filter: blur(2px);
 }
 .poll-dialog {
-  width: min(520px, 100%); display: grid; gap: 12px; padding: 24px 24px 20px;
+  width: min(560px, 100%); display: grid; gap: 12px; padding: 24px 24px 20px;
   border-radius: 16px; background: #fff; box-shadow: 0 24px 60px -20px rgb(9 24 44 / 55%);
 }
 .poll-eyebrow { margin: 0; font-size: .78rem; letter-spacing: .04em; color: var(--muted); }
