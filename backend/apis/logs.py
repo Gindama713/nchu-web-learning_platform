@@ -5,8 +5,12 @@
 这里补的是每次请求的访问轨迹。
 """
 
+import atexit
 import csv
 import io
+import sqlite3
+import threading
+import time
 
 from flask import Blueprint, Response, current_app, g, request
 
@@ -19,6 +23,64 @@ bp = Blueprint("logs", __name__)
 # 导出接口自身不记访问日志，否则导出动作会把日志越写越多
 SKIP_PREFIX = ("/api/v1/logs/",)
 
+# 访问日志原来每个请求 INSERT 一次并 commit，等于把只读请求也变成写请求：
+# 每个请求多一次 fsync，并发时这些写事务互相排队，读请求被拖到秒级
+# （实测 6 读 + 2 写下 p95 约 7 秒、5% 请求拿到 503 DB_BUSY）。
+# 改成先攒在内存里，够一批或隔一段时间再一次性落库，写次数降到 1/20。
+ACCESS_FLUSH_ROWS = 20
+ACCESS_FLUSH_SECONDS = 2.0
+
+INSERT_ACCESS = ("INSERT INTO access_log(user_id,student_no,name,role,method,path,status,ip,"
+                 "duration_ms,at) VALUES(?,?,?,?,?,?,?,?,?,?)")
+
+_pending = []
+_pending_lock = threading.Lock()
+_last_flush = 0.0
+_database_path = None
+
+
+def flush_access(force=False):
+    """把攒下的访问记录一次性写库；失败只记 debug，绝不反压业务请求。"""
+    global _last_flush
+    with _pending_lock:
+        if not _pending:
+            return
+        if not force and len(_pending) < ACCESS_FLUSH_ROWS and \
+                (time.monotonic() - _last_flush) < ACCESS_FLUSH_SECONDS:
+            return
+        rows = _pending[:]
+        _pending.clear()
+        _last_flush = time.monotonic()
+    try:
+        db = get_db()
+        db.executemany(INSERT_ACCESS, rows)
+        db.commit()
+    except Exception as failure:  # noqa: BLE001 — 日志失败绝不能把业务请求带崩
+        current_app.logger.debug("access log flush failed: %s", failure)
+        try:
+            get_db().rollback()
+        except Exception:  # noqa: BLE001
+            pass
+
+
+def _flush_at_exit():
+    """进程正常退出时把没落库的尾部记录补上；用的是独立连接，此时没有请求上下文。"""
+    with _pending_lock:
+        rows = _pending[:]
+        _pending.clear()
+    if not rows or not _database_path:
+        return
+    try:
+        db = sqlite3.connect(_database_path, timeout=5)
+        db.executemany(INSERT_ACCESS, rows)
+        db.commit()
+        db.close()
+    except Exception:  # noqa: BLE001
+        pass
+
+
+atexit.register(_flush_at_exit)
+
 
 def should_log(path):
     if not (path.startswith("/api/v1/") or path in ("/help", "/who")):
@@ -27,22 +89,22 @@ def should_log(path):
 
 
 def write_access(status, duration_ms):
-    """在 after_request 里落一条访问记录；任何异常都不能影响正常响应。"""
+    """在 after_request 里记一条访问轨迹；任何异常都不能影响正常响应。"""
+    global _database_path
     path = request.path
     if not should_log(path):
         return
     user = getattr(g, "user", None) or {}
     try:
-        db = get_db()
-        db.execute(
-            "INSERT INTO access_log(user_id,student_no,name,role,method,path,status,ip,"
-            "duration_ms,at) VALUES(?,?,?,?,?,?,?,?,?,?)",
-            (user.get("id"), user.get("student_no"), user.get("name"), user.get("role"),
-             request.method, path, status, request.headers.get("X-Forwarded-For", request.remote_addr),
-             round(duration_ms, 1), stamp()))
-        db.commit()
-    except Exception as failure:  # noqa: BLE001 — 日志失败绝不能把业务请求带崩
-        current_app.logger.debug("access log write failed: %s", failure)
+        _database_path = current_app.config["DATABASE_PATH"]
+    except Exception:  # noqa: BLE001
+        pass
+    with _pending_lock:
+        _pending.append((user.get("id"), user.get("student_no"), user.get("name"), user.get("role"),
+                         request.method, path, status,
+                         request.headers.get("X-Forwarded-For", request.remote_addr),
+                         round(duration_ms, 1), stamp()))
+    flush_access()
 
 
 def _filtered():
@@ -50,6 +112,8 @@ def _filtered():
     user = require_user()
     if user["role"] not in ("teacher", "admin"):
         raise ApiError(403, "FORBIDDEN", "Teacher or administrator required")
+    # 导出前先把内存里还没落库的记录刷进去，否则刚发生的访问查不到
+    flush_access(force=True)
     start, end = date_range()
     conditions, params = ["at>=?", "at<=?"], [start, end]
     number = request.args.get("student_no", "").strip()
