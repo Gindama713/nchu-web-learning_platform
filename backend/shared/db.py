@@ -2,12 +2,21 @@
 
 import hashlib
 import sqlite3
+import time
 from contextlib import contextmanager
 from pathlib import Path
 
 from flask import current_app, g
 
 MIGRATIONS = Path(__file__).resolve().parents[1] / "migrations"
+
+# 全班同时点签到实测：一次有效签到要写 attendance_record + audit 两行，回滚日志模式下
+# 每次 commit 都要 fsync，单个事务约 40ms。160 个人同一瞬间点，排队总时长约 6.4 秒，
+# 超过 sqlite 的 5 秒 busy_timeout 就会成批报 "database is locked" → 503 DB_BUSY
+# （实测 100 人 6 个失败、160 人 80 个失败）。抢锁失败时事务还没开，重试是安全的，
+# 所以这里把「等锁」从 sqlite 内部挪到 Python 层，给足总预算，宁可慢几秒也不要失败。
+WRITE_BUSY_SECONDS = 25.0
+WRITE_BUSY_RETRY = 0.05
 
 
 def connect(path):
@@ -18,6 +27,31 @@ def connect(path):
     db.execute("PRAGMA foreign_keys = ON")
     db.execute("PRAGMA busy_timeout = 5000")
     return db
+
+
+def _begin_immediate(db):
+    """抢写锁；BUSY 就重试，直到 WRITE_BUSY_SECONDS 用完。
+
+    只在抢锁这一小段把 busy_timeout 压到 200ms：否则每次抢不到都先干等满 5 秒
+    才轮到我们的重试，160 人同时点时最后几个要等 10 秒以上。200ms 一轮、轮着来，
+    总时长不变但排队更均匀。读请求的 5 秒窗口不受影响（下面 finally 会还原）。
+    """
+    deadline = time.monotonic() + WRITE_BUSY_SECONDS
+    db.execute("PRAGMA busy_timeout = 200")
+    try:
+        while True:
+            try:
+                db.execute("BEGIN IMMEDIATE")
+                return
+            except sqlite3.OperationalError as exc:
+                message = str(exc).lower()
+                if "locked" not in message and "busy" not in message:
+                    raise
+                if time.monotonic() >= deadline:
+                    raise
+                time.sleep(WRITE_BUSY_RETRY)
+    finally:
+        db.execute("PRAGMA busy_timeout = 5000")
 
 
 def get_db():
@@ -35,7 +69,7 @@ def close_db(_error=None):
 @contextmanager
 def write(db=None):
     db = db or get_db()
-    db.execute("BEGIN IMMEDIATE")
+    _begin_immediate(db)
     try:
         if getattr(g, "session_id", None) and getattr(g, "user", None):
             row = db.execute("SELECT u.active,u.role,u.session_version,s.session_version AS saved_version "
