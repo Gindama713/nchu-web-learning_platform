@@ -427,7 +427,11 @@ export const DemoView = {
     async function refreshCurrent(force = false) {
       if (!current.value) return
       const next = await api.session(current.value.id)
-      if (force || next.revision !== current.value.revision) applySession(next)
+      // 结束演示不推进 revision，只把 active 置 0；只比 revision 的话学生端
+      // 永远同步不到「已关闭」，页面会一直停在「进行中」。
+      if (force || next.revision !== current.value.revision || next.active !== current.value.active) {
+        applySession(next)
+      }
     }
 
     function startTimer() {
@@ -582,8 +586,10 @@ export const DemoView = {
                 `第 ${state()?.step ?? 0} 步 · revision ${current.value.revision} · ${active ? '进行中' : '已关闭'}`),
             ]),
             h('div', { class: 'demo-actions' }, [
+              // toggleFollow / closeDemo 内部已经用 run 包过，这里再包一层会撞上
+              // run 的 busy 守卫：外层把 busy 置 true，内层直接 return，点击变成静默空操作。
               !teacher && h('button', {
-                type: 'button', class: 'secondary', onClick: () => run(toggleFollow),
+                type: 'button', class: 'secondary', onClick: () => toggleFollow(),
               }, following.value ? '正在跟随' : '恢复跟随'),
               teacher && active && h('button', { type: 'button', disabled: busy.value, onClick: () => act('step') }, '单步'),
               teacher && active && h('button', {
@@ -592,7 +598,7 @@ export const DemoView = {
               }, running.value ? '停止连续' : '连续运行'),
               teacher && active && h('button', { type: 'button', disabled: busy.value, onClick: () => act('pause') }, '暂停'),
               teacher && active && h('button', { type: 'button', class: 'secondary', disabled: busy.value, onClick: () => act('reset') }, '复位'),
-              teacher && active && h('button', { type: 'button', class: 'secondary', disabled: busy.value, onClick: () => run(closeDemo) }, '结束演示'),
+              teacher && active && h('button', { type: 'button', class: 'secondary', disabled: busy.value, onClick: () => closeDemo() }, '结束演示'),
             ]),
           ]),
           h('div', { class: 'demo-canvas' }, [sceneSvg(state(), current.value.preset)]),
