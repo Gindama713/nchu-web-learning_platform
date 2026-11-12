@@ -151,7 +151,9 @@ export const AnalyticsView = {
     onMounted(() => { if (props.user.role !== 'admin') run(boot) })
     onUnmounted(forget)
     const button = (label, action, disabled = false) => h('button', { type: 'button', onClick: action, disabled: busy.value || disabled }, label)
-    const input = (label, value, update, type = 'text') => h('label', [label, h('input', { 'aria-label': label, type, value, disabled: !courses.value.length,
+    // aria-label 带上模块名：连线统计卡与本卡同页渲染，两处都叫「原快照编号」时，
+    // 读屏与自动化无法区分（同一页面重复标签），因此这里的可访问名加模块前缀。
+    const input = (label, value, update, type = 'text', aria = label) => h('label', [label, h('input', { 'aria-label': aria, type, value, disabled: !courses.value.length,
       onInput: event => { forget(); update(event.target.value) } })])
     const select = (label, value, update, options) => h('label', [label, h('select', { 'aria-label': label, value, disabled: !courses.value.length,
       onChange: event => { forget(); update(event.target.value) } }, options.map(([id, text]) => h('option', { value: id }, text)))])
@@ -306,7 +308,7 @@ export const AnalyticsView = {
       h('details', { class: 'analytics-restore' }, [
         h('summary', {}, '按快照编号恢复以前的结果'),
         h('div', { class: 'analytics-restore-row' }, [
-          input('原快照编号', runId.value, v => { runId.value = v }, 'number'),
+          input('原快照编号', runId.value, v => { runId.value = v }, 'number', '原快照编号（知识与成绩分析）'),
           button('恢复原快照', () => run(restore), !course.value || !runId.value),
         ]),
       ]),
