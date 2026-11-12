@@ -24,6 +24,11 @@ const renderer = createRenderer({
   nextSibling: item => item.parent?.children[item.parent.children.indexOf(item) + 1] ?? null,
 })
 const content = item => item.text + item.children.map(content).join('')
+const find = (item, predicate, found = []) => {
+  if (predicate(item)) found.push(item)
+  for (const child of item.children) find(child, predicate, found)
+  return found
+}
 const flush = async () => { await setImmediate() }
 
 const RUN = {
@@ -64,13 +69,14 @@ async function mount(t, role = 'teacher', overrides = {}) {
       return okData({ user: { id: fixture.userId, name: '测试用户', role }, csrf_token: 'token' })
     }
     if (path === '/api/v1/courses?page=1&page_size=100') return okData([{ id: 1, title: 'Fixture 课程' }])
-    if (path === '/api/v1/courses/1/analytics?dimension=wiring') {
+    if (path.startsWith('/api/v1/courses/1/analytics?')) {
+      const params = new globalThis.URL(path, 'http://127.0.0.1').searchParams
+      if (params.get('analysis_run_id')) {
+        fixture.restored = path
+        return okData({ ...fixture.analytics, analysis_run_id: 7 })
+      }
       fixture.queries.push(path)
       return okData(fixture.analytics)
-    }
-    if (path === '/api/v1/courses/1/analytics?analysis_run_id=7') {
-      fixture.restored = path
-      return okData({ ...fixture.analytics, analysis_run_id: 7 })
     }
     throw new Error(`Unexpected path ${path}`)
   }
@@ -102,6 +108,28 @@ test('teacher boot queries wiring dimension and renders metrics, errors and seri
   assert.match(text, /wiring-analysis-v1/)
   assert.match(text, /周区间（左闭右开，Asia\/Shanghai）应做人数完成人数完成率提交次数/)
   assert.match(text, /导出当前快照 CSV/)
+  assert.match(text, /统计起始日期/)
+  assert.match(text, /统计结束日期/)
+  const dates = find(view.root, item => item.type === 'input' && item.props.type === 'date')
+  assert.equal(dates.length, 2, '起始/结束都是日期日历控件')
+  assert.equal(find(view.root, item => item.type === 'select'
+    && item.props['aria-label'] === '统计起始时间').length, 0)
+})
+
+test('日期筛选换算成上海时区的整天区间', async t => {
+  const view = await mount(t, 'teacher')
+  const [from, to] = find(view.root, item => item.type === 'input' && item.props.type === 'date')
+  view.fixture.queries.length = 0
+  from.props.onInput({ target: { value: '2026-10-05' } })
+  to.props.onInput({ target: { value: '2026-10-19' } })
+  await flush()
+  const [query] = find(view.root, item => item.type === 'button' && content(item) === '查询统计')
+  await query.props.onClick()
+  await flush()
+  assert.equal(view.fixture.queries.length, 1)
+  const url = new globalThis.URL(view.fixture.queries[0], 'http://127.0.0.1')
+  assert.equal(url.searchParams.get('from'), '2026-10-04T16:00:00.000Z')
+  assert.equal(url.searchParams.get('to'), '2026-10-19T16:00:00.000Z')
 })
 
 test('empty sample shows explicit zero-state instead of a blank page', async t => {

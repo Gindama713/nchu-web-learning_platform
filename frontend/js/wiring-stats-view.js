@@ -16,6 +16,12 @@ const shanghaiTime = value => {
   const date = new Date(value)
   return value && Number.isFinite(date.getTime()) ? shanghaiFormat.format(date) : '无时间记录'
 }
+// 统计起止精确到「几月几号」：日期用日历控件，换算成上海时区的当天 0 点与次日 0 点（右开）。
+const DAY_MS = 86400000
+const shanghaiDay = value => new globalThis.Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Shanghai' })
+  .format(value).slice(0, 10)
+const dayStart = value => new Date(`${value}T00:00:00+08:00`)
+const MAX_SPAN = 366 * DAY_MS
 
 export const WiringStatsView = {
   props: { user: { type: Object, required: true } },
@@ -27,7 +33,7 @@ export const WiringStatsView = {
     const runId = ref('')
     const busy = ref(false)
     const error = ref('')
-    const filters = reactive({ from: '', to: '' })
+    const filters = reactive({ fromDate: '', toDate: '' })
     const teacher = () => props.user.role === 'teacher'
     const storageKey = () => `010c-snapshot:${props.user.id}:${props.user.role}`
 
@@ -67,11 +73,25 @@ export const WiringStatsView = {
         error.value = `${failure.message} 原快照不可用时请重新查询；不会自动替换为最新数据。`
       } finally { if (ticket === epoch) busy.value = false }
     }
+    // 选「到 X 日」含 X 日当天：区间右端取次日 0 点，若超过当前时刻则截到当前时刻（后端要求 to ≤ now）。
+    function range() {
+      const selected = { dimension: 'wiring' }
+      if (filters.fromDate) selected.from = dayStart(filters.fromDate).toISOString()
+      if (filters.toDate) {
+        const end = new Date(dayStart(filters.toDate).getTime() + DAY_MS)
+        const now = new Date()
+        selected.to = (end > now ? now : end).toISOString()
+      }
+      if (selected.from && selected.to) {
+        const span = new Date(selected.to) - new Date(selected.from)
+        if (span < 0) throw new Error('起始日期不能晚于结束日期。')
+        if (span > MAX_SPAN) throw new Error('统计区间不能超过 366 天，请缩小日期范围。')
+      }
+      return selected
+    }
     async function query(ticket) {
       if (!course.value) throw new Error('请先选择统计课程。')
-      const selected = { dimension: 'wiring', ...filters }
-      for (const key of ['from', 'to']) if (selected[key]) selected[key] = new Date(selected[key]).toISOString()
-      show(await api.query(course.value, selected), ticket)
+      show(await api.query(course.value, range()), ticket)
     }
     async function restore(ticket) {
       if (!course.value || !/^[1-9][0-9]*$/.test(runId.value)) throw new Error('请选择课程并填写有效快照编号。')
@@ -113,8 +133,8 @@ export const WiringStatsView = {
       courses.value = []
       course.value = ''
       runId.value = ''
-      filters.from = ''
-      filters.to = ''
+      filters.fromDate = ''
+      filters.toDate = ''
       api = new AnalyticsClient(props.user)
       if (teacher()) run(boot)
     }, { flush: 'sync' })
@@ -126,6 +146,11 @@ export const WiringStatsView = {
     }, label)
     const input = (label, value, update, type = 'text') => h('label', [label, h('input', {
       'aria-label': label, type, value, disabled: !courses.value.length,
+      onInput: event => { forget(); update(event.target.value) },
+    })])
+    const dateField = (label, value, update) => h('label', [label, h('input', {
+      'aria-label': label, type: 'date', value, disabled: !courses.value.length,
+      max: shanghaiDay(new Date()),
       onInput: event => { forget(); update(event.target.value) },
     })])
     const table = (caption, headings, rows) => h('div', {
@@ -175,14 +200,14 @@ export const WiringStatsView = {
         teacher() && button('重新加载', () => run(boot)),
       ]),
       !teacher() && h('p', '连线统计仅对教师开放。'),
-      teacher() && h('p', '统计已发布连线实验的应做人数、完成率与校验错误分布。刷新页面会恢复上次结果；时间留空统计最近 28 天。'),
+      teacher() && h('p', '统计已发布连线实验的应做人数、完成率与校验错误分布。刷新页面会恢复上次结果；日期留空即统计最近 28 天，「结束日期」含当天，且不能晚于今天。'),
       teacher() && h('div', { class: 'wiring-stats-filters' }, [
         h('label', ['统计课程 ', h('select', {
           'aria-label': '统计课程', value: course.value, disabled: !courses.value.length,
           onChange: event => { forget(); course.value = event.target.value },
         }, courses.value.map(item => h('option', { value: String(item.id), key: item.id }, item.title)))]),
-        input('统计起始时间', filters.from, value => { filters.from = value }, 'datetime-local'),
-        input('统计结束时间', filters.to, value => { filters.to = value }, 'datetime-local'),
+        dateField('统计起始日期', filters.fromDate, value => { filters.fromDate = value }),
+        dateField('统计结束日期', filters.toDate, value => { filters.toDate = value }),
       ]),
       teacher() && button('查询统计', () => run(query), !course.value),
       teacher() && h('details', { class: 'analytics-restore' }, [
