@@ -151,9 +151,11 @@ export const AnalyticsView = {
     onMounted(() => { if (props.user.role !== 'admin') run(boot) })
     onUnmounted(forget)
     const button = (label, action, disabled = false) => h('button', { type: 'button', onClick: action, disabled: busy.value || disabled }, label)
-    const input = (label, value, update, type = 'text') => h('label', [label, h('input', { 'aria-label': label, type, value, disabled: !courses.value.length,
+    // aria-label 带上模块名：连线统计卡与本卡同页渲染，两处都叫「原快照编号」时，
+    // 读屏与自动化无法区分（同一页面重复标签），因此这里的可访问名加模块前缀。
+    const input = (label, value, update, type = 'text', aria = label) => h('label', [label, h('input', { 'aria-label': aria, type, value, disabled: !courses.value.length,
       onInput: event => { forget(); update(event.target.value) } })])
-    const select = (label, value, update, options) => h('label', [label, h('select', { 'aria-label': label, value, disabled: !courses.value.length,
+    const select = (label, value, update, options, aria = label) => h('label', [label, h('select', { 'aria-label': aria, value, disabled: !courses.value.length,
       onChange: event => { forget(); update(event.target.value) } }, options.map(([id, text]) => h('option', { value: id }, text)))])
     const table = (caption, headings, rows) => h('div', { class: 'analytics-scroll', tabindex: 0, role: 'region', 'aria-label': caption }, [h('table', [h('caption', caption),
       h('thead', [h('tr', headings.map(label => h('th', { scope: 'col' }, label)))]),
@@ -294,7 +296,7 @@ export const AnalyticsView = {
     return () => props.user.role === 'admin' ? null : h('section', { class: 'card analytics-bank', 'aria-busy': busy.value }, [
       h('h2', '知识与成绩分析'), h('p', '选好课程和时间段，点「查询统计」。刷新页面会恢复上次结果，重新查询才更新；时间留空统计最近 28 天。'),
       h('div', { class: 'analytics-filters' }, [
-        select('统计课程', course.value, v => { course.value = v; runId.value = '' }, courses.value.map(c => [String(c.id), c.title])),
+        select('统计课程', course.value, v => { course.value = v; runId.value = '' }, courses.value.map(c => [String(c.id), c.title]), '统计课程（知识与成绩分析）'),
         select('统计维度', filters.dimension, v => { filters.dimension = v }, [['knowledge', '知识掌握度、错题与进度'], ['attendance', '考勤与学习表现'], ['scores', '分类成绩'], ['grading', '电路评测通过率与运行可靠性']]),
         input('统计起始时间', filters.from, v => { filters.from = v }, 'datetime-local'),
         input('统计结束时间', filters.to, v => { filters.to = v }, 'datetime-local'),
@@ -306,7 +308,7 @@ export const AnalyticsView = {
       h('details', { class: 'analytics-restore' }, [
         h('summary', {}, '按快照编号恢复以前的结果'),
         h('div', { class: 'analytics-restore-row' }, [
-          input('原快照编号', runId.value, v => { runId.value = v }, 'number'),
+          input('原快照编号', runId.value, v => { runId.value = v }, 'number', '原快照编号（知识与成绩分析）'),
           button('恢复原快照', () => run(restore), !course.value || !runId.value),
         ]),
       ]),

@@ -151,6 +151,43 @@ class WiringMetricsTest(TestCase):
             self.assertEqual(metrics["assigned_count"], 0, value)
             self.assertIsNone(metrics["completion_rate"], value)
 
+    def test_window_overlapping_range_counts_even_if_not_ended(self):
+        # 进行中的实验（截止在 12 月）在 10 月的区间里也要统计到，否则一直是 0。
+        snap = snapshot(assigned=10, completed=2, attempts=3)
+        snap["versions"][0].update({"start_at": "2026-10-20T00:00:00.000Z",
+                                    "end_at": "2026-12-31T00:00:00.000Z"})
+        metrics = wiring_interval_metrics(snap, START, END)
+        self.assertEqual(metrics["assigned_count"], 10)
+        self.assertEqual(metrics["completed_student_count"], 2)
+        self.assertEqual(metrics["attempt_count"], 3)
+
+    def test_window_touching_range_boundaries(self):
+        # 交集判定：区间左端之后结束才算；刚好在左端结束算不进去。
+        cases = [
+            ("2026-09-30T00:00:00.000Z", "2026-10-01T00:00:00.000Z", 0),   # 恰在 from 结束
+            ("2026-09-20T00:00:00.000Z", "2026-10-02T00:00:00.000Z", 10),  # 跨过 from
+            ("2026-10-31T00:00:00.000Z", "2026-11-30T00:00:00.000Z", 10),  # 起点落在区间内
+            ("2026-11-01T00:00:00.000Z", "2026-12-01T00:00:00.000Z", 0),   # 恰在 to 开始
+            ("2026-12-01T00:00:00.000Z", "2026-12-31T00:00:00.000Z", 0),   # 完全在未来
+        ]
+        for start_at, end_at, expected in cases:
+            snap = snapshot(assigned=10, completed=6)
+            snap["versions"][0].update({"start_at": start_at, "end_at": end_at})
+            self.assertEqual(wiring_interval_metrics(snap, START, END)["assigned_count"],
+                             expected, (start_at, end_at))
+
+    def test_missing_start_at_falls_back_to_end_at_rule(self):
+        # 历史脏数据没有 start_at/published_at 时，退回「end_at 落入区间」，不能整段消失。
+        snap = snapshot(assigned=10, completed=6)
+        snap["versions"][0].pop("start_at", None)
+        self.assertEqual(wiring_interval_metrics(snap, START, END)["assigned_count"], 10)
+
+    def test_published_at_used_when_start_at_missing(self):
+        # 有 published_at 时用它当窗口起点：8 月发布、10 月截止，仍算 10 月区间（截止日仍在窗内）。
+        snap = snapshot(assigned=10, completed=6)
+        snap["versions"][0].update({"published_at": "2026-08-01T00:00:00.000Z"})
+        self.assertEqual(wiring_interval_metrics(snap, START, END)["assigned_count"], 10)
+
 
 EXP01_FULL_WIRES = [
     {"id": "w_a", "from_terminal": "sw_a_out", "to_terminal": "alu_a"},
@@ -174,7 +211,7 @@ class WiringAnalyticsApiTest(WiringApiBase):
                     "?dimension=wiring&from=2026-10-01T00:00:00Z&to=2026-10-21T00:00:00Z")
 
     def _close_window(self):
-        # 统计口径要求 end_at 落入 [from, to) 且 to <= now：只有窗口结束后才成立。
+        # 时间前进到窗口结束之后：模拟实验已截止的常态查询场景。
         # 时间前进会让旧会话过期，所有客户端需重新登录。
         self.app.config["TEST_NOW"] = datetime(2026, 10, 21, 12, tzinfo=UTC)
         for client, number in ((self.admin, "T017ADMIN"), (self.teacher, "T017TEACH"),
@@ -210,6 +247,17 @@ class WiringAnalyticsApiTest(WiringApiBase):
         self.assertEqual(data["metrics"]["completed_student_count"], 1)
         self.assertEqual(data["metrics"]["completion_rate"], 1.0)
         self.assertEqual(data["metrics"]["attempt_count"], 1)
+
+    def test_in_progress_experiment_counted_before_window_ends(self):
+        # 进行中的实验（10-13 开始、10-20 截止）在「截止到今天」的区间里也要有数，
+        # 否则老师在实验期间查任何日期都是 0（旧口径按 end_at 归集必然为 0）。
+        self._submit_completed()
+        url = (f"/courses/{self.course_id}/analytics"
+               "?dimension=wiring&from=2026-10-01T00:00:00Z&to=2026-10-13T12:00:00Z")
+        data = self.call(self.teacher, "GET", url).json["data"]
+        self.assertEqual(data["metrics"]["assigned_count"], 1)
+        self.assertEqual(data["metrics"]["completed_student_count"], 1)
+        self.assertEqual(data["window_semantics"], "overlap")
 
     def test_validation_errors_surface_in_metrics(self):
         self._submit_completed()
