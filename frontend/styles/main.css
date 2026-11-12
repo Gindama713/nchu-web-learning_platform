@@ -170,6 +170,28 @@ button.sum-tile:focus-visible { outline: 2px solid var(--primary); outline-offse
 .att-leave { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
 .att-leave-reason { flex: 1 1 220px; color: var(--ink); }
 
+/* 成员名单 / 考勤明细：几百条不铺开，改成「筛选 + 定高滚动 + 分批显示」 */
+.bulk-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 12px 0 10px; }
+.bulk-tools label { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: .9rem; white-space: nowrap; }
+.bulk-tools input[type="search"] { flex: 1 1 200px; max-width: 280px; }
+.bulk-tools select { max-width: 260px; }
+.bulk-count { color: var(--muted); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.bulk { max-height: 380px; overflow: auto; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+.bulk table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+.bulk thead th { position: sticky; top: 0; z-index: 1; text-align: left; font-weight: 500;
+  padding: 9px 12px; background: var(--surface-2); border-bottom: 1px solid var(--line); white-space: nowrap; }
+.bulk td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.bulk tbody tr:last-child td { border-bottom: 0; }
+.bulk tbody tr:hover { background: var(--surface-2); }
+.bulk td:last-child { white-space: nowrap; }
+.bulk-correct { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.bulk-correct input { flex: 1 1 160px; }
+.bulk-more { margin-top: 10px; }
+@media (max-width: 640px) {
+  .bulk { max-height: 320px; }
+  .bulk-tools input[type="search"], .bulk-tools select { max-width: none; width: 100%; }
+}
+
 /* 窄屏：tab 横向滑动，不再折成三行 */
 @media (max-width: 640px) {
   .tabbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }

@@ -1,4 +1,4 @@
-import { computed, createApp, nextTick, onMounted, reactive, ref } from 'vue'
+import { computed, createApp, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { apiRequest, readApi } from './api.js'
 import { QuestionBankView } from './question-view.js'
 import { PaperView } from './paper-view.js'
@@ -172,10 +172,70 @@ createApp({
     // 教室规模：教师可以按自己的教室改行列，预设只是快捷入口
     const room = ref(null)
     const roomForm = reactive({ name: '', template: 'custom', rows: 10, cols: 12, aisle_every: 0 })
+    // 161 个成员、390 条考勤明细直接铺开会把整页拉成一条长龙，所以两处都做成
+    // 「先筛选、定高滚动、分批显示」：默认各显示 40 条，点一下再加 100 条。
+    const memberQuery = ref('')
+    const membersShown = ref(40)
+    const recordTask = ref('all')
+    const recordStatus = ref('all')
+    const recordQuery = ref('')
+    const recordsShown = ref(40)
     let courseEpoch = 0
     // 切课时先清空再拉数据，中间那一瞬间任务数是 0，概览里会闪「0 → 2」。
     // 加载期间改成显示省略号，等数据到了再出数字。
     const courseBusy = ref(false)
+
+    // ---------- 成员名单 / 考勤明细：筛选 + 分批显示 ----------
+    // 161 个成员、390 条明细铺开来会把页面拉成一条长龙。这里统一做三件事：
+    // 关键字筛选（姓名/学号/班级）、定高滚动区、每次只渲染 40 条、按需再加 100 条。
+    const filteredMembers = computed(() => {
+      const keyword = memberQuery.value.trim().toLowerCase()
+      if (!keyword) return members.value
+      return members.value.filter(member =>
+        [member.name, member.student_no, member.class_name ?? '']
+          .some(field => String(field).toLowerCase().includes(keyword)))
+    })
+    const visibleMembers = computed(() => filteredMembers.value.slice(0, membersShown.value))
+    const membersActive = computed(() => members.value.filter(member => member.active).length)
+
+    // 明细里只有 student_id/task_id，展示时换成姓名和任务标题，否则一行一个 #12 谁也看不懂
+    const memberIndex = computed(() => {
+      const index = new Map()
+      members.value.forEach(member => index.set(member.user_id, member))
+      return index
+    })
+    const taskIndex = computed(() => {
+      const index = new Map()
+      tasks.value.forEach(task => index.set(task.id, task))
+      return index
+    })
+    const recordStatuses = [
+      { value: 'present', label: '已到' }, { value: 'late', label: '迟到' },
+      { value: 'leave', label: '请假' }, { value: 'absent', label: '缺勤' },
+    ]
+    const filteredRecords = computed(() => {
+      const keyword = recordQuery.value.trim().toLowerCase()
+      return records.value.filter(record => {
+        if (recordTask.value !== 'all' && record.task_id !== Number(recordTask.value)) return false
+        if (recordStatus.value !== 'all' && record.status !== recordStatus.value) return false
+        if (!keyword) return true
+        const member = memberIndex.value.get(record.student_id)
+        return [member?.name, member?.student_no]
+          .some(field => String(field ?? '').toLowerCase().includes(keyword))
+      })
+    })
+    const visibleRecords = computed(() => filteredRecords.value.slice(0, recordsShown.value))
+    function memberText(studentId) {
+      const member = memberIndex.value.get(studentId)
+      return member ? `${member.name} · ${member.student_no}` : `学生 #${studentId}`
+    }
+    function taskText(taskId) {
+      const task = taskIndex.value.get(taskId)
+      return task ? task.title : `任务 #${taskId}`
+    }
+    // 换筛选条件时把「已显示条数」收回到 40，不然上一次点开的 300 条会一直挂着
+    watch([memberQuery], () => { membersShown.value = 40 })
+    watch([recordTask, recordStatus, recordQuery], () => { recordsShown.value = 40 })
 
     function clearCourse() {
       courseEpoch += 1
@@ -197,6 +257,13 @@ createApp({
       window.clearTimeout(seatTimer)
       seatOpen.value = null
       seatDrop.value = false
+      // 名单/明细的筛选条件跟着课程走，换课不重置会让人以为数据丢了
+      memberQuery.value = ''
+      membersShown.value = 40
+      recordTask.value = 'all'
+      recordStatus.value = 'all'
+      recordQuery.value = ''
+      recordsShown.value = 40
       room.value = null
       check.task_id = ''
       check.code = ''
@@ -610,6 +677,18 @@ createApp({
         message.value = `已按班排座，${data.placed} 人入座。`
       })
     }
+    async function clearSeats() {
+      if (!window.confirm('清空教室座位？所有学生都会被撤出座位表，之后由学生自己点空位入座。\n已结束任务的座位历史会保留。')) return
+      await act(async () => {
+        const data = await write(`/api/v1/courses/${courseId.value}/classroom/seats`, 'DELETE')
+        syncRoom(data)
+        if (seatData.value) await loadSeats(seatData.value.task.id)
+        message.value = `教室已清空，撤下 ${data.removed} 个座位。` +
+          (data.open_tasks
+            ? '学生打开座位图点空位即可入座，坐下会自动弹签到。'
+            : '现在没有进行中的任务：已结束任务的座位图保留当时的历史，新开一条任务后学生选座才会显示在这张图上。')
+      })
+    }
     async function unseat(studentId) {
       await act(async () => {
         await write(`/api/v1/courses/${courseId.value}/seats/${studentId}`, 'PATCH', { clear: true })
@@ -1021,7 +1100,10 @@ createApp({
       seatOpen, seatDrop, toggleSeats,
       courseBusy, jump, enterCourse,
       seatSwap, mySwap, swapLeft, swapText, seatCellTitle, sitHere, answerSwap, cancelSwap, loadSwaps, pollIncoming,
-      classColor, seatRosters, sourceText, seatLabel, seatSlot, room, roomForm, applyPreset, saveRoom, autoSeat, unseat,
+      classColor, seatRosters, sourceText, seatLabel, seatSlot, room, roomForm, applyPreset, saveRoom, autoSeat, clearSeats, unseat,
+      memberQuery, membersShown, filteredMembers, visibleMembers, membersActive,
+      recordTask, recordStatus, recordStatuses, recordQuery, recordsShown,
+      filteredRecords, visibleRecords, memberText, taskText,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
       leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect,
       taskPattern, captureTaskPattern, useZPattern, clearTaskPattern,
@@ -1266,7 +1348,7 @@ createApp({
         </div>
         <p v-if="mySeat" class="seatmap-mine"><b>我坐这里</b>座位 {{ seatLabel(mySeat) }}　{{ mySeat.student_no }} {{ mySeat.name }}　{{ mySeat.class_name }}　状态：{{ seatText(mySeat.status) }}
         <button v-if="!checkedIn" type="button" class="secondary" @click="openCheckIn(seatData.task)">签到</button></p>
-        <p v-else-if="user.role === 'student'" class="seatmap-mine empty"><b>我还没选座</b>教室现在是空的，点下面任意空位就能坐这里。</p>
+        <p v-else-if="user.role === 'student'" class="seatmap-mine empty"><b>我还没选座</b>{{ seatList.length ? '点下面任意空位就能坐这里。' : '教室现在是空的，点下面任意空位就能坐这里。' }}</p>
         <p v-if="mySwap" class="swap-strip"><b>换位申请中</b>申请和 {{ mySwap.target_name }} 换座，等对方答复，剩余 <i>{{ swapLeft(mySwap) }}</i>
         <button type="button" class="secondary" @click="cancelSwap(mySwap)">撤回</button></p>
         <p v-if="user.role === 'student' && seatData" class="att-meta">点空位就坐下，坐下会顺手弹出签到面板（填签到码或画手势看老师这次课开的是哪种）；签到成功后不再弹面板，之后换座位直接点空位就行；点同学的格子是发换位申请，对方 {{ seatSwap.ttl }} 分钟内答复。</p>
@@ -1367,7 +1449,9 @@ createApp({
         <p v-if="room" class="att-meta">容量 {{ room.capacity }} 座　学生 {{ room.students }} 人　已排座 {{ room.seated }} 人　未排 {{ room.unseated }} 人</p>
         <div v-if="room" class="att-actions">
         <button type="button" @click="autoSeat">一键按班排座</button>
-        <span class="att-meta">按班级顺序整排起排，四个班各占一段连续排；教室不够时会直接报错而不是硬塞。</span>
+        <button type="button" class="secondary" @click="clearSeats">清空座位（空教室）</button>
+        <span class="att-meta">按班级顺序整排起排，四个班各占一段连续排；教室不够时会直接报错而不是硬塞。
+        清空后学生打开座位图自己点空位入座，再签到。</span>
         </div>
         </details>
 
@@ -1416,24 +1500,67 @@ createApp({
         <summary>课程成员（{{ membersTotal }}）与加入</summary>
         <form class="inline-form" @submit.prevent="addMember">
         <label>学生完整学号 <input v-model.trim="memberNo" required></label><button>加入课程</button></form>
-        <ul class="rows"><li v-for="member in members" :key="member.user_id">
-        {{ member.name }} · {{ member.student_no }}<template v-if="member.class_name"> · {{ member.class_name }}</template> · {{ member.member_role }} · {{ member.active ? '在课' : '已移出' }}
-        <button v-if="member.member_role === 'student' && member.active" type="button" class="secondary"
-        @click="removeMember(member.user_id)">移出课程</button></li></ul>
+        <div class="bulk-tools">
+        <input v-model.trim="memberQuery" type="search" placeholder="按姓名 / 学号 / 班级筛选" aria-label="筛选课程成员">
+        <span class="bulk-count">在课 {{ membersActive }} · 已移出 {{ members.length - membersActive }}
+        · 筛出 {{ filteredMembers.length }}</span>
+        </div>
+        <div v-if="filteredMembers.length" class="bulk">
+        <table>
+        <thead><tr><th>姓名</th><th>学号</th><th>班级</th><th>角色</th><th>状态</th><th></th></tr></thead>
+        <tbody><tr v-for="member in visibleMembers" :key="member.user_id">
+        <td>{{ member.name }}</td><td>{{ member.student_no }}</td>
+        <td>{{ member.class_name || '—' }}</td><td>{{ member.member_role }}</td>
+        <td>{{ member.active ? '在课' : '已移出' }}</td>
+        <td><button v-if="member.member_role === 'student' && member.active" type="button" class="secondary"
+        @click="removeMember(member.user_id)">移出课程</button></td></tr></tbody>
+        </table>
+        </div>
+        <p v-else class="att-meta">没有匹配的成员。</p>
+        <div v-if="visibleMembers.length < filteredMembers.length" class="bulk-more">
+        <button type="button" class="secondary" @click="membersShown += 100">
+        再显示 100 人（{{ visibleMembers.length }}/{{ filteredMembers.length }}）</button>
+        </div>
         </details>
 
         <details v-if="user.role === 'teacher'" class="att-panel">
         <summary>有效考勤明细（{{ records.length }} 条）</summary>
-        <ul class="rows"><li v-for="item in records" :key="item.id">任务 #{{ item.task_id }} · 学生 #{{ item.student_id }} · {{ item.status }}
-        <button type="button" class="secondary" @click="beginCorrect(item.id, item.status)">更正</button>
-        <span v-if="correctTarget === item.id" class="resubmit-box">
+        <div class="bulk-tools">
+        <label>任务 <select v-model="recordTask" aria-label="按任务筛选">
+        <option value="all">全部任务</option>
+        <option v-for="task in tasks" :key="task.id" :value="String(task.id)">{{ task.title }}</option>
+        </select></label>
+        <label>状态 <select v-model="recordStatus" aria-label="按状态筛选">
+        <option value="all">全部状态</option>
+        <option v-for="option in recordStatuses" :key="option.value" :value="option.value">{{ option.label }}</option>
+        </select></label>
+        <input v-model.trim="recordQuery" type="search" placeholder="按姓名 / 学号筛选" aria-label="筛选考勤明细">
+        <span class="bulk-count">筛出 {{ filteredRecords.length }} 条</span>
+        </div>
+        <div v-if="filteredRecords.length" class="bulk">
+        <table>
+        <thead><tr><th>签到时间</th><th>任务</th><th>学生</th><th>状态</th><th></th></tr></thead>
+        <tbody><tr v-for="item in visibleRecords" :key="item.id">
+        <td>{{ item.checked_at ? shortTime(item.checked_at) : '—' }}</td>
+        <td>{{ taskText(item.task_id) }}</td>
+        <td>{{ memberText(item.student_id) }}</td>
+        <td>{{ seatText(item.status) }}</td>
+        <td><button type="button" class="secondary" @click="beginCorrect(item.id, item.status)">更正</button>
+        <div v-if="correctTarget === item.id" class="bulk-correct">
         <select v-model="correctStatus" aria-label="更正后的状态">
         <option value="present">出勤</option><option value="late">迟到</option>
         <option value="leave">请假</option><option value="absent">缺勤</option></select>
         <input v-model.trim="correctReason" maxlength="500" placeholder="更正理由（必填，会通知学生）" aria-label="更正理由">
         <button type="button" @click="correct(item)">提交更正</button>
         <button type="button" class="secondary" @click="cancelCorrect">取消</button>
-        </span></li></ul>
+        </div></td></tr></tbody>
+        </table>
+        </div>
+        <p v-else class="att-meta">没有符合条件的考勤记录。</p>
+        <div v-if="visibleRecords.length < filteredRecords.length" class="bulk-more">
+        <button type="button" class="secondary" @click="recordsShown += 100">
+        再显示 100 条（{{ visibleRecords.length }}/{{ filteredRecords.length }}）</button>
+        </div>
         </details>
         </section>
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />
