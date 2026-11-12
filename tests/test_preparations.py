@@ -115,6 +115,31 @@ class PreparationCreateTest(PreparationApiBase):
             payload[field] = "not-a-list"
             self.call(self.teacher, "POST", self.base, payload, 400)
 
+    def test_schedule_window_round_trip(self):
+        # 排期是「开始—结束」区间：两个时间都要能存能读，复制时一并带走。
+        item = self.draft(scheduled_at="2026-10-20T06:00:00Z",
+                          scheduled_end_at="2026-10-20T07:30:00Z")
+        self.assertEqual(item["scheduled_at"], "2026-10-20T06:00:00.000Z")
+        self.assertEqual(item["scheduled_end_at"], "2026-10-20T07:30:00.000Z")
+        copy = self.call(self.teacher, "POST", f"/preparations/{item['id']}/copy",
+                         {"title": "副本"}, 201).json["data"]
+        self.assertEqual(copy["scheduled_end_at"], "2026-10-20T07:30:00.000Z")
+
+    def test_schedule_window_must_be_forward(self):
+        for payload in (
+            {"scheduled_at": "2026-10-20T06:00:00Z", "scheduled_end_at": "2026-10-20T06:00:00Z"},
+            {"scheduled_at": "2026-10-20T06:00:00Z", "scheduled_end_at": "2026-10-20T05:00:00Z"},
+            {"scheduled_end_at": "2026-10-20T07:00:00Z"},  # 只有结束时间没有开始时间
+        ):
+            response = self.call(self.teacher, "POST", self.base,
+                                 {"title": "x", "knowledge_ids": [], "resource_version_ids": [],
+                                  "question_version_ids": [], "quiz_ids": []} | payload, 400)
+            self.assertEqual(response.json["error"]["code"], "VALIDATION_ERROR")
+
+    def test_schedule_without_end_is_allowed(self):
+        item = self.draft(scheduled_at="2026-10-20T06:00:00Z")
+        self.assertIsNone(item["scheduled_end_at"])
+
 
 class PreparationUpdateTest(PreparationApiBase):
     def setUp(self):
@@ -138,6 +163,18 @@ class PreparationUpdateTest(PreparationApiBase):
         self.call(self.teacher, "POST", f"/preparations/{self.prep['id']}/publish", {})
         self.call(self.teacher, "PATCH", f"/preparations/{self.prep['id']}",
                   {"title": "改"}, 409)
+
+    def test_patch_schedule_window(self):
+        updated = self.call(self.teacher, "PATCH", f"/preparations/{self.prep['id']}",
+                            {"scheduled_at": "2026-10-21T01:00:00Z",
+                             "scheduled_end_at": "2026-10-21T02:00:00Z"}).json["data"]
+        self.assertEqual(updated["scheduled_end_at"], "2026-10-21T02:00:00.000Z")
+        cleared = self.call(self.teacher, "PATCH", f"/preparations/{self.prep['id']}",
+                            {"scheduled_end_at": None}).json["data"]
+        self.assertIsNone(cleared["scheduled_end_at"])
+        self.assertEqual(cleared["scheduled_at"], "2026-10-21T01:00:00.000Z")
+        self.call(self.teacher, "PATCH", f"/preparations/{self.prep['id']}",
+                  {"scheduled_end_at": "2026-10-20T01:00:00Z"}, 400)
 
 
 class PreparationPublishTest(PreparationApiBase):

@@ -41,6 +41,16 @@ def _parse_time_optional(value, field):
     return stamp(parse_time(value, field))
 
 
+def _schedule_window(start_at, end_at):
+    """排期是「开始—结束」区间：结束时间可空，但必须晚于开始时间。"""
+    if end_at is None:
+        return
+    if start_at is None:
+        raise ApiError(400, "VALIDATION_ERROR", "scheduled_end_at requires scheduled_at")
+    if parse_time(end_at, "scheduled_end_at") <= parse_time(start_at, "scheduled_at"):
+        raise ApiError(400, "VALIDATION_ERROR", "scheduled_end_at must be later than scheduled_at")
+
+
 def _preparation_row(db, preparation_id):
     return db.execute("SELECT * FROM preparation WHERE id=?", (preparation_id,)).fetchone()
 
@@ -68,6 +78,7 @@ def _serialize(db, row, role, user_id=None):
         "course_id": row["course_id"],
         "title": row["title"],
         "scheduled_at": row["scheduled_at"],
+        "scheduled_end_at": row["scheduled_end_at"],
         "status": row["status"],
         "source_id": row["source_id"],
         "published_at": row["published_at"],
@@ -185,20 +196,22 @@ def no_cache(response):
 def create_preparation(course_id):
     course_access(course_id, teacher=True)
     data = body(("title", "knowledge_ids", "resource_version_ids", "question_version_ids", "quiz_ids"),
-                ("scheduled_at",))
+                ("scheduled_at", "scheduled_end_at"))
     title = text_field(data["title"], "title")
     knowledge_ids = _id_list(data["knowledge_ids"], "knowledge_ids")
     resource_ids = _id_list(data["resource_version_ids"], "resource_version_ids")
     question_ids = _id_list(data["question_version_ids"], "question_version_ids")
     quiz_ids = _id_list(data["quiz_ids"], "quiz_ids")
     scheduled_at = _parse_time_optional(data.get("scheduled_at"), "scheduled_at")
+    scheduled_end_at = _parse_time_optional(data.get("scheduled_end_at"), "scheduled_end_at")
+    _schedule_window(scheduled_at, scheduled_end_at)
     with write() as db:
         _validate_links(db, course_id, knowledge_ids, resource_ids, question_ids, quiz_ids)
         timestamp = stamp()
         cursor = db.execute(
-            "INSERT INTO preparation(course_id,title,scheduled_at,status,created_at,updated_at) "
-            "VALUES(?,?,?,'draft',?,?)",
-            (course_id, title, scheduled_at, timestamp, timestamp))
+            "INSERT INTO preparation(course_id,title,scheduled_at,scheduled_end_at,status,created_at,updated_at) "
+            "VALUES(?,?,?,?,'draft',?,?)",
+            (course_id, title, scheduled_at, scheduled_end_at, timestamp, timestamp))
         prep_id = cursor.lastrowid
         _replace_links(db, prep_id, knowledge_ids, resource_ids, question_ids, quiz_ids)
         row = _preparation_row(db, prep_id)
@@ -220,9 +233,10 @@ def copy_preparation(preparation_id):
         knowledge_ids, resource_ids, question_ids, quiz_ids = _links(db, preparation_id)
         timestamp = stamp()
         cursor = db.execute(
-            "INSERT INTO preparation(course_id,title,scheduled_at,status,source_id,created_at,updated_at) "
-            "VALUES(?,?,?,'draft',?,?,?)",
-            (source["course_id"], title, source["scheduled_at"], preparation_id, timestamp, timestamp))
+            "INSERT INTO preparation(course_id,title,scheduled_at,scheduled_end_at,status,source_id,"
+            "created_at,updated_at) VALUES(?,?,?,?,'draft',?,?,?)",
+            (source["course_id"], title, source["scheduled_at"], source["scheduled_end_at"],
+             preparation_id, timestamp, timestamp))
         new_id = cursor.lastrowid
         _replace_links(db, new_id, knowledge_ids, resource_ids, question_ids, quiz_ids)
         row = _preparation_row(db, new_id)
@@ -332,7 +346,7 @@ def get_preparation(preparation_id):
 def update_preparation(preparation_id):
     require_user()
     data = body((), ("title", "knowledge_ids", "resource_version_ids", "question_version_ids",
-                     "quiz_ids", "scheduled_at"))
+                     "quiz_ids", "scheduled_at", "scheduled_end_at"))
     if not data:
         raise ApiError(400, "VALIDATION_ERROR", "At least one field must be provided")
     with write() as db:
@@ -345,6 +359,9 @@ def update_preparation(preparation_id):
         title = text_field(data["title"], "title") if "title" in data else row["title"]
         scheduled_at = (_parse_time_optional(data["scheduled_at"], "scheduled_at")
                         if "scheduled_at" in data else row["scheduled_at"])
+        scheduled_end_at = (_parse_time_optional(data["scheduled_end_at"], "scheduled_end_at")
+                            if "scheduled_end_at" in data else row["scheduled_end_at"])
+        _schedule_window(scheduled_at, scheduled_end_at)
         knowledge_ids = (_id_list(data["knowledge_ids"], "knowledge_ids")
                          if "knowledge_ids" in data else _links(db, preparation_id)[0])
         resource_ids = (_id_list(data["resource_version_ids"], "resource_version_ids")
@@ -354,8 +371,8 @@ def update_preparation(preparation_id):
         quiz_ids = (_id_list(data["quiz_ids"], "quiz_ids")
                     if "quiz_ids" in data else _links(db, preparation_id)[3])
         _validate_links(db, row["course_id"], knowledge_ids, resource_ids, question_ids, quiz_ids)
-        db.execute("UPDATE preparation SET title=?,scheduled_at=?,updated_at=? WHERE id=?",
-                   (title, scheduled_at, stamp(), preparation_id))
+        db.execute("UPDATE preparation SET title=?,scheduled_at=?,scheduled_end_at=?,updated_at=? WHERE id=?",
+                   (title, scheduled_at, scheduled_end_at, stamp(), preparation_id))
         if any(k in data for k in ("knowledge_ids", "resource_version_ids",
                                    "question_version_ids", "quiz_ids")):
             _replace_links(db, preparation_id, knowledge_ids, resource_ids, question_ids, quiz_ids)
