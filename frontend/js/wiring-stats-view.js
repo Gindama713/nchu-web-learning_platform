@@ -144,8 +144,10 @@ export const WiringStatsView = {
     const button = (label, action, disabled = false) => h('button', {
       type: 'button', onClick: action, disabled: busy.value || disabled,
     }, label)
-    const input = (label, value, update, type = 'text') => h('label', [label, h('input', {
-      'aria-label': label, type, value, disabled: !courses.value.length,
+    // aria-label 带上模块名：成绩统计与本卡在同一页，两边都叫「原快照编号」时读屏和
+    // 自动化会抓到对方的输入框（实测踩过，误判成「恢复快照失效」）。
+    const input = (label, value, update, type = 'text', aria = label) => h('label', [label, h('input', {
+      'aria-label': aria, type, value, disabled: !courses.value.length,
       onInput: event => { forget(); update(event.target.value) },
     })])
     const dateField = (label, value, update) => h('label', [label, h('input', {
@@ -200,7 +202,7 @@ export const WiringStatsView = {
         teacher() && button('重新加载', () => run(boot)),
       ]),
       !teacher() && h('p', '连线统计仅对教师开放。'),
-      teacher() && h('p', '统计已发布连线实验的应做人数、完成率与校验错误分布。刷新页面会恢复上次结果；日期留空即统计最近 28 天，「结束日期」含当天，且不能晚于今天。'),
+      teacher() && h('p', '统计已发布连线实验的应做人数、完成率与校验错误分布。实验时间窗与所选区间有交集即计入，正在进行的实验也会统计到。刷新页面会恢复上次结果；日期留空即统计最近 28 天，「结束日期」含当天，且不能晚于今天。'),
       teacher() && h('div', { class: 'wiring-stats-filters' }, [
         h('label', ['统计课程 ', h('select', {
           'aria-label': '统计课程', value: course.value, disabled: !courses.value.length,
@@ -213,7 +215,7 @@ export const WiringStatsView = {
       teacher() && h('details', { class: 'analytics-restore' }, [
         h('summary', {}, '按快照编号恢复以前的结果'),
         h('div', { class: 'analytics-restore-row' }, [
-          input('原快照编号', runId.value, value => { runId.value = value }, 'number'),
+          input('原快照编号', runId.value, value => { runId.value = value }, 'number', '原快照编号（连线统计）'),
           button('恢复原快照', () => run(restore), !course.value || !runId.value),
         ]),
       ]),

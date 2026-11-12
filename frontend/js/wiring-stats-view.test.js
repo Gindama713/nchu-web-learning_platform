@@ -34,7 +34,7 @@ const flush = async () => { await setImmediate() }
 const RUN = {
   analysis_run_id: 5, dimension: 'wiring', unit: 'student',
   population_basis: '已发布连线实验的参与学生', source_until: '2026-10-26T08:00:00Z',
-  generated_at: '2026-10-26T08:30:00Z', algorithm_version: 'wiring-analysis-v1',
+  generated_at: '2026-10-26T08:30:00Z', algorithm_version: 'wiring-analysis-v2',
   sample_size: 3,
   metrics: { assigned_count: 3, completed_student_count: 2, completion_rate: 0.6667, attempt_count: 4,
     error_counts: { WIDTH_MISMATCH: 2, FLOATING_INPUT: 1 } },
@@ -44,7 +44,7 @@ const RUN = {
     { period_start: '2026-10-12T00:00:00Z', period_end: '2026-10-19T00:00:00Z',
       metrics: { assigned_count: 1, completed_student_count: 1, completion_rate: 1, attempt_count: 2 } },
   ],
-  warnings: ['完成率仅统计功能全过的提交，草稿不计入'],
+  warnings: ['实验时间窗与查询区间有交集即计入，进行中的实验也会统计', '完成率仅统计功能全过的提交，草稿不计入'],
 }
 const EMPTY = {
   ...RUN, analysis_run_id: 6, sample_size: 0,
@@ -105,7 +105,8 @@ test('teacher boot queries wiring dimension and renders metrics, errors and seri
   assert.match(text, /WIDTH_MISMATCH2/)
   assert.match(text, /FLOATING_INPUT1/)
   assert.match(text, /完成率仅统计功能全过的提交，草稿不计入/)
-  assert.match(text, /wiring-analysis-v1/)
+  assert.match(text, /实验时间窗与查询区间有交集即计入/)
+  assert.match(text, /wiring-analysis-v2/)
   assert.match(text, /周区间（左闭右开，Asia\/Shanghai）应做人数完成人数完成率提交次数/)
   assert.match(text, /导出当前快照 CSV/)
   assert.match(text, /统计起始日期/)
@@ -152,6 +153,15 @@ test('saved pointer restores the previous wiring snapshot on boot', async t => {
   assert.equal(view.fixture.restored, '/api/v1/courses/1/analytics?analysis_run_id=7')
   assert.match(content(view.root), /第 7 次分析快照 · 连线统计/)
   assert.deepEqual(view.fixture.queries, [])
+})
+
+test('恢复快照输入框用模块限定的可访问名，不与同页成绩统计撞名', async t => {
+  const view = await mount(t, 'teacher')
+  const labels = find(view.root, item => ['input', 'select'].includes(item.type) && item.props['aria-label'])
+    .map(item => item.props['aria-label'])
+  assert.ok(labels.includes('原快照编号（连线统计）'))
+  assert.ok(!labels.includes('原快照编号'), '同页还留着裸标签就会和成绩统计撞名')
+  assert.equal(new Set(labels).size, labels.length, `可访问名重复：${labels.join('、')}`)
 })
 
 test('student only sees a restricted notice', async t => {
