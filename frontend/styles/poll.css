@@ -98,6 +98,29 @@
 .poll-report-head button { margin-left: auto; padding: 4px 12px; font-size: .8rem; }
 .poll-accuracy { font-size: .8rem; color: #1c5c2e; font-variant-numeric: tabular-nums; }
 
+/* 图表：饼图看占比、折线看节奏；两块并排，窄屏自动叠起来 */
+.poll-charts { display: flex; flex-wrap: wrap; gap: 12px; margin: 6px 0 2px; }
+.poll-chart {
+  flex: 1 1 260px; min-width: 0; margin: 0; padding: 10px 12px;
+  border: 1px solid var(--line); border-radius: 10px; background: var(--surface-2);
+}
+.poll-chart figcaption { font-size: .76rem; color: var(--muted); margin-bottom: 6px; }
+.poll-chart-body { display: flex; align-items: center; gap: 12px; min-width: 0; }
+
+.poll-donut { width: 104px; height: 104px; flex: 0 0 auto; }
+.poll-donut-num { font-size: 19px; font-weight: 600; fill: var(--ink); }
+.poll-donut-cap { font-size: 9px; fill: var(--muted); }
+.poll-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; min-width: 0; font-size: .78rem; }
+.poll-legend li { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.poll-legend i { width: 9px; height: 9px; border-radius: 3px; flex: 0 0 auto; }
+.poll-legend-label { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.poll-legend b { margin-left: auto; color: var(--muted); font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.poll-line { width: 100%; height: 96px; }
+.poll-chart-note { display: flex; justify-content: space-between; margin: 4px 0 0;
+  font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.poll-chart-empty { margin: 0; padding: 30px 6px; text-align: center; font-size: .78rem; color: var(--muted); }
+
 .poll-dist { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
 .poll-dist li { display: grid; grid-template-columns: minmax(158px, 1.35fr) minmax(70px, 1.5fr) auto;
   align-items: center; gap: 10px; font-size: .84rem; }

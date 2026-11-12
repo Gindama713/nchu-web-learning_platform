@@ -199,6 +199,7 @@ def results(db, poll):
         "counts": counts,
         "voted": voted,
         "eligible": checked_in_count(db, poll["task_id"]),
+        "timeline": timeline(db, poll["id"]),
     }
     if poll["has_correct"] and correct_set:
         right = wrong = 0
@@ -215,6 +216,24 @@ def results(db, poll):
             "option_ids": sorted(correct_set),
         }
     return payload
+
+
+def timeline(db, poll_id, points=24):
+    """累计投票人数随时间的变化，折线图用。
+
+    只暴露「第几个时刻累计几票」，不带学号姓名，所以匿名投票也能给。
+    票数多于 points 时等距抽样，最后一点一定保留（收尾要落在总票数上）。
+    """
+    stamps = [row["submitted_at"] for row in db.execute(
+        "SELECT submitted_at FROM poll_ballot WHERE poll_id=? ORDER BY submitted_at, id", (poll_id,))]
+    if not stamps:
+        return []
+    total = len(stamps)
+    step = max(1, -(-total // points))
+    series = [{"at": stamps[index], "count": index + 1} for index in range(0, total, step)]
+    if series[-1]["count"] != total:
+        series.append({"at": stamps[-1], "count": total})
+    return series
 
 
 def unvoted(db, poll):

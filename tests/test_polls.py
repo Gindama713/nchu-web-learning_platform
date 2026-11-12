@@ -219,6 +219,11 @@ class PollTest(TestCase):
         unvoted = [item["student_no"] for item in results["unvoted"]]
         self.assertEqual(unvoted, [], "两个签到的人都投了")
         self.assertNotIn(idle, unvoted)
+        # 折线图的数据：累计票数只增不减，最后一点等于总票数，且不泄露是谁投的
+        timeline = results["timeline"]
+        self.assertEqual([point["count"] for point in timeline], [1, 2])
+        self.assertEqual(timeline[-1]["count"], results["voted"])
+        self.assertEqual(set(timeline[0]), {"at", "count"}, "时间线只给时刻与累计票数")
 
     def test_student_cannot_see_results_before_voting(self):
         self.task_id = self.make_task()

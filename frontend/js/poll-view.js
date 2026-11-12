@@ -43,6 +43,68 @@ export function togglePick(poll, chosen, optionId) {
   return { picks: [...chosen, optionId], error: '' }
 }
 
+// 图表的配色：最多 8 个选项，够用一圈；顺序固定，颜色和选项序号对得上
+export const CHART_COLORS = ['#3F4EA8', '#4C8DE0', '#4CAF7D', '#E0A24C',
+  '#C86B8E', '#7A6BD6', '#3FA9A0', '#9AA6B8']
+
+// 环形饼图：把各选项票数换算成圆环上的 stroke-dasharray / dashoffset（一圈 = 周长）。
+// 用 stroke 画而不是 path，省得算弧线角度，浏览器自己会接缝。
+export function donutSlices(counts = [], total = 0, radius = 52) {
+  const circumference = 2 * Math.PI * radius
+  let walked = 0
+  return counts.map((row, index) => {
+    const ratio = total ? row.count / total : 0
+    const length = ratio * circumference
+    const slice = {
+      option_id: row.option_id,
+      label: row.label,
+      count: row.count,
+      percent: Math.round(ratio * 100),
+      color: CHART_COLORS[index % CHART_COLORS.length],
+      dash: `${length.toFixed(2)} ${(circumference - length).toFixed(2)}`,
+      offset: (-walked).toFixed(2),
+    }
+    walked += length
+    return slice
+  })
+}
+
+// 累计投票折线：时间 -> x，累计人数 -> y。从 (左, 底) 起笔，能看出票是一股涌进来还是慢慢加。
+export function cumulativeLine(series = [], width = 268, height = 96, padding = 8) {
+  if (!series.length) {
+    return { points: '', area: '', dots: [], total: 0, start: '', end: '', flat: true }
+  }
+  const times = series.map(point => Date.parse(point.at))
+  const total = series[series.length - 1].count || 0
+  const first = Math.min(...times)
+  const last = Math.max(...times)
+  const innerW = width - padding * 2
+  const innerH = height - padding * 2
+  const xAt = moment => (last === first ? padding + innerW : ((moment - first) / (last - first)) * innerW + padding)
+  const yAt = count => height - padding - (total ? (count / total) * innerH : 0)
+  const dots = series.map((point, index) => ({
+    x: Number(xAt(times[index]).toFixed(1)),
+    y: Number(yAt(point.count).toFixed(1)),
+  }))
+  const line = dots.map(dot => `${dot.x},${dot.y}`).join(' ')
+  // 面积从第一个点垂到底边再回来，不要凭空补一个原点——那会在最左边多一条竖线
+  const head = dots[0]
+  const tail = dots[dots.length - 1]
+  const area = [`M${head.x},${height - padding}`]
+    .concat(dots.map(dot => `L${dot.x},${dot.y}`))
+    .concat([`L${tail.x},${height - padding}`, 'Z'])
+    .join(' ')
+  return {
+    points: line,
+    area,
+    dots,
+    total,
+    start: series[0].at,
+    end: series[series.length - 1].at,
+    flat: last === first,
+  }
+}
+
 // 学生视角的一句话状态：弹窗自己不会解释「为什么没弹」出来
 export function studentState(poll) {
   if ((poll.my_option_ids ?? []).length) return '已投票'
@@ -103,6 +165,16 @@ export const PollPanel = {
     const visibleUnvoted = computed(() => unvoted.value.slice(0, unvotedShown.value))
     const unvotedFolded = computed(() => unvoted.value.length > unvotedShown.value)
     const selectedIsOpen = computed(() => Boolean(selected.value?.open))
+    // 图表：饼图看选项占比，折线看投票节奏，都是纯函数算好再交给模板
+    const donutIsMulti = computed(() => selected.value?.type === 'multiple')
+    // 多选题每人会勾好几项，分母要用「勾选次数」而不是人数，否则每段都是 100%、整圈叠在一起看不清
+    const donutTotal = computed(() => {
+      const counts = report.value?.counts ?? []
+      if (donutIsMulti.value) return counts.reduce((sum, row) => sum + row.count, 0)
+      return report.value?.voted ?? 0
+    })
+    const donut = computed(() => donutSlices(report.value?.counts ?? [], donutTotal.value))
+    const line = computed(() => cumulativeLine(report.value?.timeline ?? []))
 
     async function load() {
       if (!props.courseId) { polls.value = []; return }
@@ -274,6 +346,7 @@ export const PollPanel = {
     return {
       polls, error, notice, busy, opened, selected, report, detailFilter, detailsShown, form,
       isTeacher, openTasks, chosenTask, optionLabels, filteredDetails, visibleDetails, selectedIsOpen,
+      donut, donutTotal, donutIsMulti, line,
       unvoted, unvotedShown, visibleUnvoted, unvotedFolded,
       load, look, closeReport, finish, submit, addOption, dropOption, markCorrect, refreshReport,
       vote, goCheckIn,
@@ -373,6 +446,50 @@ export const PollPanel = {
         · 正确率 {{ percent(report.correct.right, report.correct.answered) }}%</span>
       <button type="button" class="secondary" @click="closeReport">收起</button>
       </div>
+
+      <div v-if="report.voted" class="poll-charts">
+      <figure class="poll-chart">
+      <figcaption>{{ donutIsMulti ? '选项分布（多选按勾选次数）' : '选项分布' }}</figcaption>
+      <div class="poll-chart-body">
+      <svg class="poll-donut" viewBox="0 0 120 120" role="img" aria-label="选项分布饼图">
+      <circle cx="60" cy="60" r="52" fill="none" stroke="#eef2f8" stroke-width="22"></circle>
+      <circle v-for="slice in donut" :key="slice.option_id" cx="60" cy="60" r="52" fill="none"
+        :stroke="slice.color" stroke-width="22" :stroke-dasharray="slice.dash"
+        :stroke-dashoffset="slice.offset" transform="rotate(-90 60 60)"></circle>
+      <text x="60" y="58" text-anchor="middle" class="poll-donut-num">{{ donutTotal }}</text>
+      <text x="60" y="76" text-anchor="middle" class="poll-donut-cap">{{ donutIsMulti ? '次勾选' : '人已投' }}</text>
+      </svg>
+      <ul class="poll-legend">
+      <li v-for="slice in donut" :key="slice.option_id">
+      <i :style="{ background: slice.color }"></i>
+      <span class="poll-legend-label">{{ slice.label }}</span>
+      <b>{{ slice.count }}{{ donutIsMulti ? ' 人勾选' : ' 人' }} · {{ slice.percent }}%</b>
+      </li>
+      </ul>
+      </div>
+      </figure>
+
+      <figure class="poll-chart">
+      <figcaption>投票节奏（累计人数）</figcaption>
+      <template v-if="line.dots.length > 1">
+      <div class="poll-chart-body">
+      <svg class="poll-line" viewBox="0 0 268 96" role="img" aria-label="累计投票人数随时间变化">
+      <path :d="line.area" fill="rgba(63,78,168,.12)" stroke="none"></path>
+      <polyline :points="line.points" fill="none" stroke="#3F4EA8" stroke-width="2"
+        stroke-linejoin="round" stroke-linecap="round"></polyline>
+      <circle v-for="(dot, index) in line.dots" :key="index" :cx="dot.x" :cy="dot.y" r="2.6"
+        fill="#fff" stroke="#3F4EA8" stroke-width="2"></circle>
+      </svg>
+      </div>
+      <p class="poll-chart-note">
+      <span>{{ shortTime(line.start) }} 起投</span>
+      <span>共 {{ line.total }} 票</span>
+      </p>
+      </template>
+      <p v-else class="poll-chart-empty">现在只有 {{ report.voted }} 票，凑够两票才画得出节奏线。</p>
+      </figure>
+      </div>
+
       <ul class="poll-dist">
       <li v-for="row in report.counts" :key="row.option_id" :class="{ right: row.is_correct && report.correct }">
       <span class="poll-dist-label">{{ row.ordinal }}. {{ row.label }}

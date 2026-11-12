@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { setImmediate } from 'node:timers/promises'
 import { createRenderer, nextTick, reactive } from 'vue'
-import { PollModal, PollPanel, percent, requestedPoll, studentState, togglePick } from './poll-view.js'
+import { PollModal, PollPanel, cumulativeLine, donutSlices, percent, requestedPoll, studentState, togglePick } from './poll-view.js'
 
 // v-model 走的是 vModelText / vModelSelect 指令，它们会在元素上挂原生监听并读 el.value。
 // 替身必须提供 addEventListener 与 value/checked，否则连模板都挂不上。
@@ -56,6 +56,11 @@ const report = (overrides = {}) => ({
     { option_id: 23, ordinal: 3, label: '3 处', is_correct: false, count: 0, ratio: 0 },
   ],
   voted: 2, eligible: 3,
+  // 累计投票时间线：老师端的折线图就画这个
+  timeline: [
+    { at: '2026-11-12T08:00:00.000Z', count: 1 },
+    { at: '2026-11-12T08:01:00.000Z', count: 2 },
+  ],
   correct: { answered: 2, right: 1, wrong: 1, accuracy: 0.5, option_ids: [22] },
   unvoted: [{ student_id: 5, name: '学生02', student_no: '24210002' }],
   details: [
@@ -165,6 +170,78 @@ test('老师出题：选项与正确答案按接口约定提交，成功后提�
   })
   assert.equal(posted.init.headers['X-CSRF-Token'], 'current')
   assert.match(content(root), /已经发出去/)
+})
+
+test('图表纯函数：饼图分段加起来正好一圈，折线从 0 爬到总票数', () => {
+  const counts = [
+    { option_id: 21, label: '1 处', count: 1 },
+    { option_id: 22, label: '2 处', count: 2 },
+    { option_id: 23, label: '3 处', count: 1 },
+  ]
+  const slices = donutSlices(counts, 4)
+  assert.equal(slices.length, 3)
+  assert.deepEqual(slices.map(slice => slice.percent), [25, 50, 25])
+  // 每段 dasharray 的第一段是弧长，加起来应当等于整圈 2πr
+  const arc = slices.reduce((sum, slice) => sum + Number(slice.dash.split(' ')[0]), 0)
+  assert.ok(Math.abs(arc - 2 * Math.PI * 52) < 0.05, '弧长合计 ' + arc)
+  // 颜色不重复，方便图例对号入座
+  assert.equal(new Set(slices.map(slice => slice.color)).size, 3)
+
+  const line = cumulativeLine([
+    { at: '2026-11-12T08:00:00.000Z', count: 1 },
+    { at: '2026-11-12T08:00:30.000Z', count: 3 },
+    { at: '2026-11-12T08:02:00.000Z', count: 4 },
+  ])
+  assert.equal(line.total, 4)
+  assert.equal(line.dots.length, 3)
+  // 折线就是从第一个数据点起笔（不额外补一个左下角原点，否则最左边会多一条竖线）
+  assert.equal(line.points.split(' ').length, 3, '三个数据点')
+  assert.ok(line.area.startsWith(`M${line.dots[0].x},`), '面积从第一个点垂到底边')
+  assert.ok(line.dots[0].x < line.dots[1].x && line.dots[1].x < line.dots[2].x)
+  // 票数只增不减，纵坐标只降不升（y 轴向下）
+  assert.ok(line.dots[0].y > line.dots[1].y && line.dots[1].y > line.dots[2].y)
+  const lastDot = line.dots[line.dots.length - 1]
+  assert.equal(lastDot.y, 8, '最后一票顶到上边界')
+  // 一次投票只有一个时间点：不画折线（会退化成一个点）
+  assert.equal(cumulativeLine([{ at: '2026-11-12T08:00:00.000Z', count: 1 }]).flat, true)
+  assert.deepEqual(cumulativeLine([]).dots, [])
+})
+
+test('老师看结果：饼图、图例和投票节奏折线都在', async t => {
+  const { root } = await mountPanel(t, { polls: [poll()], report: report() })
+  await (button(root, '看结果').props.onClick(), flush())
+  assert.equal(all(root).filter(n => n.type === 'svg' && n.props.class === 'poll-donut').length, 1)
+  // 三个选项 => 三段圆弧（底色圈不算，它没有 dasharray）
+  const arcs = all(root).filter(n => n.type === 'circle' && typeof n.props['stroke-dasharray'] === 'string')
+  assert.equal(arcs.length, 3)
+  // 图例里每项都带人数与占比（fixture 里 1/1/0，各占 50%/50%/0%）
+  assert.match(content(root), /1 人 · 50%/)
+  assert.equal(all(root).filter(n => n.type === 'polyline').length, 1, '折线图要有折线')
+  assert.match(content(root), /投票节奏（累计人数）/)
+  assert.match(content(root), /共 2 票/)
+})
+
+test('多选题的饼图按「勾选次数」算，不然每段都是 100% 叠成一整圈', async t => {
+  // 2 个人、每人勾了 2 项 => 4 次勾选；按人数算两段都满圈，按勾选次数才是各 50%
+  const { root } = await mountPanel(t, {
+    polls: [poll({ type: 'multiple', max_choices: 2 })],
+    report: report({
+      voted: 2,
+      counts: [
+        { option_id: 21, ordinal: 1, label: '1 处', is_correct: true, count: 2, ratio: 1 },
+        { option_id: 22, ordinal: 2, label: '2 处', is_correct: true, count: 2, ratio: 1 },
+        { option_id: 23, ordinal: 3, label: '3 处', is_correct: false, count: 0, ratio: 0 },
+      ],
+    }),
+  })
+  await (button(root, '看结果').props.onClick(), flush())
+  assert.match(content(root), /多选按勾选次数/)
+  assert.match(content(root), /4次勾选/, '中心显示勾选总次数')
+  assert.match(content(root), /2 人勾选 · 50%/)
+  // 两段各占半圈：弧长合计等于整圈，而不是两段都画满（那会叠成一整圈看不出分布）
+  const arcs = all(root).filter(n => n.type === 'circle' && typeof n.props['stroke-dasharray'] === 'string')
+  const arcSum = arcs.reduce((sum, n) => sum + Number(n.props['stroke-dasharray'].split(' ')[0]), 0)
+  assert.ok(Math.abs(arcSum - 2 * Math.PI * 52) < 0.1, '弧长合计 ' + arcSum)
 })
 
 test('未投名单默认只铺 12 个，点一下才全展开（160 人的课不能一次铺满）', async t => {

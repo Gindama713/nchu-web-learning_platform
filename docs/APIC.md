@@ -522,7 +522,7 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 | GET /courses/{id}/polls?status=open\|closed\|all | T/S | 分页列出，按 id 倒序；学生视角额外带 `my_option_ids`、`can_vote`、`reason` |
 | GET /polls/{id} | T/S | 详情，含 `voted`/`eligible`/`options`；学生投过之后才附带 `counts` 与 `correct_option_ids` |
 | POST /polls/{id}/ballots | S | 投票，body `{option_ids}`，成功 201 返回投完的详情。未签到 403 NOT_CHECKED_IN，重复 409 ALREADY_VOTED，已结束 409 POLL_CLOSED，空选 422 EMPTY_CHOICE，超上限 422 TOO_MANY_CHOICES，选项不属于本题 422 INVALID_OPTION，教师投票 403 |
-| GET /polls/{id}/results | T/S | 分布 `counts[{option_id,ordinal,label,is_correct,count,ratio}]` + `voted`/`eligible` + 可选 `correct{answered,right,wrong,accuracy}`；老师额外拿到 `unvoted`、`details`。学生未投票访问 403 |
+| GET /polls/{id}/results | T/S | 分布 `counts[{option_id,ordinal,label,is_correct,count,ratio}]` + `voted`/`eligible` + `timeline[{at,count}]`（累计投票人数，折线图用，匿名也有但不含身份）+ 可选 `correct{answered,right,wrong,accuracy}`；老师额外拿到 `unvoted`、`details`。学生未投票访问 403 |
 | POST /polls/{id}/close | T | 结束投票，幂等 |
 
 ### 15.4 前端形态
@@ -530,5 +530,8 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 - 学生端是**浮层**（`.poll-modal`，z-index 65）：挂在页面根上，学生在任何页签都会在 5 秒内被弹到；签到面板（z-index 70）正开着时不会被盖住。点「稍后」的题目不再重复弹，后端回 `ALREADY_VOTED` / `POLL_CLOSED` 时把原因留在浮层里、按「知道了」才收。
 - 老师端在「考勤与请假」卡片里：出题表单 + 投票列表 + 结果区（分布条、正确率、未投名单、逐人明细表）。盯着某一场结果时每 2 秒刷新一次，没人看结果时只按 3 个周期拉一次列表。
 - 出题的正确答案是**选项左边的勾**（`button.poll-mark`，`aria-label="标记第 N 项为正确答案"`）：单选/判断题画成圆圈、多选画成方框，勾上变深绿 ✓，再点取消。单选与判断只保留最新勾的那一项，多选可勾多项。提交时换算成 `correct_ordinals`（1 起序号），一个都不勾就不发这个字段，后端按 `has_correct=0` 只统计分布。
+- 老师端结果区有**两张图**（`frontend/js/poll-view.js` 里的 `donutSlices` / `cumulativeLine` 两个纯函数算好再画，不引图表库）：
+  - **环形饼图**：各选项占比，颜色按选项序号取 `CHART_COLORS`，图例带「N 人 · x%」，中心显示已投人数。
+  - **折线图**：`timeline` 换算的累计投票人数，横轴是提交时刻，能看出票是一股涌进来还是慢慢加；只有一个时间点时不画（退化成一个点没意义）。
 - 学生端有**两个入口**：桌面浮层自动弹（5 秒轮询 `GET /courses/{id}/polls?status=open`），以及列表每一行的「投票」按钮——点了把这一场钉住交给浮层打开，之前点过的「稍后」作废，轮询不会把它顶掉。没签到时该位置换成「去签到」（原因 `NOT_CHECKED_IN`），点了滚到该签的任务并闪一下，因为后端 `can_vote=false` 时浮层不会弹。
 - 未投名单默认只铺 12 个 chip，点「展开」才全给——160 人的课不能一次铺满。
