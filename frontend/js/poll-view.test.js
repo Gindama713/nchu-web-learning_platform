@@ -151,7 +151,11 @@ test('老师出题：选项与正确答案按接口约定提交，成功后提�
   change(root, '题目', '这条指令属于哪种寻址方式？'); await flush()
   change(root, '选项 1', '立即寻址'); await flush()
   change(root, '选项 2', '寄存器间接寻址'); await flush()
-  change(root, '正确答案', '2'); await flush()
+  // 正确答案是「在选项左边打勾」，不再有下拉
+  assert.equal(control(root, '正确答案'), undefined, '正确答案不该还是下拉')
+  // 勾选按钮的可见文字只有一个 ✓，只能按 aria-label 找
+  control(root, '标记第 2 项为正确答案').props.onClick(); await flush()
+  assert.match(content(root), /✓/)
   await submitForm(root)
   const posted = stub.paths.find(entry => entry.init.method === 'POST')
   assert.equal(posted.path, '/api/v1/courses/2/polls')

@@ -14,31 +14,55 @@
 
 .poll-toggle { margin-bottom: 8px; }
 
-/* 出题表单：两行网格，题目占满一行 */
+/* 出题表单：字段一行排开，选项竖排，底部一条放匿名与提交 */
 .poll-form {
-  display: grid; gap: 12px; margin: 8px 0 14px; padding: 14px 16px;
+  display: grid; gap: 14px; margin: 8px 0 14px; padding: 14px 16px;
   border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2);
 }
 .poll-form-row { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: flex-end; }
 .poll-form-row label { display: grid; gap: 5px; font-size: .78rem; color: var(--muted); white-space: nowrap; }
-.poll-form-row input[type="text"], .poll-form-row label:not(.poll-check) input {
-  min-width: 130px; padding: 7px 9px; font-size: .86rem;
-}
+.poll-form-row input, .poll-form-row select { min-width: 130px; padding: 7px 9px; font-size: .86rem; }
 .poll-form-row .poll-wide { flex: 1 1 320px; white-space: normal; }
 .poll-form-row .poll-wide input { width: 100%; }
-.poll-check { display: flex !important; align-items: center; gap: 6px; }
+
+.poll-options { display: grid; gap: 8px; }
+.poll-options-head {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  font-size: .78rem; color: var(--muted); line-height: 1.5;
+}
+.poll-options-head strong { font-size: .82rem; color: var(--primary); }
+.poll-limit { display: inline-flex; align-items: center; gap: 6px; margin-left: auto; white-space: nowrap; }
+.poll-limit select { padding: 3px 6px; font-size: .78rem; }
+
+.poll-option-row { display: flex; align-items: center; gap: 8px; }
+.poll-option-row input { flex: 1 1 auto; padding: 7px 9px; font-size: .86rem; }
+.poll-option-row > button { padding: 5px 10px; font-size: .78rem; }
+.poll-option-no { width: 14px; font-size: .76rem; color: var(--muted); }
+/* 判断题的选项文字是固定的，做成只读格子，和输入框同高 */
+.poll-option-fixed {
+  flex: 1 1 auto; padding: 7px 9px; font-size: .88rem; color: var(--primary);
+  background: #fff; border: 1px solid var(--line); border-radius: 8px;
+}
+
+/* 正确答案的勾：单选/判断画成圆的（radio 感觉），多选画成方的 */
+.poll-mark {
+  flex: 0 0 24px; width: 24px; height: 24px; padding: 0; display: grid; place-items: center;
+  border: 1.5px solid #c3cede; border-radius: 6px; background: #fff; color: #fff;
+  font-size: .82rem; line-height: 1; transition: background .12s ease, border-color .12s ease;
+}
+.poll-mark.round { border-radius: 50%; }
+.poll-mark.on { background: #1c5c2e; border-color: #1c5c2e; }
+.poll-mark:hover { border-color: var(--brand); }
+.poll-add { justify-self: start; padding: 5px 12px; font-size: .8rem; }
+
+.poll-form-foot {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 16px;
+  border-top: 1px dashed var(--line); padding-top: 12px;
+}
+.poll-form-foot > button { margin-left: auto; padding: 8px 22px; }
+.poll-check { display: flex !important; align-items: center; gap: 6px; font-size: .82rem; color: var(--muted); }
 .poll-check small { color: var(--muted); font-size: .72rem; }
 
-.poll-fixed { display: grid; gap: 4px; }
-.poll-fixed-row { font-size: .88rem; color: var(--primary); }
-.poll-fixed-row b { color: var(--muted); font-weight: 500; margin-right: 2px; }
-
-.poll-editor { display: grid; gap: 8px; justify-items: start; }
-.poll-editor-row { display: flex; align-items: center; gap: 8px; width: 100%; }
-.poll-editor-row > span { width: 18px; font-size: .8rem; color: var(--muted); }
-.poll-editor-row input { flex: 1 1 auto; padding: 7px 9px; font-size: .86rem; }
-.poll-editor-row button { padding: 5px 10px; font-size: .78rem; }
-.poll-correct-on { background: #1c5c2e !important; border-color: #1c5c2e !important; color: #fff !important; }
 
 .poll-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 6px; }
 .poll-actions button { padding: 6px 14px; font-size: .84rem; }

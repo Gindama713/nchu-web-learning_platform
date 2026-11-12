@@ -151,6 +151,8 @@ createApp({
     const recognition = ref(null)
     const draft = ref('[]')
     const secretCode = ref('')
+    // 签到码只显示在它所属的那条任务上：轮换哪条、就贴在哪条的任务头上
+    const secretCodeTask = ref(null)
     const auth = reactive({ student_no: '', name: '', password: '' })
     // 登录页把「登录」和「注册」分成两个页签，不再把注册姓名、演示账号、使用说明全堆在一个卡片里
     const authMode = ref('login')
@@ -252,6 +254,7 @@ createApp({
       recognition.value = null
       draft.value = '[]'
       secretCode.value = ''
+      secretCodeTask.value = null
       seatData.value = null
       seatDetail.value = null
       // 换账号或切课时必须把座位图收起：否则 seatOpen 还指向上一个人的任务，
@@ -798,6 +801,7 @@ createApp({
         const data = await write(`/api/v1/courses/${id}/attendance-tasks`, 'POST', payload)
         if (courseEpoch === epoch && courseId.value === id) {
           secretCode.value = data.code
+          secretCodeTask.value = data.id
           if (taskPattern.pattern) {
             taskPattern.pattern = null
             taskPattern.first = null
@@ -811,7 +815,10 @@ createApp({
       await act(async () => {
         const epoch = courseEpoch
         const data = await write(`/api/v1/attendance-tasks/${id}/rotate-code`, 'POST')
-        if (courseEpoch === epoch) secretCode.value = data.code
+        if (courseEpoch === epoch) {
+          secretCode.value = data.code
+          secretCodeTask.value = id
+        }
       }, '新签到码已生效，旧码失效。')
     }
     async function close(id) {
@@ -819,7 +826,7 @@ createApp({
         const epoch = courseEpoch
         await write(`/api/v1/attendance-tasks/${id}/close`, 'POST')
         if (courseEpoch === epoch) {
-          secretCode.value = ''
+          if (secretCodeTask.value === id) { secretCode.value = ''; secretCodeTask.value = null }
           await refreshCourse()
         }
       }, '缺勤已结算。')
@@ -1096,7 +1103,7 @@ createApp({
       })
     })
     return { user, practiceEntry, openRecommendedPractice, message, readiness, courses, people, courseId, members, membersTotal, tasks, leaves, records, warnings, notifications, analysis,
-      recognition, draft, secretCode, auth, authMode, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
+      recognition, draft, secretCode, secretCodeTask, auth, authMode, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       demoStudentNo, fillTeacher, fillStudent,
       seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses, mySeat,
       seatOpen, seatDrop, toggleSeats,
@@ -1299,7 +1306,6 @@ createApp({
         </div>
 
         <p v-if="user.role === 'teacher'" class="att-meta">访问日志：<a href="/api/v1/logs/access.csv" target="_blank" rel="noopener">导出 CSV</a>　<a href="/api/v1/logs/audit.csv" target="_blank" rel="noopener">关键操作审计 CSV</a>　<a href="/api/v1/logs/access" target="_blank" rel="noopener">JSON</a></p>
-        <p v-if="secretCode" class="att-code">本次签到码 <strong>{{ secretCode }}</strong><small>刷新后不可找回，可轮换</small></p>
 
         <ul class="att-tasks">
         <li v-for="item in tasks" :key="item.id" :class="['att-task', item.status]">
@@ -1307,6 +1313,8 @@ createApp({
         <strong>{{ item.title }}</strong>
         <span :class="['att-badge', item.status]">{{ item.status === 'open' ? '进行中' : '已结算' }}</span>
         <span v-if="item.has_gesture" class="att-badge gesture">手势签到</span>
+        <span v-if="secretCode && secretCodeTask === item.id" class="att-code-inline"
+          title="明文只显示这一次，刷新后不可找回；点「轮换码」可换一个">签到码 <b>{{ secretCode }}</b></span>
         <span class="att-time">截止 {{ shortTime(item.end_at) }}</span>
         </div>
         <p v-if="checkInNotice && checkInNotice.taskId === item.id" class="checkin-notice" role="status">

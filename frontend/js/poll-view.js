@@ -78,16 +78,16 @@ export const PollPanel = {
     const unvotedShown = ref(12)
     const form = reactive({
       taskId: '', type: 'single', title: '', options: ['', ''],
-      maxChoices: 2, correctOne: 0, correct: [], anonymous: true,
+      maxChoices: 2, correct: [], anonymous: true,
     })
 
     const isTeacher = computed(() => props.user?.role === 'teacher')
     const openTasks = computed(() => (props.tasks ?? []).filter(task => task.status === 'open'))
     // 出题只挂在进行中的任务上：任务一结算，投票就自动作废，所以这里不给选已结束的
     const chosenTask = computed(() => openTasks.value.find(task => String(task.id) === String(form.taskId)) ?? null)
-    const optionLabels = computed(() => (form.type === 'boolean'
-      ? ['正确', '错误']
-      : form.options.map(text => text.trim()).filter(Boolean)))
+    // 行数按输入框真实条数算：空串也要占一行，不然刚打开的出题表单一个选项都看不见。
+    // 判断题固定「正确/错误」两项，不走输入框。trim 与去重放在提交时做。
+    const optionLabels = computed(() => (form.type === 'boolean' ? ['正确', '错误'] : form.options))
     const filteredDetails = computed(() => {
       const rows = report.value?.details ?? []
       if (detailFilter.value === 'all') return rows
@@ -160,15 +160,15 @@ export const PollPanel = {
       notice.value = ''
       if (!form.taskId) { error.value = '先选一条进行中的考勤任务。'; return }
       if (!form.title.trim()) { error.value = '题目不能为空。'; return }
-      const labels = optionLabels.value
-      if (form.type !== 'boolean') {
-        if (form.options.some(text => !text.trim())) { error.value = '选项不能留空。'; return }
-        if (new Set(labels).size !== labels.length) { error.value = '选项不能重复。'; return }
-      }
+      if (form.type !== 'boolean' && form.options.some(text => !text.trim())) { error.value = '选项不能留空。'; return }
+      // 判断题固定两项；其余按输入框，trim 掉空白
+      const labels = form.type === 'boolean'
+        ? ['正确', '错误']
+        : form.options.map(text => text.trim()).filter(Boolean)
+      if (new Set(labels).size !== labels.length) { error.value = '选项不能重复。'; return }
       if (labels.length < 2) { error.value = '至少两个选项。'; return }
-      const correct = form.type === 'multiple'
-        ? form.correct.filter(ordinal => ordinal >= 1 && ordinal <= labels.length)
-        : (form.correctOne ? [form.correctOne] : [])
+      // 勾了哪几项就交哪几项：单选/判断最多一项，多选可以多项
+      const correct = form.correct.filter(ordinal => ordinal >= 1 && ordinal <= labels.length)
       busy.value = true
       try {
         const created = await client.create(props.courseId, {
@@ -184,7 +184,6 @@ export const PollPanel = {
         form.title = ''
         form.options = ['', '']
         form.correct = []
-        form.correctOne = 0
         await load()
         selected.value = created
         detailsShown.value = 30
@@ -196,11 +195,13 @@ export const PollPanel = {
         busy.value = false
       }
     }
-    // 多选题的正确答案是集合，点一下加进去、再点一下拿出来
+    // 点方框勾正确答案：多选可以勾多项，单选/判断只留最新勾的那一项，再点一次取消
     function markCorrect(ordinal) {
-      form.correct = form.correct.includes(ordinal)
-        ? form.correct.filter(value => value !== ordinal)
-        : [...form.correct, ordinal]
+      if (form.correct.includes(ordinal)) {
+        form.correct = form.correct.filter(value => value !== ordinal)
+        return
+      }
+      form.correct = form.type === 'multiple' ? [...form.correct, ordinal] : [ordinal]
     }
     function addOption() {
       if (form.options.length < 8) form.options.push('')
@@ -221,7 +222,6 @@ export const PollPanel = {
     watch(() => form.type, () => {
       form.maxChoices = 2
       form.correct = []
-      form.correctOne = 0
     })
     watch(openTasks, list => {
       if (!list.length) { form.taskId = ''; return }
@@ -276,40 +276,38 @@ export const PollPanel = {
         placeholder="例如：这段流水线有几处数据冒险？" required
         @input="form.title = $event.target.value"></label>
       </div>
-      <div class="poll-form-row">
-      <label v-if="form.type === 'multiple'">多选上限
+
+      <div class="poll-options">
+      <div class="poll-options-head">
+      <strong>选项</strong>
+      <span>左边勾上 = 正确答案（{{ form.type === 'multiple' ? '可勾多项' : '只能勾一项' }}）；一个都不勾就只统计分布、不算正确率</span>
+      <label v-if="form.type === 'multiple'" class="poll-limit">最多可选
         <select :value="form.maxChoices" aria-label="多选上限" @change="form.maxChoices = Number($event.target.value)">
         <option v-for="count in optionLabels.length" :key="count" :value="count">{{ count }} 项</option>
         </select></label>
-      <label>正确答案 <select :value="form.correctOne" aria-label="正确答案" :disabled="form.type === 'multiple'"
-        @change="form.correctOne = Number($event.target.value)">
-        <option :value="0">不计对错</option>
-        <option v-for="(label, index) in optionLabels" :key="index" :value="index + 1">{{ index + 1 }}. {{ label }}</option>
-        </select></label>
+      </div>
+      <div v-for="(label, index) in optionLabels" :key="index" class="poll-option-row">
+      <button type="button" :class="['poll-mark', { on: form.correct.includes(index + 1), round: form.type !== 'multiple' }]"
+        :aria-label="'标记第 ' + (index + 1) + ' 项为正确答案'"
+        :aria-pressed="form.correct.includes(index + 1)"
+        @click="markCorrect(index + 1)">{{ form.correct.includes(index + 1) ? '✓' : '' }}</button>
+      <span class="poll-option-no">{{ index + 1 }}</span>
+      <span v-if="form.type === 'boolean'" class="poll-option-fixed">{{ label }}</span>
+      <input v-else :value="form.options[index]" :aria-label="'选项 ' + (index + 1)" maxlength="120"
+        :placeholder="'选项 ' + (index + 1)" @input="form.options[index] = $event.target.value">
+      <button v-if="form.type !== 'boolean' && form.options.length > 2" type="button" class="secondary"
+        :aria-label="'删除选项 ' + (index + 1)" @click="dropOption(index)">删</button>
+      </div>
+      <button v-if="form.type !== 'boolean' && form.options.length < 8" type="button"
+        class="secondary poll-add" @click="addOption">+ 加一项</button>
+      </div>
+
+      <div class="poll-form-foot">
       <label class="poll-check"><input type="checkbox" :checked="form.anonymous" aria-label="匿名投票"
         @change="form.anonymous = $event.target.checked">
         匿名投票<small>不勾就实名，明细里能看到谁选了什么</small></label>
+      <button :disabled="busy">发起投票</button>
       </div>
-      <div v-if="form.type === 'boolean'" class="poll-fixed">
-        <p class="att-meta">判断题固定两个选项：</p>
-        <span class="poll-fixed-row"><b>1</b>正确　<b>2</b>错误</span>
-      </div>
-      <div v-else class="poll-editor">
-        <label v-for="(option, index) in form.options" :key="index" class="poll-editor-row">
-          <span>{{ index + 1 }}</span>
-          <input :value="form.options[index]" :aria-label="'选项 ' + (index + 1)" maxlength="120"
-            :placeholder="'选项 ' + (index + 1)" @input="form.options[index] = $event.target.value">
-          <button v-if="form.type === 'multiple' && optionLabels.length > 1" type="button" class="secondary"
-            :aria-label="'标记正确 ' + (index + 1)"
-            :class="{ 'poll-correct-on': form.correct.includes(index + 1) }"
-            @click="markCorrect(index + 1)">对</button>
-          <button v-if="form.options.length > 2" type="button" class="secondary"
-            :aria-label="'删除选项 ' + (index + 1)" @click="dropOption(index)">删</button>
-        </label>
-        <button v-if="form.options.length < 8" type="button" class="secondary" @click="addOption">加一项</button>
-        <p v-if="form.type === 'multiple'" class="att-meta">多选时点「对」标记正确答案，全选对才算对。</p>
-      </div>
-      <div class="poll-actions"><button :disabled="busy">发起投票</button></div>
       </form>
       </template>
 
