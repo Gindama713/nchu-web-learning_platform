@@ -485,7 +485,6 @@ def create_submission(version_id):
             raise ApiError(409, "STATE_CONFLICT", "This version does not accept circuit files")
         if row["status"] != "published":
             raise ApiError(404, "NOT_FOUND", "Experiment version not found")
-        from backend.shared.api import now
         current = now()
         if not (row["start_at"] and row["end_at"]
                 and row["start_at"] <= stamp(current) < row["end_at"]):
