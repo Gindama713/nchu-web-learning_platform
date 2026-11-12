@@ -32,9 +32,13 @@ export function layoutGraph(nodes, edges) {
   const remaining = new Map(indeg)
   const queue = core.filter(node => indeg.get(node.id) === 0).map(node => node.id)
   const settled = new Set()
+  let cursor = 0
 
-  while (queue.length) {
-    const id = queue.shift()
+  // 用游标遍历而非 Array.shift()：后者每弹出一个节点都要搬移整个数组，
+  // 知识点多时退化成 O(n²)。
+  while (cursor < queue.length) {
+    const id = queue[cursor]
+    cursor += 1
     settled.add(id)
     out.get(id).forEach(target => {
       layer.set(target, Math.max(layer.get(target), layer.get(id) + 1))
@@ -74,14 +78,18 @@ export function layoutGraph(nodes, edges) {
         x: PAD + index * (NODE_W + GAP_X),
         y: startY + row * (NODE_H + GAP_Y),
         layer: index,
+        isolated: false,
       })
     })
   })
+  // 孤立节点画在主图下方的独立横排：layer 保持 0（不与主图分层混算），
+  // 用 isolated 标记区分，调用方无需靠坐标猜测。
   isolated.forEach((node, index) => {
     placed.set(node.id, {
       x: PAD + index * (NODE_W + GAP_X),
       y: bandY,
       layer: 0,
+      isolated: true,
     })
   })
 

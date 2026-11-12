@@ -116,7 +116,7 @@ async function mount(t, role = 'student', overrides = {}) {
   const fixture = {
     userId: 7, attempt: freshAttempt(), attempts: [freshAttempt()], history: HISTORY.map(row => ({ ...row })),
     version: VERSION, writes: [], error: null, validateResult: null, submitResult: null,
-    validateRevision: null, ...overrides,
+    validateRevision: null, slowSave: false, ...overrides,
   }
   const okData = data => ({ ok: true, status: 200, json: async () =>
     (Array.isArray(data) ? { data, total: data.length } : { data }) })
@@ -141,6 +141,7 @@ async function mount(t, role = 'student', overrides = {}) {
         next_after_seq: fixture.attempt.latest_seq, page: 1, page_size: 100, total: fixture.history.length })
     }
     if (options?.method === 'PUT' && path === '/api/v1/wiring-attempts/12') {
+      if (fixture.slowSave) return new Promise(() => {})
       const payload = JSON.parse(options.body)
       fixture.writes.push(payload)
       fixture.attempt.revision = payload.revision + 1
@@ -249,6 +250,21 @@ test('undo removes the last buffered edits before saving', async t => {
   assert.equal(view.fixture.writes[0].state.wires.length, 5)
 })
 
+test('redo button re-applies the last undone edit before saving', async t => {
+  const view = await mount(t, 'student')
+  await pickVersion(view.root)
+  await click(view.root, '打开')
+  for (let index = 0; index < 4; index += 1) await click(view.root, '撤销')
+  assert.doesNotMatch(content(view.root), /w-6/)
+  await click(view.root, '重做')
+  assert.match(content(view.root), /w-6/)
+  assert.match(content(view.root), /未保存 5 条动作/)
+  await click(view.root, '保存')
+  assert.deepEqual(view.fixture.writes[0].actions.map(action => action.type),
+    ['undo', 'undo', 'undo', 'undo', 'redo'])
+  assert.equal(view.fixture.writes[0].state.wires.length, 6)
+})
+
 test('step sends guarded action and view shows client-simulated replay state', async t => {
   const view = await mount(t, 'student')
   await pickVersion(view.root)
@@ -309,4 +325,90 @@ test('server error is displayed and student sees empty-state hint', async t => {
   await pickVersion(empty.root)
   assert.match(content(empty.root), /还没有连线记录，可发起新连线。/)
   assert.match(content(empty.root), /发起连线/)
+})
+
+test('AC-05 switching course in SPA asks before discarding unsaved actions', async t => {
+  const previousConfirm = globalThis.confirm
+  const prompts = []
+  globalThis.confirm = message => { prompts.push(message); return false }
+  t.after(() => { globalThis.confirm = previousConfirm })
+  const view = await mount(t, 'student')
+  await pickVersion(view.root)
+  await click(view.root, '打开')
+  const form = find(view.root, item => item.type === 'form' && item.props?.class === 'inline-form wiring-connect')
+  const selects = findAll(form, item => item.type === 'select')
+  selects[0].props.onChange({ target: { value: 'sw_a_out' } })
+  selects[1].props.onChange({ target: { value: 'alu_b' } })
+  await submitForm(view.root, 'inline-form wiring-connect')
+  assert.match(content(view.root), /未保存 1 条动作/)
+
+  const courseSelect = findAll(view.root, item => item.type === 'select')[0]
+  courseSelect.props.onChange({ target: { value: '1' } })
+  await flush()
+  assert.equal(prompts.length, 1)
+  assert.match(content(view.root), /未保存 1 条动作/)
+  assert.match(content(view.root), /连线 #12/)
+
+  globalThis.confirm = () => true
+  courseSelect.props.onChange({ target: { value: '1' } })
+  await flush()
+  assert.equal(prompts.length, 1)
+  assert.doesNotMatch(content(view.root), /未保存 1 条动作/)
+  assert.doesNotMatch(content(view.root), /连线 #12/)
+})
+
+test('AC-08 Ctrl+Z / Ctrl+Shift+Z drive undo and redo from keyboard', async t => {
+  const listeners = {}
+  const previousDocument = globalThis.document
+  globalThis.document = {
+    addEventListener: (name, fn) => { listeners[name] = fn },
+    removeEventListener: name => { delete listeners[name] },
+  }
+  t.after(() => { globalThis.document = previousDocument })
+  const view = await mount(t, 'student')
+  await pickVersion(view.root)
+  await click(view.root, '打开')
+  assert.equal(typeof listeners.keydown, 'function')
+  const press = async (tagName, shiftKey = false) => {
+    listeners.keydown({ key: 'z', ctrlKey: true, shiftKey,
+      target: { tagName }, preventDefault() {} })
+    await flush()
+  }
+  // 输入框内不劫持原生撤销
+  await press('INPUT')
+  assert.match(content(view.root), /无未保存修改/)
+  // 撤销栈顶是三条 set_input，再撤一次才轮到 w-6 这根导线
+  for (let index = 0; index < 4; index += 1) await press('BODY')
+  assert.doesNotMatch(content(view.root), /w-6/)
+  assert.match(content(view.root), /未保存 4 条动作/)
+  await press('BODY', true)
+  assert.match(content(view.root), /w-6/)
+  assert.match(content(view.root), /未保存 5 条动作/)
+})
+
+test('continuous run reports skipped ticks instead of silently dropping them', async t => {
+  const previousInterval = globalThis.setInterval
+  const previousClear = globalThis.clearInterval
+  let tick = null
+  globalThis.setInterval = fn => { tick = fn; return 42 }
+  globalThis.clearInterval = () => {}
+  t.after(() => {
+    globalThis.setInterval = previousInterval
+    globalThis.clearInterval = previousClear
+  })
+  // WiringClient 在挂载时绑定 fetch，必须用 fixture 让保存永不返回，
+  // 模拟后端重放超过一个时钟周期。
+  const view = await mount(t, 'student', { slowSave: true })
+  await pickVersion(view.root)
+  await click(view.root, '打开')
+  await click(view.root, '连续')
+  assert.equal(typeof tick, 'function')
+  tick()
+  await flush()
+  tick()
+  await flush()
+  assert.match(content(view.root), /已跳过 1 拍/)
+  tick()
+  await flush()
+  assert.match(content(view.root), /已跳过 2 拍/)
 })
