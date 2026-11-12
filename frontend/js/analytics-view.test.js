@@ -57,10 +57,10 @@ test('filters stay disabled until the course list is ready', async t => {
   let release
   const waiting = new Promise(resolve => { release = resolve })
   const { root } = await mount(t, null, waiting)
-  assert.equal(control(root, '原快照编号').props.disabled, true)
+  assert.equal(control(root, '原快照编号（知识与成绩分析）').props.disabled, true)
   assert.equal(control(root, '统计维度').props.disabled, true)
   release(); await flush()
-  assert.equal(control(root, '原快照编号').props.disabled, false)
+  assert.equal(control(root, '原快照编号（知识与成绩分析）').props.disabled, false)
   assert.equal(control(root, '统计维度').props.disabled, false)
 })
 
@@ -144,7 +144,7 @@ test('filter or course change invalidates display and a late request cannot resu
   let release
   fixture.wait = new Promise(resolve => { release = resolve })
   button(root, '查询统计').props.onClick(); await flush()
-  change(root, '统计课程', '4'); await flush()
+  change(root, '统计课程（知识与成绩分析）', '4'); await flush()
   release(); await flush()
   assert.doesNotMatch(content(root), /教学标题/)
   assert.equal(button(root, '导出当前快照 CSV'), undefined)
@@ -254,7 +254,7 @@ test('考勤快照可恢复，不会退回知识维度', async t => {
   const { root, fixture, paths } = await mount(t, { course: '3', run: 31 })
   fixture.data = attendance(31)
   // 启动时的自动恢复已把编号改成初始快照 id，这里显式填回 31 再恢复。
-  control(root, '原快照编号').props.onInput({ target: { value: '31' } }); await flush()
+  control(root, '原快照编号（知识与成绩分析）').props.onInput({ target: { value: '31' } }); await flush()
   button(root, '恢复原快照').props.onClick(); await flush()
   assert.match(paths.at(-1), /analysis_run_id=31/)
   assert.match(content(root), /考勤与学习表现/)
