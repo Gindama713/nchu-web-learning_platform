@@ -41,8 +41,9 @@ def list_courses():
                 "WHERE m.user_id=? AND m.active=1 AND m.member_role=?")
         params = (user["id"], user["role"])
     total = db.execute("SELECT COUNT(*) " + base, params).fetchone()[0]
-    rows = db.execute("SELECT c.* " + base + " ORDER BY c.id LIMIT ? OFFSET ?" if user["role"] != "admin"
-                      else "SELECT * " + base + " ORDER BY id LIMIT ? OFFSET ?",
+    # 最新课程排在前面：登录后前端默认选中第一门，课堂演示要落在新开的课上。
+    rows = db.execute("SELECT c.* " + base + " ORDER BY c.id DESC LIMIT ? OFFSET ?" if user["role"] != "admin"
+                      else "SELECT * " + base + " ORDER BY id DESC LIMIT ? OFFSET ?",
                       (*params, size, (page - 1) * size)).fetchall()
     return paged([course_json(row) for row in rows], total, page, size)
 
