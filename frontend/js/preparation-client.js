@@ -90,7 +90,13 @@ export class PreparationClient {
 
   update(id, data) { return this.write(`/preparations/${id}`, 'PATCH', data) }
 
-  copy(id, title) { return this.write(`/preparations/${id}/copy`, 'POST', { title }) }
+  // 复制默认不带原排期（源单元的窗口多半已经过去），需要就显式传新排期。
+  copy(id, title, schedule = {}) {
+    const payload = { title }
+    if (schedule.scheduled_at) payload.scheduled_at = schedule.scheduled_at
+    if (schedule.scheduled_end_at) payload.scheduled_end_at = schedule.scheduled_end_at
+    return this.write(`/preparations/${id}/copy`, 'POST', payload)
+  }
 
   publish(id, replacesId = null) {
     return this.write(`/preparations/${id}/publish`, 'POST',

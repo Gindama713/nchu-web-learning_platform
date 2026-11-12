@@ -116,14 +116,36 @@ class PreparationCreateTest(PreparationApiBase):
             self.call(self.teacher, "POST", self.base, payload, 400)
 
     def test_schedule_window_round_trip(self):
-        # 排期是「开始—结束」区间：两个时间都要能存能读，复制时一并带走。
+        # 排期是「开始—结束」区间：两个时间都要能存能读。
         item = self.draft(scheduled_at="2026-10-20T06:00:00Z",
                           scheduled_end_at="2026-10-20T07:30:00Z")
         self.assertEqual(item["scheduled_at"], "2026-10-20T06:00:00.000Z")
         self.assertEqual(item["scheduled_end_at"], "2026-10-20T07:30:00.000Z")
+
+    def test_copy_does_not_inherit_stale_schedule(self):
+        # 复制默认不带走原排期：原单元的窗口多半已经过去，照抄会把新草稿排到无效时间。
+        item = self.draft(scheduled_at="2026-10-20T06:00:00Z",
+                          scheduled_end_at="2026-10-20T07:30:00Z")
         copy = self.call(self.teacher, "POST", f"/preparations/{item['id']}/copy",
                          {"title": "副本"}, 201).json["data"]
-        self.assertEqual(copy["scheduled_end_at"], "2026-10-20T07:30:00.000Z")
+        self.assertIsNone(copy["scheduled_at"])
+        self.assertIsNone(copy["scheduled_end_at"])
+        self.assertEqual(copy["status"], "draft")
+
+    def test_copy_accepts_new_schedule(self):
+        # 复制时可以当场给新排期，非法区间仍然被拒。
+        item = self.draft(scheduled_at="2026-10-20T06:00:00Z",
+                          scheduled_end_at="2026-10-20T07:30:00Z")
+        copy = self.call(self.teacher, "POST", f"/preparations/{item['id']}/copy",
+                         {"title": "副本", "scheduled_at": "2026-11-20T06:00:00Z",
+                          "scheduled_end_at": "2026-11-20T07:30:00Z"}, 201).json["data"]
+        self.assertEqual(copy["scheduled_at"], "2026-11-20T06:00:00.000Z")
+        self.assertEqual(copy["scheduled_end_at"], "2026-11-20T07:30:00.000Z")
+        self.call(self.teacher, "POST", f"/preparations/{item['id']}/copy",
+                  {"title": "副本", "scheduled_at": "2026-11-20T07:30:00Z",
+                   "scheduled_end_at": "2026-11-20T06:00:00Z"}, 400)
+        self.call(self.teacher, "POST", f"/preparations/{item['id']}/copy",
+                  {"title": "副本", "scheduled_end_at": "2026-11-20T07:30:00Z"}, 400)
 
     def test_schedule_window_must_be_forward(self):
         for payload in (

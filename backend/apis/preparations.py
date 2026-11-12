@@ -223,8 +223,13 @@ def create_preparation(course_id):
 @bp.post("/preparations/<int:preparation_id>/copy")
 def copy_preparation(preparation_id):
     require_user()
-    data = body(("title",))
+    data = body(("title",), ("scheduled_at", "scheduled_end_at"))
     title = text_field(data["title"], "title")
+    # 复制默认不继承原排期：源单元的排期多半已经是过去时间，照抄会把新草稿
+    # 排到一个无效窗口。需要排期就由调用方显式传入。
+    scheduled_at = _parse_time_optional(data.get("scheduled_at"), "scheduled_at")
+    scheduled_end_at = _parse_time_optional(data.get("scheduled_end_at"), "scheduled_end_at")
+    _schedule_window(scheduled_at, scheduled_end_at)
     with write() as db:
         source = _preparation_row(db, preparation_id)
         if not source:
@@ -235,13 +240,14 @@ def copy_preparation(preparation_id):
         cursor = db.execute(
             "INSERT INTO preparation(course_id,title,scheduled_at,scheduled_end_at,status,source_id,"
             "created_at,updated_at) VALUES(?,?,?,?,'draft',?,?,?)",
-            (source["course_id"], title, source["scheduled_at"], source["scheduled_end_at"],
+            (source["course_id"], title, scheduled_at, scheduled_end_at,
              preparation_id, timestamp, timestamp))
         new_id = cursor.lastrowid
         _replace_links(db, new_id, knowledge_ids, resource_ids, question_ids, quiz_ids)
         row = _preparation_row(db, new_id)
         audit("preparation.copy", "preparation", new_id,
-              after={"source_id": preparation_id, "title": title})
+              after={"source_id": preparation_id, "title": title,
+                     "scheduled_at": scheduled_at, "scheduled_end_at": scheduled_end_at})
     return result(_serialize(db, row, "teacher"), 201)
 
 

@@ -40,8 +40,10 @@ export const PreparationView = {
     const edit = reactive({})
     const withdrawReason = reactive({})
     const replaceId = reactive({})
-    // 编辑/发布/撤回都放到独立弹窗里，不再挤在列表行内。
+    // 编辑/发布/撤回/复制都放到独立弹窗里，不再挤在列表行内。
     const modal = reactive({ id: null, kind: '' })
+    // 复制弹窗里先填标题与新排期：默认不带源单元的旧排期（多半已经是过去时间）。
+    const copyDraft = reactive({ title: '', scheduled_at: '', scheduled_end_at: '' })
     const busy = ref(false)
     const error = ref('')
     const notice = ref('')
@@ -179,10 +181,22 @@ export const PreparationView = {
       await loadList()
     }
 
-    async function copy(item) {
-      const title = window.prompt('复制标题（必填，不修改原单元）')
-      if (!title) return
-      await api.copy(item.id, title)
+    // 复制不再用 window.prompt：原生弹窗风格不一致、可能被浏览器拦截，也放不下排期。
+    function openCopy(item) {
+      copyDraft.title = item.title.length > 90 ? `${item.title.slice(0, 90)}（副本）` : `${item.title}（副本）`
+      copyDraft.scheduled_at = ''
+      copyDraft.scheduled_end_at = ''
+      openModal(item, 'copy')
+    }
+
+    async function submitCopy(item) {
+      if (!copyDraft.title.trim()) throw new Error('请填写复制后的标题')
+      const data = schedulePayload({ title: copyDraft.title.trim() },
+        copyDraft.scheduled_at, copyDraft.scheduled_end_at)
+      await api.copy(item.id, data.title, {
+        scheduled_at: data.scheduled_at, scheduled_end_at: data.scheduled_end_at,
+      })
+      closeModal()
       await loadList()
     }
 
@@ -329,7 +343,7 @@ export const PreparationView = {
         item.status === 'draft' && button('编辑', () => openModal(item, 'edit'), { class: 'secondary' }),
         item.status === 'draft' && button('发布', () => openModal(item, 'publish')),
         item.status === 'published' && button('撤回', () => openModal(item, 'withdraw'), { class: 'secondary' }),
-        button('复制', () => run(() => copy(item), '已复制为新草稿，原单元不变'), { class: 'secondary' }),
+        button('复制', () => openCopy(item), { class: 'secondary' }),
       ].filter(Boolean))
     }
 
@@ -337,7 +351,7 @@ export const PreparationView = {
     function modalView() {
       const item = modalItem()
       if (!item) return null
-      const titles = { edit: '编辑', publish: '发布', withdraw: '撤回' }
+      const titles = { edit: '编辑', publish: '发布', withdraw: '撤回', copy: '复制' }
       let body = null
       if (modal.kind === 'edit' && edit[item.id]) {
         const draft = edit[item.id]
@@ -380,6 +394,23 @@ export const PreparationView = {
           h('small', '撤回后学生不再看到这条备课，已发布记录仍保留在教师的列表里。'),
           h('div', { class: 'preparation-panel-actions' }, [
             button('确认撤回', () => run(() => withdraw(item), '备课已撤回，学生不再可见')),
+            button('取消', closeModal, { class: 'secondary' }),
+          ]),
+        ])
+      } else if (modal.kind === 'copy') {
+        body = h('form', { class: 'preparation-form', onSubmit: event => {
+          event.preventDefault()
+          run(() => submitCopy(item), '已复制为新草稿，原单元不变')
+        } }, [
+          h('label', { class: 'preparation-field' }, ['新标题', h('input', {
+            'aria-label': '复制后的标题', value: copyDraft.title, maxlength: 100, required: true,
+            disabled: busy.value,
+            onInput: event => { copyDraft.title = event.target.value },
+          })]),
+          scheduleFields(copyDraft),
+          h('small', '复制默认不继承原单元的排期（原窗口可能已经过去），需要就现在设置；知识/资源/题目/测验的关联会一并带走。'),
+          h('div', { class: 'preparation-panel-actions' }, [
+            h('button', { type: 'submit', disabled: busy.value }, '创建副本'),
             button('取消', closeModal, { class: 'secondary' }),
           ]),
         ])
