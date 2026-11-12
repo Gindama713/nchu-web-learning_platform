@@ -144,7 +144,7 @@ test('filter or course change invalidates display and a late request cannot resu
   let release
   fixture.wait = new Promise(resolve => { release = resolve })
   button(root, '查询统计').props.onClick(); await flush()
-  change(root, '统计课程', '4'); await flush()
+  change(root, '统计课程（知识与成绩分析）', '4'); await flush()
   release(); await flush()
   assert.doesNotMatch(content(root), /教学标题/)
   assert.equal(button(root, '导出当前快照 CSV'), undefined)

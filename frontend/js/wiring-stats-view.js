@@ -205,7 +205,7 @@ export const WiringStatsView = {
       teacher() && h('p', '统计已发布连线实验的应做人数、完成率与校验错误分布。实验时间窗与所选区间有交集即计入，正在进行的实验也会统计到。刷新页面会恢复上次结果；日期留空即统计最近 28 天，「结束日期」含当天，且不能晚于今天。'),
       teacher() && h('div', { class: 'wiring-stats-filters' }, [
         h('label', ['统计课程 ', h('select', {
-          'aria-label': '统计课程', value: course.value, disabled: !courses.value.length,
+          'aria-label': '统计课程（连线统计）', value: course.value, disabled: !courses.value.length,
           onChange: event => { forget(); course.value = event.target.value },
         }, courses.value.map(item => h('option', { value: String(item.id), key: item.id }, item.title)))]),
         dateField('统计起始日期', filters.fromDate, value => { filters.fromDate = value }),
