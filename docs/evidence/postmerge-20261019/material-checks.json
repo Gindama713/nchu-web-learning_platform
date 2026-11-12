@@ -1,0 +1,16 @@
+{
+  "markdown_files_checked_in_batches_of_three": 24,
+  "broken_links": [],
+  "business_contract_ci_diff_empty": true,
+  "original_ac": 31,
+  "local_passed": 81,
+  "integration_passed": 81,
+  "common_blocked": 42,
+  "ui_chain_blocked": 8,
+  "json_sensitive_value_scan_files": 30,
+  "sensitive_fields": [],
+  "reconciliation_replay": "passed separately",
+  "ruff": "passed",
+  "teacher_layout_and_required_links": "passed",
+  "diff_check": "passed"
+}

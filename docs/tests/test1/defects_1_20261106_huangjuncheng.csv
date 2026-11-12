@@ -1,0 +1,4 @@
+﻿编号,标题,被测组,复现步骤,预期结果,实际结果,严重程度,截图,状态
+D-S01,docs/ 缺 index.html，静态检查沙箱显示「无法运行」,g24201710（本组自测）,课程平台打开项目检查 1/2/3，静态沙箱在 docs/ 下查找 index.html,页面可访问，文档索引与模块原型可展示,提示「本练习默认沙箱为静态页面，但 docs/ 下未找到 index.html」，三项均显示无法访问/无法运行,高,课堂现场留存，按老师要求不随文档提交图片,已修复（新增 docs/index.html）
+D-S02,admin-create 为交互式且密码要求 12–128 位，与 teacher/teacher 冲突,g24201710（本组自测）,按 README 部署步骤执行 flask --app backend.app admin-create,非交互环境可一键建好任务书规定的 teacher/teacher,命令使用 click prompt=True 与 password_option()，且 password() 校验 12–128 位；teacher 仅 7 位，建出的角色是 admin 不是 teacher,中,代码实读 backend/app.py、backend/apis/identity.py，无图片,待确认（部署改用 scripts/seed_teacher_course.py）
+D-S03,GET /api/v1/health 恒返回 503 degraded,g24201710（本组自测）,启动服务后请求 /api/v1/health,健康检查可用，或明确区分核心服务与可选评测引擎,仓库不含 Logisim JAR，grader_ready() 失败，整体返回 503,中,本机实测响应，按老师要求不随文档提交图片,已知限制（不影响登录/点到/教学模块）

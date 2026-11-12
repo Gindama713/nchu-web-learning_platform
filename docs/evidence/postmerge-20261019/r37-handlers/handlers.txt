@@ -1,0 +1,15 @@
+test_copy_draft_preserves_links_without_copying_or_publishing_quiz (tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_copy_draft_preserves_links_without_copying_or_publishing_quiz) ... ok
+test_frozen_roster_filters_detail_and_list_before_start (tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_frozen_roster_filters_detail_and_list_before_start) ... ok
+test_permissions_and_publication_notification_failure_rollback (tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_permissions_and_publication_notification_failure_rollback) ... ok
+test_preparation_entry_respects_deadline_review_and_revocation (tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_preparation_entry_respects_deadline_review_and_revocation) ... ok
+test_published_copy_and_http_and_database_update_freeze (tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_published_copy_and_http_and_database_update_freeze) ... ok
+test_r37_004_01_unpublished_quiz_requires_contract_409 (tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_r37_004_01_unpublished_quiz_requires_contract_409)
+R37-004-01, owner 罗浩铭: actual 404 NOT_FOUND, APIC§3 requires 409. ... ok
+test_r37_004_02_prestart_metadata_requires_window_state (tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_r37_004_02_prestart_metadata_requires_window_state)
+R37-004-02, owner 罗浩铭: APIC§3 metadata omits window_state. ... ok
+test_same_course_links_and_invalid_create_patch_are_atomic (tests.test_preparation_quiz_integration.PreparationQuizIntegrationTest.test_same_course_links_and_invalid_create_patch_are_atomic) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 14.557s
+
+OK

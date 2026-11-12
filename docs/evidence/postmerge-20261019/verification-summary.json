@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-19T23:44:15.854132+08:00",
+  "baseline": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a",
+  "validation_passed": true,
+  "environment": {
+    "python": "3.13.12",
+    "os": "Windows-11-10.0.26200-SP0",
+    "node": "v24.14.0"
+  },
+  "backend": {
+    "tested_source": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a",
+    "tests": 376,
+    "seconds": 661.473,
+    "failed": 0,
+    "note": "Started on clean baseline; backend/tests unchanged by this package. Not target capacity."
+  },
+  "frontend": {
+    "tests": 135,
+    "failed": 0,
+    "lint": "passed",
+    "build": "passed"
+  },
+  "handler_tests": 17,
+  "expected_failures": 0,
+  "browser_groups_per_channel": {
+    "r37": 6,
+    "i03": 7,
+    "qa": 9,
+    "recommendation": 7
+  },
+  "browser_heads": {
+    "r37-browsers": "90a69c49ea24677c0bea26f5a8f3825a91066922",
+    "i03-browsers": "90a69c49ea24677c0bea26f5a8f3825a91066922",
+    "qa-browsers": "90a69c49ea24677c0bea26f5a8f3825a91066922",
+    "recommendation-browsers-final": "d8509d6fb250825974ab30f3ad3015c77427127a"
+  },
+  "browser_versions": {
+    "chrome": "155.0.8059.80",
+    "msedge": "155.0.4283.62"
+  },
+  "all_merge_ancestry_passed": true,
+  "all_formal_dirty_paths_empty": true,
+  "visual_review": {
+    "sampled_images": [
+      "r37-browsers/chrome-prestart.png",
+      "r37-browsers/chrome-unreviewed.png",
+      "r37-browsers/chrome-reviewed.png",
+      "i03-browsers/chrome-original-knowledge.png",
+      "i03-browsers/msedge-qa-source.png",
+      "i03-browsers/msedge-revoked-cleared.png",
+      "qa-browsers/chrome-mobile.png",
+      "qa-browsers/msedge-failure.png",
+      "recommendation-browsers-final/msedge-recovered-390.png"
+    ],
+    "limit": "Nine representative screenshots inspected, not a full manual UI/classroom acceptance."
+  },
+  "not_run": [
+    "real Logisim/sandbox",
+    "target Linux 4cpu 8GB 50 sessions",
+    "production same-point restore",
+    "90-day retention",
+    "Gitea/teacher acceptance",
+    "full I01/I02/I03/I04",
+    "non-author course review"
+  ]
+}

@@ -1,0 +1,20 @@
+FURB167 [*] Use of regular expression alias `re.M`
+   --> scripts\reconcile_postmerge_acceptance.py:118:45
+    |
+116 |         cells[5] = row["队友环境或剩余缺口"]
+117 |         md = md.replace(line, "| " + " | ".join(cells) + " |")
+118 |     assert len(re.findall(r"^\| SPEC-", md, re.M)) == 131
+    |                                             ^^^^
+119 |     audit = {"baseline": BASE, "rows": len(rows), "before": counts(original), "after": counts(rows),
+120 |              "promoted_integration": sorted(promoted), "changed_rows": changes,
+    |
+help: Replace with `re.MULTILINE`
+    |
+117 |         md = md.replace(line, "| " + " | ".join(cells) + " |")
+    -     assert len(re.findall(r"^\| SPEC-", md, re.M)) == 131
+118 +     assert len(re.findall(r"^\| SPEC-", md, re.MULTILINE)) == 131
+119 |     audit = {"baseline": BASE, "rows": len(rows), "before": counts(original), "after": counts(rows),
+    |
+
+Found 1 error.
+[*] 1 fixable with `--fix`.

@@ -1,0 +1,2 @@
+chrome: 7 groups passed
+FAILED PermissionError: ['verify_spec012_browsers.py:main:232', 'contextlib.py:__exit__:162', 'verify_spec005_browsers.py:servers:72', 'tempfile.py:__exit__:951', 'tempfile.py:cleanup:955', 'tempfile.py:_rmtree:935', 'shutil.py:rmtree:790', 'shutil.py:_rmtree_unsafe:629', 'tempfile.py:onexc:910']

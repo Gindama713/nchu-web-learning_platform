@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-19T15:33:50.772507+00:00",
+  "tested_head": "90a69c49ea24677c0bea26f5a8f3825a91066922",
+  "dirty_paths": [],
+  "scope": "007 API authorization observations; 008/006 -> 010B -> 011 bounded subchain; not full I-03",
+  "007_UI": "blocked, missing registered classroom page",
+  "fault_injections": [],
+  "tests": 3,
+  "expected_failures": 0,
+  "passed": 3,
+  "failures": [],
+  "errors": [],
+  "unexpected_successes": [],
+  "seconds": 9.894,
+  "result": "passed"
+}

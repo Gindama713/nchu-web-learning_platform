@@ -1,0 +1,39 @@
+{
+  "started_at": "2026-10-19T15:35:25.581453+00:00",
+  "os": "Windows-11-10.0.26200-SP0",
+  "tested_head": "90a69c49ea24677c0bea26f5a8f3825a91066922",
+  "dirty_paths": [],
+  "scope": "local real socket HTTP/UI; synthetic data; explicit calculation fault/delay fixtures; not performance/classroom",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.80",
+      "status": "passed",
+      "checks": [
+        "real 005 empty course / no foundation / sorted cold start / completed foundation excluded",
+        "latest eligible version minimum ID; safe real knowledge source; existing practice UI 201; blank/replay excluded",
+        "five real samples, .8 boundary + completed filter; uncompleted mastery retained; all-mastered metadata",
+        "latest closed practice has null entry; unpublish before source click removes stale recommendation",
+        "server fault fixture returns real HTTP503 while independent practice UI submits201; explicit retry + 390px",
+        "server-delayed genuine response discarded after limit changed; explicit refresh recovers",
+        "real membership revocation404 + restoration; account deactivation removes result before another query"
+      ],
+      "page_errors": [],
+      "course_id": 1
+    }
+  ],
+  "status": "failed",
+  "failure_type": "PermissionError",
+  "failure_locations": [
+    "verify_spec012_browsers.py:main:232",
+    "contextlib.py:__exit__:162",
+    "verify_spec005_browsers.py:servers:72",
+    "tempfile.py:__exit__:951",
+    "tempfile.py:cleanup:955",
+    "tempfile.py:_rmtree:935",
+    "shutil.py:rmtree:790",
+    "shutil.py:_rmtree_unsafe:629",
+    "tempfile.py:onexc:910"
+  ],
+  "finished_at": "2026-10-19T15:35:47.467815+00:00"
+}

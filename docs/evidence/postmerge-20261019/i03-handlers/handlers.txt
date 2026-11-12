@@ -1,0 +1,8 @@
+test_contract_future_cursor_must_return_actual_revision (tests.test_i03_entry.I03EntryTest.test_contract_future_cursor_must_return_actual_revision) ... ok
+test_demo_actual_entry_permissions_and_current_revision_observation (tests.test_i03_entry.I03EntryTest.test_demo_actual_entry_permissions_and_current_revision_observation) ... ok
+test_fixed_wrong_version_four_students_mastery_snapshot_and_qa_revocation (tests.test_i03_subchain.I03SubchainTest.test_fixed_wrong_version_four_students_mastery_snapshot_and_qa_revocation) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 9.893s
+
+OK

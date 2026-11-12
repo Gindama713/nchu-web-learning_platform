@@ -38,3 +38,8 @@ backups/
 Thumbs.db
 
 # 注意：docs/ 目录是必须提交的交付物，不要忽略！
+
+# ===== 本地实验 / 测试临时产物 =====
+test-tmp/
+.tmp-*/
+tests/tmp*

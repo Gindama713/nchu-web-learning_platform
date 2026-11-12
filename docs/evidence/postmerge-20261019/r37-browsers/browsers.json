@@ -1,0 +1,1116 @@
+{
+  "at_utc": "2026-10-19T15:33:17.542913+00:00",
+  "tested_head": "90a69c49ea24677c0bea26f5a8f3825a91066922",
+  "dirty_paths": [],
+  "scope": "real socket HTTP + existing 008 UI; preparation UI absent in frontend/js/main.js",
+  "fixtures": "initial admin/teacher bootstrap and TEST_NOW; course/member helper uses actual handlers; business setup uses socket HTTP",
+  "preparation_ui": "blocked: no preparation component or route; no teammate UI written",
+  "browsers": [
+    {
+      "channel": "chrome",
+      "version": "155.0.8059.80",
+      "checks": [
+        "socket_real_knowledge_question_quiz_preparation_copy_and_publish_freeze",
+        "postmerge_R37_004_01_and_02_contracts_pass",
+        "linked_original_id_existing_quiz_ui_prestart_no_questions",
+        "real_ui_submission_closed_unreviewed_paper_and_attempt_protected",
+        "real_teacher_ui_review_releases_original_answers",
+        "late_member_filtered_from_preparation_and_quiz_ui_revocation_rechecked"
+      ],
+      "page_errors": [],
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "R37"
+            },
+            "request_id": "4ff9f8823ea54c11857aa7dfdff6adc6"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "R37知识"
+            },
+            "request_id": "3a5337db11f7491eb2cf2228995e03b8"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": true,
+              "difficulty": "easy",
+              "explanation": "R37受保护解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [],
+              "practice_available": false,
+              "stem": "R37 PC保存下一条指令地址？",
+              "tolerance": 0.0,
+              "type": "boolean",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "38249478e34a43909189931d18de3959"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": true,
+                  "difficulty": "easy",
+                  "explanation": "R37受保护解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "R37 PC保存下一条指令地址？",
+                  "tolerance": 0.0,
+                  "type": "boolean",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "cbc66a69c59042d7bce2cc3afba4c45d"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37关联备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "f628fc1b408641fa98a5d037318a5a24"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "status": 409,
+          "response": {
+            "error": {
+              "code": "QUIZ_NOT_PUBLISHED",
+              "details": {},
+              "message": "Linked quiz is not published"
+            },
+            "request_id": "5c450b35a3ae4096b04e16cc9793f363"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/quizzes",
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": "确认未公开且非简单复制",
+              "end_at": "2026-10-19T15:35:00.000Z",
+              "generation_snapshot_id": null,
+              "id": 1,
+              "kind": "quiz",
+              "paper_id": 1,
+              "participant_count": 1,
+              "review_at": null,
+              "seed": null,
+              "start_at": "2026-10-19T15:34:00.000Z",
+              "status": "upcoming",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": "upcoming"
+            },
+            "request_id": "c0fb69ab7dda4e7da71098fb2d64650b"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 4
+            },
+            "request_id": "99c69d1dac7f4e7cbe5a87dca3de872c"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-19T15:33:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37关联备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "f6f0f325a9974d45ad60dcfd1e3a00ab"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/copy",
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 2,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": 1,
+              "status": "draft",
+              "title": "R37副本",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "3325c112598a44d68bb6cc02b4c83f18"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/preparations/1",
+          "status": 409,
+          "response": {
+            "error": {
+              "code": "STATE_CONFLICT",
+              "details": {},
+              "message": "Only draft preparation can be updated"
+            },
+            "request_id": "ed0e89d01ec24b07852de75209f3a2e7"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-19T15:33:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "quizzes": [
+                {
+                  "end_at": "2026-10-19T15:35:00.000Z",
+                  "id": 1,
+                  "start_at": "2026-10-19T15:34:00.000Z",
+                  "title": "R37关联测验",
+                  "window_state": "upcoming"
+                }
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37关联备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "89bef475955f4c168bd2a1ee5c3fec40"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "confidential": true,
+              "end_at": "2026-10-19T15:35:00.000Z",
+              "id": 1,
+              "kind": "quiz",
+              "review_at": null,
+              "start_at": "2026-10-19T15:34:00.000Z",
+              "status": "published",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": "upcoming"
+            },
+            "request_id": "ed9398b542804485ab9b31c1645c228d"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "confidential": true,
+              "end_at": "2026-10-19T15:35:00.000Z",
+              "id": 1,
+              "items": [
+                {
+                  "difficulty": "easy",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "R37 PC保存下一条指令地址？",
+                  "tolerance": 0.0,
+                  "type": "boolean",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "review_at": null,
+              "start_at": "2026-10-19T15:34:00.000Z",
+              "status": "published",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": "closed"
+            },
+            "request_id": "e71d1bec257e4f4e8e7a2526fa8ddd92"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/attempts/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "answers": [
+                {
+                  "answered": true,
+                  "comment": "",
+                  "correct": false,
+                  "grading_status": "graded",
+                  "max_score": 10.0,
+                  "question_version_id": 1,
+                  "score": 0.0,
+                  "value": false
+                }
+              ],
+              "id": 1,
+              "paper_id": 1,
+              "partial_score": 0.0,
+              "revision": 0,
+              "score": 0.0,
+              "status": "graded",
+              "student_id": 3,
+              "submitted_at": "2026-10-19T15:34:00.000Z",
+              "total_points": 10.0
+            },
+            "request_id": "4e155f95f8fa471d83259324bde18527"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "confidential": true,
+              "end_at": "2026-10-19T15:35:00.000Z",
+              "id": 1,
+              "items": [
+                {
+                  "answer": true,
+                  "difficulty": "easy",
+                  "explanation": "R37受保护解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "R37 PC保存下一条指令地址？",
+                  "tolerance": 0.0,
+                  "type": "boolean",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "review_at": "2026-10-19T15:35:00.000Z",
+              "start_at": "2026-10-19T15:34:00.000Z",
+              "status": "published",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": "closed"
+            },
+            "request_id": "febfc83f0db54162b12c7c422d77076e"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-19T15:33:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [],
+              "quizzes": [],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37关联备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "a1efdc077d824db5b085e7cb8b63f167"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "试卷不存在或不可见"
+            },
+            "request_id": "aa23497333aa42849352bc856ca49d5d"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/courses/1/members/3",
+          "status": 204,
+          "response": null
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "51c5dbbd95e44458b12a062722bd02e9"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "03bc2476e962422abf1efe7a12be135d"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/attempts/1",
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "190d2003bd1e4b3abde2eb4d2c48bd26"
+          }
+        }
+      ],
+      "resolved_contract_failures": [
+        "R37-004-01: 409 QUIZ_NOT_PUBLISHED",
+        "R37-004-02: window_state=upcoming"
+      ],
+      "database": {
+        "links": [
+          {
+            "preparation_id": 1,
+            "paper_id": 1
+          },
+          {
+            "preparation_id": 2,
+            "paper_id": 1
+          }
+        ],
+        "papers": [
+          {
+            "id": 1,
+            "status": "published",
+            "start_at": "2026-10-19T15:34:00.000Z",
+            "end_at": "2026-10-19T15:35:00.000Z",
+            "review_at": "2026-10-19T15:35:00.000Z"
+          }
+        ],
+        "roster": [
+          {
+            "paper_id": 1,
+            "student_id": 3
+          }
+        ],
+        "attempt_count": 1,
+        "foreign_key_check": []
+      },
+      "result": "covered checks passed; complete R37 remains blocked"
+    },
+    {
+      "channel": "msedge",
+      "version": "155.0.4283.62",
+      "checks": [
+        "socket_real_knowledge_question_quiz_preparation_copy_and_publish_freeze",
+        "postmerge_R37_004_01_and_02_contracts_pass",
+        "linked_original_id_existing_quiz_ui_prestart_no_questions",
+        "real_ui_submission_closed_unreviewed_paper_and_attempt_protected",
+        "real_teacher_ui_review_releases_original_answers",
+        "late_member_filtered_from_preparation_and_quiz_ui_revocation_rechecked"
+      ],
+      "page_errors": [],
+      "http": [
+        {
+          "method": "POST",
+          "path": "/courses/1/chapters",
+          "status": 201,
+          "response": {
+            "data": {
+              "chapters_revision": 1,
+              "id": 1,
+              "position": 0,
+              "title": "R37"
+            },
+            "request_id": "e48b6ed1de274600844bbbad698cde76"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/chapters/1/knowledge-points",
+          "status": 201,
+          "response": {
+            "data": {
+              "chapter_id": 1,
+              "content": "正文",
+              "content_revision": 1,
+              "example": "",
+              "id": 1,
+              "is_foundational": false,
+              "published": true,
+              "title": "R37知识"
+            },
+            "request_id": "b251a2fcc883447baa6dbec710b4c80f"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/questions",
+          "status": 201,
+          "response": {
+            "data": {
+              "answer": true,
+              "difficulty": "easy",
+              "explanation": "R37受保护解析",
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "options": [],
+              "practice_available": false,
+              "stem": "R37 PC保存下一条指令地址？",
+              "tolerance": 0.0,
+              "type": "boolean",
+              "version": 1,
+              "version_id": 1
+            },
+            "request_id": "341ab1b2c69443de8ad49ec6db9bd876"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/papers",
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": null,
+              "end_at": null,
+              "generation_snapshot_id": null,
+              "id": 1,
+              "items": [
+                {
+                  "answer": true,
+                  "difficulty": "easy",
+                  "explanation": "R37受保护解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "R37 PC保存下一条指令地址？",
+                  "tolerance": 0.0,
+                  "type": "boolean",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "participant_count": 0,
+              "review_at": null,
+              "seed": null,
+              "start_at": null,
+              "status": "draft",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": null
+            },
+            "request_id": "509a2de65a4743d2a7a4f5a6c3f69b0c"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/preparations",
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "draft",
+              "title": "R37关联备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "9380f8e742e843389e75951de83c6c8b"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "status": 409,
+          "response": {
+            "error": {
+              "code": "QUIZ_NOT_PUBLISHED",
+              "details": {},
+              "message": "Linked quiz is not published"
+            },
+            "request_id": "d820458611474a07b02fafa20f1d1aa7"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/quizzes",
+          "status": 201,
+          "response": {
+            "data": {
+              "algorithm_version": null,
+              "confidential": true,
+              "confidentiality_note": "确认未公开且非简单复制",
+              "end_at": "2026-10-19T15:35:00.000Z",
+              "generation_snapshot_id": null,
+              "id": 1,
+              "kind": "quiz",
+              "paper_id": 1,
+              "participant_count": 1,
+              "review_at": null,
+              "seed": null,
+              "start_at": "2026-10-19T15:34:00.000Z",
+              "status": "upcoming",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": "upcoming"
+            },
+            "request_id": "7d0239393a524d60a82ff15d866576d5"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/courses/1/members",
+          "status": 201,
+          "response": {
+            "data": {
+              "active": true,
+              "member_role": "student",
+              "user_id": 4
+            },
+            "request_id": "81d3ad3bb9684dbf874f4d65a09f35e8"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/publish",
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-19T15:33:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37关联备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "7ea5792b83b4412db10b36de636b791d"
+          }
+        },
+        {
+          "method": "POST",
+          "path": "/preparations/1/copy",
+          "status": 201,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 2,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": null,
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": 1,
+              "status": "draft",
+              "title": "R37副本",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "cb20b22e60e84ea78cc8a64d139ae22e"
+          }
+        },
+        {
+          "method": "PATCH",
+          "path": "/preparations/1",
+          "status": 409,
+          "response": {
+            "error": {
+              "code": "STATE_CONFLICT",
+              "details": {},
+              "message": "Only draft preparation can be updated"
+            },
+            "request_id": "9345a52397cb4986b0a04c304f149062"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-19T15:33:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [
+                1
+              ],
+              "quizzes": [
+                {
+                  "end_at": "2026-10-19T15:35:00.000Z",
+                  "id": 1,
+                  "start_at": "2026-10-19T15:34:00.000Z",
+                  "title": "R37关联测验",
+                  "window_state": "upcoming"
+                }
+              ],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37关联备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "6b4f8dccde9d4c459d291a6121a125a7"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "confidential": true,
+              "end_at": "2026-10-19T15:35:00.000Z",
+              "id": 1,
+              "kind": "quiz",
+              "review_at": null,
+              "start_at": "2026-10-19T15:34:00.000Z",
+              "status": "published",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": "upcoming"
+            },
+            "request_id": "c242b617210d4985a6babefce5301d94"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "confidential": true,
+              "end_at": "2026-10-19T15:35:00.000Z",
+              "id": 1,
+              "items": [
+                {
+                  "difficulty": "easy",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "R37 PC保存下一条指令地址？",
+                  "tolerance": 0.0,
+                  "type": "boolean",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "review_at": null,
+              "start_at": "2026-10-19T15:34:00.000Z",
+              "status": "published",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": "closed"
+            },
+            "request_id": "94bb2c29d8804187ab46d07b0f7865cc"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/attempts/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "answers": [
+                {
+                  "answered": true,
+                  "comment": "",
+                  "correct": false,
+                  "grading_status": "graded",
+                  "max_score": 10.0,
+                  "question_version_id": 1,
+                  "score": 0.0,
+                  "value": false
+                }
+              ],
+              "id": 1,
+              "paper_id": 1,
+              "partial_score": 0.0,
+              "revision": 0,
+              "score": 0.0,
+              "status": "graded",
+              "student_id": 3,
+              "submitted_at": "2026-10-19T15:34:00.000Z",
+              "total_points": 10.0
+            },
+            "request_id": "c3552224e31e4ec59969fdf7fdb8b768"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "confidential": true,
+              "end_at": "2026-10-19T15:35:00.000Z",
+              "id": 1,
+              "items": [
+                {
+                  "answer": true,
+                  "difficulty": "easy",
+                  "explanation": "R37受保护解析",
+                  "id": 1,
+                  "knowledge_ids": [
+                    1
+                  ],
+                  "options": [],
+                  "points": 10.0,
+                  "position": 1,
+                  "practice_available": false,
+                  "question_version_id": 1,
+                  "stem": "R37 PC保存下一条指令地址？",
+                  "tolerance": 0.0,
+                  "type": "boolean",
+                  "version": 1,
+                  "version_id": 1
+                }
+              ],
+              "kind": "quiz",
+              "review_at": "2026-10-19T15:35:00.000Z",
+              "start_at": "2026-10-19T15:34:00.000Z",
+              "status": "published",
+              "title": "R37关联测验",
+              "total_points": 10.0,
+              "window_state": "closed"
+            },
+            "request_id": "dd0ecda57aa048f992aaaed0c26ed489"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "status": 200,
+          "response": {
+            "data": {
+              "course_id": 1,
+              "id": 1,
+              "knowledge_ids": [
+                1
+              ],
+              "published_at": "2026-10-19T15:33:00.000Z",
+              "question_version_ids": [],
+              "quiz_ids": [],
+              "quizzes": [],
+              "replaces_id": null,
+              "resource_version_ids": [],
+              "scheduled_at": null,
+              "source_id": null,
+              "status": "published",
+              "title": "R37关联备课",
+              "withdraw_reason": null,
+              "withdrawn_at": null
+            },
+            "request_id": "cc8d45fbc5534db1ba03d8343ed8c1cb"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "试卷不存在或不可见"
+            },
+            "request_id": "036141c9c98444e0aa58c4197f985aed"
+          }
+        },
+        {
+          "method": "DELETE",
+          "path": "/courses/1/members/3",
+          "status": 204,
+          "response": null
+        },
+        {
+          "method": "GET",
+          "path": "/preparations/1",
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "7e08089218e04344a9a1a01696e71a57"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/papers/1",
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "75e93e584e6347048b1fa3b5df6afaa9"
+          }
+        },
+        {
+          "method": "GET",
+          "path": "/attempts/1",
+          "status": 404,
+          "response": {
+            "error": {
+              "code": "NOT_FOUND",
+              "details": {},
+              "message": "Course not found"
+            },
+            "request_id": "d9c6d2608beb42d6bc8cade2ad913d11"
+          }
+        }
+      ],
+      "resolved_contract_failures": [
+        "R37-004-01: 409 QUIZ_NOT_PUBLISHED",
+        "R37-004-02: window_state=upcoming"
+      ],
+      "database": {
+        "links": [
+          {
+            "preparation_id": 1,
+            "paper_id": 1
+          },
+          {
+            "preparation_id": 2,
+            "paper_id": 1
+          }
+        ],
+        "papers": [
+          {
+            "id": 1,
+            "status": "published",
+            "start_at": "2026-10-19T15:34:00.000Z",
+            "end_at": "2026-10-19T15:35:00.000Z",
+            "review_at": "2026-10-19T15:35:00.000Z"
+          }
+        ],
+        "roster": [
+          {
+            "paper_id": 1,
+            "student_id": 3
+          }
+        ],
+        "attempt_count": 1,
+        "foreign_key_check": []
+      },
+      "result": "covered checks passed; complete R37 remains blocked"
+    }
+  ]
+}
