@@ -23,6 +23,10 @@ export const REASON_TEXT = {
 }
 export const reasonText = code => REASON_TEXT[code] ?? ''
 
+// 学生在列表里点「投票」时，把这一场交给页面根上的浮层去打开。
+// 面板在考勤卡片里、浮层挂在页面根上，两者不是父子关系，用 props 传要绕一大圈。
+export const requestedPoll = ref(null)
+
 export const percent = (part, whole) => (whole ? Math.round((part / whole) * 100) : 0)
 
 // 一题最多能选几项：只有多选才有上限，单选和判断恒为 1
@@ -125,7 +129,7 @@ export const PollPanel = {
     }
     async function look(poll) {
       if (!isTeacher.value && !(poll.my_option_ids ?? []).length) {
-        error.value = '投完票才能看分布，先在上面的弹窗里投一票。'
+        error.value = '投完票才能看分布，先点这一行的「投票」。'
         return
       }
       error.value = ''
@@ -135,6 +139,32 @@ export const PollPanel = {
       unvotedShown.value = 12
       detailFilter.value = 'all'
       await refreshReport()
+    }
+    // 学生自己点「投票」：把这一场交给页面根上的浮层去开，不用自己再实现一遍选票界面
+    function vote(poll) {
+      if (!poll.can_vote) {
+        error.value = reasonText(poll.reason) || '现在还不能投票'
+        return
+      }
+      error.value = ''
+      notice.value = ''
+      requestedPoll.value = poll
+    }
+    // 没签到时唯一的出路就是先去签到：把上面那条进行中的任务滚到眼前并闪一下
+    function goCheckIn() {
+      error.value = ''
+      // 组件测试跑在 node 里，没有 document；没有就只出提示，不做滚动
+      const doc = globalThis.document
+      const task = doc ? doc.querySelector('.att-task.open') : null
+      if (doc && !task) {
+        error.value = '这门课现在没有进行中的考勤任务，没法签到。'
+        return
+      }
+      notice.value = '在上面那条进行中的任务里点「签到」，签完这一行就会出现「投票」按钮。'
+      if (!task) return
+      task.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      task.classList.add('att-task-flash')
+      globalThis.setTimeout(() => task.classList.remove('att-task-flash'), 1800)
     }
     function closeReport() {
       selected.value = null
@@ -246,6 +276,7 @@ export const PollPanel = {
       isTeacher, openTasks, chosenTask, optionLabels, filteredDetails, visibleDetails, selectedIsOpen,
       unvoted, unvotedShown, visibleUnvoted, unvotedFolded,
       load, look, closeReport, finish, submit, addOption, dropOption, markCorrect, refreshReport,
+      vote, goCheckIn,
       typeText, percent, studentState, shortTime,
     }
   },
@@ -322,6 +353,9 @@ export const PollPanel = {
       <span class="poll-rate">已投 {{ item.voted }} / {{ item.eligible }}　{{ percent(item.voted, item.eligible) }}%</span>
       </div>
       <div class="poll-actions">
+      <button v-if="!isTeacher && item.open && item.can_vote" type="button" @click="vote(item)">投票</button>
+      <button v-if="!isTeacher && item.open && !item.can_vote && item.reason === 'NOT_CHECKED_IN'"
+        type="button" class="secondary" @click="goCheckIn">去签到</button>
       <button type="button" class="secondary" @click="look(item)">看结果</button>
       <button v-if="isTeacher && item.status === 'open'" type="button" class="secondary"
         :disabled="busy" @click="finish(item)">结束投票</button>
@@ -404,6 +438,8 @@ export const PollModal = {
     const blocked = ref(false)
     // 点过「稍后」的题目不再弹，否则学生关一次、五秒后又蹦出来
     const dismissed = ref([])
+    // 学生自己在列表里点的「投票」：钉住这一场，别被 5 秒轮询换成别的题
+    const pinned = ref(false)
 
     const limit = computed(() => maxPicks(poll.value))
     const canSubmit = computed(() => Boolean(poll.value) && chosen.value.length > 0 && !busy.value)
@@ -413,6 +449,9 @@ export const PollModal = {
       try {
         const data = await client.openPolls(props.courseId)
         const fresh = data.items.filter(item => item.can_vote && !dismissed.value.includes(item.id))
+        // 学生自己点开的这一场：轮询不要顶掉它（点过「稍后」的也已经被他主动叫回来了）
+        if (pinned.value && poll.value) return
+        pinned.value = false
         const next = fresh[0] ?? null
         if (next?.id !== poll.value?.id) {
           chosen.value = []
@@ -432,6 +471,7 @@ export const PollModal = {
       chosen.value = []
       error.value = ''
       blocked.value = false
+      pinned.value = false
     }
     async function submit() {
       if (!canSubmit.value) return
@@ -439,12 +479,16 @@ export const PollModal = {
       try {
         result.value = await client.vote(poll.value.id, chosen.value)
         poll.value = null
+        pinned.value = false
         chosen.value = []
         error.value = ''
       } catch (failure) {
         error.value = reasonText(failure.code) || failure.message
         // 已经投过 / 已经结束：这题不用再弹了，但原因要留在屏幕上
-        if (failure.code === 'ALREADY_VOTED' || failure.code === 'POLL_CLOSED') blocked.value = true
+        if (failure.code === 'ALREADY_VOTED' || failure.code === 'POLL_CLOSED') {
+          blocked.value = true
+          pinned.value = false
+        }
       } finally {
         busy.value = false
       }
@@ -453,6 +497,20 @@ export const PollModal = {
       result.value = null
       error.value = ''
     }
+
+    // 学生点列表里的「投票」：直接开这一场。列表项和浮层用的是同一份渲染数据，字段一致。
+    watch(requestedPoll, item => {
+      if (!item) return
+      requestedPoll.value = null
+      result.value = null
+      error.value = ''
+      chosen.value = []
+      blocked.value = false
+      // 他主动点了「投票」，之前点过的「稍后」就不再算数，否则 5 秒后轮询会把浮层收掉
+      dismissed.value = dismissed.value.filter(id => id !== item.id)
+      pinned.value = true
+      poll.value = item
+    })
 
     watch(() => props.courseId, () => {
       poll.value = null

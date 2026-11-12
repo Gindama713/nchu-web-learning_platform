@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { setImmediate } from 'node:timers/promises'
 import { createRenderer, nextTick, reactive } from 'vue'
-import { PollModal, PollPanel, percent, studentState, togglePick } from './poll-view.js'
+import { PollModal, PollPanel, percent, requestedPoll, studentState, togglePick } from './poll-view.js'
 
 // v-model 走的是 vModelText / vModelSelect 指令，它们会在元素上挂原生监听并读 el.value。
 // 替身必须提供 addEventListener 与 value/checked，否则连模板都挂不上。
@@ -234,4 +234,32 @@ test('投票前不显示分布：浮层里只有题目和选项', async t => {
   const { root } = await mountModal(t, { open: [poll({ can_vote: true, my_option_ids: [] })] })
   assert.doesNotMatch(content(root), /人 ·/)
   assert.doesNotMatch(content(root), /正确/)
+})
+
+test('学生能自己在列表里点「投票」，浮层就开这一场（不再是只能等它自动弹）', async t => {
+  const mine = poll({ can_vote: true, my_option_ids: [] })
+  const { root } = await mountPanel(t, { polls: [mine, poll({ id: 12, title: '另一场' })] },
+    { user: { id: 7, role: 'student' } })
+  const entry = button(root, '投票')
+  assert.ok(entry, '学生那一行必须有「投票」按钮，否则根本找不到入口')
+  entry.props.onClick(); await flush()
+  assert.equal(requestedPoll.value?.id, mine.id, '面板要把这一场交给浮层')
+
+  // 浮层收到之后直接开这一场，不用等 5 秒轮询
+  const modal = await mountModal(t, { open: [] })
+  requestedPoll.value = null; await flush()
+  requestedPoll.value = mine
+  await flush()
+  assert.match(content(modal.root), /这段流水线有几处数据冒险/)
+  button(modal.root, '2 处').props.onClick(); await flush()
+  assert.match(content(modal.root), /已选 1 项/)
+})
+
+test('没签到的学生看到的是「去签到」，点完告诉他先去签到', async t => {
+  const { root } = await mountPanel(t, {
+    polls: [poll({ can_vote: false, reason: 'NOT_CHECKED_IN', my_option_ids: [] })],
+  }, { user: { id: 7, role: 'student' } })
+  assert.equal(button(root, '投票'), undefined, '没签到时不该给一个点了就报错的按钮')
+  button(root, '去签到').props.onClick(); await flush()
+  assert.match(content(root), /签完这一行就会出现「投票」按钮/)
 })
