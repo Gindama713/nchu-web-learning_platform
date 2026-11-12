@@ -27,6 +27,7 @@ from backend.apis import (
     logs,
     meta,
     papers,
+    polls,
     practices,
     preparations,
     questions,
@@ -98,7 +99,8 @@ def create_app(config=None):
     for blueprint in (identity.bp, courses.bp, attendance.bp, analytics.bp, warnings.bp,
                       recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp, quizzes.bp,
                       resources.bp, experiments.bp, preparations.bp, demo.bp, wiring.bp, alu.bp, logs.bp,
-                      recommendations.bp, grading.bp, classroom.bp, seat_swap.bp, circuit_lab.bp):
+                      recommendations.bp, grading.bp, classroom.bp, seat_swap.bp, circuit_lab.bp,
+                      polls.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
     if not app.config.get("TESTING"):
         # SPEC-018：Web 进程每5秒扫描过期运行/排队超时（DBD 第7节）。

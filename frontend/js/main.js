@@ -21,6 +21,7 @@ import { PreparationView } from './preparation-view.js'
 import { WiringView } from './wiring-view.js'
 import { WiringStatsView } from './wiring-stats-view.js'
 import { GesturePad } from './gesture-pad.js'
+import { PollModal, PollPanel } from './poll-view.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
@@ -41,9 +42,10 @@ import '../styles/warnings.css'
 import '../styles/preparations.css'
 import '../styles/wiring.css'
 import '../styles/wiring-stats.css'
+import '../styles/poll.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, CircuitLabView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView, GesturePad },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, CircuitLabView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView, GesturePad, PollPanel, PollModal },
   setup() {
     const user = ref(null)
     const practiceEntry = ref(null)
@@ -1434,6 +1436,8 @@ createApp({
         </ul>
         <p v-if="!tasks.length">还没有考勤任务。</p>
 
+        <PollPanel v-if="user.role !== 'admin'" :user="user" :course-id="courseId" :tasks="tasks" />
+
         <details v-if="user.role === 'teacher'" class="att-panel">
         <summary>教室设置（{{ room ? room.name + ' · ' + roomForm.rows + ' 排 × ' + roomForm.cols + ' 座' : '加载中' }}）</summary>
         <div v-if="room" class="room-presets">
@@ -1617,6 +1621,10 @@ createApp({
         <button type="button" class="secondary" @click="checkInSheet.open = false">关闭</button></div>
         </div>
       </div>
+
+      <!-- 投票浮层挂在整个页面根上，学生在哪个页签都能被弹到（换门课就重挂，避免带着上一门课的「稍后」） -->
+      <PollModal v-if="user && user.role === 'student'" :key="'poll:' + user.id + ':' + (courseId || 0)"
+        :course-id="courseId" />
 
       <div v-if="checkInToast" class="checkin-toast" role="status">{{ checkInToast }}</div>
     </main>`,

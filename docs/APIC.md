@@ -486,3 +486,47 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 | DELETE /courses/{id}/seat-swaps/{sid} | S | 发起人撤回 |
 
 教师与助教不走这条路径（403 FORBIDDEN），排座仍由教师端完成。换位结果双方都会收到 `notification`，`event_key` 分别为 `seat_swap:{id}` 与 `seat_swap_result:{id}:{status}`，重复写入不产生第二条。
+
+## 15 课堂即时投票（第11周）
+
+老师在**进行中的考勤任务**里出题（单选 / 多选 / 判断），该任务里已签到（present、late）的学生投票，老师看分布、对错与逐人明细。
+
+### 15.1 数据模型
+
+`poll(id,course_id,task_id,title,type,max_choices,anonymous,has_correct,status,created_by,created_at,closed_at)`，`type` 取 single/multiple/boolean；`poll_option(id,poll_id,ordinal,label,is_correct)`；`poll_ballot(id,poll_id,student_id,submitted_at)`，`UNIQUE(poll_id,student_id)`；`poll_choice(ballot_id,option_id)`，`PRIMARY KEY(ballot_id,option_id)`。
+
+几条硬规则：
+
+- **资格随任务走**：投票挂在 `attendance_task` 上，只有该任务里 `attendance_participant` 存在且 `attendance_record.status in ('present','late')` 的人能投。应投人数（`eligible`）只在读时算，不落库，签到补录后参与率自动纠正。
+- **一人一票**：靠 `UNIQUE(poll_id,student_id)` 兜底，应用层先查一次给 `409 ALREADY_VOTED`，并发下由约束兜住。
+- **判断题不另写一套**：`type=boolean` 时后端把选项固定成「正确 / 错误」两个并忽略客户端传来的 options，判分与统计复用同一份代码。
+- **对错判定按集合相等**：所选 `option_id` 集合与正确集合完全一致才算对，多选漏选、多选都算错；未设正确答案（`has_correct=0`）时不给对错统计。
+- **关闭是幂等的**：`POST /polls/{id}/close` 重复调用返回 200，`closed_at` 不变。任务一结算（`status != 'open'` 或超出 `end_at`），投票在读时即判为不可投，不依赖定时任务。
+
+### 15.2 谁能看到什么
+
+| 视角 | 看得到 | 看不到 |
+|---|---|---|
+| 学生 · 投票前 | 题目、选项、类型、是否匿名 | 分布、正确答案 |
+| 学生 · 投票后 | 分布、参与人数、正确答案 | 别人的选择 |
+| 老师 · 实名 | 分布、对错统计、逐人明细（姓名/学号/所选/对错/时间）、未投名单 | — |
+| 老师 · 匿名 | 分布、对错统计、未投名单 | 逐人明细（`details` 恒为空数组） |
+
+匿名投票仍然给「谁没投」——参与率要能追，但不泄露具体选项。
+
+### 15.3 接口
+
+| 接口 | 权限 | 说明 |
+|---|---|---|
+| POST /courses/{id}/polls | T | 发起投票。body `{task_id,title,type,options,max_choices,anonymous,correct_ordinals}`，成功 201 并返回投票详情；任务不存在 404，任务已结算 409 STATE_CONFLICT，选项少于 2 / 超过 8 / 重复 / 正确答案越界 422 |
+| GET /courses/{id}/polls?status=open\|closed\|all | T/S | 分页列出，按 id 倒序；学生视角额外带 `my_option_ids`、`can_vote`、`reason` |
+| GET /polls/{id} | T/S | 详情，含 `voted`/`eligible`/`options`；学生投过之后才附带 `counts` 与 `correct_option_ids` |
+| POST /polls/{id}/ballots | S | 投票，body `{option_ids}`，成功 201 返回投完的详情。未签到 403 NOT_CHECKED_IN，重复 409 ALREADY_VOTED，已结束 409 POLL_CLOSED，空选 422 EMPTY_CHOICE，超上限 422 TOO_MANY_CHOICES，选项不属于本题 422 INVALID_OPTION，教师投票 403 |
+| GET /polls/{id}/results | T/S | 分布 `counts[{option_id,ordinal,label,is_correct,count,ratio}]` + `voted`/`eligible` + 可选 `correct{answered,right,wrong,accuracy}`；老师额外拿到 `unvoted`、`details`。学生未投票访问 403 |
+| POST /polls/{id}/close | T | 结束投票，幂等 |
+
+### 15.4 前端形态
+
+- 学生端是**浮层**（`.poll-modal`，z-index 65）：挂在页面根上，学生在任何页签都会在 5 秒内被弹到；签到面板（z-index 70）正开着时不会被盖住。点「稍后」的题目不再重复弹，后端回 `ALREADY_VOTED` / `POLL_CLOSED` 时把原因留在浮层里、按「知道了」才收。
+- 老师端在「考勤与请假」卡片里：出题表单 + 投票列表 + 结果区（分布条、正确率、未投名单、逐人明细表）。盯着某一场结果时每 2 秒刷新一次，没人看结果时只按 3 个周期拉一次列表。
+- 未投名单默认只铺 12 个 chip，点「展开」才全给——160 人的课不能一次铺满。
