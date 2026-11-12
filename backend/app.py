@@ -4,10 +4,11 @@ import os
 import secrets
 import sqlite3
 import time
+from pathlib import Path
 from urllib.parse import urlparse
 
 import click
-from flask import Flask, g, jsonify, request
+from flask import Flask, g, jsonify, request, send_from_directory
 from werkzeug.exceptions import HTTPException
 from werkzeug.security import generate_password_hash
 
@@ -224,7 +225,40 @@ def create_app(config=None):
                 db.close()
         click.echo("Administrator created")
 
+    serve_frontend(app)
     return app
+
+
+def serve_frontend(app):
+    """SERVE_DIST=1 时由 Flask 直接托管前端构建产物。
+
+    课堂和教师沙箱往往只给一个 Python 环境，没有 Node，也就跑不了 Vite。
+    构建一次后把 frontend/dist 一起带走，用这个开关就能单进程打开完整界面，
+    不必再起第二个服务、也不会因为跨端口而触发 Origin/CSRF 校验。
+    """
+    if os.environ.get("SERVE_DIST") != "1":
+        return
+    dist = Path(__file__).resolve().parents[1] / "frontend" / "dist"
+    index = dist / "index.html"
+    if not index.is_file():
+        app.logger.warning("SERVE_DIST=1 但 %s 不存在，请先在 frontend 目录执行 npm run build", index)
+        return
+
+    @app.get("/")
+    def frontend_index():
+        return send_from_directory(dist, "index.html")
+
+    @app.get("/assets/<path:name>")
+    def frontend_asset(name):
+        return send_from_directory(dist / "assets", name)
+
+    @app.get("/favicon.ico")
+    def frontend_favicon():
+        if (dist / "favicon.ico").is_file():
+            return send_from_directory(dist, "favicon.ico")
+        return ("", 204)
+
+    app.logger.info("SERVE_DIST=1：已托管 %s", dist)
 
 
 app = create_app()
