@@ -9,6 +9,7 @@ const LINE = '#9cabc0'
 const ACCENT = '#173b6c'
 const SIGNAL = '#f0a500'
 const IDLE = '#c9d4e2'
+const pretty = value => (value ? new Date(value).toLocaleString('zh-CN', { hour12: false }) : '—')
 
 const hex = (value, width = 2) => Number(value ?? 0).toString(16).toUpperCase().padStart(width, '0')
 const on = value => Number(value) === 1
@@ -68,7 +69,19 @@ function polyline(points, opts = {}) {
     fill: 'none',
     stroke: opts.stroke ?? LINE,
     'stroke-width': opts.width ?? 1.4,
+    'stroke-dasharray': opts.dashed ? '5 4' : undefined,
+    'marker-end': opts.arrow ? 'url(#demo-arrow)' : undefined,
   })
+}
+
+// 分叉处的实心节点：表示两条引线在这一点相连。
+function junction(x, y, color = '#5b6b82') {
+  return h('circle', { cx: x, cy: y, r: 3, fill: color })
+}
+
+// 部件边框上的接线端子，让箭头明确“指到端口”而不是落在空白处。
+function port(x, y) {
+  return h('circle', { cx: x, cy: y, r: 2.6, fill: '#ffffff', stroke: ACCENT, 'stroke-width': 1.2 })
 }
 
 // ---------- 六个场景 ----------
@@ -99,81 +112,125 @@ function sceneGate(state) {
 }
 
 function sceneComb(state) {
+  const DATA = '#5b6b82'
+  const CTRL = '#6b4fb0'
+  const sel = Number(state.sel ?? 0)
+  const muxPick = sel === 0 ? 'A' : 'B'
+  const aluOp = ['加', '减', '与', '或'][sel] ?? '—'
+  const litMux = Number(state.mux_out ?? 0) !== 0
+  const litAlu = Number(state.alu_out ?? 0) !== 0
+
   const nodes = [
-    unit(16, 20, 90, 40, 'A (4bit)', hex(state.a, 1)),
-    unit(16, 80, 90, 40, 'B (4bit)', hex(state.b, 1)),
-    unit(16, 140, 90, 40, 'SEL', state.sel),
-    wire(106, 40, 190, 40, { arrow: true }),
-    wire(106, 100, 190, 100, { arrow: true }),
-    wire(106, 160, 190, 160, { arrow: true }),
+    // ---- 左侧输入 ----
+    unit(16, 22, 96, 44, 'A (4bit)', hex(state.a, 1)),
+    unit(16, 78, 96, 44, 'B (4bit)', hex(state.b, 1)),
+    unit(16, 178, 96, 44, 'SEL', sel),
+
+    // ---- 两个部件尺寸相同、关于水平中线 y=136 严格镜像 ----
     h('g', {}, [
-      box(190, 20, 150, 56, { fill: '#eef4fd', stroke: ACCENT }),
-      text(265, 44, 'MUX', { size: 13, bold: true, anchor: 'middle', fill: ACCENT }),
-      text(265, 62, `SEL=${state.sel}`, { size: 11, fill: MUTED, anchor: 'middle' }),
+      box(252, 20, 152, 100, { fill: '#eef4fd', stroke: ACCENT, strokeWidth: 1.6 }),
+      text(330, 62, 'MUX', { size: 14, bold: true, anchor: 'middle', fill: ACCENT }),
+      text(330, 82, `SEL=${sel} → 选 ${muxPick}`, { size: 10, fill: MUTED, anchor: 'middle' }),
+      text(262, 48, 'A', { size: 10, fill: MUTED, mono: true }),
+      text(262, 104, 'B', { size: 10, fill: MUTED, mono: true }),
+      text(306, 114, 'SEL', { size: 9, fill: MUTED, mono: true }),
     ]),
     h('g', {}, [
-      box(190, 96, 150, 56, { fill: '#eef4fd', stroke: ACCENT }),
-      text(265, 120, 'ALU', { size: 13, bold: true, anchor: 'middle', fill: ACCENT }),
-      text(265, 138, `OP=${state.sel}`, { size: 11, fill: MUTED, anchor: 'middle' }),
+      box(252, 152, 152, 100, { fill: '#eef4fd', stroke: ACCENT, strokeWidth: 1.6 }),
+      text(330, 196, 'ALU', { size: 14, bold: true, anchor: 'middle', fill: ACCENT }),
+      text(330, 216, `OP=${sel} ${aluOp}`, { size: 10, fill: MUTED, anchor: 'middle' }),
+      text(262, 176, 'A', { size: 10, fill: MUTED, mono: true }),
+      text(262, 232, 'B', { size: 10, fill: MUTED, mono: true }),
+      text(306, 168, 'OP', { size: 9, fill: MUTED, mono: true }),
     ]),
-    wire(340, 48, 400, 48, { arrow: true }),
-    wire(340, 124, 400, 124, { arrow: true }),
-    unit(400, 24, 110, 48, 'MUX 输出', hex(state.mux_out, 1)),
-    unit(400, 100, 110, 48, 'ALU 输出', hex(state.alu_out, 1)),
+
+    // ---- 输出：两个框同样关于中线镜像 ----
+    wire(404, 70, 448, 70, { arrow: true, stroke: litMux ? SIGNAL : LINE }),
+    wire(404, 202, 448, 202, { arrow: true, stroke: litAlu ? SIGNAL : LINE }),
+    unit(448, 42, 96, 56, 'MUX 输出', hex(state.mux_out, 1),
+      { stroke: litMux ? SIGNAL : LINE }),
+    unit(448, 174, 96, 56, 'ALU 输出', hex(state.alu_out, 1),
+      { stroke: litAlu ? SIGNAL : LINE }),
+
+    // ---- A、B 各走一条水平直线进 MUX，再各自下一个等长台阶到 ALU ----
+    wire(112, 44, 252, 44, { arrow: true, stroke: DATA }),
+    junction(218, 44, DATA),
+    polyline([[218, 44], [218, 172], [252, 172]], { arrow: true, stroke: DATA }),
+
+    wire(112, 100, 252, 100, { arrow: true, stroke: DATA }),
+    junction(196, 100, DATA),
+    polyline([[196, 100], [196, 228], [252, 228]], { arrow: true, stroke: DATA }),
+
+    // ---- SEL：控制干线沿两部件的中缝走，再上下对称地插入 MUX 底部与 ALU 顶部 ----
+    polyline([[112, 200], [240, 200], [240, 136], [320, 136]], { stroke: CTRL, dashed: true }),
+    junction(320, 136, CTRL),
+    polyline([[320, 136], [320, 120]], { stroke: CTRL, dashed: true, arrow: true }),
+    polyline([[320, 136], [320, 152]], { stroke: CTRL, dashed: true, arrow: true }),
+
+    // ---- 接线端子 ----
+    port(252, 44), port(252, 100), port(320, 120),
+    port(252, 172), port(252, 228), port(320, 152),
+
+    text(280, 282,
+      `第 ${state.step} 步：A=${hex(state.a, 1)} B=${hex(state.b, 1)} SEL=${sel}`
+      + ` → MUX 选 ${muxPick}，输出 ${hex(state.mux_out, 1)}；ALU ${aluOp}，输出 ${hex(state.alu_out, 1)}`,
+      { size: 12, fill: MUTED, anchor: 'middle' }),
   ]
-  // SEL 到两个部件的控制线
-  nodes.push(polyline([[106, 160], [160, 160], [160, 76]]))
-  nodes.push(polyline([[160, 76], [190, 76]]))
-  nodes.push(polyline([[160, 152], [190, 152]]))
-  return { width: 530, height: 196, nodes }
+  return { width: 560, height: 294, nodes }
 }
 
 function sceneSequential(state) {
   const clockHigh = on(state.clock)
+  const writing = clockHigh && on(state.enable)
+  // 三条数据/控制线各走各的 y，箭头正好落在 REG8 左边框的端口上，不再压在任何方框上。
+  const ports = [['D', 42], ['CLK', 108], ['EN', 166]]
   return {
     width: 560,
-    height: 170,
+    height: 228,
     nodes: [
-      unit(16, 24, 86, 42, 'CLK', clockHigh ? '1' : '0', { stroke: clockHigh ? SIGNAL : LINE, strokeWidth: clockHigh ? 2 : 1.2 }),
-      unit(16, 84, 86, 42, 'EN', state.enable),
-      unit(118, 24, 96, 42, 'D (8bit)', hex(state.d_in)),
-      polyline([[102, 45], [118, 45]]),
-      wire(214, 45, 268, 45, { arrow: true }),
-      wire(102, 105, 268, 105, { arrow: true }),
-      wire(102, 66, 250, 66), polyline([[250, 66], [250, 105]]),
+      unit(16, 20, 96, 44, 'D (8bit)', hex(state.d_in)),
+      unit(16, 88, 96, 40, 'CLK', clockHigh ? '1' : '0',
+        { stroke: clockHigh ? SIGNAL : LINE, strokeWidth: clockHigh ? 2 : 1.2 }),
+      unit(16, 146, 96, 40, 'EN', state.enable),
+      wire(112, 42, 250, 42, { arrow: true }),
+      wire(112, 108, 250, 108, { arrow: true, stroke: clockHigh ? SIGNAL : LINE }),
+      wire(112, 166, 250, 166, { arrow: true }),
       h('g', {}, [
-        box(268, 24, 128, 82, { fill: '#eef4fd', stroke: ACCENT, strokeWidth: 1.6 }),
-        text(332, 56, 'REG8', { size: 14, bold: true, anchor: 'middle', fill: ACCENT }),
-        text(332, 76, clockHigh && on(state.enable) ? '上升沿写入' : '保持', { size: 11, fill: MUTED, anchor: 'middle' }),
+        box(250, 18, 132, 166, { fill: '#eef4fd', stroke: ACCENT, strokeWidth: 1.6 }),
+        ...ports.map(([name, y]) => text(258, y + 4, name, { size: 10, fill: MUTED, mono: true })),
+        text(316, 90, 'REG8', { size: 14, bold: true, anchor: 'middle', fill: ACCENT }),
+        text(316, 112, writing ? '上升沿写入' : '保持', { size: 10, fill: MUTED, anchor: 'middle' }),
       ]),
-      wire(396, 65, 452, 65, { arrow: true, stroke: on(state.q) ? SIGNAL : LINE }),
-      unit(452, 42, 96, 46, 'Q (8bit)', hex(state.q), { stroke: on(state.q) ? SIGNAL : LINE }),
-      text(16, 150, `第 ${state.step} 步：CLK=${state.clock} EN=${state.enable} D=${hex(state.d_in)} → Q=${hex(state.q)}`,
+      wire(382, 101, 432, 101, { arrow: true, stroke: on(state.q) ? SIGNAL : LINE }),
+      unit(432, 74, 100, 54, 'Q (8bit)', hex(state.q), { stroke: on(state.q) ? SIGNAL : LINE }),
+      text(16, 212, `第 ${state.step} 步：CLK=${state.clock} EN=${state.enable} D=${hex(state.d_in)} → Q=${hex(state.q)}`,
         { size: 12, fill: MUTED }),
     ],
   }
 }
 
 function sceneAlu(state) {
+  // A / B / OP 三个输入以 ALU8 的垂直中心（y=100）上下对称，输出也从中心引出。
   return {
     width: 620,
-    height: 210,
+    height: 206,
     nodes: [
-      unit(16, 20, 90, 44, 'A (8bit)', hex(state.a)),
-      unit(16, 80, 90, 44, 'B (8bit)', hex(state.b)),
-      unit(16, 140, 90, 44, 'OP', state.op_name ?? state.op),
-      wire(106, 42, 190, 42, { arrow: true }),
-      wire(106, 102, 190, 102, { arrow: true }),
-      wire(106, 162, 190, 162, { arrow: true }),
+      unit(16, 24, 96, 44, 'A (8bit)', hex(state.a)),
+      unit(16, 78, 96, 44, 'B (8bit)', hex(state.b)),
+      unit(16, 132, 96, 44, 'OP', state.op_name ?? state.op),
+      wire(112, 46, 190, 46, { arrow: true }),
+      wire(112, 100, 190, 100, { arrow: true }),
+      wire(112, 154, 190, 154, { arrow: true }),
       h('g', {}, [
-        box(190, 34, 130, 120, { fill: '#eef4fd', stroke: ACCENT, strokeWidth: 1.6 }),
-        text(255, 78, 'ALU8', { size: 15, bold: true, anchor: 'middle', fill: ACCENT }),
-        text(255, 100, state.op_name ?? '', { size: 12, anchor: 'middle', fill: MUTED }),
+        box(190, 30, 144, 140, { fill: '#eef4fd', stroke: ACCENT, strokeWidth: 1.6 }),
+        text(262, 92, 'ALU8', { size: 15, bold: true, anchor: 'middle', fill: ACCENT }),
+        text(262, 114, state.op_name ?? '', { size: 12, anchor: 'middle', fill: MUTED }),
       ]),
-      wire(320, 94, 390, 94, { arrow: true, stroke: on(state.result) ? SIGNAL : LINE }),
-      unit(390, 66, 116, 56, 'RESULT (8bit)', hex(state.result), { stroke: on(state.result) ? SIGNAL : LINE }),
-      lamp(540, 82, on(state.flags?.zero), 'Z'),
-      lamp(590, 82, on(state.flags?.carry), 'C'),
+      wire(334, 100, 392, 100, { arrow: true, stroke: on(state.result) ? SIGNAL : LINE }),
+      unit(392, 72, 120, 56, 'RESULT (8bit)', hex(state.result),
+        { stroke: on(state.result) ? SIGNAL : LINE }),
+      lamp(432, 158, on(state.flags?.zero), 'Z'),
+      lamp(492, 158, on(state.flags?.carry), 'C'),
     ],
   }
 }
@@ -280,7 +337,7 @@ const SCENES = {
   cpu: sceneCpu,
 }
 
-function sceneSvg(state, preset) {
+export function sceneSvg(state, preset) {
   const render = SCENES[preset]
   if (!render || !state) return null
   const scene = render(state)
@@ -320,7 +377,12 @@ export const DemoView = {
     const error = ref('')
     const notice = ref('')
     const following = ref(true)
+    const running = ref(false)
+    const viewing = ref(null)
+    const viewError = ref('')
     let timer = null
+    let runTimer = null
+    let inFlight = false
 
     function applySession(session) {
       current.value = session
@@ -365,7 +427,11 @@ export const DemoView = {
     async function refreshCurrent(force = false) {
       if (!current.value) return
       const next = await api.session(current.value.id)
-      if (force || next.revision !== current.value.revision) applySession(next)
+      // 结束演示不推进 revision，只把 active 置 0；只比 revision 的话学生端
+      // 永远同步不到「已关闭」，页面会一直停在「进行中」。
+      if (force || next.revision !== current.value.revision || next.active !== current.value.active) {
+        applySession(next)
+      }
     }
 
     function startTimer() {
@@ -400,8 +466,51 @@ export const DemoView = {
       return created
     }
 
+    function stopRun() {
+      if (runTimer) { globalThis.clearInterval(runTimer); runTimer = null }
+      running.value = false
+    }
+
+    // 后端 action=run 是一次性算完 64 拍再返回终态，画面只会「跳一下」。
+    // 真正的连续运行改由前端定时逐拍推进，每一步都从服务端拿新 state 并重绘。
+    async function autoStep() {
+      if (!running.value || inFlight || busy.value || !current.value?.active) return
+      inFlight = true
+      try {
+        const next = await api.advance(current.value.id, current.value.revision, 'step')
+        applySession(next)
+        notice.value = `连续运行中 · 第 ${next.state?.step ?? 0} 步`
+        await loadSessions()
+        if (next.state?.cycle === 'halt' || next.state?.control?.halt) {
+          stopRun()
+          notice.value = '检测到停机信号，连续运行已结束'
+        }
+      } catch (failure) {
+        stopRun()
+        error.value = failure.message
+        if (failure.code === 'REVISION_CONFLICT') {
+          error.value = '演示状态已被其它操作推进，正在同步最新状态'
+          await refreshCurrent(true).catch(() => {})
+        }
+      } finally { inFlight = false }
+    }
+
+    async function toggleRun() {
+      if (running.value) {
+        stopRun()
+        notice.value = '已暂停连续运行'
+        return
+      }
+      if (!current.value?.active) return
+      error.value = ''
+      running.value = true
+      await autoStep()
+      if (running.value) runTimer = globalThis.setInterval(autoStep, 1200)
+    }
+
     async function act(action) {
       if (!current.value) return
+      stopRun()
       await run(async () => {
         const next = await api.advance(current.value.id, current.value.revision, action)
         applySession(next)
@@ -410,6 +519,7 @@ export const DemoView = {
     }
 
     async function closeDemo() {
+      stopRun()
       if (!current.value) return
       await run(async () => {
         const closed = await api.close(current.value.id, current.value.revision)
@@ -418,10 +528,19 @@ export const DemoView = {
       }, '演示已关闭')
     }
 
-    async function openSession(item) {
-      following.value = false
-      await run(async () => { applySession(await api.session(item.id)) })
+    // 历史记录就地展开详情：原来只改上方舞台，列表里点「查看」看不出任何变化。
+    async function viewSession(item) {
+      viewError.value = ''
+      try {
+        const detail = await api.session(item.id)
+        viewing.value = detail
+      } catch (failure) {
+        viewing.value = null
+        viewError.value = `无法读取演示 #${item.id}：${failure.message}`
+      }
     }
+
+    function closeView() { viewing.value = null; viewError.value = '' }
 
     async function toggleFollow() {
       following.value = !following.value
@@ -429,7 +548,7 @@ export const DemoView = {
     }
 
     onMounted(() => { boot().catch(failure => { error.value = failure.message }) })
-    onUnmounted(stopTimer)
+    onUnmounted(() => { stopTimer(); stopRun() })
 
     const state = () => current.value?.state ?? null
 
@@ -467,28 +586,52 @@ export const DemoView = {
                 `第 ${state()?.step ?? 0} 步 · revision ${current.value.revision} · ${active ? '进行中' : '已关闭'}`),
             ]),
             h('div', { class: 'demo-actions' }, [
+              // toggleFollow / closeDemo 内部已经用 run 包过，这里再包一层会撞上
+              // run 的 busy 守卫：外层把 busy 置 true，内层直接 return，点击变成静默空操作。
               !teacher && h('button', {
-                type: 'button', class: 'secondary', onClick: () => run(toggleFollow),
+                type: 'button', class: 'secondary', onClick: () => toggleFollow(),
               }, following.value ? '正在跟随' : '恢复跟随'),
               teacher && active && h('button', { type: 'button', disabled: busy.value, onClick: () => act('step') }, '单步'),
-              teacher && active && h('button', { type: 'button', disabled: busy.value, onClick: () => act('run') }, '连续运行'),
+              teacher && active && h('button', {
+                type: 'button', class: running.value ? 'secondary' : '',
+                disabled: busy.value, onClick: toggleRun,
+              }, running.value ? '停止连续' : '连续运行'),
               teacher && active && h('button', { type: 'button', disabled: busy.value, onClick: () => act('pause') }, '暂停'),
               teacher && active && h('button', { type: 'button', class: 'secondary', disabled: busy.value, onClick: () => act('reset') }, '复位'),
-              teacher && active && h('button', { type: 'button', class: 'secondary', disabled: busy.value, onClick: () => run(closeDemo) }, '结束演示'),
+              teacher && active && h('button', { type: 'button', class: 'secondary', disabled: busy.value, onClick: () => closeDemo() }, '结束演示'),
             ]),
           ]),
           h('div', { class: 'demo-canvas' }, [sceneSvg(state(), current.value.preset)]),
           h('p', { class: 'demo-message' }, state()?.message ?? ''),
+          running.value && h('p', { class: 'demo-hint', role: 'status' },
+            '连续运行中：每 1.2 秒推进一拍，画面实时刷新；点「停止连续」或「暂停」结束。'),
           !teacher && h('p', { class: 'demo-hint' }, '学生端只读，每 2 秒自动同步教师推进的状态。'),
         ]) : h('p', { class: 'demo-placeholder' },
           teacher ? '选择场景后点击「开始新演示」。' : '当前课程还没有进行中的课堂演示。'),
 
         sessions.value.length > 0 && h('div', {}, [
           h('h3', {}, `本课程演示记录（共 ${total.value} 条）`),
-          h('ul', { class: 'rows' }, sessions.value.map(item => h('li', { key: item.id }, [
-            h('span', {}, `#${item.id} ${demoPresets[item.preset] ?? item.preset}`),
-            h('span', { class: 'demo-meta' }, `revision ${item.revision} · ${item.active ? '进行中' : '已关闭'}`),
-            h('button', { type: 'button', class: 'secondary', onClick: () => run(() => openSession(item)) }, '查看'),
+          viewError.value && h('p', { class: 'demo-alert', role: 'alert' }, viewError.value),
+          h('ul', { class: 'rows' }, sessions.value.map(item => h('li', { key: item.id, class: 'demo-session-item' }, [
+            h('div', { class: 'demo-session-row' }, [
+              h('span', {}, `#${item.id} ${demoPresets[item.preset] ?? item.preset}`),
+              h('span', { class: 'demo-meta' }, `revision ${item.revision} · ${item.active ? '进行中' : '已关闭'}`),
+              h('button', {
+                type: 'button', class: 'secondary',
+                onClick: () => (viewing.value?.id === item.id ? closeView() : run(() => viewSession(item))),
+              }, viewing.value?.id === item.id ? '收起' : '查看'),
+            ]),
+            viewing.value?.id === item.id && h('div', { class: 'demo-session-detail' }, [
+              h('div', { class: 'demo-session-detail-head' }, [
+                h('strong', {}, `演示 #${viewing.value.id} · ${demoPresets[viewing.value.preset] ?? viewing.value.preset}`),
+                h('span', { class: 'demo-meta' },
+                  `第 ${viewing.value.state?.step ?? 0} 步 · revision ${viewing.value.revision} · ${viewing.value.active ? '进行中' : '已关闭'}`),
+              ]),
+              h('div', { class: 'demo-canvas' }, [sceneSvg(viewing.value.state, viewing.value.preset)]),
+              h('p', { class: 'demo-message' }, viewing.value.state?.message ?? ''),
+              h('p', { class: 'demo-meta' },
+                `创建 ${pretty(viewing.value.created_at)} · 更新 ${pretty(viewing.value.updated_at)}`),
+            ]),
           ]))),
           total.value > sessions.value.length && h('button', {
             type: 'button', class: 'secondary',
