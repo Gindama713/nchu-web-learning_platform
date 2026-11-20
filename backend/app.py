@@ -15,6 +15,7 @@ from werkzeug.security import generate_password_hash
 from backend.apis import (
     alu,
     analytics,
+    assistant,
     attempts,
     attendance,
     circuit_lab,
@@ -100,7 +101,7 @@ def create_app(config=None):
                       recognition.bp, questions.bp, papers.bp, attempts.bp, practices.bp, quizzes.bp,
                       resources.bp, experiments.bp, preparations.bp, demo.bp, wiring.bp, alu.bp, logs.bp,
                       recommendations.bp, grading.bp, classroom.bp, seat_swap.bp, circuit_lab.bp,
-                      polls.bp):
+                      polls.bp, assistant.bp):
         app.register_blueprint(blueprint, url_prefix="/api/v1")
     if not app.config.get("TESTING"):
         # SPEC-018：Web 进程每5秒扫描过期运行/排队超时（DBD 第7节）。

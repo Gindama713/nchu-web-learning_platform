@@ -17,6 +17,7 @@ import { CircuitLabView } from './circuit-lab-view.js'
 import { KnowledgeGraphView } from './knowledge-graph-view.js'
 import { RecognitionView } from './recognition-view.js'
 import { WarningView } from './warning-view.js'
+import { AssistantView } from './assistant-view.js'
 import { PreparationView } from './preparation-view.js'
 import { WiringView } from './wiring-view.js'
 import { WiringStatsView } from './wiring-stats-view.js'
@@ -39,13 +40,14 @@ import '../styles/circuit-lab.css'
 import '../styles/graph.css'
 import '../styles/recognition.css'
 import '../styles/warnings.css'
+import '../styles/assistant.css'
 import '../styles/preparations.css'
 import '../styles/wiring.css'
 import '../styles/wiring-stats.css'
 import '../styles/poll.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, CircuitLabView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView, GesturePad, PollPanel, PollModal },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, CircuitLabView, KnowledgeGraphView, RecognitionView, WarningView, AssistantView, PreparationView, WiringView, WiringStatsView, GesturePad, PollPanel, PollModal },
   setup() {
     const user = ref(null)
     const practiceEntry = ref(null)
@@ -56,6 +58,7 @@ createApp({
       { id: 'exam', label: '测评与练习' },
       { id: 'lab', label: '实验与演示' },
       { id: 'stats', label: '考勤与学情' },
+      { id: 'assistant', label: '教学助手' },
     ]
     const tab = ref('course')
     // 按任务聚合考勤记录，用于任务卡片的到勤进度条
@@ -352,7 +355,7 @@ createApp({
       const [taskRows, leaveRows, recordRows, warningRows, memberPage, roomRow] = await Promise.all([
         readApi(`${base}/attendance-tasks?page_size=100`),
         readApi(`${base}/leave-requests?page_size=100`),
-        readApi(`${base}/attendance-records?page_size=100`),
+        readAll(`${base}/attendance-records`),
         teacher ? readApi(`${base}/warnings?page_size=100`) : Promise.resolve([]),
         teacher ? readAll(`${base}/members`) : Promise.resolve({ rows: [], total: 0 }),
         teacher ? readApi(`${base}/classroom`) : Promise.resolve(null),
@@ -360,7 +363,7 @@ createApp({
       if (courseEpoch !== epoch || courseId.value !== id || user.value !== currentUser) return
       tasks.value = taskRows
       leaves.value = leaveRows
-      records.value = recordRows
+      records.value = recordRows.rows
       warnings.value = warningRows
       members.value = memberPage.rows
       membersTotal.value = memberPage.total
@@ -437,6 +440,19 @@ createApp({
           ? (data.seats ?? []).find(seat => seat.student_id === user.value.id) ?? null
           : null
       })
+    }
+    // 课堂演示时别人坐下/换座/签到，其他人的图上要自己动，不用手动刷新页面。
+    // 只在座位图展开且页面可见时拉；数据没变就不重绘，返回「有没有变」给统一节拍器做退避。
+    async function silentRefreshSeats() {
+      if (!user.value || !courseId.value || !seatOpen.value || document.hidden) return false
+      const taskId = seatData.value?.task?.id
+      if (!taskId) return false
+      try {
+        const data = await readApi('/api/v1/attendance-tasks/' + taskId + '/seats')
+        if (JSON.stringify(data) === JSON.stringify(seatData.value)) return false
+        seatData.value = data
+        return true
+      } catch { return false }
     }
     // 座位图从任务卡里下拉展开：展开/收起都走 CSS grid-rows 过渡，先挂载再翻 open 类
     const seatOpen = ref(null)
@@ -517,6 +533,7 @@ createApp({
     // 登录后和每 20 秒拉一次：对方答复 / 过期都要在界面上及时反映出来
     async function pollIncoming() {
       if (user.value?.role !== 'student') { seatSwap.modal = null; return }
+      if (document.hidden) return
       try {
         const data = await readApi('/api/v1/seat-swaps/incoming')
         seatSwap.modal = data.items[0] ?? null
@@ -1063,6 +1080,13 @@ createApp({
         await refreshCourse()
       }, '预警已标记处理。')
     }
+    // SPEC-020：助手只给建议，动作仍走原有入口，避免助手绕过业务校验。
+    function assistantAction(action) {
+      const payload = action?.payload ?? {}
+      if (action?.kind === 'warning_run') return warn()
+      if (action?.kind === 'practice') return jump('exam')
+      if (action?.kind === 'navigate') return jump(payload.tab || 'stats')
+    }
     async function upload(event) {
       const file = event.target.files?.[0]
       if (!file) return
@@ -1087,12 +1111,34 @@ createApp({
         if (courseEpoch === epoch && recognition.value?.id === id) recognition.value = confirmed
       }, '结构草稿已确认，不会自动运行或计分。')
     }
+    // 统一节拍器：全班几十个页面不能各跑各的固定定时器。
+    // 活跃（刚有人换座/来申请）2 秒一拍；连续没变化自动退到 5 秒、再退到 12 秒；
+    // 页面切到后台直接 12 秒；每拍加 ±25% 随机抖动，避免所有人同一秒齐发。
+    // 实测 1 秒固定轮询打到 ~440 req/s，把开发服务器和 SQLite 一起拖垮（650 个 503）。
+    let liveTimer = 0
+    let idleTicks = 0
+    async function liveTick() {
+      window.clearTimeout(liveTimer)
+      const visible = Boolean(user.value && courseId.value) && !document.hidden
+      let changed = false
+      if (visible) {
+        const before = seatSwap.modal?.id ?? null
+        await pollIncoming()
+        if ((seatSwap.modal?.id ?? null) !== before) changed = true
+        if (await silentRefreshSeats()) changed = true
+      }
+      idleTicks = changed ? 0 : idleTicks + 1
+      const base = !visible ? 12000
+        : changed ? 2000
+          : idleTicks > 10 ? 12000
+            : idleTicks > 3 ? 5000 : 2000
+      liveTimer = window.setTimeout(liveTick, base * (0.75 + Math.random() * 0.5))
+    }
     onMounted(async () => {
       await session()
-      // 换位提醒：登录后先拉一次（已登录状态刷新页面也要弹），之后每 20 秒轮询；
-      // 单独的 1 秒 tick 只负责把倒计时数字走动起来，不发请求。
+      // 换位申请和座位图共用一个自适应节拍；倒计时数字仍用 1 秒 tick，不发请求。
       await pollIncoming()
-      window.setInterval(pollIncoming, 20000)
+      liveTick()
       window.setInterval(() => { seatSwap.now = Date.now() }, 1000)
       // 切回这个页面时补一次刷新：后台数据（老师结算、管理员重置演示数据）变了，
       // 页面还留着旧 records，就会变成「我明明没签到，按钮却不见了」。
@@ -1114,7 +1160,7 @@ createApp({
       recordTask, recordStatus, recordStatuses, recordQuery, recordsShown,
       filteredRecords, visibleRecords, memberText, taskText,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
-      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect,
+      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, assistantAction, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect,
       taskPattern, captureTaskPattern, useZPattern, clearTaskPattern,
       checkInSheet, openCheckIn, checkInFromSheet, checkInByGesture,
       checkedIn, isCheckedIn, checkInNotice, checkInToast }
@@ -1293,6 +1339,11 @@ createApp({
         <GradingView v-if="user.role !== 'admin'" :key="'grading:' + user.id + ':' + user.role" :user="user" />
         <RecognitionView :key="'recog:' + user.id" :user="user" />
         <WiringView v-if="user.role !== 'admin'" :key="'wiring:' + user.id + ':' + user.role" :user="user" />
+        </template>
+
+        <template v-if="tab === 'assistant' && user.role !== 'admin'">
+        <AssistantView :key="'assistant:' + user.id + ':' + user.role + ':' + (courseId || 0)"
+        :user="user" :course-id="courseId" @action="assistantAction" />
         </template>
 
         <template v-if="tab === 'stats' && user.role !== 'admin' && courseId">
