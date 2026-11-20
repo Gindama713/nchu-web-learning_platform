@@ -371,7 +371,13 @@
     "head_SHA": "fc67f0c649ae904039f210875de5e388926805a9",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "全组CP/M9/课堂检查点仍无实际执行记录"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -394,7 +400,13 @@
     "head_SHA": "fc67f0c649ae904039f210875de5e388926805a9",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "736小时/固定引擎/前后端重放/识别技术验证未提供完整证据"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -440,7 +452,13 @@
     "head_SHA": "fc67f0c649ae904039f210875de5e388926805a9",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "未新增两名真实非作者复核或课堂关闭结论"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -463,7 +481,13 @@
     "head_SHA": "fc67f0c649ae904039f210875de5e388926805a9",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无目标Linux4核8GB/50会话/真实worker与API p95测量"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -539,7 +563,13 @@
     "head_SHA": "fc67f0c649ae904039f210875de5e388926805a9",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无生产数据库/资源/电路同点恢复及90天保留治理证据"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -592,7 +622,13 @@
     "I01_tested_SHA": "96f4f2989765359e01949f4003dde4d32c0c4814",
     "I01_覆盖范围": "Chrome/Edge各7组现成页面检查及12图；017/010C缺页面、003图片/005引用仍阻断；未改判NF-UI",
     "I01_证据附件": "docs/SPEC-005_I01_RESOURCE_SEAMS.md; docs/evidence/spec-005/i01/handlers/; docs/evidence/spec-005/i01/browsers/; docs/evidence/spec-005/i01/reconciliation.json",
-    "I01_日期": "2026-10-17 Asia/Shanghai"
+    "I01_日期": "2026-10-17 Asia/Shanghai",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "003授权图片与知识引用契约仍未实现：knowledge-view仅允许文字/基础HTML并移除图片、链接及标签属性，003无图片资源类型；图文能力未变。"
+    }
   },
   {
     "spec": "SPEC-005",
@@ -615,7 +651,13 @@
     "head_SHA": "fc67f0c649ae904039f210875de5e388926805a9",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "018沙箱/无网络/主库及他人文件隔离仍无真实环境证据"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -912,13 +954,13 @@
     "测试或人工步骤": "tests/practices.py#test_reserved_all_versions_anomalous_open_replay_and_all_read_paths",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
     "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
-    "实际": "003源文件/多版本/原子导入与006/008测验保护的受测handler及socket/UI子集通过；完整R01仍缺004备课UI",
-    "结果": "阻断",
+    "实际": "2026-11-20按当前head重跑：003资源列表/旧版下载/原子导入、004备课与006/008答案保护子集通过；浏览器确认资源与备课页面可达。课堂完整验收仍归共通行。",
+    "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "罗浩铭004备课UI未接入；R37两项契约缺陷继续见PR29固定head，未据此推翻本包R01保护子集；完整I-03/课堂未执行",
-    "集成结果": "阻断",
-    "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
-    "核对日期": "2026-10-15 Asia/Shanghai",
+    "队友环境或剩余缺口": "课堂完整验收见共通/NF行",
+    "集成结果": "通过",
+    "执行人": "Codex自动执行/黄俊诚授权；非非作者批准；2026-11-20重跑：Codex自动执行/黄俊诚授权",
+    "核对日期": "2026-11-20 Asia/Shanghai",
     "PR": "#7",
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
@@ -956,6 +998,13 @@
       "附件": "docs/SPEC-006_R01_RESOURCE_INTEGRATION.md；docs/evidence/spec-006/r01/",
       "夹具": "bootstrap/TEST_NOW及后段审计故障触发器单列；无成功mock或直接插业务表",
       "执行人": "Codex自动执行/黄俊诚授权；非非作者批准"
+    },
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "通过",
+      "原结果": "阻断",
+      "证据": "tests.test_resources/test_preparations/test_demo 50项通过；浏览器实测教学资源列表、旧版下载、备课页可见，学生备课仅见元数据；004备课UI已接入，R37两项契约已修复。"
     }
   },
   {
@@ -968,13 +1017,13 @@
     "测试或人工步骤": "tests/attempts.py#test_history_filters_pagination_and_other_students_are_hidden",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
     "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
-    "实际": "本人子集已有实现及证据；完整范围仍缺依赖",
-    "结果": "阻断",
+    "实际": "2026-11-20按当前head重跑：学生列表/历史与教师答卷批阅入口可达，007页面已接入；未来cursor用例随demo轮询测试通过。课堂完整验收仍归共通行。",
+    "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "007真实会话/同课列表及权限已核对；缺007页面，无法演示页进入知识/quiz；另有未来cursor虚报revision缺陷，负责人罗浩铭。",
-    "集成结果": "阻断",
-    "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
-    "核对日期": "2026-10-15 Asia/Shanghai",
+    "队友环境或剩余缺口": "课堂完整验收见共通/NF行",
+    "集成结果": "通过",
+    "执行人": "Codex自动执行/黄俊诚授权；非非作者批准；2026-11-20重跑：Codex自动执行/黄俊诚授权",
+    "核对日期": "2026-11-20 Asia/Shanghai",
     "PR": "#7",
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
@@ -1009,7 +1058,14 @@
     "I03_tested_SHA": "4498fd97ff30fb9a1e92146528d960c6975ed48a",
     "I03_日期": "2026-10-17 Asia/Shanghai",
     "I03_附件": "docs/SPEC-010B_I03_SUBCHAIN_INTEGRATION.md; docs/evidence/spec-010b/i03/",
-    "I03_补验": "007真实会话/同课列表及权限已核对；缺007页面，无法演示页进入知识/quiz；另有未来cursor虚报revision缺陷，负责人罗浩铭。 仅本人有限子链，完整I-03/课堂未关闭；007两项问题单列，expectedFailure不是通过。"
+    "I03_补验": "007真实会话/同课列表及权限已核对；缺007页面，无法演示页进入知识/quiz；另有未来cursor虚报revision缺陷，负责人罗浩铭。 仅本人有限子链，完整I-03/课堂未关闭；007两项问题单列，expectedFailure不是通过。",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "通过",
+      "原结果": "阻断",
+      "证据": "tests.test_attempts -k history 1项通过；浏览器实测学生试卷、演示、答卷历史可见，教师从答卷列表进入批阅；007课堂演示页已接入。"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -1212,7 +1268,13 @@
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "004/007页面已接入，但I-03端到端（004→007→008→006→010B→011→014）及系统故障分支未执行；完整角色链仍无闭环证据。"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -1235,7 +1297,13 @@
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "全组CP/M9/课堂检查点仍无实际执行记录"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -1258,7 +1326,13 @@
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "736小时/固定引擎/前后端重放/识别技术验证未提供完整证据"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -1304,7 +1378,13 @@
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "未新增两名真实非作者复核或课堂关闭结论"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -1327,7 +1407,13 @@
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无目标Linux4核8GB/50会话/真实worker与API p95测量"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -1373,7 +1459,13 @@
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无生产数据库/资源/电路同点恢复及90天保留治理证据"
+    }
   },
   {
     "spec": "SPEC-006",
@@ -1432,7 +1524,13 @@
     "head_SHA": "335a1239ae93f46f089b524687e82549693b836a",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "018沙箱/无网络/主库及他人文件隔离仍无真实环境证据"
+    }
   },
   {
     "spec": "SPEC-008",
@@ -1664,13 +1762,13 @@
     "测试或人工步骤": "E006 / R01; E008 / R01",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
     "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
-    "实际": "003源文件/多版本/原子导入与006/008测验保护的受测handler及socket/UI子集通过；完整R01仍缺004备课UI",
-    "结果": "阻断",
+    "实际": "2026-11-20按当前head重跑：003资源列表/旧版下载/原子导入、004备课与006/008答案保护子集通过；浏览器确认资源与备课页面可达。课堂完整验收仍归共通行。",
+    "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "罗浩铭004备课UI未接入；R37两项契约缺陷继续见PR29固定head，未据此推翻本包R01保护子集；完整I-03/课堂未执行",
-    "集成结果": "阻断",
-    "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
-    "核对日期": "2026-10-15 Asia/Shanghai",
+    "队友环境或剩余缺口": "课堂完整验收见共通/NF行",
+    "集成结果": "通过",
+    "执行人": "Codex自动执行/黄俊诚授权；非非作者批准；2026-11-20重跑：Codex自动执行/黄俊诚授权",
+    "核对日期": "2026-11-20 Asia/Shanghai",
     "PR": "#9",
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
@@ -1708,6 +1806,13 @@
       "附件": "docs/SPEC-006_R01_RESOURCE_INTEGRATION.md；docs/evidence/spec-006/r01/",
       "夹具": "bootstrap/TEST_NOW及后段审计故障触发器单列；无成功mock或直接插业务表",
       "执行人": "Codex自动执行/黄俊诚授权；非非作者批准"
+    },
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "通过",
+      "原结果": "阻断",
+      "证据": "tests.test_resources/test_preparations/test_demo 50项通过；浏览器实测教学资源列表、旧版下载、备课页可见，学生备课仅见元数据；004备课UI已接入，R37两项契约已修复。"
     }
   },
   {
@@ -1720,13 +1825,13 @@
     "测试或人工步骤": "tests/attempts.py#test_history_filters_pagination_and_other_students_are_hidden; E008真实列表/批阅入口",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
     "本轮补验": "B12所列接缝新增；其余复用固定证据，见复用清单",
-    "实际": "本人子集已有实现及证据；完整范围仍缺依赖",
-    "结果": "阻断",
+    "实际": "2026-11-20按当前head重跑：学生列表/历史与教师答卷批阅入口可达，007页面已接入；未来cursor用例随demo轮询测试通过。课堂完整验收仍归共通行。",
+    "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "007真实会话/同课列表及权限已核对；缺007页面，无法演示页进入知识/quiz；另有未来cursor虚报revision缺陷，负责人罗浩铭。",
-    "集成结果": "阻断",
-    "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
-    "核对日期": "2026-10-15 Asia/Shanghai",
+    "队友环境或剩余缺口": "课堂完整验收见共通/NF行",
+    "集成结果": "通过",
+    "执行人": "Codex自动执行/黄俊诚授权；非非作者批准；2026-11-20重跑：Codex自动执行/黄俊诚授权",
+    "核对日期": "2026-11-20 Asia/Shanghai",
     "PR": "#9",
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
@@ -1761,7 +1866,14 @@
     "I03_tested_SHA": "4498fd97ff30fb9a1e92146528d960c6975ed48a",
     "I03_日期": "2026-10-17 Asia/Shanghai",
     "I03_附件": "docs/SPEC-010B_I03_SUBCHAIN_INTEGRATION.md; docs/evidence/spec-010b/i03/",
-    "I03_补验": "007真实会话/同课列表及权限已核对；缺007页面，无法演示页进入知识/quiz；另有未来cursor虚报revision缺陷，负责人罗浩铭。 仅本人有限子链，完整I-03/课堂未关闭；007两项问题单列，expectedFailure不是通过。"
+    "I03_补验": "007真实会话/同课列表及权限已核对；缺007页面，无法演示页进入知识/quiz；另有未来cursor虚报revision缺陷，负责人罗浩铭。 仅本人有限子链，完整I-03/课堂未关闭；007两项问题单列，expectedFailure不是通过。",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "通过",
+      "原结果": "阻断",
+      "证据": "tests.test_attempts -k history 1项通过；浏览器实测学生试卷、演示、答卷历史可见，教师从答卷列表进入批阅；007课堂演示页已接入。"
+    }
   },
   {
     "spec": "SPEC-008",
@@ -1941,13 +2053,13 @@
     "测试或人工步骤": "E008 R37; B12 Q9 preparations实际404; tests/test_preparation_quiz_integration.py；scripts/verify_r37_handlers.py；scripts/verify_r37_browsers.py",
     "证据层次": "算法/故障夹具、handler、真实HTTP/UI分别见证据目录；人工/课堂未执行",
     "本轮补验": "2026-10-16 R37：真实001/005/006/008/004 handler及socket/现有008双浏览器；旧补验见R37_历史记录",
-    "实际": "真实004接口可用；关联/拒绝/复制/冻结/名单/保护/撤权及回滚子集通过；2项004契约失败、备课UI缺口仍阻断完整R37",
-    "结果": "阻断",
+    "实际": "2026-11-20按当前head重跑：004→008关联/复制/冻结/讲评保护handler全部通过，学生备课元数据含window_state；两项历史契约缺陷已修复。课堂完整验收仍归共通行。",
+    "结果": "通过",
     "本人阻断缺陷": "无；010B时间展示缺口C12a-UI-01已修并复验",
-    "队友环境或剩余缺口": "罗浩铭004：R37-004-01未发布quiz应409 QUIZ_NOT_PUBLISHED，实为404；R37-004-02元数据缺window_state；备课UI未接入。旧B12 Q9 404仅历史，不再断言004未开发",
-    "集成结果": "阻断",
-    "执行人": "Codex自动执行/黄俊诚授权；非非作者批准",
-    "核对日期": "2026-10-16 Asia/Shanghai",
+    "队友环境或剩余缺口": "课堂完整验收见共通/NF行",
+    "集成结果": "通过",
+    "执行人": "Codex自动执行/黄俊诚授权；非非作者批准；2026-11-20重跑：Codex自动执行/黄俊诚授权",
+    "核对日期": "2026-11-20 Asia/Shanghai",
     "PR": "#9",
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
@@ -1992,6 +2104,13 @@
       ],
       "剩余": "004负责人修复契约及提供实际备课UI后补受影响验证；完整R01/UC-02/I-03不在本包关闭",
       "保留": "原编号/结果/head_SHA/本轮tested_SHA/附件及原整行存R37_历史记录；其余130行不变；#27三个NF-UI固定版本不复制"
+    },
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "通过",
+      "原结果": "阻断",
+      "证据": "tests.test_preparation_quiz_integration 8/8通过（409 QUIZ_NOT_PUBLISHED、window_state均已修复）；浏览器实测已发布备课向学生展示关联quiz元数据。"
     }
   },
   {
@@ -2015,7 +2134,13 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "004/007页面已接入，但I-03端到端与系统故障分支未执行；完整角色链仍无闭环证据。"
+    }
   },
   {
     "spec": "SPEC-008",
@@ -2038,7 +2163,13 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "全组CP/M9/课堂检查点仍无实际执行记录"
+    }
   },
   {
     "spec": "SPEC-008",
@@ -2061,7 +2192,13 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "736小时/固定引擎/前后端重放/识别技术验证未提供完整证据"
+    }
   },
   {
     "spec": "SPEC-008",
@@ -2107,7 +2244,13 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "未新增两名真实非作者复核或课堂关闭结论"
+    }
   },
   {
     "spec": "SPEC-008",
@@ -2130,7 +2273,13 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无目标Linux4核8GB/50会话/真实worker与API p95测量"
+    }
   },
   {
     "spec": "SPEC-008",
@@ -2177,7 +2326,13 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无生产数据库/资源/电路同点恢复及90天保留治理证据"
+    }
   },
   {
     "spec": "SPEC-008",
@@ -2231,7 +2386,13 @@
     "head_SHA": "fafc69aecf723d06181e807bc1124aed2bd915de",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "018沙箱/无网络/主库及他人文件隔离仍无真实环境证据"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -2882,7 +3043,13 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "全组CP/M9/课堂检查点仍无实际执行记录"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -2905,7 +3072,13 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "736小时/固定引擎/前后端重放/识别技术验证未提供完整证据"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -2951,7 +3124,13 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "未新增两名真实非作者复核或课堂关闭结论"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -2974,7 +3153,13 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无目标Linux4核8GB/50会话/真实worker与API p95测量"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -3020,7 +3205,13 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无生产数据库/资源/电路同点恢复及90天保留治理证据"
+    }
   },
   {
     "spec": "SPEC-010B",
@@ -3080,7 +3271,13 @@
     "head_SHA": "db83da52b8feeb903c61977f593aad764d34c16c (recorded PR head; later head in PR16)",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "018沙箱/无网络/主库及他人文件隔离仍无真实环境证据"
+    }
   },
   {
     "spec": "SPEC-011",
@@ -3379,7 +3576,13 @@
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "全组CP/M9/课堂检查点仍无实际执行记录"
+    }
   },
   {
     "spec": "SPEC-011",
@@ -3402,7 +3605,13 @@
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "736小时/固定引擎/前后端重放/识别技术验证未提供完整证据"
+    }
   },
   {
     "spec": "SPEC-011",
@@ -3464,7 +3673,13 @@
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "未新增两名真实非作者复核或课堂关闭结论"
+    }
   },
   {
     "spec": "SPEC-011",
@@ -3487,7 +3702,13 @@
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无目标Linux4核8GB/50会话/真实worker与API p95测量"
+    }
   },
   {
     "spec": "SPEC-011",
@@ -3549,7 +3770,13 @@
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无生产数据库/资源/电路同点恢复及90天保留治理证据"
+    }
   },
   {
     "spec": "SPEC-011",
@@ -3611,7 +3838,13 @@
     "head_SHA": "bbd9ecdb151cab0ff7a34e94261b5378ceabfb74",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "018沙箱/无网络/主库及他人文件隔离仍无真实环境证据"
+    }
   },
   {
     "spec": "SPEC-012",
@@ -4021,7 +4254,13 @@
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "全组CP/M9/课堂检查点仍无实际执行记录"
+    }
   },
   {
     "spec": "SPEC-012",
@@ -4044,7 +4283,13 @@
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "736小时/固定引擎/前后端重放/识别技术验证未提供完整证据"
+    }
   },
   {
     "spec": "SPEC-012",
@@ -4106,7 +4351,13 @@
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "未新增两名真实非作者复核或课堂关闭结论"
+    }
   },
   {
     "spec": "SPEC-012",
@@ -4129,7 +4380,13 @@
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无目标Linux4核8GB/50会话/真实worker与API p95测量"
+    }
   },
   {
     "spec": "SPEC-012",
@@ -4191,7 +4448,13 @@
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无生产数据库/资源/电路同点恢复及90天保留治理证据"
+    }
   },
   {
     "spec": "SPEC-012",
@@ -4287,7 +4550,13 @@
     "head_SHA": "36a9cff64425221a146bbfbf301f212a34db48f8",
     "本轮tested_SHA": "本轮未重跑；复用独立feature报告的tested_head",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "018沙箱/无网络/主库及他人文件隔离仍无真实环境证据"
+    }
   },
   {
     "spec": "SPEC-013",
@@ -4541,7 +4810,13 @@
     "head_SHA": "4710a56399d3c3eaf5a97ceaba142fa403263e07",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "全组CP/M9/课堂检查点仍无实际执行记录"
+    }
   },
   {
     "spec": "SPEC-013",
@@ -4564,7 +4839,13 @@
     "head_SHA": "4710a56399d3c3eaf5a97ceaba142fa403263e07",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "736小时/固定引擎/前后端重放/识别技术验证未提供完整证据"
+    }
   },
   {
     "spec": "SPEC-013",
@@ -4610,7 +4891,13 @@
     "head_SHA": "4710a56399d3c3eaf5a97ceaba142fa403263e07",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "未新增两名真实非作者复核或课堂关闭结论"
+    }
   },
   {
     "spec": "SPEC-013",
@@ -4633,7 +4920,13 @@
     "head_SHA": "4710a56399d3c3eaf5a97ceaba142fa403263e07",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无目标Linux4核8GB/50会话/真实worker与API p95测量"
+    }
   },
   {
     "spec": "SPEC-013",
@@ -4679,7 +4972,13 @@
     "head_SHA": "4710a56399d3c3eaf5a97ceaba142fa403263e07",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "无生产数据库/资源/电路同点恢复及90天保留治理证据"
+    }
   },
   {
     "spec": "SPEC-013",
@@ -4763,6 +5062,12 @@
     "head_SHA": "4710a56399d3c3eaf5a97ceaba142fa403263e07",
     "本轮tested_SHA": "2fa4a2b04533bb8023d0e4a7f35de909c38a1e75",
     "证据附件": "C12A_ACCEPTANCE_AUDIT.md证据目录；evidence/c12a/；各SPEC原始报告",
-    "非作者不适用批准": "未产生；本清单无不适用项"
+    "非作者不适用批准": "未产生；本清单无不适用项",
+    "C12c_20261120_重跑": {
+      "日期": "2026-11-20 Asia/Shanghai",
+      "实测head": "Gitea main 9defc86",
+      "结论": "维持阻断",
+      "原因": "018沙箱/无网络/主库及他人文件隔离仍无真实环境证据"
+    }
   }
 ]
