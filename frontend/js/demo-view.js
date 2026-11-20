@@ -437,9 +437,10 @@ export const DemoView = {
     function startTimer() {
       stopTimer()
       timer = globalThis.setInterval(async () => {
+        if (typeof document !== 'undefined' && document.hidden) return
         if (!following.value || !current.value?.active) return
         try { await refreshCurrent() } catch { /* 轮询失败不打断演示 */ }
-      }, 2000)
+      }, 4000)
     }
 
     function stopTimer() {

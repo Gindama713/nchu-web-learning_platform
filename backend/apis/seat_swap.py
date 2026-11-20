@@ -34,7 +34,7 @@ from backend.shared.api import (
     stamp,
 )
 from backend.shared.auth import course_access, require_user
-from backend.shared.db import write
+from backend.shared.db import get_db, write
 
 bp = Blueprint("seat_swap", __name__)
 
@@ -288,15 +288,21 @@ def list_swaps(course_id):
 
 @bp.get("/seat-swaps/incoming")
 def incoming_anywhere():
-    """跨课程拉一次「等我答复的换位申请」，登录后弹窗用。"""
-    with write() as db:
-        expire_stale(db)
-        user = require_user()
-        rows = db.execute(
-            "SELECT r.*,u.name AS requester_name,u.student_no AS requester_no,c.title AS course_title "
-            "FROM seat_swap_request r JOIN user u ON u.id=r.requester_id "
-            "JOIN course c ON c.id=r.course_id "
-            "WHERE r.target_id=? AND r.status='pending' ORDER BY r.id", (user["id"],)).fetchall()
+    """跨课程拉一次「等我答复的换位申请」，登录后弹窗用。
+
+    前端每 3 秒轮询一次，所以这里必须是纯读：过期申请用 SQL 过滤掉，
+    把 pending 标成 expired 的落库工作交给 accept/decline/list 这些写接口
+    顺手扫一遍即可。否则全班同时轮询就会变成每秒几十个写事务，抢 SQLite
+    单写者锁，反而把演示刷成 503。
+    """
+    user = require_user()
+    db = get_db()
+    rows = db.execute(
+        "SELECT r.*,u.name AS requester_name,u.student_no AS requester_no,c.title AS course_title "
+        "FROM seat_swap_request r JOIN user u ON u.id=r.requester_id "
+        "JOIN course c ON c.id=r.course_id "
+        "WHERE r.target_id=? AND r.status='pending' AND r.expires_at>? ORDER BY r.id",
+        (user["id"], stamp())).fetchall()
     return result({"items": [dict(row) for row in rows], "ttl_minutes": SWAP_TTL_MINUTES})
 
 

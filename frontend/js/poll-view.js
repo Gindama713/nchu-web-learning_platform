@@ -330,16 +330,17 @@ export const PollPanel = {
       if (!list.some(task => String(task.id) === String(form.taskId))) form.taskId = String(list[0].id)
     }, { immediate: true })
 
-    // 老师在盯一场投票时 2 秒刷一次（演示时数字要肉眼可见地动），没人看结果时拉列表就够了
+    // 老师在盯一场投票时 5 秒刷一次；页面切后台就停，避免全班一起把开发服务器刷爆。
     let timer = 0
     let tick = 0
     onMounted(async () => {
       await load()
       timer = globalThis.setInterval(async () => {
+        if (typeof document !== 'undefined' && document.hidden) return
         tick += 1
         if (selected.value?.open) await refreshReport()
-        if (tick % 3 === 0 || !selected.value) await load()
-      }, 2000)
+        if (tick % 2 === 0 || !selected.value) await load()
+      }, 5000)
     })
     onBeforeUnmount(() => globalThis.clearInterval(timer))
 
@@ -639,7 +640,12 @@ export const PollModal = {
     let timer = 0
     onMounted(() => {
       scan()
-      timer = globalThis.setInterval(scan, 5000)
+      // 投票弹窗 8 秒扫一次就够（老师发题到学生弹出有几秒延迟不影响演示）；
+      // 后台页面不扫，全班同时开页面时不再制造请求风暴。
+      timer = globalThis.setInterval(() => {
+        if (typeof document !== 'undefined' && document.hidden) return
+        scan()
+      }, 8000)
     })
     onBeforeUnmount(() => globalThis.clearInterval(timer))
 

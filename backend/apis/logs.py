@@ -26,9 +26,10 @@ SKIP_PREFIX = ("/api/v1/logs/",)
 # 访问日志原来每个请求 INSERT 一次并 commit，等于把只读请求也变成写请求：
 # 每个请求多一次 fsync，并发时这些写事务互相排队，读请求被拖到秒级
 # （实测 6 读 + 2 写下 p95 约 7 秒、5% 请求拿到 503 DB_BUSY）。
-# 改成先攒在内存里，够一批或隔一段时间再一次性落库，写次数降到 1/20。
-ACCESS_FLUSH_ROWS = 20
-ACCESS_FLUSH_SECONDS = 2.0
+# 改成先攒在内存里，够一批或隔一段时间再一次性落库；课堂全班同时在线时
+# 阈值调到 200 条 / 5 秒，避免日志写和签到/投票抢 SQLite 单写者锁。
+ACCESS_FLUSH_ROWS = 200
+ACCESS_FLUSH_SECONDS = 5.0
 
 INSERT_ACCESS = ("INSERT INTO access_log(user_id,student_no,name,role,method,path,status,ip,"
                  "duration_ms,at) VALUES(?,?,?,?,?,?,?,?,?,?)")
