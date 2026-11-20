@@ -1,5 +1,16 @@
 # 变更日志与发布回滚手册
 
+## 2026-11-20 教学助手出图（SPEC-020 增量，AC-09）
+
+回答从「只有文字和数字」扩到「可带 0—2 张图」。仍然只读、不接大模型，前端不引图表库。
+
+- 后端新增 `backend/models/assistant_charts.py`：只产出结构化数据（`kind/title/unit/max/total/items/slices/points` + 语义 `colorKey`），不产出颜色和 SVG；`MAX_CHARTS=2` 截断。
+- 各意图接图：`class_overview` 到勤环形 + 按周折线；`attendance` / `my_*` / `student_attendance` 到勤环形；`session_absence` 本次到课构成；`weak_knowledge` / `advice` / `my_progress` / `next_practice` 掌握度条形；`at_risk` 命中原因条形（可多选，不画环形）；`class_scores` / `my_scores` 成绩条形；`my_attempts` 对错环形 + 错题分布条形；`knowledge_qa` / `clarify` 不出图。
+- `class_snapshot` 改为同时返回考勤快照，按周折线用同一份快照计算——图与 `facts` 出自同一次取数。折线少于 2 个有数据周不返回；标签按 Asia/Shanghai 本地化后取「月-日」，避免 UTC 日期错一天。
+- 前端 `charts.js` 新增 `rankChart`（横向条形，长中文标签放得下）、`chartNode`（从 `analytics-view.js` 抽出共用）、`chartColorOf`；`analytics-view.js` 删掉 32 行本地实现改用共享版本；`styles/charts.css` 加 `.chart-hbar` 位移动画并纳入 `prefers-reduced-motion`。
+- 验证：后端 `tests.test_assistant` 13 → **16** 项（新增图表与事实同源、无可画数据不出图、两周才有折线）；前端 285 → **294** 项（新增 `charts.test.js` 6 项、`assistant-view.test.js` 3 项）；lint/build/ruff 通过。无头 Edge 真实库：教师 9/9、学生 9/9，图上元素与后端数值逐一对应。
+- 回退：删 `assistant_charts.py`、各回答里的 `charts` 字段与前端图表分支即可；`charts.js` 的 `rankChart/chartNode` 是纯函数，保留不影响统计页。无迁移、无数据变更。
+
 ## 2026-11-20 SPEC-014/016 前端测试补齐与 010A 跨课验收
 
 按 2026-10-25 缺口审查补三处：014 预警、016 识别两个页面此前没有任何前端测试（674 行裸奔）；010A 的 AC-05「跨课选卷 404」只有代码没有断言；014 从未在真实课堂数据上跑过批次。

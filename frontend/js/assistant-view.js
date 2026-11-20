@@ -1,6 +1,7 @@
 import { h, nextTick, ref, watch } from 'vue'
 
 import { AssistantClient } from './assistant-client.js'
+import { chartColorOf, chartNode, donutChart, lineChart, rankChart } from './charts.js'
 
 const TEACHER_DEFAULTS = ['这周学情怎么样？', '哪个知识点最薄弱？', '谁需要重点关注？', '下节课该讲什么？']
 const STUDENT_DEFAULTS = ['程序计数器是什么？', '我哪里薄弱？', '下一步该练什么？', '我这段时间考勤怎么样？']
@@ -8,6 +9,71 @@ const STUDENT_DEFAULTS = ['程序计数器是什么？', '我哪里薄弱？', '
 const factValue = fact => fact.value === null || fact.value === undefined
   ? '无数据'
   : `${fact.value}${fact.unit ? ' ' + fact.unit : ''}`
+
+// 后端给 kind + 数字 + colorKey，几何与配色都在前端算，保证和统计页同一套。
+function chartBlock(chart, index) {
+  if (!chart || !chart.kind) return null
+  const title = chart.title ? h('p', { class: 'assistant-chart-title' }, chart.title) : null
+  if (chart.kind === 'donut') {
+    const donut = donutChart((chart.slices ?? []).map(slice => ({
+      label: slice.label, value: Number(slice.value) || 0, color: chartColorOf(slice.colorKey),
+    })), { size: 152, thickness: 20 })
+    if (donut.empty) return null
+    return h('div', { class: 'assistant-chart', key: index }, [
+      title,
+      h('div', { class: 'chart-donut-wrap' }, [
+        h('div', { class: 'assistant-donut' }, [
+          h('svg', {
+            viewBox: `0 0 ${donut.size} ${donut.size}`, width: donut.size, height: donut.size,
+            role: 'img', 'aria-label': chart.title || '构成环形图',
+          }, [h('g', { class: 'chart-donut' }, donut.nodes.map(chartNode))]),
+          h('div', { class: 'chart-center' }, [
+            h('strong', {}, String(donut.total)),
+            h('span', {}, chart.unit || ''),
+          ]),
+        ]),
+        h('ul', { class: 'chart-legend' }, donut.rows.map(row => h('li', {}, [
+          h('i', { style: `background:${row.color}` }),
+          h('b', {}, String(row.value)),
+          h('small', {}, `${row.label} · ${row.percent}%`),
+        ]))),
+      ]),
+    ])
+  }
+  if (chart.kind === 'bar') {
+    const percent = chart.unit === 'percent'
+    const model = rankChart((chart.items ?? []).map(item => ({
+      label: item.label, value: Number(item.value), color: chartColorOf(item.colorKey),
+    })), {
+      max: chart.max ?? 100, unit: percent ? 'percent' : 'number', width: 620,
+      suffix: percent ? '' : (chart.unit ?? ''),
+    })
+    if (model.empty) return null
+    return h('div', { class: 'assistant-chart', key: index }, [
+      title,
+      h('svg', {
+        viewBox: `0 0 ${model.width} ${model.height}`, width: '100%',
+        style: `max-width:${model.width}px;height:auto;display:block`,
+        role: 'img', 'aria-label': chart.title || '条形图',
+      }, model.nodes.map(chartNode)),
+    ])
+  }
+  if (chart.kind === 'line') {
+    const model = lineChart((chart.points ?? []).map(point => ({
+      label: point.label, value: Number(point.value),
+    })), { max: chart.max ?? 1, unit: chart.unit === 'percent' ? 'percent' : 'ratio', width: 620, height: 180 })
+    if (model.empty) return null
+    return h('div', { class: 'assistant-chart', key: index }, [
+      title,
+      h('svg', {
+        viewBox: `0 0 ${model.width} ${model.height}`, width: '100%',
+        style: `max-width:${model.width}px;height:auto;display:block`,
+        role: 'img', 'aria-label': chart.title || '折线图',
+      }, model.nodes.map(chartNode)),
+    ])
+  }
+  return null
+}
 
 export const AssistantView = {
   props: {
@@ -104,9 +170,12 @@ export const AssistantView = {
           ]),
         ]))
       const sources = [...new Set((card.facts ?? []).map(fact => fact.source).filter(Boolean))]
+      // 图放在结论句后面、明细数字前面：投屏时先看形状，再核对具体数。
+      const charts = (card.charts ?? []).map(chartBlock).filter(Boolean)
       return h('div', { class: 'assistant-card' }, [
         h('h3', {}, card.title || '回答'),
         h('p', { class: 'assistant-answer' }, card.answer || ''),
+        charts.length > 0 && h('div', { class: 'assistant-charts' }, charts),
         facts.length > 0 && h('dl', { class: 'assistant-facts' }, facts),
         (card.caveats ?? []).length > 0 && h('ul', { class: 'assistant-caveats' },
           card.caveats.map((item, index) => h('li', { key: index }, item))),

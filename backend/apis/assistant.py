@@ -16,7 +16,7 @@ from flask import Blueprint, current_app
 
 from backend.apis import analytics as analytics_api
 from backend.apis import warnings as warnings_api
-from backend.models import knowledge_analysis, score_analysis
+from backend.models import assistant_charts, knowledge_analysis, score_analysis
 from backend.models import qa as qa_model
 from backend.shared.api import (
     ApiError,
@@ -186,16 +186,21 @@ def safe(calculate, caveats, label):
 
 
 def class_snapshot(db, course_id, start, end, cutoff, caveats):
+    """一次取数：文字回答和图表共用同一份事实，不允许各查一遍。"""
+    snapshots = {}
+
+    def read_attendance():
+        snapshots["attendance"] = analytics_api.facts(db, course_id, start, end, cutoff, None)
+        return analytics_api.interval_metrics(snapshots["attendance"], start, end, None)
+
     knowledge = safe(lambda: knowledge_analysis.metrics(
         knowledge_analysis.extract(db, course_id, start, end, cutoff, None), start, end),
         caveats, "知识点掌握度")
-    attendance = safe(lambda: analytics_api.interval_metrics(
-        analytics_api.facts(db, course_id, start, end, cutoff, None), start, end, None),
-        caveats, "考勤统计")
+    attendance = safe(read_attendance, caveats, "考勤统计")
     warning = safe(lambda: warnings_api.analyze(
         warnings_api.read_facts(db, course_id, start, end, cutoff)),
         caveats, "学习预警")
-    return knowledge, attendance, warning
+    return knowledge, attendance, warning, snapshots
 
 
 def personal_snapshot(db, course_id, student_id, start, end, cutoff, caveats):
@@ -373,13 +378,71 @@ def attendance_sentence(metrics):
             f"迟到 {metrics['late_count']}、请假 {metrics['leave_count']}、缺勤 {metrics['absent_count']}）。")
 
 
-def warning_facts(warning):
-    if not warning:
-        return []
+def attendance_donut(metrics, title="到勤构成", unit="人次"):
+    return assistant_charts.donut(title, [
+        {"label": "出勤", "value": metrics["present_count"], "colorKey": "present"},
+        {"label": "迟到", "value": metrics["late_count"], "colorKey": "late"},
+        {"label": "请假", "value": metrics["leave_count"], "colorKey": "leave"},
+        {"label": "缺勤", "value": metrics["absent_count"], "colorKey": "absent"},
+    ], unit=unit)
+
+
+def mastery_level(value):
+    """60% 以下算薄弱（与「最薄弱」同一阈值），60—80 中间，80 以上正常。"""
+    if value is None:
+        return "low"
+    if value < 0.6:
+        return "danger"
+    if value < 0.8:
+        return "warn"
+    return "ok"
+
+
+def mastery_bar(points, title="知识点掌握度"):
+    return assistant_charts.bars(title, [
+        {"label": item["title"], "value": pct(item["mastery"]),
+         "colorKey": mastery_level(item["mastery"]),
+         "note": f"答对 {item['correct_count']}/{item['answered_count']} 次"}
+        for item in points])
+
+
+def percent_bar(title, rows):
+    """rows: [(标签, 百分比)]。颜色统一用主题色，不暗示及格与否。"""
+    return assistant_charts.bars(title, [
+        {"label": label, "value": value, "colorKey": "accent"} for label, value in rows])
+
+
+def count_bar(title, rows, unit="人"):
+    """rows: [(标签, 计数)]。计数最大值就是轴顶，避免小样本被压成一条线。"""
+    top = max([count for _, count in rows], default=0)
+    return assistant_charts.bars(title, [
+        {"label": label, "value": count, "colorKey": "accent"} for label, count in rows],
+        unit=unit, max_value=max(1, top))
+
+
+def attendance_week_line(snapshot, start, end):
+    """按周到勤率折线。快照必须与 facts 同一份，不许为画图重读。"""
+    if not snapshot:
+        return None
+    series = analytics_api.week_series(snapshot, start, end, None)
+    # period_start 是 UTC 的周一零点，本地化后取「月-日」，避免日期错一天
+    points = [{"label": short_time(row["period_start"])[:5], "value": row["metrics"]["attendance_rate"]}
+              for row in series if row["metrics"]["expected_count"]]
+    return assistant_charts.line(f"按周到勤率（最近 {WINDOW_DAYS} 天）", points)
+
+
+def reason_counts(warning):
     counts = {}
     for item in warning["warnings"]:
         for reason in item["reasons"]:
             counts[reason["code"]] = counts.get(reason["code"], 0) + 1
+    return counts
+
+
+def warning_facts(warning):
+    if not warning:
+        return []
+    counts = reason_counts(warning)
     facts = [{"label": "规则命中人数", "value": len(warning["warnings"]), "unit": "人", "source": "014"},
              {"label": "聚类状态", "value": "已聚类" if warning["model_status"] == "clustered" else "样本不足，已降级",
               "note": f"纳入聚类 {warning['sample_size']} 人", "source": "014"}]
@@ -394,7 +457,7 @@ def teacher_student_answer(intent, student, db, course_id, start, end, cutoff):
     label = student["name"] + "（" + student["student_no"] + "）"
     profile = safe(lambda: student_attendance(db, course_id, student["id"], start, end, cutoff),
                    caveats, "这位学生的考勤")
-    facts, actions = [], []
+    facts, actions, charts = [], [], []
     if not profile:
         return {"intent": intent, "title": "这位学生的考勤暂时算不出来",
                 "answer": "考勤事实表不齐全，先确认统计页是否正常。", "facts": [], "caveats": caveats,
@@ -419,6 +482,7 @@ def teacher_student_answer(intent, student, db, course_id, start, end, cutoff):
         else:
             title = label + " 暂无到课记录"
             answer = label + f" 最近 {WINDOW_DAYS} 天没有被结算的考勤任务，到课数据算不出来。"
+        charts = assistant_charts.limit([attendance_donut(profile)])
     else:
         scores = safe(lambda: student_scores(db, course_id, student["id"], start, end, cutoff, caveats),
                       caveats, "这位学生的成绩")
@@ -458,9 +522,14 @@ def teacher_student_answer(intent, student, db, course_id, start, end, cutoff):
                                                  for reason in hit["reasons"]))
         title = label + " 的情况"
         answer = ("；".join(pieces) + "。") if pieces else (label + " 目前没有可用于分析的记录。")
+        charts = assistant_charts.limit([
+            attendance_donut(profile),
+            percent_bar("这位学生的已评分成绩",
+                        [(item["title"], item["percentage"]) for item in graded[:5]]),
+        ])
     actions.append({"kind": "navigate", "label": "打开考勤与学情", "payload": {"tab": "stats"}})
     return {"intent": intent, "title": title, "answer": answer, "facts": facts, "caveats": caveats,
-            "matches": [], "actions": actions, "suggestions": TEACHER_SUGGESTIONS}
+            "matches": [], "actions": actions, "charts": charts, "suggestions": TEACHER_SUGGESTIONS}
 
 
 def teacher_absence_answer(db, course_id):
@@ -491,8 +560,14 @@ def teacher_absence_answer(db, course_id):
         answer += "缺勤：" + "、".join(names[:10]) + ("。" if len(names) <= 10 else " 等。")
     else:
         answer += "这次没有缺勤学生。"
+    present = max(0, data["expected"] - len(absent) - len(leave))
+    charts = assistant_charts.limit([assistant_charts.donut("这次点名的到课构成", [
+        {"label": "出勤", "value": present, "colorKey": "present"},
+        {"label": "请假", "value": len(leave), "colorKey": "leave"},
+        {"label": "缺勤", "value": len(absent), "colorKey": "absent"},
+    ], unit="人")])
     return {"intent": "session_absence", "title": title, "answer": answer, "facts": facts,
-            "caveats": [], "matches": [],
+            "caveats": [], "matches": [], "charts": charts,
             "actions": [{"kind": "navigate", "label": "打开考勤与学情", "payload": {"tab": "stats"}},
                         {"kind": "warning_run", "label": "按最新数据生成预警批次", "payload": {}}],
             "suggestions": TEACHER_SUGGESTIONS}
@@ -537,8 +612,11 @@ def class_scores_answer(db, course_id, start, end, cutoff):
         title = "还没有已评分答卷"
         answer = (f"最近 {WINDOW_DAYS} 天共 {expected} 人卷次应交，但已批 0、缺交 {missing}。"
                   "没有已评分答卷，平均分算不出来；批改后再问就有数了。")
+    charts = assistant_charts.limit([percent_bar(
+        "各类平均分（只含已评分答卷）",
+        [(KIND_TEXT[kind], metric["mean_percentage"]) for kind, metric in graded_rows])])
     return {"intent": "class_scores", "title": title, "answer": answer, "facts": facts,
-            "caveats": caveats, "matches": [],
+            "caveats": caveats, "matches": [], "charts": charts,
             "actions": [{"kind": "navigate", "label": "打开分类成绩统计", "payload": {"tab": "stats"}}],
             "suggestions": TEACHER_SUGGESTIONS}
 
@@ -555,8 +633,8 @@ def clarify_answer(role):
 
 def teacher_answer(intent, question, db, course_id, start, end, cutoff):
     caveats = []
-    knowledge, attendance, warning = class_snapshot(db, course_id, start, end, cutoff, caveats)
-    facts, actions = [], []
+    knowledge, attendance, warning, snapshots = class_snapshot(db, course_id, start, end, cutoff, caveats)
+    facts, actions, charts = [], [], []
     if intent == "weak_knowledge":
         points = weak_points(knowledge)
         if not knowledge:
@@ -576,6 +654,7 @@ def teacher_answer(intent, question, db, course_id, start, end, cutoff):
                 answer += "其次是" + "、".join(
                     f"「{item['title']}」（{pct(item['mastery'])}%）" for item in points[1:]) + "。"
             title = f"最薄弱：{head['title']}"
+            charts = assistant_charts.limit([mastery_bar(points)])
             actions.append({"kind": "navigate", "label": "打开知识掌握度统计", "payload": {"tab": "stats"}})
             actions.append({"kind": "navigate", "label": "去教学内容看这一章", "payload": {"tab": "content"}})
     elif intent == "at_risk":
@@ -583,6 +662,10 @@ def teacher_answer(intent, question, db, course_id, start, end, cutoff):
             title, answer = "预警数据暂不可用", "预警依赖的作答、实验或考勤事实表不齐全，先确认统计页是否正常。"
         else:
             facts = warning_facts(warning)
+            charts = assistant_charts.limit([count_bar(
+                "预警命中原因（一人可多条）",
+                [(REASON_TEXT.get(code, code), number)
+                 for code, number in sorted(reason_counts(warning).items())])])
             people = []
             if warning["warnings"]:
                 names = {row["id"]: row["name"] for row in db.execute(
@@ -617,6 +700,7 @@ def teacher_answer(intent, question, db, course_id, start, end, cutoff):
             title, answer = "考勤数据暂不可用", "考勤事实表不齐全，先确认统计页是否正常。"
         else:
             facts = attendance_facts(attendance)
+            charts = assistant_charts.limit([attendance_donut(attendance)])
             title = ("到勤率 " + f"{pct(attendance['attendance_rate'])}%") if attendance["expected_count"] else "暂无考勤任务"
             answer = attendance_sentence(attendance)
             actions.append({"kind": "navigate", "label": "打开考勤与学情", "payload": {"tab": "stats"}})
@@ -626,6 +710,7 @@ def teacher_answer(intent, question, db, course_id, start, end, cutoff):
             title, answer = "暂时给不出课堂建议", "缺少作答与预警数据，先让学生完成一次练习。"
         else:
             facts = [point_fact(item) for item in points] + warning_facts(warning)[:1]
+            charts = assistant_charts.limit([mastery_bar(points)])
             pieces = []
             if points:
                 pieces.append("先用 5—10 分钟回顾「" + points[0]["title"] + "」（掌握度 " +
@@ -661,22 +746,27 @@ def teacher_answer(intent, question, db, course_id, start, end, cutoff):
             facts.append({"label": "预警命中", "value": len(warning["warnings"]), "unit": "人", "source": "014"})
         title = "最近 " + str(WINDOW_DAYS) + " 天学情概览"
         answer = "".join(parts) or "目前没有可用的学情数据。"
+        charts = assistant_charts.limit([
+            attendance_donut(attendance) if attendance else None,
+            attendance_week_line(snapshots.get("attendance"), start, end),
+        ])
         actions.append({"kind": "navigate", "label": "打开考勤与学情", "payload": {"tab": "stats"}})
     return {
         "intent": intent, "title": title, "answer": answer, "facts": facts, "caveats": caveats,
-        "matches": [], "actions": actions, "suggestions": TEACHER_SUGGESTIONS,
+        "matches": [], "actions": actions, "charts": charts, "suggestions": TEACHER_SUGGESTIONS,
     }
 
 
 def student_answer(intent, question, db, course_id, user_id, start, end, cutoff):
     caveats = []
     knowledge, attendance = personal_snapshot(db, course_id, user_id, start, end, cutoff, caveats)
-    facts, actions = [], []
+    facts, actions, charts = [], [], []
     if intent == "my_attendance":
         if not attendance:
             title, answer = "你的考勤数据暂时算不出来", "考勤事实表不齐全，先看考勤页是否正常。"
         else:
             facts = attendance_facts(attendance)
+            charts = assistant_charts.limit([attendance_donut(attendance, "你的到课构成")])
             title = ("你的到勤率 " + f"{pct(attendance['attendance_rate'])}%") if attendance["expected_count"] else "暂无考勤记录"
             answer = attendance_sentence(attendance).replace("最近", "你最近", 1)
             actions.append({"kind": "navigate", "label": "打开考勤与学情", "payload": {"tab": "stats"}})
@@ -709,6 +799,8 @@ def student_answer(intent, question, db, course_id, user_id, start, end, cutoff)
                 title = "成绩还没有批完"
                 answer = (f"你有 {len(pending)} 份待批、{len(missing)} 份缺交，"
                           "暂时没有已评分成绩。批完后这里会按作业/随堂测/考试分开列。")
+            charts = assistant_charts.limit([percent_bar(
+                "你的已评分成绩", [(item["title"], item["percentage"]) for item in graded[:5]])])
         actions.append({"kind": "navigate", "label": "打开测评与练习", "payload": {"tab": "exam"}})
     elif intent == "my_attempts":
         data = student_attempts(db, course_id, user_id, start, end, cutoff)
@@ -738,6 +830,13 @@ def student_answer(intent, question, db, course_id, user_id, start, end, cutoff)
                       f"正确率 {pct(data['rate'])}%。")
             if data["weak"]:
                 answer += "错得最多的是「" + data["weak"][0][0] + "」（" + str(data["weak"][0][1]) + " 次），建议优先补这一块。"
+            charts = assistant_charts.limit([
+                assistant_charts.donut("你的作答对错", [
+                    {"label": "答对", "value": data["correct"], "colorKey": "present"},
+                    {"label": "答错", "value": data["answered"] - data["correct"], "colorKey": "absent"},
+                ], unit="题"),
+                count_bar("错题分布（按知识点）", [(title, count) for title, count in data["weak"]], unit="次"),
+            ])
             actions.append({"kind": "practice", "label": "去练错得最多的知识点", "payload": {}})
     elif intent in ("my_progress", "next_practice"):
         points = weak_points(knowledge)
@@ -753,6 +852,7 @@ def student_answer(intent, question, db, course_id, user_id, start, end, cutoff)
                           "note": f"应到 {attendance['expected_count']} 人次", "source": "010A"})
         if points:
             facts += [point_fact(item) for item in points]
+        charts = assistant_charts.limit([mastery_bar(points, "你的知识点掌握度")])
         if not knowledge or not knowledge["answered_count"]:
             title = "还没有足够的作答样本"
             answer = (f"你最近 {WINDOW_DAYS} 天没有客观题作答记录，掌握度算不出来。"
@@ -808,7 +908,7 @@ def student_answer(intent, question, db, course_id, user_id, start, end, cutoff)
                 "caveats": caveats, "matches": matches, "actions": actions,
                 "suggestions": STUDENT_SUGGESTIONS}
     return {"intent": intent, "title": title, "answer": answer, "facts": facts, "caveats": caveats,
-            "matches": [], "actions": actions, "suggestions": STUDENT_SUGGESTIONS}
+            "matches": [], "actions": actions, "charts": charts, "suggestions": STUDENT_SUGGESTIONS}
 
 
 @bp.post("/courses/<int:course_id>/assistant/ask")
@@ -867,6 +967,7 @@ def ask(course_id):
         reply = student_answer(intent, question, get_db(), course_id, user["id"], start, end, cutoff)
     return result({
         **reply,
+        "charts": reply.get("charts") or [],
         "role": role,
         "question": question,
         "student_id": target["id"] if role == "teacher" and target else (None if role == "teacher" else user["id"]),

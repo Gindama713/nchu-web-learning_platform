@@ -120,6 +120,62 @@ class AssistantTest(TestCase):
         self.assertEqual(data["facts"], [])
         self.assertIn("没有形成有效的客观题作答记录", data["answer"])
 
+    def seed_two_weeks_of_attendance(self):
+        """两周各一次已关闭考勤：第一周两人都到、第二周只到一人，用于验证按周折线。"""
+        db = connect(self.path)
+        try:
+            for task_id, day in ((1, "2026-11-10"), (2, "2026-11-17")):
+                start, late = f"{day}T06:00:00.000Z", f"{day}T06:05:00.000Z"
+                end = f"{day}T06:30:00.000Z"
+                db.execute("INSERT INTO attendance_task(id,course_id,title,start_at,late_at,end_at,code_hash,"
+                           "code_expires_at,status,created_at,updated_at) "
+                           "VALUES(?,?,'第11周点名',?,?,?,?,'2026-11-20T07:00:00.000Z','closed',"
+                           "'2026-11-20T07:00:00.000Z','2026-11-20T07:00:00.000Z')",
+                           (task_id, self.course_id, start, late, end, f"hash-{task_id}"))
+                for student_id in (self.student_id, self.other_id):
+                    db.execute("INSERT INTO attendance_participant VALUES(?,?)", (task_id, student_id))
+            for task_id, student_id, status in ((1, self.student_id, "present"),
+                                                (1, self.other_id, "present"),
+                                                (2, self.student_id, "present")):
+                db.execute("INSERT INTO attendance_record(task_id,student_id,status,source,created_at,updated_at) "
+                           "VALUES(?,?,?,'close','2026-11-20T07:00:00.000Z','2026-11-20T07:00:00.000Z')",
+                           (task_id, student_id, status))
+        finally:
+            db.close()
+
+    def test_overview_adds_weekly_line_only_when_two_weeks_have_data(self):
+        """只有一周有考勤时不出折线（一个点画不出趋势），两周都有才给。"""
+        data = self.ask(self.teacher, "这周学情怎么样？").json["data"]
+        self.assertEqual(data["charts"], [])
+
+        self.seed_two_weeks_of_attendance()
+        data = self.ask(self.teacher, "这周学情怎么样？").json["data"]
+        self.assertEqual([chart["kind"] for chart in data["charts"]], ["donut", "line"])
+        line = data["charts"][1]
+        self.assertEqual(len(line["points"]), 2)
+        self.assertEqual([round(point["value"], 3) for point in line["points"]], [1.0, 0.5])
+
+    def test_attendance_chart_matches_the_reported_facts(self):
+        """图与数字必须同源：圆心人数就是「应到人次」，不是另算一份。"""
+        self.close_one_task_with_one_present()
+        response = self.ask(self.teacher, "这周考勤情况怎么样？")
+        self.assertEqual(response.status_code, 200, response.json)
+        data = response.json["data"]
+        self.assertEqual(len(data["charts"]), 1)
+        chart = data["charts"][0]
+        self.assertEqual(chart["kind"], "donut")
+        self.assertEqual(chart["total"], 2)
+        self.assertEqual({slice["label"]: slice["value"] for slice in chart["slices"]},
+                         {"出勤": 1, "迟到": 0, "请假": 0, "缺勤": 1})
+        self.assertIn("应到 2 人次", data["answer"])
+
+    def test_charts_are_omitted_when_there_is_nothing_to_draw(self):
+        """没有作答样本时不返回空图，避免界面上出现一个空白框。"""
+        data = self.ask(self.teacher, "哪个知识点最薄弱？").json["data"]
+        self.assertEqual(data["charts"], [])
+        data = self.ask(self.teacher, "这周考勤情况怎么样？").json["data"]
+        self.assertEqual(data["charts"], [])
+
     def test_knowledge_question_cites_published_point(self):
         db = connect(self.path)
         try:
@@ -215,6 +271,9 @@ class AssistantTest(TestCase):
         self.assertIn(50.0, [fact["value"] for fact in data["facts"]])
         self.assertIn("期中考试", data["answer"])
         self.assertIn("50.0%", data["answer"])
+        # 条形图的数值与 facts 是同一份计算，不是重新查一遍
+        self.assertEqual(data["charts"][0]["kind"], "bar")
+        self.assertEqual(data["charts"][0]["items"][0]["value"], 50.0)
 
     def test_student_reads_own_practice_records(self):
         self.seed_knowledge()
@@ -240,6 +299,10 @@ class AssistantTest(TestCase):
         self.assertEqual(data["facts"][0]["value"], 2)
         self.assertIn("50.0", data["answer"])
         self.assertTrue(any(fact["label"] == "错得最多的知识点" for fact in data["facts"]))
+        # 对错环形 + 错题分布条形，最多 2 张
+        self.assertEqual([chart["kind"] for chart in data["charts"]], ["donut", "bar"])
+        self.assertEqual({slice["label"]: slice["value"] for slice in data["charts"][0]["slices"]},
+                         {"答对": 1, "答错": 1})
 
     def test_student_asking_about_a_name_still_gets_own_data(self):
         self.close_one_task_with_one_present()

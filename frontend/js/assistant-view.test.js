@@ -168,3 +168,57 @@ test('没有指代词时不带学生，班级问题不被上下文劫持', async
     assert.equal(view.requests[1].student_id, undefined)
   } finally { view.restore() }
 })
+
+// 图表：后端只给数字和 colorKey，前端负责画。
+const charted = {
+  ...reply,
+  charts: [{
+    kind: 'donut', title: '到勤构成', unit: '人次', total: 4,
+    slices: [{ label: '出勤', value: 2, colorKey: 'present' }, { label: '缺勤', value: 2, colorKey: 'absent' }],
+  }],
+}
+
+test('回答带图表时渲染 SVG、标题与图例百分比', async () => {
+  const view = mount({ answer: charted })
+  try {
+    askText(view.root, '考勤')
+    await flush()
+    const svgs = all(view.root).filter(node => node.type === 'svg')
+    assert.equal(svgs.length, 1)
+    assert.equal(svgs[0].props['aria-label'], '到勤构成')
+    const text = content(view.root)
+    assert.match(text, /到勤构成/)
+    assert.match(text, /出勤 · 50\.0%/)
+  } finally { view.restore() }
+})
+
+test('后端没给 charts 时不画空图占位', async () => {
+  const view = mount()
+  try {
+    askText(view.root, '考勤')
+    await flush()
+    assert.equal(all(view.root).filter(node => node.type === 'svg').length, 0)
+  } finally { view.restore() }
+})
+
+test('横向条形按 colorKey 取色，未知图表类型直接忽略', async () => {
+  const bars = {
+    ...reply,
+    charts: [
+      { kind: 'bar', title: '知识点掌握度', unit: 'percent', max: 100,
+        items: [{ label: 'ALU 的运算选择', value: 60, colorKey: 'danger' },
+          { label: '存储器', value: 80, colorKey: 'ok' }] },
+      { kind: 'heatmap', title: '不认识的图' },
+    ],
+  }
+  const view = mount({ answer: bars })
+  try {
+    askText(view.root, '哪个知识点最薄弱')
+    await flush()
+    const s = all(view.root).filter(node => node.type === 'svg')
+    assert.equal(s.length, 1)                       // heatmap 不渲染
+    const fills = all(view.root).filter(node => node.props.class === 'chart-hbar').map(node => node.props.fill)
+    assert.deepEqual(fills, ['#d94c4c', '#2e8b57'])
+    assert.match(content(view.root), /60%/)
+  } finally { view.restore() }
+})

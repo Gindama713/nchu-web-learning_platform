@@ -556,6 +556,7 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 | caveats[] | 数据源不可用或样本不足时的明确说明；有该字段就表示这部分没算 |
 | matches[] | 仅知识问答：`{knowledge_id,title,excerpt,similarity}`，top 3，`similarity` 6 位小数 |
 | actions[] | `{kind,label,payload}`，`kind` 取 `navigate`（切页签）、`practice`（去练习）、`warning_run`（生成预警批次）；助手只给按钮，执行仍走原接口 |
+| charts[] | 可选图表数据，0—2 张，见 16.4。没有可画的数据时是空数组，界面不画空占位 |
 | suggestions[] | 当前角色的追问建议 |
 | algorithm_version / window / source_until | `assistant-rules-v1`；默认最近 28 天半开区间；事实截止时刻 |
 
@@ -597,3 +598,23 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 - **不落库**：接口只读。反复提问不产生 `analysis_run`、不写审计业务表，课堂并发提问不会和考勤/投票抢写锁。
 - **动作不绕过校验**：`warning_run` 只是让前端调用原 `POST /courses/{id}/warning-runs`（带幂等键），助手本身没有写权限。
 - **不是大模型**：`algorithm_version=assistant-rules-v1`，意图靠固定关键词表，回答靠模板拼接。相似度、掌握度、到勤率都不是概率或预测。
+
+### 16.4 图表协议（charts[]）
+
+后端只给**结构化数字 + 语义色键**，不给颜色值、不生成 SVG；几何与配色在 `frontend/js/charts.js`，与统计页共用同一份渲染函数，换主题不会出现「统计页绿、助手页蓝」。
+
+| kind | 字段 | 画法 |
+|---|---|---|
+| `donut` | `title,unit,total,slices[]{label,value,colorKey}` | 状态构成。`total` 是正值之和；0 值项保留在图例（「没有迟到」本身是结论），但不出扇区 |
+| `bar` | `title,unit,max,items[]{label,value,colorKey,note}` | 横向条形，适合中文知识点名。`unit=percent` 按 `max`（默认 100）归一，其余按最大值归一 |
+| `line` | `title,unit,max,points[]{label,value}` | 按周趋势。`unit=ratio,max=1`；少于 2 个点不返回 |
+
+`colorKey` 取值：`present / late / leave / absent`（考勤四态）、`ok / warn / danger`（掌握度 ≥80 / 60—80 / <60）、`accent`（中性比较）。前端遇未知键回退主题色。
+
+三条硬约束：
+
+1. **数字同源**：图表与 `facts` 来自同一次取数（`class_snapshot` 把考勤快照一起返回，不许为画图重读库），所以圆心人数一定等于「应到人次」。
+2. **空就不给**：`total=0`、条形 0 项、折线 <2 点 → 该图不返回，界面不画空白框。
+3. **每答最多 2 张**（`assistant_charts.MAX_CHARTS`），按调用方给的优先级截断，避免回答变成仪表盘。
+
+各意图的图表：`class_overview` 到勤环形 + 按周折线；`attendance` / `my_attendance` / `student_attendance` 到勤环形；`session_absence` 本次到课构成；`weak_knowledge` / `advice` / `my_progress` / `next_practice` 掌握度条形；`at_risk` 命中原因条形（一人可多条，不画环形以免总数被误读）；`class_scores` 各类平均分条形；`my_scores` 已评分百分比条形；`my_attempts` 对错环形 + 错题知识点条形；`knowledge_qa`、`clarify` 不出图。

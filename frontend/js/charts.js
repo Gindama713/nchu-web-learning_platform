@@ -1,5 +1,8 @@
 // 轻量 SVG 图表：零依赖，带入场动画（CSS 驱动，尊重 prefers-reduced-motion）。
-// 三种：柱状 barChart、折线 lineChart、环形 donutChart。
+// 四种：柱状 barChart、横向条 rankChart、折线 lineChart、环形 donutChart。
+// 这里只算几何，不碰业务数据；chartNode 负责把几何节点转成 Vue 元素。
+
+import { h } from 'vue'
 
 const INK = '#182436'
 const MUTED = '#60718a'
@@ -134,8 +137,89 @@ export function donutChart(slices, options = {}) {
   }
 }
 
+// 横向条形：中文知识点名很长，竖排柱状图放不下，这里标签在左、条在右。
+// 值按 max 归一（掌握度/百分比传 100），不足一个像素的条也留 1px，避免「有数据但看不见」。
+export function rankChart(items, options = {}) {
+  const {
+    width = 660, max = 100, unit = 'percent', labelWidth = 186,
+    rowHeight = 34, barHeight = 12, gap = 10, suffix = '',
+  } = options
+  const data = (items ?? []).filter(item => item.value !== null && item.value !== undefined
+    && Number.isFinite(Number(item.value)))
+  if (!data.length) return { width, height: 0, empty: '没有可比较的数据', nodes: [] }
+
+  const height = data.length * rowHeight + gap
+  const trackX = labelWidth
+  const valueWidth = 54
+  const trackW = Math.max(40, width - trackX - valueWidth)
+  const top = Math.max(1, Number(max) || 1)
+  const nodes = []
+
+  data.forEach((item, index) => {
+    const value = Math.max(0, Math.min(top, Number(item.value)))
+    const rowTop = index * rowHeight
+    const barY = rowTop + (rowHeight - barHeight) / 2
+    const barW = Math.max(1, (value / top) * trackW)
+    const label = String(item.label ?? '')
+    nodes.push({
+      kind: 'text', x: trackX - 12, y: barY + barHeight * 0.78, anchor: 'end',
+      text: label.length > 11 ? label.slice(0, 10) + '…' : label, size: 11, fill: INK,
+    })
+    nodes.push({ kind: 'rect', x: trackX, y: barY, width: trackW, height: barHeight, rx: barHeight / 2, fill: '#eef2f8' })
+    nodes.push({
+      kind: 'rect', x: trackX, y: barY, width: barW, height: barHeight, rx: barHeight / 2,
+      fill: item.color ?? ACCENT, class: 'chart-hbar', style: `animation-delay:${index * 60}ms`,
+    })
+    nodes.push({
+      kind: 'text', x: trackX + trackW + 10, y: barY + barHeight * 0.78, anchor: 'start',
+      text: `${format(value, unit)}${suffix}`, size: 11, fill: MUTED, bold: true,
+    })
+  })
+
+  return { width, height, empty: '', nodes }
+}
+
+// 几何节点 → Vue 元素。统计页和教学助手共用这一份，避免两处画出不同的图。
+export function chartNode(node) {
+  if (node.kind === 'line') return h('line', { x1: node.x1, y1: node.y1, x2: node.x2, y2: node.y2, stroke: node.stroke })
+  if (node.kind === 'path') return h('path', {
+    d: node.d, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width ?? 1,
+    'stroke-linejoin': node['stroke-linejoin'],
+    class: node.draw ? 'chart-line' : undefined,
+    pathLength: node.draw ? 1 : undefined,
+  })
+  if (node.kind === 'bar') return h('rect', {
+    x: node.x, y: node.y, width: node.width, height: node.height, fill: node.fill, rx: 3,
+    class: 'chart-bar', style: `animation-delay:${(node.delay ?? 0) * 70}ms`,
+  })
+  if (node.kind === 'dot') return h('circle', {
+    cx: node.cx, cy: node.cy, r: node.r, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width,
+    class: 'chart-dot', style: `animation-delay:${560 + (node.delay ?? 0) * 70}ms`,
+  })
+  if (node.kind === 'arc') return h('circle', {
+    cx: node.cx, cy: node.cy, r: node.r, fill: 'none', stroke: node.color,
+    'stroke-width': node.thickness, 'stroke-dasharray': node.dash, 'stroke-dashoffset': node.offset,
+    transform: `rotate(-90 ${node.cx} ${node.cy})`, class: 'chart-arc',
+  }, [h('title', {}, node.title)])
+  if (node.kind === 'rect') return h('rect', {
+    x: node.x, y: node.y, width: node.width, height: node.height, fill: node.fill, rx: node.rx,
+    class: node.class, style: node.style,
+  })
+  if (node.kind === 'circle') return h('circle', {
+    cx: node.cx, cy: node.cy, r: node.r, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width,
+  })
+  return h('text', {
+    x: node.x, y: node.y, 'font-size': node.size, fill: node.fill,
+    'text-anchor': node.anchor, 'font-weight': node.bold ? 700 : 400,
+  }, node.text)
+}
+
 export const chartColors = {
   ACCENT, INK, MUTED, GRID,
   present: '#2e8b57', late: '#f0a500', leave: '#5b8def', absent: '#d94c4c',
   high: '#d94c4c', mid: '#f0a500', low: '#8896aa',
+  ok: '#2e8b57', warn: '#f0a500', danger: '#d94c4c', track: '#eef2f8', accent: ACCENT,
 }
+
+// 后端只给 colorKey，配色留在前端一处维护：换主题不会出现「统计页绿、助手页蓝」。
+export const chartColorOf = key => chartColors[key] ?? chartColors.ACCENT

@@ -42,6 +42,12 @@
 .assistant-actions { display: flex; flex-wrap: wrap; gap: 8px; }
 .assistant-actions button { padding: 6px 12px; font-size: .84rem; }
 .assistant-source { margin: 0; color: var(--muted); font-size: .74rem; }
+/* 图表区：和明细数字同一张卡片，但有分隔线，避免「图+数」糊成一片 */
+.assistant-charts { display: grid; gap: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.assistant-chart { display: grid; gap: 6px; min-width: 0; }
+.assistant-chart-title { margin: 0; color: var(--muted); font-size: .78rem; }
+.assistant-chart + .assistant-chart { padding-top: 12px; border-top: 1px dashed var(--line); }
+.assistant-donut { position: relative; flex: none; }
 .assistant-asks { display: flex; flex-wrap: wrap; gap: 8px; }
 .assistant-asks button { padding: 6px 12px; font-size: .82rem; border-radius: 999px; }
 .assistant-form { display: flex; gap: 10px; }

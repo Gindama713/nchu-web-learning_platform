@@ -1,6 +1,6 @@
 import { h, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { AnalyticsClient } from './analytics-client.js'
-import { barChart, chartColors, donutChart } from './charts.js'
+import { barChart, chartColors, chartNode, donutChart } from './charts.js'
 
 const labels = { expected_count: '应交人卷次', submitted_count: '已交人卷次', missing_count: '缺交人卷次',
   graded_count: '已批人卷次', partial_count: '待批人卷次', mean_score: '同卷平均分', mean_percentage: '平均百分比',
@@ -39,39 +39,6 @@ const shanghaiFormat = new globalThis.Intl.DateTimeFormat('zh-CN', { timeZone: '
 const shanghaiTime = value => {
   const date = new Date(value)
   return value && Number.isFinite(date.getTime()) ? shanghaiFormat.format(date) : '无时间记录'
-}
-
-const chartNode = node => {
-  if (node.kind === 'line') return h('line', { x1: node.x1, y1: node.y1, x2: node.x2, y2: node.y2, stroke: node.stroke })
-  if (node.kind === 'path') return h('path', {
-    d: node.d, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width ?? 1,
-    'stroke-linejoin': node['stroke-linejoin'],
-    class: node.draw ? 'chart-line' : undefined,
-    pathLength: node.draw ? 1 : undefined,
-  })
-  if (node.kind === 'bar') return h('rect', {
-    x: node.x, y: node.y, width: node.width, height: node.height, fill: node.fill, rx: 3,
-    class: 'chart-bar', style: `animation-delay:${(node.delay ?? 0) * 70}ms`,
-  })
-  if (node.kind === 'dot') return h('circle', {
-    cx: node.cx, cy: node.cy, r: node.r, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width,
-    class: 'chart-dot', style: `animation-delay:${560 + (node.delay ?? 0) * 70}ms`,
-  })
-  if (node.kind === 'arc') return h('circle', {
-    cx: node.cx, cy: node.cy, r: node.r, fill: 'none', stroke: node.color,
-    'stroke-width': node.thickness, 'stroke-dasharray': node.dash, 'stroke-dashoffset': node.offset,
-    transform: `rotate(-90 ${node.cx} ${node.cy})`, class: 'chart-arc',
-  }, [h('title', {}, node.title)])
-  if (node.kind === 'rect') return h('rect', {
-    x: node.x, y: node.y, width: node.width, height: node.height, fill: node.fill,
-  })
-  if (node.kind === 'circle') return h('circle', {
-    cx: node.cx, cy: node.cy, r: node.r, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width,
-  })
-  return h('text', {
-    x: node.x, y: node.y, 'font-size': node.size, fill: node.fill,
-    'text-anchor': node.anchor, 'font-weight': node.bold ? 700 : 400,
-  }, node.text)
 }
 
 export const AnalyticsView = {
