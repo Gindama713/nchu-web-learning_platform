@@ -395,7 +395,10 @@ def advance_state(demo_id):
             (new_revision, json.dumps(new_state, ensure_ascii=False), stamp(), demo_id))
         audit("demo.advance", "demo_session", demo_id,
               after={"action": action, "revision": new_revision})
-    return result(_serialize(row, new_state) | {"revision": new_revision})
+        # 重新读取行，避免响应里带更新前的 revision/updated_at（原先靠外层覆盖
+        # 只补了 revision，updated_at 仍是旧值）。
+        row = _row(db, demo_id)
+    return result(_serialize(row, new_state))
 
 
 @bp.get("/demo-sessions/<int:demo_id>")
@@ -410,6 +413,11 @@ def get_session(demo_id):
         raise ApiError(404, "NOT_FOUND", "Demo session not found")
     course_access(row["course_id"])
     item = _serialize(row)
+    if after_revision is not None:
+        # APIC §4：after_revision 只是轮询游标提示，服务端仍返回当前状态，
+        # 绝不能用它覆盖真实 revision（I03-007-02）。unchanged 让前端可以
+        # 跳过一次重绘，同时保留「未变更也返回当前 revision」的契约。
+        item["unchanged"] = after_revision >= item["revision"]
     return result(item)
 
 

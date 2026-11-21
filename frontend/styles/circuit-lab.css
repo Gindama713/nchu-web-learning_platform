@@ -1,7 +1,8 @@
-/* SPEC-009 电路实验台：与课堂作品对齐的芯片级电路控制界面。 */
+/* SPEC-009 电路实验台：芯片级「电路控制」界面 + 真实数字逻辑实验箱质感。
+   面板、DIP 封装、拨动开关、LED、绿色正交导线均在 SVG 内绘制，坐标由后端 spec 给出。 */
 .clab {
   display: grid;
-  grid-template-columns: 208px minmax(0, 1fr);
+  grid-template-columns: 168px minmax(0, 1fr);
   gap: 0;
   background: #f6f8fc;
   border: 1px solid #dce4ee;
@@ -13,7 +14,7 @@
 .clab-side {
   background: #34313f;
   color: #e9e7f2;
-  padding: 18px 12px;
+  padding: 18px 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -68,10 +69,10 @@
 .clab-side-status.warn strong { color: #ffd48a; }
 .clab-side-status span { color: #b9b4c9; }
 
-.clab-main { padding: 16px 18px 20px; min-width: 0; }
+.clab-main { padding: 14px 14px 20px; min-width: 0; }
 .clab-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .clab-eyebrow { margin: 0 0 3px; font-size: .72rem; letter-spacing: .1em; color: #8b97ad; }
-.clab-head h2 { margin: 0; font-size: 1.12rem; color: #23375a; }
+.clab-head h2 { margin: 0; font-size: 1.18rem; color: #23375a; }
 .clab-tools { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
 .clab-tool {
   border: 1px solid #cfd9e9;
@@ -95,13 +96,18 @@
 .clab-alert.warn { background: #fff6df; border: 1px solid #efd18a; color: #7a5a12; }
 .clab-alert.error { background: #fdecea; border: 1px solid #efb7b1; color: #8d2f28; }
 
+/* 默认「大台面」：电路图全宽，说明 / 控制面板移到下方两列。 */
 .clab-grid {
   display: grid;
-  grid-template-columns: 214px minmax(0, 1fr) 236px;
+  grid-template-columns: 190px minmax(0, 1fr) 208px;
   gap: 12px;
   margin-top: 12px;
   align-items: start;
 }
+.clab-grid.wide { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.clab-grid.wide .clab-canvas { grid-column: 1 / -1; grid-row: 1; }
+.clab-grid.wide .clab-doc { grid-column: 1; grid-row: 2; }
+.clab-grid.wide .clab-panel { grid-column: 2; grid-row: 2; }
 .clab-doc, .clab-panel, .clab-canvas {
   background: #fff;
   border: 1px solid #e2e8f2;
@@ -126,31 +132,98 @@
 .clab-doc-note { margin-top: 10px; padding: 9px; border-radius: 7px; background: #f3f6fc; font-size: .74rem; color: #5b6a82; }
 .clab-doc-note p { margin: 4px 0 0; line-height: 1.65; }
 
-.clab-canvas { padding: 8px 8px 4px; }
+/* ---- 实验箱外壳与铭牌 ---- */
+.clab-canvas { padding: 8px 8px 4px; min-height: 600px; }
+.clab-bench {
+  border: 2px solid #7c826e;
+  border-radius: 12px;
+  background: #eeece2;
+  overflow: hidden;
+  box-shadow: 0 10px 22px rgb(42 45 32 / 18%), inset 0 1px 0 rgb(255 255 255 / 70%);
+}
+.clab-bench-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 14px;
+  background: linear-gradient(180deg, #41463a, #2f332b);
+  color: #f0f2e5;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: .74rem;
+  letter-spacing: .08em;
+  border-bottom: 2px solid #22261f;
+}
+.clab-bench-led {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: #7d8272; border: 1px solid #20241d; flex: none;
+  box-shadow: inset 0 1px 1px rgb(255 255 255 / 35%);
+}
+.clab-bench-led.live { background: #c8f06a; box-shadow: 0 0 8px #b8e64a, inset 0 1px 1px rgb(255 255 255 / 60%); }
+.clab-bench-id { margin-left: auto; color: #b9c39e; }
 .clab-svg { width: 100%; height: auto; display: block; transition: transform .2s ease; transform-origin: center center; }
-.clab-wire { fill: none; stroke: #7aa93c; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
-.clab-wire.tone-ground { stroke: #3f7a2a; stroke-width: 2.8; }
-.clab-wire.tone-loop { stroke: #9dba57; stroke-width: 2; }
-.clab-wire.tone-control { stroke: #8fae55; stroke-width: 2; }
+.clab-grid.wide .clab-svg { height: min(78vh, 780px); }
+.clab-canvas-caption { margin: 0; padding: 8px 0 6px; text-align: center; font-size: .74rem; color: #7c8698; }
+
+/* ---- 面板底板 ---- */
+.clab-board { fill: url(#clab-board-grad); stroke: #a8a48f; stroke-width: 2; }
+.clab-board-grid { fill: url(#clab-grid-pattern); opacity: .65; pointer-events: none; }
+.clab-board-inner { fill: none; stroke: #c6c1ad; stroke-width: 1.4; pointer-events: none; }
+.clab-nameplate { fill: #3c4236; stroke: #22261f; stroke-width: 1; }
+.clab-nameplate-text { fill: #eef1dd; font-size: 12px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .12em; }
+.clab-nameplate-id { fill: #b9c39e; font-size: 11px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .1em; }
+.clab-screw circle { fill: url(#clab-metal-grad); stroke: #6d7276; stroke-width: 1; }
+.clab-screw line { stroke: #5b6064; stroke-width: 1.4; stroke-linecap: round; }
+.clab-scale line { stroke: #c2bda9; stroke-width: 1.2; }
+.clab-silk { fill: #7c8267; font-size: 10px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .08em; }
+
+/* ---- 绿色正交导线与焊点 ---- */
+.clab-trace { fill: none; stroke: #65784c; stroke-width: 5.5; stroke-linejoin: round; stroke-linecap: round; opacity: .32; }
+.clab-wire { fill: none; stroke: #7aa93c; stroke-width: 2.8; stroke-linejoin: round; stroke-linecap: round; }
+.clab-wire.tone-ground { stroke: #3f7a2a; stroke-width: 3.2; }
+.clab-wire.tone-loop { stroke: #9dba57; stroke-width: 2.4; }
+.clab-wire.tone-control { stroke: #8fae55; stroke-width: 2.4; }
 .clab-wire.tone-result { stroke: #6f9f34; }
-.clab-ground line { stroke: #3f7a2a; stroke-width: 2.4; stroke-linecap: round; }
-.clab-chip rect { fill: #403c3c; stroke: #2b2828; stroke-width: 2; }
-.clab-chip-name { fill: #fff; font-size: 24px; font-weight: 700; letter-spacing: .16em; }
-.clab-chip-sub { fill: #c9c2c2; font-size: 11px; letter-spacing: .08em; }
+.clab-joint { fill: #4e7a28; stroke: #e5f2cd; stroke-width: 1.2; }
+.clab-ground line { stroke: #3f7a2a; stroke-width: 2.8; stroke-linecap: round; }
+
+/* ---- DIP 芯片封装 ---- */
+.clab-chip .ic-body { fill: url(#clab-ic-grad); stroke: #1f1d1b; stroke-width: 2; }
+.clab-chip .ic-notch { fill: #ece9dd; stroke: #1f1d1b; stroke-width: 1.5; }
+.clab-chip .ic-dot { fill: #b9b3a4; stroke: #1f1d1b; stroke-width: 1; }
+.clab-chip .ic-lead { fill: url(#clab-metal-grad); stroke: #6f767c; stroke-width: 1; }
+.clab-chip-name { fill: #f7f3e8; font-size: 26px; font-weight: 700; letter-spacing: .18em; }
+.clab-chip-name.small { font-size: 20px; }
+.clab-chip-sub { fill: #c6bda9; font-size: 11px; letter-spacing: .1em; }
+.clab-chip-silk { fill: #8d877a; font-size: 9px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; letter-spacing: .1em; }
+
+/* ---- 金属拨动开关 ---- */
 .clab-switch { cursor: pointer; }
 .clab-switch.readonly { cursor: help; }
-.clab-switch rect { fill: #fff; stroke: #4c4c4c; stroke-width: 2; }
-.clab-switch circle { fill: #3a3a3a; }
-.clab-switch.on rect { fill: #d9e86a; stroke: #6f7c24; }
-.clab-switch.on circle { fill: #2f3a10; }
-.clab-switch:hover rect { stroke: #6558d6; stroke-width: 3; }
-.clab-lamp circle { fill: #fff; stroke: #6b7280; stroke-width: 2; }
-.clab-lamp .clab-lamp-core { fill: #d7dbe2; stroke: none; }
-.clab-lamp.on circle { fill: #f7d7d3; stroke: #c8403a; }
-.clab-lamp.on .clab-lamp-core { fill: #e0403a; }
-.clab-pin-label { fill: #2f5fa8; font-size: 12px; font-weight: 600; }
-.clab-canvas-caption { margin: 0; padding: 4px 0 6px; text-align: center; font-size: .72rem; color: #97a2b5; }
+.clab-switch .sw-frame { fill: url(#clab-metal-grad); stroke: #4f5458; stroke-width: 1.6; }
+.clab-switch .sw-well { fill: #2b2c29; stroke: #171814; stroke-width: 1; }
+.clab-switch .sw-lever { fill: #8e959b; stroke: #5c6267; stroke-width: .8; }
+.clab-switch .sw-knob { fill: #e7eaec; stroke: #666c70; stroke-width: .8; }
+.clab-switch .sw-terminal { fill: url(#clab-metal-grad); stroke: #6f767c; stroke-width: 1; }
+.clab-switch .sw-mark { fill: #d9e86a; font-size: 8px; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; }
+.clab-switch .sw-mark.dim { fill: #9aa0a5; }
+.clab-switch.on .sw-well { fill: #3c4419; }
+.clab-switch.on .sw-lever { fill: #d9e86a; stroke: #6f7c24; }
+.clab-switch.on .sw-knob { fill: #f6ffd2; }
+.clab-switch:hover .sw-frame { stroke: #6558d6; stroke-width: 2.4; }
+.clab-switch:focus-visible .sw-frame { stroke: #6558d6; stroke-width: 3; }
 
+/* ---- LED 指示灯 ---- */
+.clab-lamp .led-halo { fill: #ff543f; opacity: .85; }
+.clab-lamp .led-ring { fill: url(#clab-metal-grad); stroke: #5f656a; stroke-width: 1.4; }
+.clab-lamp .led-glass { fill: url(#clab-led-off); stroke: #8c939a; stroke-width: 1; }
+.clab-lamp .led-core { fill: #c7ccd2; }
+.clab-lamp .led-glint { fill: #fff; opacity: .6; }
+.clab-lamp.on .led-glass { fill: url(#clab-led-on); stroke: #a3302b; }
+.clab-lamp.on .led-core { fill: #ff6a58; }
+.clab-lamp .sw-terminal { fill: url(#clab-metal-grad); stroke: #6f767c; stroke-width: 1; }
+.clab-pin-label { fill: #2f5fa8; font-size: 13px; font-weight: 700; }
+
+/* ---- 右侧控制面板与记录 ---- */
 .clab-table { width: 100%; border-collapse: collapse; font-size: .74rem; }
 .clab-table th { text-align: left; color: #6b7b94; font-weight: 600; }
 .clab-table td, .clab-table th { padding: 5px 4px; border-bottom: 1px solid #eef2f8; }
@@ -192,10 +265,13 @@
   .clab-side { min-height: 0; flex-direction: row; flex-wrap: wrap; align-items: center; }
   .clab-side-title, .clab-legend, .clab-side-status { display: none; }
   .clab-side-item { width: auto; }
-  .clab-grid { grid-template-columns: 1fr 1fr; }
-  .clab-canvas { grid-column: 1 / -1; grid-row: 1; }
+  .clab-grid, .clab-grid.wide { grid-template-columns: 1fr 1fr; }
+  .clab-grid .clab-canvas, .clab-grid.wide .clab-canvas { grid-column: 1 / -1; grid-row: 1; }
+  .clab-grid.wide .clab-svg { height: auto; }
 }
 @media (max-width: 680px) {
-  .clab-grid { grid-template-columns: 1fr; }
-  .clab-canvas { grid-column: auto; grid-row: auto; }
+  .clab-grid, .clab-grid.wide { grid-template-columns: 1fr; }
+  .clab-grid .clab-canvas, .clab-grid.wide .clab-canvas,
+  .clab-grid.wide .clab-doc, .clab-grid.wide .clab-panel { grid-column: auto; grid-row: auto; }
+  .clab-bench-head { font-size: .64rem; letter-spacing: 0; }
 }

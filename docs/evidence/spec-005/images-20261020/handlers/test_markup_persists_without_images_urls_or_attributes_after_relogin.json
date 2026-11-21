@@ -1,0 +1,485 @@
+{
+  "layer": "real Flask handlers/SQLite; no browser or successful image integration",
+  "fixtures": "admin/teacher bootstrap; generated 2x3 PNG/JPEG; short PDF type controls",
+  "requests": [
+    {
+      "actor": "T005ADMIN",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005ADMIN",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "T005ADMIN",
+            "role": "admin",
+            "student_no": "T005ADMIN"
+          }
+        },
+        "request_id": "3f601f18d36347aeb9abde241d4a7290"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005TEACH",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "T005TEACH",
+            "role": "teacher",
+            "student_no": "T005TEACH"
+          }
+        },
+        "request_id": "3850d79abaa6412781ba3cf4507fe406"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "bootstrap/anonymous",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T005STUD1",
+        "name": "T005STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T005STUD1",
+            "role": "student",
+            "student_no": "T005STUD1"
+          }
+        },
+        "request_id": "6bdfa259e42c4ec3bfbfdbd7ffb79793"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD1",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T005STUD1",
+            "role": "student",
+            "student_no": "T005STUD1"
+          }
+        },
+        "request_id": "4159cc2bf04b40d8a9fd5db5229d4f95"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "bootstrap/anonymous",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "T005STUD2",
+        "name": "T005STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "87f25b026dcb40f2b0b1636508571319"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD2",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005STUD2",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "5b3a9235f20648bf84f741a26d4b72ca"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005ADMIN",
+      "method": "POST",
+      "path": "/courses",
+      "request": {
+        "title": "T005 controlled CPU",
+        "teacher_id": 2
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "T005 controlled CPU"
+        },
+        "request_id": "83f29409790047eeb792944dee9f8b96"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 3,
+        "member_role": "student"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 3
+        },
+        "request_id": "b27aa6abeff34e838a99160fe2ad1f54"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/1/chapters",
+      "request": {
+        "title": "CPU"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 1,
+          "position": 0,
+          "title": "CPU"
+        },
+        "request_id": "a5f485b7ac694374914e1b36e2be5ceb"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "程序计数器",
+        "content": "<p>PC 指向下一条指令</p>",
+        "published": true,
+        "is_foundational": true
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC 指向下一条指令</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": true,
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "511e82a93f5349c0a746f83716dfd4b1"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-20T04:35:47.929Z",
+          "user": {
+            "id": 2,
+            "name": "T005TEACH",
+            "role": "teacher",
+            "student_no": "T005TEACH"
+          }
+        },
+        "request_id": "b8fdf0a18e554dc7a58184a265bc8e5c"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD2",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-20T04:35:47.953Z",
+          "user": {
+            "id": 4,
+            "name": "T005STUD2",
+            "role": "student",
+            "student_no": "T005STUD2"
+          }
+        },
+        "request_id": "032c1ae88bc943b19b1eea2a19acf7a6"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005ADMIN",
+      "method": "POST",
+      "path": "/courses",
+      "request": {
+        "title": "Other image contract course",
+        "teacher_id": 2
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "description": "",
+          "id": 2,
+          "teacher_id": 2,
+          "title": "Other image contract course"
+        },
+        "request_id": "c1b9d30f676b4853b24dd20c3f096c32"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/2/members",
+      "request": {
+        "user_id": 4,
+        "member_role": "student"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 4
+        },
+        "request_id": "d172f8225e7e413090cc2900dac0fc18"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "POST",
+      "path": "/courses/2/chapters",
+      "request": {
+        "title": "Other chapter"
+      },
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 2,
+          "position": 0,
+          "title": "Other chapter"
+        },
+        "request_id": "1b64c9abc2df49178c6ad9fdcefeb2c6"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "PATCH",
+      "path": "/knowledge-points/1",
+      "request": {
+        "content": "<p class=\"x\" onclick=\"x()\">PC<sup>2</sup></p><img src=\"https://invalid.example/p.png\" onerror=\"x()\"><img src=\"data:image/png;base64,AAAA\"><a href=\"/resource-versions/1/content\">图</a>",
+        "example": "<p style=\"color:red\">A<sub>0</sub></p>"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC<sup>2</sup></p>图",
+          "content_revision": 2,
+          "example": "<p>A<sub>0</sub></p>",
+          "id": 1,
+          "is_foundational": true,
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "e97854dc9a3e454f888e03a7f32d0a9a"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005TEACH",
+      "method": "PATCH",
+      "path": "/knowledge-points/1",
+      "request": {
+        "content": "<p class=\"x\" onclick=\"x()\">PC<sup>2</sup></p><img src=\"https://invalid.example/p.png\" onerror=\"x()\"><img src=\"data:image/png;base64,AAAA\"><a href=\"/resource-versions/1/content\">图</a>",
+        "example": "<p style=\"color:red\">A<sub>0</sub></p>"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC<sup>2</sup></p>图",
+          "content_revision": 2,
+          "example": "<p>A<sub>0</sub></p>",
+          "id": 1,
+          "is_foundational": true,
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "df9d27bd5179439db745f3aa77a92e96"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD1",
+      "method": "POST",
+      "path": "/auth/logout",
+      "request": null,
+      "status": 204,
+      "expected_status": 204,
+      "response": {
+        "size": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD1",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "T005STUD1",
+        "password": "[REDACTED]"
+      },
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "T005STUD1",
+            "role": "student",
+            "student_no": "T005STUD1"
+          }
+        },
+        "request_id": "fa6b056d9a46461fa1347b2a4aadc8e1"
+      },
+      "headers": {}
+    },
+    {
+      "actor": "T005STUD1/restarted-app",
+      "method": "GET",
+      "path": "/knowledge-points/1",
+      "request": null,
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>PC<sup>2</sup></p>图",
+          "content_revision": 2,
+          "example": "<p>A<sub>0</sub></p>",
+          "id": 1,
+          "is_bookmarked": false,
+          "is_foundational": true,
+          "progress": {
+            "completed": false,
+            "completed_at": null
+          },
+          "published": true,
+          "title": "程序计数器"
+        },
+        "request_id": "ee0b2f6706e94a3680069bf44c646a81"
+      },
+      "headers": {}
+    }
+  ],
+  "contract_observations": [],
+  "final_facts": {
+    "knowledge_point": [
+      {
+        "id": 1,
+        "chapter_id": 1,
+        "title": "程序计数器",
+        "content": "<p>PC<sup>2</sup></p>图",
+        "example": "<p>A<sub>0</sub></p>",
+        "published": 1,
+        "content_revision": 2,
+        "is_foundational": 1
+      }
+    ],
+    "resource": [],
+    "resource_version": [],
+    "resource_event": [],
+    "files": [],
+    "integrity_check": "ok",
+    "foreign_key_check": []
+  }
+}

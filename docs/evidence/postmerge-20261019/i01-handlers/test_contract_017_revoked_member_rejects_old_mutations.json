@@ -1,0 +1,1958 @@
+{
+  "layer": "real Flask handlers/SQLite",
+  "fixtures": "admin/teacher bootstrap and TEST_NOW only",
+  "requests": [
+    {
+      "actor": "I01ADMIN",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "I01ADMIN",
+        "password": "[REDACTED]"
+      },
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 1,
+            "name": "I01ADMIN",
+            "role": "admin",
+            "student_no": "I01ADMIN"
+          }
+        },
+        "request_id": "201290115d2f44a1a30aa0a41bb1fae9"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "I01TEACH",
+        "password": "[REDACTED]"
+      },
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 2,
+            "name": "I01TEACH",
+            "role": "teacher",
+            "student_no": "I01TEACH"
+          }
+        },
+        "request_id": "d81764c1256c40bba4e83b68ece409ab"
+      }
+    },
+    {
+      "actor": "anonymous",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "I01STUD1",
+        "name": "I01STUD1",
+        "password": "[REDACTED]"
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "I01STUD1",
+            "role": "student",
+            "student_no": "I01STUD1"
+          }
+        },
+        "request_id": "49fb17c357094162bd42bf520af2cf33"
+      }
+    },
+    {
+      "actor": "I01STUD1",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "I01STUD1",
+        "password": "[REDACTED]"
+      },
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 3,
+            "name": "I01STUD1",
+            "role": "student",
+            "student_no": "I01STUD1"
+          }
+        },
+        "request_id": "a0e445aa26444db2abc33d50d8f48bdc"
+      }
+    },
+    {
+      "actor": "anonymous",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "I01STUD2",
+        "name": "I01STUD2",
+        "password": "[REDACTED]"
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "I01STUD2",
+            "role": "student",
+            "student_no": "I01STUD2"
+          }
+        },
+        "request_id": "9d972ddb812b40fe9f20353010029cbe"
+      }
+    },
+    {
+      "actor": "I01STUD2",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "I01STUD2",
+        "password": "[REDACTED]"
+      },
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 4,
+            "name": "I01STUD2",
+            "role": "student",
+            "student_no": "I01STUD2"
+          }
+        },
+        "request_id": "cf95600cbcee4545827035bd7e3344e2"
+      }
+    },
+    {
+      "actor": "anonymous",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "I01STUD3",
+        "name": "I01STUD3",
+        "password": "[REDACTED]"
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 5,
+            "name": "I01STUD3",
+            "role": "student",
+            "student_no": "I01STUD3"
+          }
+        },
+        "request_id": "953e880974314dceb1dd76842adeb565"
+      }
+    },
+    {
+      "actor": "I01STUD3",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "I01STUD3",
+        "password": "[REDACTED]"
+      },
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 5,
+            "name": "I01STUD3",
+            "role": "student",
+            "student_no": "I01STUD3"
+          }
+        },
+        "request_id": "9e7de90099d24371b18f31b75921aff9"
+      }
+    },
+    {
+      "actor": "anonymous",
+      "method": "POST",
+      "path": "/auth/register",
+      "request": {
+        "student_no": "I01STUD4",
+        "name": "I01STUD4",
+        "password": "[REDACTED]"
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "user": {
+            "active": 1,
+            "id": 6,
+            "name": "I01STUD4",
+            "role": "student",
+            "student_no": "I01STUD4"
+          }
+        },
+        "request_id": "ffc399c4905d43afa5f945f5a4b0d85f"
+      }
+    },
+    {
+      "actor": "I01STUD4",
+      "method": "POST",
+      "path": "/auth/login",
+      "request": {
+        "student_no": "I01STUD4",
+        "password": "[REDACTED]"
+      },
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "user": {
+            "active": 1,
+            "id": 6,
+            "name": "I01STUD4",
+            "role": "student",
+            "student_no": "I01STUD4"
+          }
+        },
+        "request_id": "336396fb603642be96407122d4061bee"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-17T06:00:00.000Z",
+          "user": {
+            "id": 2,
+            "name": "I01TEACH",
+            "role": "teacher",
+            "student_no": "I01TEACH"
+          }
+        },
+        "request_id": "3db809ce397b422e9a39d7aaacc6b866"
+      }
+    },
+    {
+      "actor": "I01ADMIN",
+      "method": "POST",
+      "path": "/courses",
+      "request": {
+        "title": "I01 CPU",
+        "teacher_id": 2
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "description": "",
+          "id": 1,
+          "teacher_id": 2,
+          "title": "I01 CPU"
+        },
+        "request_id": "a7ba49902d6640cd9cefd3eec49e2764"
+      }
+    },
+    {
+      "actor": "I01STUD1",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-17T06:00:00.000Z",
+          "user": {
+            "id": 3,
+            "name": "I01STUD1",
+            "role": "student",
+            "student_no": "I01STUD1"
+          }
+        },
+        "request_id": "9d207d7306ec4c8c8076543a99f6c067"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 3,
+        "member_role": "student"
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 3
+        },
+        "request_id": "68b42e0dd3fd44b09cd97e690254d95e"
+      }
+    },
+    {
+      "actor": "I01STUD2",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-17T06:00:00.000Z",
+          "user": {
+            "id": 4,
+            "name": "I01STUD2",
+            "role": "student",
+            "student_no": "I01STUD2"
+          }
+        },
+        "request_id": "fa42bb5f43a049a597a03d72df20a36f"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 4,
+        "member_role": "student"
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 4
+        },
+        "request_id": "1676b8fbf3714824bc2e4f57d5d005a6"
+      }
+    },
+    {
+      "actor": "I01STUD3",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-17T06:00:00.000Z",
+          "user": {
+            "id": 5,
+            "name": "I01STUD3",
+            "role": "student",
+            "student_no": "I01STUD3"
+          }
+        },
+        "request_id": "7c4d6bf2f8cc420e99e03308cd209ee7"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 5,
+        "member_role": "student"
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 5
+        },
+        "request_id": "df6ccfbdb9714cfe89dfc02038d82d49"
+      }
+    },
+    {
+      "actor": "I01STUD4",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-17T06:00:00.000Z",
+          "user": {
+            "id": 6,
+            "name": "I01STUD4",
+            "role": "student",
+            "student_no": "I01STUD4"
+          }
+        },
+        "request_id": "1fe471295ad8404ba97363a4b6ee99cb"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/courses/1/members",
+      "request": {
+        "user_id": 6,
+        "member_role": "student"
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "active": true,
+          "member_role": "student",
+          "user_id": 6
+        },
+        "request_id": "57fe51905b5f497baa78c32232017005"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/courses/1/chapters",
+      "request": {
+        "title": "I01 ALU"
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapters_revision": 1,
+          "id": 1,
+          "position": 0,
+          "title": "I01 ALU"
+        },
+        "request_id": "effef82a6cbd4957aa808418b20541d7"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "I01 ALU",
+        "content": "<p>ALU 算术逻辑单元</p>",
+        "published": true
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 1,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 ALU"
+        },
+        "request_id": "05eb66f4d7ba4f12b2cebe28d396bf98"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "I01 进位",
+        "content": "<p>ALU 算术逻辑单元</p>",
+        "published": true
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 2,
+          "is_foundational": false,
+          "published": true,
+          "title": "I01 进位"
+        },
+        "request_id": "4972f0f919ae4ee28ebb9fb0b9f6d682"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/chapters/1/knowledge-points",
+      "request": {
+        "title": "I01 草稿",
+        "content": "<p>ALU 算术逻辑单元</p>",
+        "published": false
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "chapter_id": 1,
+          "content": "<p>ALU 算术逻辑单元</p>",
+          "content_revision": 1,
+          "example": "",
+          "id": 3,
+          "is_foundational": false,
+          "published": false,
+          "title": "I01 草稿"
+        },
+        "request_id": "af9f9cef61f24cefaa56b3156d70050b"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/courses/1/experiments",
+      "request": {
+        "code": "EXP-01",
+        "title": "I01真实ALU实验",
+        "description": "关联同课知识"
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "id": 1,
+          "title": "I01真实ALU实验"
+        },
+        "request_id": "d2264f6b1aa54a43ae8bec8c24db8ee4"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/experiments/1/versions",
+      "request": {
+        "title": "I01固定v1",
+        "objectives": "理解算术与进位",
+        "instructions": "连接开关与ALU和指示灯",
+        "knowledge_ids": [
+          1,
+          2
+        ],
+        "submission_modes": [
+          "wiring"
+        ],
+        "panel": {
+          "schema_version": 1,
+          "components": [
+            {
+              "id": "sw_a",
+              "type": "SWITCH",
+              "params": {
+                "width": 8,
+                "initial": 0
+              },
+              "ports": {
+                "OUT": "sw_a_out"
+              }
+            },
+            {
+              "id": "sw_b",
+              "type": "SWITCH",
+              "params": {
+                "width": 8,
+                "initial": 0
+              },
+              "ports": {
+                "OUT": "sw_b_out"
+              }
+            },
+            {
+              "id": "sw_op",
+              "type": "SWITCH",
+              "params": {
+                "width": 3,
+                "initial": 0
+              },
+              "ports": {
+                "OUT": "sw_op_out"
+              }
+            },
+            {
+              "id": "alu",
+              "type": "ALU8",
+              "params": {},
+              "ports": {
+                "A": "alu_a",
+                "B": "alu_b",
+                "OP": "alu_op",
+                "Y": "alu_y",
+                "Z": "alu_z",
+                "C": "alu_c"
+              }
+            },
+            {
+              "id": "led_y",
+              "type": "LED",
+              "params": {
+                "width": 8
+              },
+              "ports": {
+                "IN": "led_y_in"
+              }
+            },
+            {
+              "id": "led_z",
+              "type": "LED",
+              "params": {
+                "width": 1
+              },
+              "ports": {
+                "IN": "led_z_in"
+              }
+            },
+            {
+              "id": "led_c",
+              "type": "LED",
+              "params": {
+                "width": 1
+              },
+              "ports": {
+                "IN": "led_c_in"
+              }
+            }
+          ],
+          "terminals": [
+            {
+              "id": "sw_a_out",
+              "component_id": "sw_a",
+              "name": "OUT",
+              "direction": "out",
+              "width": 8,
+              "required": false
+            },
+            {
+              "id": "sw_b_out",
+              "component_id": "sw_b",
+              "name": "OUT",
+              "direction": "out",
+              "width": 8,
+              "required": false
+            },
+            {
+              "id": "sw_op_out",
+              "component_id": "sw_op",
+              "name": "OUT",
+              "direction": "out",
+              "width": 3,
+              "required": false
+            },
+            {
+              "id": "alu_a",
+              "component_id": "alu",
+              "name": "A",
+              "direction": "in",
+              "width": 8,
+              "required": true
+            },
+            {
+              "id": "alu_b",
+              "component_id": "alu",
+              "name": "B",
+              "direction": "in",
+              "width": 8,
+              "required": true
+            },
+            {
+              "id": "alu_op",
+              "component_id": "alu",
+              "name": "OP",
+              "direction": "in",
+              "width": 3,
+              "required": true
+            },
+            {
+              "id": "alu_y",
+              "component_id": "alu",
+              "name": "Y",
+              "direction": "out",
+              "width": 8,
+              "required": false
+            },
+            {
+              "id": "alu_z",
+              "component_id": "alu",
+              "name": "Z",
+              "direction": "out",
+              "width": 1,
+              "required": false
+            },
+            {
+              "id": "alu_c",
+              "component_id": "alu",
+              "name": "C",
+              "direction": "out",
+              "width": 1,
+              "required": false
+            },
+            {
+              "id": "led_y_in",
+              "component_id": "led_y",
+              "name": "IN",
+              "direction": "in",
+              "width": 8,
+              "required": true
+            },
+            {
+              "id": "led_z_in",
+              "component_id": "led_z",
+              "name": "IN",
+              "direction": "in",
+              "width": 1,
+              "required": true
+            },
+            {
+              "id": "led_c_in",
+              "component_id": "led_c",
+              "name": "IN",
+              "direction": "in",
+              "width": 1,
+              "required": true
+            }
+          ],
+          "code": "EXP-01",
+          "layout": {}
+        },
+        "rules": {
+          "require_required_inputs": true
+        }
+      },
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "end_at": null,
+          "experiment": {
+            "archived": 0,
+            "code": "EXP-01",
+            "description": "关联同课知识",
+            "id": 1,
+            "title": "I01真实ALU实验"
+          },
+          "experiment_id": 1,
+          "id": 1,
+          "instructions": "连接开关与ALU和指示灯",
+          "judge_profile_id": null,
+          "knowledge_ids": [
+            1,
+            2
+          ],
+          "objectives": "理解算术与进位",
+          "panel": {
+            "code": "EXP-01",
+            "components": [
+              {
+                "id": "sw_a",
+                "params": {
+                  "initial": 0,
+                  "width": 8
+                },
+                "ports": {
+                  "OUT": "sw_a_out"
+                },
+                "type": "SWITCH"
+              },
+              {
+                "id": "sw_b",
+                "params": {
+                  "initial": 0,
+                  "width": 8
+                },
+                "ports": {
+                  "OUT": "sw_b_out"
+                },
+                "type": "SWITCH"
+              },
+              {
+                "id": "sw_op",
+                "params": {
+                  "initial": 0,
+                  "width": 3
+                },
+                "ports": {
+                  "OUT": "sw_op_out"
+                },
+                "type": "SWITCH"
+              },
+              {
+                "id": "alu",
+                "params": {},
+                "ports": {
+                  "A": "alu_a",
+                  "B": "alu_b",
+                  "C": "alu_c",
+                  "OP": "alu_op",
+                  "Y": "alu_y",
+                  "Z": "alu_z"
+                },
+                "type": "ALU8"
+              },
+              {
+                "id": "led_y",
+                "params": {
+                  "width": 8
+                },
+                "ports": {
+                  "IN": "led_y_in"
+                },
+                "type": "LED"
+              },
+              {
+                "id": "led_z",
+                "params": {
+                  "width": 1
+                },
+                "ports": {
+                  "IN": "led_z_in"
+                },
+                "type": "LED"
+              },
+              {
+                "id": "led_c",
+                "params": {
+                  "width": 1
+                },
+                "ports": {
+                  "IN": "led_c_in"
+                },
+                "type": "LED"
+              }
+            ],
+            "layout": {},
+            "schema_version": 1,
+            "terminals": [
+              {
+                "component_id": "sw_a",
+                "direction": "out",
+                "id": "sw_a_out",
+                "name": "OUT",
+                "required": false,
+                "width": 8
+              },
+              {
+                "component_id": "sw_b",
+                "direction": "out",
+                "id": "sw_b_out",
+                "name": "OUT",
+                "required": false,
+                "width": 8
+              },
+              {
+                "component_id": "sw_op",
+                "direction": "out",
+                "id": "sw_op_out",
+                "name": "OUT",
+                "required": false,
+                "width": 3
+              },
+              {
+                "component_id": "alu",
+                "direction": "in",
+                "id": "alu_a",
+                "name": "A",
+                "required": true,
+                "width": 8
+              },
+              {
+                "component_id": "alu",
+                "direction": "in",
+                "id": "alu_b",
+                "name": "B",
+                "required": true,
+                "width": 8
+              },
+              {
+                "component_id": "alu",
+                "direction": "in",
+                "id": "alu_op",
+                "name": "OP",
+                "required": true,
+                "width": 3
+              },
+              {
+                "component_id": "alu",
+                "direction": "out",
+                "id": "alu_y",
+                "name": "Y",
+                "required": false,
+                "width": 8
+              },
+              {
+                "component_id": "alu",
+                "direction": "out",
+                "id": "alu_z",
+                "name": "Z",
+                "required": false,
+                "width": 1
+              },
+              {
+                "component_id": "alu",
+                "direction": "out",
+                "id": "alu_c",
+                "name": "C",
+                "required": false,
+                "width": 1
+              },
+              {
+                "component_id": "led_y",
+                "direction": "in",
+                "id": "led_y_in",
+                "name": "IN",
+                "required": true,
+                "width": 8
+              },
+              {
+                "component_id": "led_z",
+                "direction": "in",
+                "id": "led_z_in",
+                "name": "IN",
+                "required": true,
+                "width": 1
+              },
+              {
+                "component_id": "led_c",
+                "direction": "in",
+                "id": "led_c_in",
+                "name": "IN",
+                "required": true,
+                "width": 1
+              }
+            ]
+          },
+          "published_at": null,
+          "rules": {
+            "require_required_inputs": true
+          },
+          "start_at": null,
+          "status": "draft",
+          "submission_modes": [
+            "wiring"
+          ],
+          "title": "I01固定v1",
+          "version": 1
+        },
+        "request_id": "0c1f97cd22054a048b6de8917c82ad60"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "POST",
+      "path": "/experiment-versions/1/publish",
+      "request": {
+        "start_at": "2026-10-17T03:00:00+00:00",
+        "end_at": "2026-10-17T04:10:00+00:00"
+      },
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "end_at": "2026-10-17T04:10:00.000Z",
+          "experiment": {
+            "archived": 0,
+            "code": "EXP-01",
+            "description": "关联同课知识",
+            "id": 1,
+            "title": "I01真实ALU实验"
+          },
+          "experiment_id": 1,
+          "id": 1,
+          "instructions": "连接开关与ALU和指示灯",
+          "judge_profile_id": null,
+          "knowledge_ids": [],
+          "objectives": "理解算术与进位",
+          "panel": {
+            "code": "EXP-01",
+            "components": [
+              {
+                "id": "sw_a",
+                "params": {
+                  "initial": 0,
+                  "width": 8
+                },
+                "ports": {
+                  "OUT": "sw_a_out"
+                },
+                "type": "SWITCH"
+              },
+              {
+                "id": "sw_b",
+                "params": {
+                  "initial": 0,
+                  "width": 8
+                },
+                "ports": {
+                  "OUT": "sw_b_out"
+                },
+                "type": "SWITCH"
+              },
+              {
+                "id": "sw_op",
+                "params": {
+                  "initial": 0,
+                  "width": 3
+                },
+                "ports": {
+                  "OUT": "sw_op_out"
+                },
+                "type": "SWITCH"
+              },
+              {
+                "id": "alu",
+                "params": {},
+                "ports": {
+                  "A": "alu_a",
+                  "B": "alu_b",
+                  "C": "alu_c",
+                  "OP": "alu_op",
+                  "Y": "alu_y",
+                  "Z": "alu_z"
+                },
+                "type": "ALU8"
+              },
+              {
+                "id": "led_y",
+                "params": {
+                  "width": 8
+                },
+                "ports": {
+                  "IN": "led_y_in"
+                },
+                "type": "LED"
+              },
+              {
+                "id": "led_z",
+                "params": {
+                  "width": 1
+                },
+                "ports": {
+                  "IN": "led_z_in"
+                },
+                "type": "LED"
+              },
+              {
+                "id": "led_c",
+                "params": {
+                  "width": 1
+                },
+                "ports": {
+                  "IN": "led_c_in"
+                },
+                "type": "LED"
+              }
+            ],
+            "layout": {},
+            "schema_version": 1,
+            "terminals": [
+              {
+                "component_id": "sw_a",
+                "direction": "out",
+                "id": "sw_a_out",
+                "name": "OUT",
+                "required": false,
+                "width": 8
+              },
+              {
+                "component_id": "sw_b",
+                "direction": "out",
+                "id": "sw_b_out",
+                "name": "OUT",
+                "required": false,
+                "width": 8
+              },
+              {
+                "component_id": "sw_op",
+                "direction": "out",
+                "id": "sw_op_out",
+                "name": "OUT",
+                "required": false,
+                "width": 3
+              },
+              {
+                "component_id": "alu",
+                "direction": "in",
+                "id": "alu_a",
+                "name": "A",
+                "required": true,
+                "width": 8
+              },
+              {
+                "component_id": "alu",
+                "direction": "in",
+                "id": "alu_b",
+                "name": "B",
+                "required": true,
+                "width": 8
+              },
+              {
+                "component_id": "alu",
+                "direction": "in",
+                "id": "alu_op",
+                "name": "OP",
+                "required": true,
+                "width": 3
+              },
+              {
+                "component_id": "alu",
+                "direction": "out",
+                "id": "alu_y",
+                "name": "Y",
+                "required": false,
+                "width": 8
+              },
+              {
+                "component_id": "alu",
+                "direction": "out",
+                "id": "alu_z",
+                "name": "Z",
+                "required": false,
+                "width": 1
+              },
+              {
+                "component_id": "alu",
+                "direction": "out",
+                "id": "alu_c",
+                "name": "C",
+                "required": false,
+                "width": 1
+              },
+              {
+                "component_id": "led_y",
+                "direction": "in",
+                "id": "led_y_in",
+                "name": "IN",
+                "required": true,
+                "width": 8
+              },
+              {
+                "component_id": "led_z",
+                "direction": "in",
+                "id": "led_z_in",
+                "name": "IN",
+                "required": true,
+                "width": 1
+              },
+              {
+                "component_id": "led_c",
+                "direction": "in",
+                "id": "led_c_in",
+                "name": "IN",
+                "required": true,
+                "width": 1
+              }
+            ]
+          },
+          "participant_count": 4,
+          "published_at": "2026-10-17T04:00:00.000Z",
+          "rules": {
+            "require_required_inputs": true
+          },
+          "start_at": "2026-10-17T03:00:00.000Z",
+          "status": "published",
+          "submission_modes": [
+            "wiring"
+          ],
+          "title": "I01固定v1",
+          "version": 1
+        },
+        "request_id": "e6444c0b497f41859c24004dd95c4e01"
+      }
+    },
+    {
+      "actor": "I01STUD1",
+      "method": "POST",
+      "path": "/experiment-versions/1/wiring-attempts",
+      "request": {},
+      "headers": {},
+      "status": 201,
+      "expected_status": 201,
+      "response": {
+        "data": {
+          "action_count": 0,
+          "completed": false,
+          "created_at": "2026-10-17T04:00:00.000Z",
+          "experiment_version_id": 1,
+          "functional_results": null,
+          "id": 1,
+          "latest_seq": 0,
+          "revision": 0,
+          "saved_at": null,
+          "snapshot_hash": null,
+          "state": {
+            "clk": 0,
+            "enable": 1,
+            "inputs": {
+              "sw_a_out": 0,
+              "sw_b_out": 0,
+              "sw_op_out": 0
+            },
+            "phase": 0,
+            "reset": 0,
+            "tick": 0,
+            "wires": []
+          },
+          "status": "draft",
+          "student_id": 3,
+          "submitted_at": null,
+          "updated_at": "2026-10-17T04:00:00.000Z"
+        },
+        "request_id": "9eaea48c0aa24faf868a2286b66fc1fd"
+      }
+    },
+    {
+      "actor": "I01STUD1",
+      "method": "PUT",
+      "path": "/wiring-attempts/1",
+      "request": {
+        "revision": 0,
+        "state": {
+          "clk": 0,
+          "enable": 1,
+          "inputs": {
+            "sw_a_out": 0,
+            "sw_b_out": 0,
+            "sw_op_out": 0
+          },
+          "phase": 0,
+          "reset": 0,
+          "tick": 0,
+          "wires": [
+            {
+              "id": "w1",
+              "from_terminal": "sw_a_out",
+              "to_terminal": "alu_a"
+            },
+            {
+              "id": "w2",
+              "from_terminal": "sw_b_out",
+              "to_terminal": "alu_b"
+            },
+            {
+              "id": "w3",
+              "from_terminal": "sw_op_out",
+              "to_terminal": "alu_op"
+            },
+            {
+              "id": "w4",
+              "from_terminal": "alu_y",
+              "to_terminal": "led_y_in"
+            },
+            {
+              "id": "w5",
+              "from_terminal": "alu_z",
+              "to_terminal": "led_z_in"
+            },
+            {
+              "id": "w6",
+              "from_terminal": "alu_c",
+              "to_terminal": "led_c_in"
+            }
+          ]
+        },
+        "actions": [
+          {
+            "seq": 1,
+            "type": "connect",
+            "payload": {
+              "id": "w1",
+              "from_terminal": "sw_a_out",
+              "to_terminal": "alu_a"
+            }
+          },
+          {
+            "seq": 2,
+            "type": "connect",
+            "payload": {
+              "id": "w2",
+              "from_terminal": "sw_b_out",
+              "to_terminal": "alu_b"
+            }
+          },
+          {
+            "seq": 3,
+            "type": "connect",
+            "payload": {
+              "id": "w3",
+              "from_terminal": "sw_op_out",
+              "to_terminal": "alu_op"
+            }
+          },
+          {
+            "seq": 4,
+            "type": "connect",
+            "payload": {
+              "id": "w4",
+              "from_terminal": "alu_y",
+              "to_terminal": "led_y_in"
+            }
+          },
+          {
+            "seq": 5,
+            "type": "connect",
+            "payload": {
+              "id": "w5",
+              "from_terminal": "alu_z",
+              "to_terminal": "led_z_in"
+            }
+          },
+          {
+            "seq": 6,
+            "type": "connect",
+            "payload": {
+              "id": "w6",
+              "from_terminal": "alu_c",
+              "to_terminal": "led_c_in"
+            }
+          }
+        ]
+      },
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "id": 1,
+          "latest_seq": 6,
+          "revision": 1,
+          "saved_at": "2026-10-17T04:00:00.000Z"
+        },
+        "request_id": "2fc0dc103d774cc1be29150a7373de3c"
+      }
+    },
+    {
+      "actor": "I01STUD1",
+      "method": "GET",
+      "path": "/auth/session",
+      "request": null,
+      "headers": {},
+      "status": 200,
+      "expected_status": 200,
+      "response": {
+        "data": {
+          "csrf_token": "[REDACTED]",
+          "expires_at": "2026-10-17T06:00:00.000Z",
+          "user": {
+            "id": 3,
+            "name": "I01STUD1",
+            "role": "student",
+            "student_no": "I01STUD1"
+          }
+        },
+        "request_id": "1a92260039d74561bfc6226b2508e95d"
+      }
+    },
+    {
+      "actor": "I01TEACH",
+      "method": "DELETE",
+      "path": "/courses/1/members/3",
+      "request": null,
+      "headers": {},
+      "status": 204,
+      "expected_status": 204,
+      "response": {
+        "base64": "",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size": 0
+      }
+    },
+    {
+      "actor": "I01STUD1",
+      "method": "GET",
+      "path": "/wiring-attempts/1",
+      "request": null,
+      "headers": {},
+      "status": 404,
+      "expected_status": 404,
+      "response": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Course not found"
+        },
+        "request_id": "59a95dcb34994a96a6f9a03bc300307b"
+      }
+    },
+    {
+      "actor": "I01STUD1",
+      "method": "PUT",
+      "path": "/wiring-attempts/1",
+      "request": {
+        "revision": 1,
+        "state": {
+          "clk": 0,
+          "enable": 1,
+          "inputs": {
+            "sw_a_out": 0,
+            "sw_b_out": 0,
+            "sw_op_out": 0
+          },
+          "phase": 0,
+          "reset": 0,
+          "tick": 0,
+          "wires": [
+            {
+              "id": "w1",
+              "from_terminal": "sw_a_out",
+              "to_terminal": "alu_a"
+            },
+            {
+              "id": "w2",
+              "from_terminal": "sw_b_out",
+              "to_terminal": "alu_b"
+            },
+            {
+              "id": "w3",
+              "from_terminal": "sw_op_out",
+              "to_terminal": "alu_op"
+            },
+            {
+              "id": "w4",
+              "from_terminal": "alu_y",
+              "to_terminal": "led_y_in"
+            },
+            {
+              "id": "w5",
+              "from_terminal": "alu_z",
+              "to_terminal": "led_z_in"
+            },
+            {
+              "id": "w6",
+              "from_terminal": "alu_c",
+              "to_terminal": "led_c_in"
+            }
+          ]
+        },
+        "actions": []
+      },
+      "headers": {},
+      "status": 404,
+      "expected_status": null,
+      "response": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Course not found"
+        },
+        "request_id": "430710c2352442e6977a83bcb0d6f791"
+      }
+    },
+    {
+      "actor": "I01STUD1",
+      "method": "POST",
+      "path": "/wiring-attempts/1/validate",
+      "request": {
+        "revision": 2
+      },
+      "headers": {},
+      "status": 404,
+      "expected_status": null,
+      "response": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Course not found"
+        },
+        "request_id": "8b9a71e6ec7f4743a920a17e8886749c"
+      }
+    },
+    {
+      "actor": "I01STUD1",
+      "method": "POST",
+      "path": "/wiring-attempts/1/submit",
+      "request": {
+        "revision": 2
+      },
+      "headers": {
+        "Idempotency-Key": "ef64d4e4-908b-4238-9f65-49462ef23f6b"
+      },
+      "status": 404,
+      "expected_status": null,
+      "response": {
+        "error": {
+          "code": "NOT_FOUND",
+          "details": {},
+          "message": "Course not found"
+        },
+        "request_id": "ead2dea35836440884d7484162110658"
+      }
+    }
+  ],
+  "stages": {},
+  "final_facts": {
+    "chapter": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "title": "I01 ALU",
+        "position": 0
+      }
+    ],
+    "knowledge_point": [
+      {
+        "id": 1,
+        "chapter_id": 1,
+        "title": "I01 ALU",
+        "content": "<p>ALU 算术逻辑单元</p>",
+        "example": "",
+        "published": 1,
+        "content_revision": 1,
+        "is_foundational": 0
+      },
+      {
+        "id": 2,
+        "chapter_id": 1,
+        "title": "I01 进位",
+        "content": "<p>ALU 算术逻辑单元</p>",
+        "example": "",
+        "published": 1,
+        "content_revision": 1,
+        "is_foundational": 0
+      },
+      {
+        "id": 3,
+        "chapter_id": 1,
+        "title": "I01 草稿",
+        "content": "<p>ALU 算术逻辑单元</p>",
+        "example": "",
+        "published": 0,
+        "content_revision": 1,
+        "is_foundational": 0
+      }
+    ],
+    "learning_progress": [],
+    "experiment": [
+      {
+        "id": 1,
+        "course_id": 1,
+        "code": "EXP-01",
+        "title": "I01真实ALU实验",
+        "description": "关联同课知识",
+        "archived": 0,
+        "created_at": "2026-10-17T04:00:00.000Z",
+        "updated_at": "2026-10-17T04:00:00.000Z"
+      }
+    ],
+    "experiment_version": [
+      {
+        "id": 1,
+        "experiment_id": 1,
+        "version": 1,
+        "title": "I01固定v1",
+        "objectives": "理解算术与进位",
+        "instructions": "连接开关与ALU和指示灯",
+        "submission_modes_json": "[\"wiring\"]",
+        "panel_json": "{\"code\": \"EXP-01\", \"components\": [{\"id\": \"sw_a\", \"params\": {\"initial\": 0, \"width\": 8}, \"ports\": {\"OUT\": \"sw_a_out\"}, \"type\": \"SWITCH\"}, {\"id\": \"sw_b\", \"params\": {\"initial\": 0, \"width\": 8}, \"ports\": {\"OUT\": \"sw_b_out\"}, \"type\": \"SWITCH\"}, {\"id\": \"sw_op\", \"params\": {\"initial\": 0, \"width\": 3}, \"ports\": {\"OUT\": \"sw_op_out\"}, \"type\": \"SWITCH\"}, {\"id\": \"alu\", \"params\": {}, \"ports\": {\"A\": \"alu_a\", \"B\": \"alu_b\", \"C\": \"alu_c\", \"OP\": \"alu_op\", \"Y\": \"alu_y\", \"Z\": \"alu_z\"}, \"type\": \"ALU8\"}, {\"id\": \"led_y\", \"params\": {\"width\": 8}, \"ports\": {\"IN\": \"led_y_in\"}, \"type\": \"LED\"}, {\"id\": \"led_z\", \"params\": {\"width\": 1}, \"ports\": {\"IN\": \"led_z_in\"}, \"type\": \"LED\"}, {\"id\": \"led_c\", \"params\": {\"width\": 1}, \"ports\": {\"IN\": \"led_c_in\"}, \"type\": \"LED\"}], \"layout\": {}, \"schema_version\": 1, \"terminals\": [{\"component_id\": \"sw_a\", \"direction\": \"out\", \"id\": \"sw_a_out\", \"name\": \"OUT\", \"required\": false, \"width\": 8}, {\"component_id\": \"sw_b\", \"direction\": \"out\", \"id\": \"sw_b_out\", \"name\": \"OUT\", \"required\": false, \"width\": 8}, {\"component_id\": \"sw_op\", \"direction\": \"out\", \"id\": \"sw_op_out\", \"name\": \"OUT\", \"required\": false, \"width\": 3}, {\"component_id\": \"alu\", \"direction\": \"in\", \"id\": \"alu_a\", \"name\": \"A\", \"required\": true, \"width\": 8}, {\"component_id\": \"alu\", \"direction\": \"in\", \"id\": \"alu_b\", \"name\": \"B\", \"required\": true, \"width\": 8}, {\"component_id\": \"alu\", \"direction\": \"in\", \"id\": \"alu_op\", \"name\": \"OP\", \"required\": true, \"width\": 3}, {\"component_id\": \"alu\", \"direction\": \"out\", \"id\": \"alu_y\", \"name\": \"Y\", \"required\": false, \"width\": 8}, {\"component_id\": \"alu\", \"direction\": \"out\", \"id\": \"alu_z\", \"name\": \"Z\", \"required\": false, \"width\": 1}, {\"component_id\": \"alu\", \"direction\": \"out\", \"id\": \"alu_c\", \"name\": \"C\", \"required\": false, \"width\": 1}, {\"component_id\": \"led_y\", \"direction\": \"in\", \"id\": \"led_y_in\", \"name\": \"IN\", \"required\": true, \"width\": 8}, {\"component_id\": \"led_z\", \"direction\": \"in\", \"id\": \"led_z_in\", \"name\": \"IN\", \"required\": true, \"width\": 1}, {\"component_id\": \"led_c\", \"direction\": \"in\", \"id\": \"led_c_in\", \"name\": \"IN\", \"required\": true, \"width\": 1}]}",
+        "rules_json": "{\"require_required_inputs\": true}",
+        "status": "published",
+        "published_at": "2026-10-17T04:00:00.000Z",
+        "start_at": "2026-10-17T03:00:00.000Z",
+        "end_at": "2026-10-17T04:10:00.000Z",
+        "definition_sha256": "58236148a6e2da1e9d3d0f7cd0ec29351a13b98a64b4b7e083e1fb77d103d973",
+        "created_at": "2026-10-17T04:00:00.000Z",
+        "updated_at": "2026-10-17T04:00:00.000Z"
+      }
+    ],
+    "experiment_knowledge": [
+      {
+        "experiment_version_id": 1,
+        "knowledge_id": 1
+      },
+      {
+        "experiment_version_id": 1,
+        "knowledge_id": 2
+      }
+    ],
+    "experiment_participant": [
+      {
+        "experiment_version_id": 1,
+        "student_id": 3
+      },
+      {
+        "experiment_version_id": 1,
+        "student_id": 4
+      },
+      {
+        "experiment_version_id": 1,
+        "student_id": 5
+      },
+      {
+        "experiment_version_id": 1,
+        "student_id": 6
+      }
+    ],
+    "wiring_attempt": [
+      {
+        "id": 1,
+        "experiment_version_id": 1,
+        "student_id": 3,
+        "revision": 1,
+        "latest_seq": 6,
+        "state_json": "{\"clk\": 0, \"enable\": 1, \"inputs\": {\"sw_a_out\": 0, \"sw_b_out\": 0, \"sw_op_out\": 0}, \"phase\": 0, \"reset\": 0, \"tick\": 0, \"wires\": [{\"from_terminal\": \"sw_a_out\", \"id\": \"w1\", \"to_terminal\": \"alu_a\"}, {\"from_terminal\": \"sw_b_out\", \"id\": \"w2\", \"to_terminal\": \"alu_b\"}, {\"from_terminal\": \"sw_op_out\", \"id\": \"w3\", \"to_terminal\": \"alu_op\"}, {\"from_terminal\": \"alu_y\", \"id\": \"w4\", \"to_terminal\": \"led_y_in\"}, {\"from_terminal\": \"alu_z\", \"id\": \"w5\", \"to_terminal\": \"led_z_in\"}, {\"from_terminal\": \"alu_c\", \"id\": \"w6\", \"to_terminal\": \"led_c_in\"}]}",
+        "status": "draft",
+        "completed": 0,
+        "functional_results_json": null,
+        "snapshot_hash": null,
+        "saved_at": "2026-10-17T04:00:00.000Z",
+        "submitted_at": null,
+        "created_at": "2026-10-17T04:00:00.000Z",
+        "updated_at": "2026-10-17T04:00:00.000Z"
+      }
+    ],
+    "wiring_action": [
+      {
+        "attempt_id": 1,
+        "seq": 1,
+        "type": "connect",
+        "payload_json": "{\"from_terminal\": \"sw_a_out\", \"id\": \"w1\", \"to_terminal\": \"alu_a\"}",
+        "client_at": null,
+        "received_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "attempt_id": 1,
+        "seq": 2,
+        "type": "connect",
+        "payload_json": "{\"from_terminal\": \"sw_b_out\", \"id\": \"w2\", \"to_terminal\": \"alu_b\"}",
+        "client_at": null,
+        "received_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "attempt_id": 1,
+        "seq": 3,
+        "type": "connect",
+        "payload_json": "{\"from_terminal\": \"sw_op_out\", \"id\": \"w3\", \"to_terminal\": \"alu_op\"}",
+        "client_at": null,
+        "received_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "attempt_id": 1,
+        "seq": 4,
+        "type": "connect",
+        "payload_json": "{\"from_terminal\": \"alu_y\", \"id\": \"w4\", \"to_terminal\": \"led_y_in\"}",
+        "client_at": null,
+        "received_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "attempt_id": 1,
+        "seq": 5,
+        "type": "connect",
+        "payload_json": "{\"from_terminal\": \"alu_z\", \"id\": \"w5\", \"to_terminal\": \"led_z_in\"}",
+        "client_at": null,
+        "received_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "attempt_id": 1,
+        "seq": 6,
+        "type": "connect",
+        "payload_json": "{\"from_terminal\": \"alu_c\", \"id\": \"w6\", \"to_terminal\": \"led_c_in\"}",
+        "client_at": null,
+        "received_at": "2026-10-17T04:00:00.000Z"
+      }
+    ],
+    "wiring_validation": [],
+    "analysis_run": [],
+    "resource": [],
+    "resource_version": [],
+    "resource_event": [],
+    "audit_event": [
+      {
+        "id": 1,
+        "actor_id": 1,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 1,
+        "request_id": "201290115d2f44a1a30aa0a41bb1fae9",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 2,
+        "actor_id": 2,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 2,
+        "request_id": "d81764c1256c40bba4e83b68ece409ab",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 3,
+        "actor_id": 3,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 3,
+        "request_id": "49fb17c357094162bd42bf520af2cf33",
+        "before_summary": null,
+        "after_summary": "{\"role\": \"student\"}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 4,
+        "actor_id": 3,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 3,
+        "request_id": "a0e445aa26444db2abc33d50d8f48bdc",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 5,
+        "actor_id": 4,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 4,
+        "request_id": "9d972ddb812b40fe9f20353010029cbe",
+        "before_summary": null,
+        "after_summary": "{\"role\": \"student\"}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 6,
+        "actor_id": 4,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 4,
+        "request_id": "cf95600cbcee4545827035bd7e3344e2",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 7,
+        "actor_id": 5,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 5,
+        "request_id": "953e880974314dceb1dd76842adeb565",
+        "before_summary": null,
+        "after_summary": "{\"role\": \"student\"}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 8,
+        "actor_id": 5,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 5,
+        "request_id": "9e7de90099d24371b18f31b75921aff9",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 9,
+        "actor_id": 6,
+        "action": "user.register",
+        "object_type": "user",
+        "object_id": 6,
+        "request_id": "ffc399c4905d43afa5f945f5a4b0d85f",
+        "before_summary": null,
+        "after_summary": "{\"role\": \"student\"}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 10,
+        "actor_id": 6,
+        "action": "auth.login",
+        "object_type": "user",
+        "object_id": 6,
+        "request_id": "336396fb603642be96407122d4061bee",
+        "before_summary": null,
+        "after_summary": null,
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 11,
+        "actor_id": 1,
+        "action": "course.create",
+        "object_type": "course",
+        "object_id": 1,
+        "request_id": "a7ba49902d6640cd9cefd3eec49e2764",
+        "before_summary": null,
+        "after_summary": "{\"teacher_id\": 2}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 12,
+        "actor_id": 2,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 3,
+        "request_id": "68b42e0dd3fd44b09cd97e690254d95e",
+        "before_summary": null,
+        "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 13,
+        "actor_id": 2,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 4,
+        "request_id": "1676b8fbf3714824bc2e4f57d5d005a6",
+        "before_summary": null,
+        "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 14,
+        "actor_id": 2,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 5,
+        "request_id": "df6ccfbdb9714cfe89dfc02038d82d49",
+        "before_summary": null,
+        "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 15,
+        "actor_id": 2,
+        "action": "course.member_add",
+        "object_type": "course_member",
+        "object_id": 6,
+        "request_id": "57fe51905b5f497baa78c32232017005",
+        "before_summary": null,
+        "after_summary": "{\"course_id\": 1, \"role\": \"student\"}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 16,
+        "actor_id": 2,
+        "action": "experiment.create",
+        "object_type": "experiment",
+        "object_id": 1,
+        "request_id": "d2264f6b1aa54a43ae8bec8c24db8ee4",
+        "before_summary": null,
+        "after_summary": "{\"course_id\": 1, \"code\": \"EXP-01\"}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 17,
+        "actor_id": 2,
+        "action": "experiment.version_create",
+        "object_type": "experiment_version",
+        "object_id": 1,
+        "request_id": "0c1f97cd22054a048b6de8917c82ad60",
+        "before_summary": null,
+        "after_summary": "{\"experiment_id\": 1, \"version\": 1, \"submission_modes\": [\"wiring\"]}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 18,
+        "actor_id": 2,
+        "action": "experiment.publish",
+        "object_type": "experiment_version",
+        "object_id": 1,
+        "request_id": "e6444c0b497f41859c24004dd95c4e01",
+        "before_summary": null,
+        "after_summary": "{\"participants\": 4, \"start_at\": \"2026-10-17T03:00:00.000Z\", \"end_at\": \"2026-10-17T04:10:00.000Z\"}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 19,
+        "actor_id": 3,
+        "action": "wiring_attempt.create",
+        "object_type": "wiring_attempt",
+        "object_id": 1,
+        "request_id": "9eaea48c0aa24faf868a2286b66fc1fd",
+        "before_summary": null,
+        "after_summary": "{\"experiment_version_id\": 1}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 20,
+        "actor_id": 3,
+        "action": "wiring_attempt.save",
+        "object_type": "wiring_attempt",
+        "object_id": 1,
+        "request_id": "2fc0dc103d774cc1be29150a7373de3c",
+        "before_summary": null,
+        "after_summary": "{\"revision\": 1, \"latest_seq\": 6}",
+        "created_at": "2026-10-17T04:00:00.000Z"
+      },
+      {
+        "id": 21,
+        "actor_id": 2,
+        "action": "course.member_remove",
+        "object_type": "course_member",
+        "object_id": 3,
+        "request_id": "7bbd531949b8454d8daf293dc31eb66e",
+        "before_summary": "{\"course_id\": 1, \"active\": true}",
+        "after_summary": null,
+        "created_at": "2026-10-17T04:00:00.000Z"
+      }
+    ],
+    "file_objects": [],
+    "foreign_key_check": [],
+    "integrity_check": "ok"
+  }
+}

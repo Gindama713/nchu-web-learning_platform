@@ -85,8 +85,10 @@ def login():
     number = login_id(data["student_no"])
     supplied = data["password"] if isinstance(data["password"], str) else ""
     with write():
-        rate_limit(f"login:ip:{request.remote_addr}", 20)
-        rate_limit(f"login:account:{number.lower()}", 5)
+        # 课堂演示：全班可能从同一个校园网出口进来，20 次/分钟会把后登录的同学
+        # 直接挡成 429（实测出现过 60 次）。放宽到 100；正式部署按实际出口收紧。
+        rate_limit(f"login:ip:{request.remote_addr}", 100)
+        rate_limit(f"login:account:{number.lower()}", 10)
     user = get_db().execute("SELECT * FROM user WHERE student_no=?", (number,)).fetchone()
     valid = check_password_hash(user["password_hash"] if user else DUMMY_HASH, supplied)
     if not user or not user["active"] or not valid:

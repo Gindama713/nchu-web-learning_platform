@@ -331,45 +331,60 @@ export function initialState(panel) {
   return state
 }
 
-// Mirror of backend replay: applies one action and records undo inverses into stack.
-export function replayAction(panel, state, action, stack) {
-  const type = action.type
-  const payload = action.payload ?? {}
+// Mirror of backend replay: one edit implementation shared by normal edits and undo/redo.
+// 栈元素为 { forward, inverse }，与 backend.engines.wiring.replay 保持一致。
+export function applyEdit(state, type, payload = {}) {
   if (type === 'connect') {
+    if (!payload || typeof payload.id !== 'string' || !payload.id) return null
     state.wires = state.wires.filter(wire => wire.id !== payload.id)
     state.wires.push({ ...payload })
-    stack.push({ type: 'disconnect', payload: { wire_id: payload.id } })
-    return state
+    return { type: 'disconnect', payload: { wire_id: payload.id } }
   }
   if (type === 'disconnect') {
+    if (!payload || typeof payload.wire_id !== 'string' || !payload.wire_id) return null
     const removed = state.wires.find(wire => wire.id === payload.wire_id)
     state.wires = state.wires.filter(wire => wire.id !== payload.wire_id)
-    if (removed) stack.push({ type: 'connect', payload: { ...removed } })
-    return state
+    return removed ? { type: 'connect', payload: { ...removed } } : null
   }
   if (type === 'set_input') {
+    if (!payload || typeof payload.terminal_id !== 'string' || !payload.terminal_id ||
+        !('value' in payload)) return null
     const previous = state.inputs[payload.terminal_id]
     state.inputs = { ...state.inputs, [payload.terminal_id]: payload.value }
-    stack.push({ type: 'set_input', payload: { terminal_id: payload.terminal_id, value: previous } })
-    return state
+    return { type: 'set_input', payload: { terminal_id: payload.terminal_id, value: previous } }
   }
-  if (type === 'step') {
+  return null
+}
+
+export function replayAction(panel, state, action, stack, redoStack = []) {
+  const type = action.type
+  const payload = action.payload ?? {}
+  if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) return state
+  if (type === 'step' || type === 'reset') {
     stack.length = 0
-    return stepSim(panel, state)
+    redoStack.length = 0
+    return type === 'step' ? stepSim(panel, state) : resetSim(panel, state)
   }
-  if (type === 'reset') {
-    stack.length = 0
-    return resetSim(panel, state)
-  }
-  if (type === 'undo' && stack.length) {
-    const inverse = stack.pop()
-    if (inverse.type === 'connect') state.wires = [...state.wires, { ...inverse.payload }]
-    else if (inverse.type === 'disconnect') {
-      state.wires = state.wires.filter(wire => wire.id !== inverse.payload.wire_id)
-    } else if (inverse.type === 'set_input') {
-      state.inputs = { ...state.inputs, [inverse.payload.terminal_id]: inverse.payload.value }
+  if (type === 'undo') {
+    if (stack.length) {
+      const entry = stack.pop()
+      applyEdit(state, entry.inverse.type, entry.inverse.payload)
+      redoStack.push(entry)
     }
     return state
+  }
+  if (type === 'redo') {
+    if (redoStack.length) {
+      const entry = redoStack.pop()
+      applyEdit(state, entry.forward.type, entry.forward.payload)
+      stack.push(entry)
+    }
+    return state
+  }
+  const inverse = applyEdit(state, type, payload)
+  if (inverse) {
+    stack.push({ forward: { type, payload }, inverse })
+    redoStack.length = 0
   }
   return state
 }

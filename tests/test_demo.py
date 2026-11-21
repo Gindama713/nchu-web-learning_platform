@@ -93,6 +93,16 @@ class DemoAdvanceTest(DemoApiBase):
         self.assertEqual(advanced["revision"], rev0 + 1)
         self.assertNotEqual(advanced["state"]["step"], state0["step"])
 
+    def test_advance_returns_fresh_updated_at(self):
+        # 旧实现用更新前的 row 序列化，updated_at 是推进前的值。
+        self.app.config["TEST_NOW"] = datetime(2026, 10, 13, 12, 0, 5, tzinfo=UTC)
+        advanced = self.call(self.teacher, "PUT", f"/demo-sessions/{self.session['id']}/state",
+                             {"revision": self.session["revision"], "action": "step"}).json["data"]
+        self.assertEqual(advanced["revision"], self.session["revision"] + 1)
+        self.assertNotEqual(advanced["updated_at"], self.session["updated_at"])
+        polled = self.call(self.student, "GET", f"/demo-sessions/{self.session['id']}").json["data"]
+        self.assertEqual(polled["updated_at"], advanced["updated_at"])
+
     def test_stale_revision_rejected(self):
         self.call(self.teacher, "PUT", f"/demo-sessions/{self.session['id']}/state",
                   {"revision": self.session["revision"], "action": "step"})
@@ -168,10 +178,19 @@ class DemoReadTest(DemoApiBase):
     def test_after_revision_polling(self):
         advanced = self.call(self.teacher, "PUT", f"/demo-sessions/{self.session['id']}/state",
                              {"revision": self.session["revision"], "action": "step"}).json["data"]
-        # after_revision 已追上时返回当前 revision
+        # after_revision 已追上时返回当前 revision，并用 unchanged 提示前端可跳过重绘
         poll = self.call(self.student, "GET",
                          f"/demo-sessions/{self.session['id']}?after_revision={advanced['revision']}").json["data"]
         self.assertEqual(poll["revision"], advanced["revision"])
+        self.assertTrue(poll["unchanged"])
+        behind = self.call(self.student, "GET",
+                           f"/demo-sessions/{self.session['id']}?after_revision=0").json["data"]
+        self.assertEqual(behind["revision"], advanced["revision"])
+        self.assertFalse(behind["unchanged"])
+        # I03-007-02 回归：未来游标绝不能被写成返回的 revision
+        future = self.call(self.student, "GET",
+                           f"/demo-sessions/{self.session['id']}?after_revision=99").json["data"]
+        self.assertEqual(future["revision"], advanced["revision"])
 
     def test_list_with_active_filter(self):
         self.create("gate")

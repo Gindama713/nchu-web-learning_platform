@@ -520,8 +520,43 @@ def initial_state(panel):
 
 # ---------- 动作重放 ----------
 
+def _apply_edit(state, atype, payload):
+    """应用一条可撤销的编辑动作，返回逆动作 (type, payload)。
+
+    undo/redo 与正常编辑共用本函数，避免两套逻辑漂移；非法或不可撤销的
+    动作返回 None，调用方负责跳过（历史脏数据不能让 KeyError 变 500，RE-001）。
+    """
+    if atype == "connect":
+        wire = payload
+        if not isinstance(wire.get("id"), str) or not wire["id"]:
+            return None
+        state["wires"] = [w for w in state["wires"] if w["id"] != wire["id"]]
+        state["wires"].append(wire)
+        return ("disconnect", {"wire_id": wire["id"]})
+    if atype == "disconnect":
+        wire_id = payload.get("wire_id")
+        if not isinstance(wire_id, str) or not wire_id:
+            return None
+        removed = [w for w in state["wires"] if w["id"] == wire_id]
+        state["wires"] = [w for w in state["wires"] if w["id"] != wire_id]
+        return ("connect", removed[0]) if removed else None
+    if atype == "set_input":
+        tid = payload.get("terminal_id")
+        if not isinstance(tid, str) or not tid or "value" not in payload:
+            return None
+        old = state["inputs"].get(tid)
+        state["inputs"][tid] = payload["value"]
+        return ("set_input", {"terminal_id": tid, "value": old})
+    return None
+
+
 def replay(panel, actions, base_state=None):
-    """从初态顺序重放动作，返回最终 state。"""
+    """从初态顺序重放动作，返回最终 state。
+
+    undo/redo 栈保存 (原动作, 逆动作) 对：undo 执行逆动作并把该对移入
+    redo 栈，redo 重新执行原动作并移回 undo 栈；撤销后产生新编辑时清空
+    redo 栈。step/reset 重置运行时状态，同时清空两个栈。
+    """
     state = base_state or initial_state(panel)
     undo_stack = []
     redo_stack = []
@@ -529,57 +564,32 @@ def replay(panel, actions, base_state=None):
         atype = action["type"]
         payload = action.get("payload", {})
         if not isinstance(payload, dict):
-            continue  # 历史脏数据防御：非法 payload 跳过重放，不能让 KeyError 变 500（RE-001）
-        if atype == "connect":
-            wire = payload
-            if not isinstance(wire.get("id"), str) or not wire["id"]:
-                continue
-            state["wires"] = [w for w in state["wires"] if w["id"] != wire["id"]]
-            state["wires"].append(wire)
-            undo_stack.append(("disconnect", {"wire_id": wire["id"]}))
-        elif atype == "disconnect":
-            wire_id = payload.get("wire_id")
-            if not isinstance(wire_id, str) or not wire_id:
-                continue
-            removed = [w for w in state["wires"] if w["id"] == wire_id]
-            state["wires"] = [w for w in state["wires"] if w["id"] != wire_id]
-            if removed:
-                undo_stack.append(("connect", removed[0]))
-        elif atype == "set_input":
-            tid = payload.get("terminal_id")
-            if not isinstance(tid, str) or not tid or "value" not in payload:
-                continue
-            old = state["inputs"].get(tid)
-            state["inputs"][tid] = payload["value"]
-            undo_stack.append(("set_input", {"terminal_id": tid, "value": old}))
-        elif atype == "step":
+            continue  # 历史脏数据防御（RE-001）
+        if atype == "step":
             state = step(panel, state)
-            undo_stack = []
-            redo_stack = []
-        elif atype == "reset":
+            undo_stack, redo_stack = [], []
+            continue
+        if atype == "reset":
             state = reset(panel, state)
-            undo_stack = []
-            redo_stack = []
-        elif atype == "undo":
+            undo_stack, redo_stack = [], []
+            continue
+        if atype == "undo":
             if undo_stack:
-                inv_type, inv_payload = undo_stack.pop()
-                if inv_type == "connect":
-                    state["wires"].append(inv_payload)
-                elif inv_type == "disconnect":
-                    state["wires"] = [w for w in state["wires"] if w["id"] != inv_payload["wire_id"]]
-                elif inv_type == "set_input":
-                    state["inputs"][inv_payload["terminal_id"]] = inv_payload["value"]
-                redo_stack.append((atype, payload))
-        elif atype == "redo":
+                entry = undo_stack.pop()
+                _apply_edit(state, *entry[1])
+                redo_stack.append(entry)
+            continue
+        if atype == "redo":
             if redo_stack:
-                orig_type, orig_payload = redo_stack.pop()
-                if orig_type == "connect":
-                    state["wires"] = [w for w in state["wires"] if w["id"] != orig_payload["id"]]
-                    state["wires"].append(orig_payload)
-                elif orig_type == "disconnect":
-                    state["wires"] = [w for w in state["wires"] if w["id"] != orig_payload["wire_id"]]
-                elif orig_type == "set_input":
-                    state["inputs"][orig_payload["terminal_id"]] = orig_payload["value"]
+                entry = redo_stack.pop()
+                _apply_edit(state, *entry[0])
+                undo_stack.append(entry)
+            continue
+        inverse = _apply_edit(state, atype, payload)
+        if inverse is None:
+            continue
+        undo_stack.append(((atype, payload), inverse))
+        redo_stack = []
     return state
 
 
@@ -648,11 +658,15 @@ def run_functional_tests(panel, state):
             if tick in (0, 2, 5, 8):
                 checks.append({"tick": tick, "pc": s.get("pc_q"), "ir": s.get("ir_q"),
                                "phase": s.get("phase"), "acc": s.get("acc_q")})
-        # 简化：验证前几拍 PC 递增
-        ok = checks[0]["pc"] == 1 if checks else False
+        # ROM 程序 [LDI 3, ADDI 2, HALT]：必须真正跑完程序并停机。
+        # PRD 017 AC-10 要求结构合法但功能接错不计完成，只看首拍 PC 会误放行。
+        expected = {"acc": 5, "ir": 0xF0, "halted": 1}
+        actual = {"acc": s.get("acc_q"), "ir": s.get("ir_q"), "halted": s.get("halted")}
+        ok = actual == expected
         if not ok:
             passed = False
-        results.append({"case": "cpu_steps", "passed": ok, "checks": checks})
+        results.append({"case": "cpu_program", "passed": ok,
+                        "expected": expected, "actual": actual, "checks": checks})
 
     return passed, results
 

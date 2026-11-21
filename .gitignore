@@ -38,3 +38,10 @@ backups/
 Thumbs.db
 
 # 注意：docs/ 目录是必须提交的交付物，不要忽略！
+# 例外：教学助手截图里有真实学生姓名与学号，只留本地，不进公开仓库。
+docs/evidence/spec-020/
+
+# ===== 本地实验 / 测试临时产物 =====
+test-tmp/
+.tmp-*/
+tests/tmp*

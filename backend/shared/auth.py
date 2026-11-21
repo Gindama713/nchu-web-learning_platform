@@ -2,7 +2,8 @@
 
 import hashlib
 import hmac
-from datetime import timedelta
+import sqlite3
+from datetime import datetime, timedelta
 
 from flask import current_app, g, request
 
@@ -11,9 +12,21 @@ from backend.shared.db import get_db
 
 COOKIE = "cpu_session"
 
+# 会话有效期 2 小时，心跳没必要每个请求都续一次；60 秒一次足够让活跃会话不超时。
+HEARTBEAT_SECONDS = 60
+
 
 def csrf_for(token):
     return hmac.new(current_app.config["SECRET_KEY"].encode(), token.encode(), "sha256").hexdigest()
+
+
+def _heartbeat_due(last_seen_at):
+    """距上次续期是否已经超过阈值；时间串解析不了就当作需要续期。"""
+    try:
+        seen = datetime.fromisoformat(str(last_seen_at).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return True
+    return (now() - seen).total_seconds() >= HEARTBEAT_SECONDS
 
 
 def session_user():
@@ -32,8 +45,15 @@ def session_user():
     g.user = {"id": row["user_id"], "student_no": row["student_no"],
               "name": row["name"], "role": row["role"]}
     g.session_id, g.session_token, g.csrf_hash = row["id"], token, row["csrf_hash"]
-    get_db().execute("UPDATE session SET last_seen_at=?,expires_at=? WHERE id=?",
-                     (stamp(), stamp(now() + timedelta(hours=2)), row["id"]))
+    # 续期只在超过阈值时才写库。原来每个请求都 UPDATE 一次 session，等于把只读请求
+    # 也变成写请求：多人同时刷新时所有连接抢同一把写锁，回滚日志模式下会直接
+    # SQLITE_BUSY（表现为 503）。续期只是记「最近活跃」，失败不该带崩本次请求。
+    if _heartbeat_due(row["last_seen_at"]):
+        try:
+            get_db().execute("UPDATE session SET last_seen_at=?,expires_at=? WHERE id=?",
+                             (stamp(), stamp(now() + timedelta(hours=2)), row["id"]))
+        except sqlite3.OperationalError:
+            current_app.logger.warning("session heartbeat skipped: database busy")
     return g.user
 
 

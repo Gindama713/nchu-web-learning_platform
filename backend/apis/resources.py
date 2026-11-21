@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import sqlite3
 from pathlib import Path
 from uuid import uuid4
 
@@ -9,7 +10,6 @@ from flask import Blueprint, current_app, request, send_file
 
 from backend.models import attempt as attempt_model
 from backend.models.question import (
-    check_knowledge,
     require_tables,
     save_version,
     validate_question,
@@ -42,6 +42,18 @@ KIND_MEDIA = {
     "guide": ("application/pdf",),
     "question_bank": ("application/json",),
 }
+
+
+def _preparation_tables_exist(db):
+    """SPEC-004 备课模块尚未安装时优雅降级，避免改可见性变成 500。
+
+    与 preparations._resource_table_exists 的对等做法：只查 sqlite_master，
+    两张引用表都存在才执行「已发布备课引用」检查。
+    """
+    names = {row[0] for row in db.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' "
+        "AND name IN ('preparation','preparation_resource')")}
+    return {"preparation", "preparation_resource"} <= names
 
 
 def upload_root():
@@ -271,7 +283,8 @@ def get_content(version_id):
     if role == "student" and (rv["visibility"] != "students" or rv["kind"] == "question_bank"):
         raise ApiError(404, "NOT_FOUND", "Resource version not found")
     if rv["kind"] == "question_bank" and intent != "download":
-        raise ApiError(422, "INVALID_CIRCUIT", "Question bank is download-only")
+        # 资源语义错误，不能复用电路模块的 INVALID_CIRCUIT（bug-review 2026-10-26 P2）。
+        raise ApiError(422, "UNSUPPORTED_OPERATION", "Question bank is download-only")
     file_row = db.execute("SELECT * FROM file_object WHERE id=?", (rv["file_id"],)).fetchone()
     if not file_row:
         raise ApiError(404, "NOT_FOUND", "File not found")
@@ -289,24 +302,43 @@ def get_content(version_id):
     # R39：仅成功提供内容的 200/206 计数；HEAD、304、416 及错误响应不记录事件
     if request.method == "HEAD" or response.status_code not in (200, 206):
         return response
-    # 记录访问事件：先查后插，避免依赖 IntegrityError 回滚整个事务
+    # 记录访问事件：读连接快速判重 → 写事务（BEGIN IMMEDIATE）内复查 + 插入。
+    # 同 (user_id,event_id) 并发由写锁串行化；跨连接/外部写入以 IntegrityError
+    # 兜底，UNIQUE 冲突不再变成 500（bug-review 2026-10-26 P2 / 2026-10-28 P1）。
+    conflict = "event_id already used with different intent or version"
     existing = db.execute(
         "SELECT event_type,resource_version_id FROM resource_event "
         "WHERE user_id=? AND event_id=?", (user["id"], event_id)).fetchone()
     if existing:
         if existing["event_type"] != intent or existing["resource_version_id"] != version_id:
-            raise ApiError(409, "EVENT_CONFLICT",
-                           "event_id already used with different intent or version")
-    else:
-        ts = stamp()
-        rid = request_id()
+            raise ApiError(409, "EVENT_CONFLICT", conflict)
+        return response
+    ts = stamp()
+    rid = request_id()
+    try:
         with write() as wdb:
-            wdb.execute(
-                "INSERT INTO resource_event(user_id,resource_version_id,event_type,event_id,"
-                "request_id,created_at) VALUES(?,?,?,?,?,?)",
-                (user["id"], version_id, intent, event_id, rid, ts))
-            audit("resource.access", "resource_version", version_id,
-                  after={"event_type": intent, "event_id": event_id})
+            duplicate = wdb.execute(
+                "SELECT event_type,resource_version_id FROM resource_event "
+                "WHERE user_id=? AND event_id=?", (user["id"], event_id)).fetchone()
+            if duplicate and (duplicate["event_type"] != intent
+                              or duplicate["resource_version_id"] != version_id):
+                raise ApiError(409, "EVENT_CONFLICT", conflict)
+            if duplicate is None:
+                wdb.execute(
+                    "INSERT INTO resource_event(user_id,resource_version_id,event_type,event_id,"
+                    "request_id,created_at) VALUES(?,?,?,?,?,?)",
+                    (user["id"], version_id, intent, event_id, rid, ts))
+                audit("resource.access", "resource_version", version_id,
+                      after={"event_type": intent, "event_id": event_id})
+    except sqlite3.IntegrityError as exc:
+        raced = db.execute(
+            "SELECT event_type,resource_version_id FROM resource_event "
+            "WHERE user_id=? AND event_id=?", (user["id"], event_id)).fetchone()
+        if raced is None:
+            raise
+        if raced["event_type"] != intent or raced["resource_version_id"] != version_id:
+            raise ApiError(409, "EVENT_CONFLICT", conflict) from exc
+        # 同 intent + 同 version 的并发重放：幂等返回内容。
     return response
 
 
@@ -330,13 +362,15 @@ def update_resource(resource_id):
             if resource["kind"] == "question_bank" and visibility == "students":
                 raise ApiError(422, "VALIDATION_ERROR",
                                "question_bank cannot be visible to students")
-            # 检查是否有 published 备课引用（简化：检查 preparation_resource）
-            refs = db.execute(
-                "SELECT pr.preparation_id FROM preparation_resource pr "
-                "JOIN preparation p ON p.id=pr.preparation_id "
-                "WHERE pr.resource_version_id IN "
-                "(SELECT id FROM resource_version WHERE resource_id=?) "
-                "AND p.status='published'", (resource_id,)).fetchall()
+            # SPEC-004 未安装时优雅降级：缺表不再让改可见性变成 500。
+            refs = []
+            if _preparation_tables_exist(db):
+                refs = db.execute(
+                    "SELECT pr.preparation_id FROM preparation_resource pr "
+                    "JOIN preparation p ON p.id=pr.preparation_id "
+                    "WHERE pr.resource_version_id IN "
+                    "(SELECT id FROM resource_version WHERE resource_id=?) "
+                    "AND p.status='published'", (resource_id,)).fetchall()
             if refs and visibility == "teacher_only":
                 raise ApiError(409, "RESOURCE_IN_USE",
                                "Published preparation still references this resource")
@@ -368,8 +402,11 @@ def import_questions(resource_id):
     request_hash = hashlib.sha256(json.dumps(
         {"resource_version_id": version_id}, sort_keys=True).encode()).hexdigest()
     with write() as db:
+        # 前置检查须覆盖 save_version 的间接依赖：知识模块（chapter/knowledge_point）
+        # 与公开练习依赖的试卷表，避免创建阶段才失败且错误信息指向别的模块。
         require_tables(db, {"question", "question_version", "question_knowledge",
-                            "idempotency_record"}, "题库模块未接入，暂不能导入")
+                            "idempotency_record", "chapter", "knowledge_point"},
+                       "题库或知识模块未接入，暂不能导入")
         resource, _ = load_resource(db, resource_id, teacher=True)
         if resource["kind"] != "question_bank":
             raise ApiError(422, "VALIDATION_ERROR", "Only question_bank resources can be imported")
@@ -395,19 +432,29 @@ def import_questions(resource_id):
             raise ApiError(400, "VALIDATION_ERROR", "File must be a UTF-8 JSON array") from exc
         if not isinstance(items, list) or not 1 <= len(items) <= MAX_IMPORT:
             raise ApiError(400, "VALIDATION_ERROR", f"Expected 1-{MAX_IMPORT} questions in JSON array")
+        if any(isinstance(item, dict) and item.get("practice_available") for item in items):
+            require_tables(db, {"paper", "paper_item"},
+                           "随堂测模块未接入，不能导入公开练习题目")
         # 全量校验：任何一题失败即返回 400 及下标，不创建任何题目
         validated = []
         for index, item in enumerate(items):
             try:
+                # 知识归属校验由 save_version 统一执行，避免每题重复一次查询
+                # （cross-module-bug-review 2026-10-28 P2）。
                 values = validate_question(item)
-                check_knowledge(db, resource["course_id"], values["knowledge_ids"])
             except ApiError as exc:
                 raise ApiError(exc.status, exc.code,
                                f"题目[{index}]：{exc.message}") from exc
             validated.append(values)
-        # 同事务创建题目与版本
-        question_version_ids = [save_version(db, resource["course_id"], values)["version_id"]
-                                for values in validated]
+        # 同事务创建题目与版本；save_version 抛错时仍保留题目下标，维持原子导入语义
+        question_version_ids = []
+        for index, values in enumerate(validated):
+            try:
+                question_version_ids.append(
+                    save_version(db, resource["course_id"], values)["version_id"])
+            except ApiError as exc:
+                raise ApiError(exc.status, exc.code,
+                               f"题目[{index}]：{exc.message}") from exc
         cursor = db.execute(
             "INSERT INTO question_import(resource_version_id,actor_id,count,created_at) "
             "VALUES(?,?,?,?)", (version_id, user["id"], len(validated), at))

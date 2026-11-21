@@ -154,3 +154,24 @@ class KnowledgeGraphTest(TestCase):
         node_ids = {n["id"] for n in graph["nodes"]}
         self.assertNotIn(draft, node_ids)
         self.assertIn(self.alu, node_ids)
+
+
+class KnowledgeOriginSecurityTest(TestCase):
+    def test_verify_write_request_rejects_malformed_origins(self):
+        # DEF-001 把严格 APP_ORIGIN 比对放宽到「Origin 与 Host 同源」后，
+        # 仍须挡住非 http(s)、带 userinfo 与 opaque Origin，避免 Host 头被伪造时绕过。
+        from flask import Flask
+
+        from backend.apis.knowledge_security import SharedSessionSecurity
+
+        app = Flask(__name__)
+        app.config["APP_ORIGIN"] = "http://localhost"
+        security = SharedSessionSecurity(lambda: {"id": 1}, lambda: None, Exception)
+        url = "/api/v1/knowledge-graph/edges"
+        with app.test_request_context(url, headers={"Origin": "http://localhost"}):
+            security.verify_write_request()
+        for bad in ("ftp://localhost", "http://user@localhost", "null"):
+            with app.test_request_context(url, headers={"Origin": bad}):
+                with self.assertRaises(KnowledgeError) as raised:
+                    security.verify_write_request()
+                self.assertEqual(raised.exception.code, "CSRF_FAILED")

@@ -209,13 +209,13 @@ class PreparationQuizIntegrationTest(AttemptApiBase):
         self.call(self.teacher, 'POST', f"/preparations/{prep['id']}/publish", {})
 
     def test_r37_004_01_unpublished_quiz_requires_contract_409(self):
-        """R37-004-01, owner 罗浩铭: actual 404 NOT_FOUND, APIC§3 requires 409."""
+        """R37-004-01 回归（原缺陷 owner 罗浩铭，已修复）：未发布 quiz 必须 409。"""
         prep = self.prep()
         response = self.call(self.teacher, 'POST', f"/preparations/{prep['id']}/publish", {}, 409)
         self.assertEqual(response.json['error']['code'], 'QUIZ_NOT_PUBLISHED')
 
     def test_r37_004_02_prestart_metadata_requires_window_state(self):
-        """R37-004-02, owner 罗浩铭: APIC§3 metadata omits window_state."""
+        """R37-004-02 回归（原缺陷 owner 罗浩铭，已修复）：元数据须含 window_state。"""
         prep = self.published_prep()
         item = self.call(self.student, 'GET', f"/preparations/{prep['id']}").json['data']['quizzes'][0]
         self.assertEqual(set(item), {'id', 'title', 'window_state', 'start_at', 'end_at'})

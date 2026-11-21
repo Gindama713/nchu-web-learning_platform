@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>电路实验台 · 大台面预览</title>
+</head>
+<body style="margin:0; background:#eef1f7; padding:18px;">
+  <div id="app"></div>
+  <script type="module">
+    // 独立的电路实验台预览：用本地 spec 夹具渲染，不需要登录、不需要后端。
+    // 系统内「电路实验」标签用的是同一个 CircuitLabView 组件。
+    import { createApp } from 'vue'
+    import { CircuitLabView } from '/js/circuit-lab-view.js'
+    import '/styles/circuit-lab.css'
+    import fixture from '/js/circuit-lab-spec.fixture.json'
+
+    const payload = { ...fixture, data_ready: true, missing: [] }
+    const fetcher = async () => ({ ok: true, json: async () => ({ data: payload }) })
+    createApp(CircuitLabView, {
+      user: { id: 1, name: '石佰合', role: 'student' },
+      fetcher,
+    }).mount('#app')
+  </script>
+</body>
+</html>

@@ -1,8 +1,12 @@
 // SPEC-009 电路实验台：对照课堂作品实现的芯片级「电路控制」界面。
 //
-// 布局与参考图一致：左侧深色实验栏 / 顶部标题与工具栏 / 左信息卡（进度环 +
-// 验证说明 + 分页）/ 中间 SVG 电路图（芯片、开关、指示灯、绿色正交导线、接地）
-// / 右侧控制面板（输入设置、验证用例、输出读数、芯片说明）/ 底部提交记录。
+// 布局与参考图一致：左侧深色实验栏 / 顶部标题与工具栏 / 实验说明卡（进度环 +
+// 验证说明 + 分页）/ 大幅仪器面板式 SVG 电路图 / 右侧控制面板 / 底部提交记录。
+// 默认使用「大台面」：电路图全宽，说明与控制面板移到下方，可一键切回三栏。
+//
+// SVG 按真实数字逻辑实验箱绘制：米白面板与网格、铭牌与螺钉、DIP 芯片封装
+// （缺口、定位点、金属引脚、丝印）、拨动开关、LED 指示灯、绿色正交导线与
+// 焊点、接地符号。所有坐标仍来自后端 spec，前端不猜元件位置。
 //
 // 所有开关状态与输出都由 circuit-sim.js 的芯片功能表实时求值；后端
 // /api/v1/circuit-lab/spec 提供电路定义与 data_ready，/compute 提供权威复核。
@@ -14,6 +18,9 @@ import {
 } from './circuit-sim.js'
 
 const RING_LENGTH = 2 * Math.PI * 26
+// 仪器面板四角螺钉与左右两侧刻度，纯装饰，不影响电路语义。
+const SCREWS = [{ x: 22, y: 24 }, { x: 738, y: 24 }, { x: 22, y: 576 }, { x: 738, y: 576 }]
+const TICKS = Array.from({ length: 12 }, (_, index) => 66 + index * 40)
 
 export const CircuitLabView = {
   props: {
@@ -36,6 +43,7 @@ export const CircuitLabView = {
     const scale = ref(1)
     const showHelp = ref(false)
     const simulateOnly = ref(false)
+    const wide = ref(true)
 
     const get = path => props.fetcher ? readApi(path, props.fetcher) : readApi(path)
 
@@ -59,6 +67,33 @@ export const CircuitLabView = {
     const allPassed = computed(() => progress.value.total > 0 && progress.value.passed === progress.value.total)
     const wires = computed(() => experiment.value?.wires ?? [])
     const points = wire => wire.points.map(pair => pair.join(',')).join(' ')
+    // 每条正交导线的折点画成焊点，让走线看起来像接在实验箱端子上。
+    const joints = computed(() => {
+      const seen = new Set()
+      const result = []
+      for (const wire of wires.value) {
+        for (const [x, y] of wire.points) {
+          const key = `${x}:${y}`
+          if (!seen.has(key)) {
+            seen.add(key)
+            result.push({ x, y })
+          }
+        }
+      }
+      return result
+    })
+
+    // DIP 封装上下两排金属引脚：优先对齐 spec 中落在该芯片宽度内的引脚，
+    // 不足 4 个时按芯片宽度均匀分布（7400 这类小芯片走这条分支）。
+    function chipLeads(chip, side) {
+      if (!chip) return []
+      const aligned = (experiment.value?.pins ?? [])
+        .filter(pin => pin.side === side && pin.x > chip.x + 8 && pin.x < chip.x + chip.w - 8)
+        .map(pin => pin.x)
+      if (aligned.length >= 4) return aligned
+      return Array.from({ length: 8 }, (_, index) =>
+        chip.x + 18 + (chip.w - 36) * (index + 0.5) / 8)
+    }
 
     function note(text, tone = 'info') {
       feedback.value = text
@@ -191,18 +226,26 @@ export const CircuitLabView = {
       note(`电路图缩放 ${Math.round(scale.value * 100)}%。`)
     }
 
+    function toggleWide() {
+      wide.value = !wide.value
+      note(wide.value
+        ? '已切换到大台面：电路图全宽显示，实验说明与控制面板移至下方。'
+        : '已切换到分栏视图：实验说明 / 电路图 / 控制面板并排显示。')
+    }
+
     const pinValue = pin => pinState(activeId.value, inputs.value, pin)
-    const chipRect = chip => chip ? { x: chip.x, y: chip.y, width: chip.w, height: chip.h } : null
+    const leverY = pin => pin.y + (pinValue(pin) === 1 ? -11 : 1)
+    const knobY = pin => pin.y + (pinValue(pin) === 1 ? -6 : 6)
 
     onMounted(load)
 
     return {
       spec, loaded, busy, error, activeId, activeCase, inputs, docPage, attempts,
-      feedback, feedbackTone, scale, showHelp, simulateOnly,
+      feedback, feedbackTone, scale, showHelp, simulateOnly, wide, screws: SCREWS, ticks: TICKS,
       experiments, experiment, dataReady, missing, cases, output, doc, currentDoc,
-      progress, ring, allPassed, wires, points,
+      progress, ring, allPassed, wires, points, joints,
       load, selectExperiment, useCase, onPin, onControl, reset, verify, submit, page, zoom,
-      pinValue, chipRect,
+      toggleWide, pinValue, chipLeads, leverY, knobY,
     }
   },
   template: `
@@ -217,10 +260,10 @@ export const CircuitLabView = {
       </button>
       <div class="clab-side-title">图例</div>
       <ul class="clab-legend">
-        <li><i class="lg-sw"></i>输入开关（点击切换 0/1）</li>
-        <li><i class="lg-lamp"></i>输出指示灯（红色为 1）</li>
-        <li><i class="lg-wire"></i>信号导线</li>
-        <li><i class="lg-gnd"></i>接地</li>
+        <li><i class="lg-sw"></i>拨动开关（上=1 / 下=0）</li>
+        <li><i class="lg-lamp"></i>LED 指示灯（红色为 1）</li>
+        <li><i class="lg-wire"></i>绿色信号导线与焊点</li>
+        <li><i class="lg-gnd"></i>接地 / VCC +5V</li>
       </ul>
       <div class="clab-side-status" :class="dataReady ? 'ok' : 'warn'">
         <strong>{{ dataReady ? '后台数据正常' : '后台数据缺失' }}</strong>
@@ -232,7 +275,7 @@ export const CircuitLabView = {
     <div class="clab-main">
       <header class="clab-head">
         <div>
-          <p class="clab-eyebrow">计算机组成原理 · 在线实验</p>
+          <p class="clab-eyebrow">计算机组成原理 · 数字逻辑实验箱</p>
           <h2>{{ experiment ? experiment.title : '电路实验台' }}</h2>
         </div>
         <div class="clab-tools" role="group" aria-label="电路控制工具栏">
@@ -241,6 +284,8 @@ export const CircuitLabView = {
           <button type="button" class="clab-tool" @click="page(1)">下一步</button>
           <button type="button" class="clab-tool" @click="zoom(-0.1)">缩小</button>
           <button type="button" class="clab-tool" @click="zoom(0.1)">放大</button>
+          <button type="button" class="clab-tool" @click="toggleWide">
+            {{ wide ? '分栏视图' : '台面放大' }}</button>
           <button type="button" class="clab-tool" @click="showHelp = !showHelp">说明</button>
           <button type="button" class="clab-tool" :disabled="busy" @click="load">
             {{ busy ? '读取中…' : '重新加载' }}</button>
@@ -260,7 +305,7 @@ export const CircuitLabView = {
           <code>python scripts/seed_teacher_course.py</code> 初始化课程。</p>
       </div>
 
-      <div class="clab-grid" v-if="experiment">
+      <div class="clab-grid" :class="{ wide }" v-if="experiment">
         <section class="clab-doc">
           <div class="clab-progress">
             <svg class="clab-ring" viewBox="0 0 64 64" aria-hidden="true">
@@ -280,65 +325,178 @@ export const CircuitLabView = {
           </div>
           <div class="clab-doc-note" v-if="showHelp">
             <strong>操作说明</strong>
-            <p>点击方形输入开关切换 0/1；红色圆形指示灯为高电平。S3–S0 与 M 由 7400 译码，
-              为只读控制位；点击 Cn̄ 可在加法/减法之间切换。右侧面板可直接输入数值或载入用例。</p>
+            <p>拨动金属开关切换 0/1（拨杆向上为高电平）；红色 LED 为高电平。S3–S0 与 M 由 7400
+              译码，为只读控制位；点击 Cn̄ 可在加法/减法之间切换。右侧面板可直接输入数值或载入用例。</p>
           </div>
         </section>
 
         <section class="clab-canvas" aria-label="电路图">
-          <svg class="clab-svg" viewBox="0 0 760 600"
-            :style="{ transform: 'scale(' + scale + ')' }" role="img"
-            :aria-label="experiment.title + ' 电路图'">
-            <polyline v-for="(wire, index) in wires" :key="'w' + index"
-              :points="points(wire)" :class="['clab-wire', 'tone-' + wire.tone]"></polyline>
-            <g v-if="experiment.ground" class="clab-ground"
-              :transform="'translate(' + experiment.ground.x + ',' + experiment.ground.y + ')'">
-              <line x1="0" y1="0" x2="0" y2="-10"></line>
-              <line x1="-14" y1="0" x2="14" y2="0"></line>
-              <line x1="-9" y1="5" x2="9" y2="5"></line>
-              <line x1="-4" y1="10" x2="4" y2="10"></line>
-            </g>
-            <g v-if="experiment.chip" class="clab-chip">
-              <rect :x="experiment.chip.x" :y="experiment.chip.y"
-                :width="experiment.chip.w" :height="experiment.chip.h" rx="8"></rect>
-              <text :x="experiment.chip.x + experiment.chip.w / 2"
-                :y="experiment.chip.y + experiment.chip.h / 2 - 2" text-anchor="middle"
-                class="clab-chip-name">{{ experiment.chip.label }}</text>
-              <text :x="experiment.chip.x + experiment.chip.w / 2"
-                :y="experiment.chip.y + experiment.chip.h / 2 + 20" text-anchor="middle"
-                class="clab-chip-sub">{{ experiment.chip.sub }}</text>
-            </g>
-            <g v-if="experiment.chip2" class="clab-chip">
-              <rect :x="experiment.chip2.x" :y="experiment.chip2.y"
-                :width="experiment.chip2.w" :height="experiment.chip2.h" rx="8"></rect>
-              <text :x="experiment.chip2.x + experiment.chip2.w / 2"
-                :y="experiment.chip2.y + experiment.chip2.h / 2 - 2" text-anchor="middle"
-                class="clab-chip-name">{{ experiment.chip2.label }}</text>
-              <text :x="experiment.chip2.x + experiment.chip2.w / 2"
-                :y="experiment.chip2.y + experiment.chip2.h / 2 + 20" text-anchor="middle"
-                class="clab-chip-sub">{{ experiment.chip2.sub }}</text>
-            </g>
-            <g v-for="pin in experiment.pins" :key="pin.id">
-              <g v-if="pin.kind === 'switch'" class="clab-switch" role="button" tabindex="0"
-                :class="{ on: pinValue(pin) === 1, readonly: pin.group === 'control' && pin.id !== 'Cn' }"
-                :aria-pressed="pinValue(pin) === 1 ? 'true' : 'false'"
-                :aria-label="pin.label + ' 输入开关'"
-                @click="onPin(pin)" @keydown.enter.prevent="onPin(pin)" @keydown.space.prevent="onPin(pin)">
-                <rect :x="pin.x - 13" :y="pin.y - 13" width="26" height="26" rx="3"></rect>
-                <circle :cx="pin.x" :cy="pin.y" r="6"></circle>
-                <text :x="pin.x" :y="pin.side === 'top' ? pin.y - 22 : pin.y + 32"
-                  text-anchor="middle" class="clab-pin-label">{{ pin.label }}</text>
+          <div class="clab-bench">
+            <div class="clab-bench-head">
+              <span class="clab-bench-led" :class="{ live: loaded }"></span>
+              <span>DIGITAL LOGIC TRAINER · 74 系列 TTL 数字逻辑实验箱</span>
+              <span class="clab-bench-id">{{ experiment.id }} / +5V DC</span>
+            </div>
+            <svg class="clab-svg" viewBox="0 0 760 600" preserveAspectRatio="xMidYMid meet"
+              :style="{ transform: 'scale(' + scale + ')' }" role="img"
+              :aria-label="experiment.title + ' 电路图'">
+              <defs>
+                <linearGradient id="clab-board-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#f7f5ec"></stop>
+                  <stop offset="1" stop-color="#e9e7db"></stop>
+                </linearGradient>
+                <linearGradient id="clab-ic-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#4a4643"></stop>
+                  <stop offset="0.45" stop-color="#35322f"></stop>
+                  <stop offset="1" stop-color="#262422"></stop>
+                </linearGradient>
+                <linearGradient id="clab-metal-grad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#e6e9ec"></stop>
+                  <stop offset="0.5" stop-color="#a9b0b7"></stop>
+                  <stop offset="1" stop-color="#7d858c"></stop>
+                </linearGradient>
+                <radialGradient id="clab-led-off" cx="0.35" cy="0.3" r="0.8">
+                  <stop offset="0" stop-color="#ffffff"></stop>
+                  <stop offset="0.6" stop-color="#d9dde2"></stop>
+                  <stop offset="1" stop-color="#9ba3ad"></stop>
+                </radialGradient>
+                <radialGradient id="clab-led-on" cx="0.35" cy="0.3" r="0.85">
+                  <stop offset="0" stop-color="#ffd6c9"></stop>
+                  <stop offset="0.45" stop-color="#ef4b3f"></stop>
+                  <stop offset="1" stop-color="#9c1f19"></stop>
+                </radialGradient>
+                <pattern id="clab-grid-pattern" width="20" height="20" patternUnits="userSpaceOnUse">
+                  <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#d8d4c4" stroke-width="0.7"></path>
+                </pattern>
+                <filter id="clab-ic-shadow" x="-20%" y="-30%" width="140%" height="170%">
+                  <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#3b382f" flood-opacity="0.35"></feDropShadow>
+                </filter>
+                <filter id="clab-led-glow" x="-120%" y="-120%" width="340%" height="340%">
+                  <feGaussianBlur stdDeviation="6"></feGaussianBlur>
+                </filter>
+              </defs>
+
+              <!-- 实验箱面板：米白底板、网格、内框、铭牌、螺钉与刻度 -->
+              <rect class="clab-board" x="4" y="4" width="752" height="592" rx="12"></rect>
+              <rect class="clab-board-grid" x="4" y="4" width="752" height="592" rx="12"></rect>
+              <rect class="clab-board-inner" x="16" y="48" width="728" height="528" rx="5"></rect>
+              <g v-for="(tick, index) in ticks" :key="'t' + index" class="clab-scale">
+                <line x1="18" :y1="tick" x2="28" :y2="tick"></line>
+                <line x1="732" :y1="tick" x2="742" :y2="tick"></line>
               </g>
-              <g v-else class="clab-lamp" :class="{ on: pinValue(pin) === 1 }"
-                role="img" :aria-label="pin.label + ' 输出 ' + pinValue(pin)">
-                <circle :cx="pin.x" :cy="pin.y" r="13"></circle>
-                <circle :cx="pin.x" :cy="pin.y" r="5" class="clab-lamp-core"></circle>
-                <text :x="pin.x" :y="pin.y + 32" text-anchor="middle"
-                  class="clab-pin-label">{{ pin.label }}</text>
+              <rect class="clab-nameplate" x="16" y="10" width="728" height="30" rx="4"></rect>
+              <text class="clab-nameplate-text" x="30" y="30">74-SERIES TTL · DIP IC TEST BENCH · 验证元件实验台</text>
+              <text class="clab-nameplate-id" x="730" y="30" text-anchor="end">SPEC-009</text>
+              <g v-for="(screw, index) in screws" :key="'s' + index" class="clab-screw">
+                <circle :cx="screw.x" :cy="screw.y" r="7"></circle>
+                <line :x1="screw.x - 3.5" :y1="screw.y" :x2="screw.x + 3.5" :y2="screw.y"></line>
+                <line :x1="screw.x" :y1="screw.y - 3.5" :x2="screw.x" :y2="screw.y + 3.5"></line>
               </g>
-            </g>
-          </svg>
-          <p class="clab-canvas-caption">点击引脚开关改变输入 · 导线绿色为导通 · 输出红色为高电平</p>
+              <text class="clab-silk" x="30" y="570">GND ▁  COMMON</text>
+              <text class="clab-silk" x="730" y="570" text-anchor="end">VCC +5V  ·  74XX DIP SOCKET</text>
+
+              <!-- 绿色正交导线：底影 + 主线 + 焊点 -->
+              <polyline v-for="(wire, index) in wires" :key="'ws' + index"
+                :points="points(wire)" class="clab-trace"></polyline>
+              <polyline v-for="(wire, index) in wires" :key="'w' + index"
+                :points="points(wire)" :class="['clab-wire', 'tone-' + wire.tone]"></polyline>
+              <circle v-for="(joint, index) in joints" :key="'j' + index"
+                :cx="joint.x" :cy="joint.y" r="3.4" class="clab-joint"></circle>
+
+              <!-- 接地符号 -->
+              <g v-if="experiment.ground" class="clab-ground"
+                :transform="'translate(' + experiment.ground.x + ',' + experiment.ground.y + ')'">
+                <line x1="0" y1="0" x2="0" y2="-10"></line>
+                <line x1="-16" y1="0" x2="16" y2="0"></line>
+                <line x1="-10" y1="6" x2="10" y2="6"></line>
+                <line x1="-5" y1="12" x2="5" y2="12"></line>
+                <text x="22" y="4" class="clab-silk">GND</text>
+              </g>
+
+              <!-- 主芯片：DIP 封装（缺口、定位点、金属引脚、丝印） -->
+              <g v-if="experiment.chip" class="clab-chip">
+                <rect class="ic-body" :x="experiment.chip.x" :y="experiment.chip.y"
+                  :width="experiment.chip.w" :height="experiment.chip.h" rx="7"
+                  filter="url(#clab-ic-shadow)"></rect>
+                <path class="ic-notch"
+                  :d="'M ' + (experiment.chip.x + experiment.chip.w / 2 - 15) + ' ' + experiment.chip.y
+                    + ' a 15 9 0 1 0 30 0 Z'"></path>
+                <circle class="ic-dot" :cx="experiment.chip.x + 14" :cy="experiment.chip.y + 15" r="4"></circle>
+                <g v-for="(lead, index) in chipLeads(experiment.chip, 'top')" :key="'lt' + index">
+                  <rect class="ic-lead" :x="lead - 5" :y="experiment.chip.y - 13" width="10" height="15" rx="1"></rect>
+                </g>
+                <g v-for="(lead, index) in chipLeads(experiment.chip, 'bottom')" :key="'lb' + index">
+                  <rect class="ic-lead" :x="lead - 5"
+                    :y="experiment.chip.y + experiment.chip.h - 2" width="10" height="15" rx="1"></rect>
+                </g>
+                <text :x="experiment.chip.x + experiment.chip.w / 2"
+                  :y="experiment.chip.y + experiment.chip.h / 2 - 2" text-anchor="middle"
+                  class="clab-chip-name">{{ experiment.chip.label }}</text>
+                <text :x="experiment.chip.x + experiment.chip.w / 2"
+                  :y="experiment.chip.y + experiment.chip.h / 2 + 20" text-anchor="middle"
+                  class="clab-chip-sub">{{ experiment.chip.sub }}</text>
+                <text :x="experiment.chip.x + experiment.chip.w - 12"
+                  :y="experiment.chip.y + experiment.chip.h - 10" text-anchor="end"
+                  class="clab-chip-silk">DIP · TTL</text>
+              </g>
+
+              <!-- 第二颗芯片（74181 实验的 7400 控制译码） -->
+              <g v-if="experiment.chip2" class="clab-chip">
+                <rect class="ic-body" :x="experiment.chip2.x" :y="experiment.chip2.y"
+                  :width="experiment.chip2.w" :height="experiment.chip2.h" rx="7"
+                  filter="url(#clab-ic-shadow)"></rect>
+                <path class="ic-notch"
+                  :d="'M ' + (experiment.chip2.x + experiment.chip2.w / 2 - 12) + ' ' + experiment.chip2.y
+                    + ' a 12 7 0 1 0 24 0 Z'"></path>
+                <circle class="ic-dot" :cx="experiment.chip2.x + 11" :cy="experiment.chip2.y + 12" r="3.4"></circle>
+                <g v-for="(lead, index) in chipLeads(experiment.chip2, 'top')" :key="'2t' + index">
+                  <rect class="ic-lead" :x="lead - 4" :y="experiment.chip2.y - 11" width="8" height="13" rx="1"></rect>
+                </g>
+                <g v-for="(lead, index) in chipLeads(experiment.chip2, 'bottom')" :key="'2b' + index">
+                  <rect class="ic-lead" :x="lead - 4"
+                    :y="experiment.chip2.y + experiment.chip2.h - 2" width="8" height="13" rx="1"></rect>
+                </g>
+                <text :x="experiment.chip2.x + experiment.chip2.w / 2"
+                  :y="experiment.chip2.y + experiment.chip2.h / 2 - 1" text-anchor="middle"
+                  class="clab-chip-name small">{{ experiment.chip2.label }}</text>
+                <text :x="experiment.chip2.x + experiment.chip2.w / 2"
+                  :y="experiment.chip2.y + experiment.chip2.h / 2 + 17" text-anchor="middle"
+                  class="clab-chip-sub">{{ experiment.chip2.sub }}</text>
+              </g>
+
+              <!-- 引脚元件：金属拨动开关 / LED 指示灯 -->
+              <g v-for="pin in experiment.pins" :key="pin.id">
+                <g v-if="pin.kind === 'switch'" class="clab-switch" role="button" tabindex="0"
+                  :class="{ on: pinValue(pin) === 1, readonly: pin.group === 'control' && pin.id !== 'Cn' }"
+                  :aria-pressed="pinValue(pin) === 1 ? 'true' : 'false'"
+                  :aria-label="pin.label + ' 输入开关'"
+                  @click="onPin(pin)" @keydown.enter.prevent="onPin(pin)" @keydown.space.prevent="onPin(pin)">
+                  <rect class="sw-frame" :x="pin.x - 17" :y="pin.y - 17" width="34" height="34" rx="4"></rect>
+                  <rect class="sw-well" :x="pin.x - 12" :y="pin.y - 12" width="24" height="24" rx="3"></rect>
+                  <rect class="sw-lever" :x="pin.x - 8" :y="leverY(pin)" width="16" height="10" rx="2"></rect>
+                  <circle class="sw-knob" :cx="pin.x" :cy="knobY(pin)" r="3"></circle>
+                  <rect class="sw-terminal" :x="pin.x - 6" :y="pin.y + 17" width="12" height="8" rx="1"></rect>
+                  <text class="sw-mark" :x="pin.x + 10" :y="pin.y - 9" text-anchor="middle">1</text>
+                  <text class="sw-mark dim" :x="pin.x + 10" :y="pin.y + 13" text-anchor="middle">0</text>
+                  <text :x="pin.x" :y="pin.side === 'top' ? pin.y - 24 : pin.y + 38"
+                    text-anchor="middle" class="clab-pin-label">{{ pin.label }}</text>
+                </g>
+                <g v-else class="clab-lamp" :class="{ on: pinValue(pin) === 1 }"
+                  role="img" :aria-label="pin.label + ' 输出 ' + pinValue(pin)">
+                  <circle v-if="pinValue(pin) === 1" class="led-halo" :cx="pin.x" :cy="pin.y"
+                    r="15" filter="url(#clab-led-glow)"></circle>
+                  <circle class="led-ring" :cx="pin.x" :cy="pin.y" r="16"></circle>
+                  <circle class="led-glass" :cx="pin.x" :cy="pin.y" r="12"></circle>
+                  <circle class="led-core" :cx="pin.x" :cy="pin.y" r="6"></circle>
+                  <ellipse class="led-glint" :cx="pin.x - 4" :cy="pin.y - 5" rx="3.5" ry="2"></ellipse>
+                  <rect class="sw-terminal" :x="pin.x - 6" :y="pin.y + 17" width="12" height="8" rx="1"></rect>
+                  <text :x="pin.x" :y="pin.y + 38" text-anchor="middle"
+                    class="clab-pin-label">{{ pin.label }}</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <p class="clab-canvas-caption">拨动金属开关改变输入 · 绿色导线为导通 · 红色 LED 为高电平 · 点击元件或直接验算</p>
         </section>
 
         <section class="clab-panel">

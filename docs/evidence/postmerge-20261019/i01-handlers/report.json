@@ -1,0 +1,14 @@
+{
+  "started_at": "2026-10-19T15:33:27.319913+00:00",
+  "tested_head": "90a69c49ea24677c0bea26f5a8f3825a91066922",
+  "dirty_paths": [],
+  "scope": "005 to existing 009/017/010C consumption, 005 markup/003 upload policy; not full I-01",
+  "tests": 6,
+  "passed": 6,
+  "expected_failures": [],
+  "failures": [],
+  "errors": [],
+  "unexpected_successes": [],
+  "elapsed_seconds": 22.192,
+  "status": "passed"
+}

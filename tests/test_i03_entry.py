@@ -56,6 +56,9 @@ class I03EntryTest(TestCase):
                              {'revision': 0, 'action': 'step'}).json['data']
         for _ in range(2):
             current = self.call(self.student, 'GET', f"/demo-sessions/{demo['id']}?after_revision=0").json['data']
+            # APIC §4：带 after_revision 轮询时额外返回 unchanged 提示（前端可跳过重绘），
+            # 除该标记外其余字段仍必须与推进结果逐字节一致。
+            self.assertIs(current.pop('unchanged', None), False)
             self.assertEqual(current, advanced)
         self.call(self.teacher, 'PUT', f"/demo-sessions/{demo['id']}/state",
                   {'revision': 0, 'action': 'step'}, 409)

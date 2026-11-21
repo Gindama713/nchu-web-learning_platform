@@ -1,0 +1,2 @@
+﻿编号,标题,被测组,复现步骤,预期结果,实际结果,严重程度,截图,状态
+D-01,/help 公开端点声明与实际一致,g24201803（242018班第3组）,比对 /help.public_endpoints 与匿名 GET 实测结果,实际可匿名访问的端点都列入 public_endpoints,"/help 仅声明 2 个公开端点；实测另可匿名访问 3 个：/api/health/live, /api/health/ready, /api/auth/csrf",低,课堂现场留存，按老师要求不随文档提交图片,待修复

@@ -30,16 +30,22 @@ bp = Blueprint("wiring", __name__)
 MAX_ACTIONS_PER_SAVE = 500
 MAX_ACTIONS_TOTAL = 10000
 VALIDATOR_VERSION = "wiring-struct-v1"
-# 动作重放（engines.wiring.replay）会直接读这些键。缺失时不能等引擎 KeyError
-# 冒泡成 500（RE-001），在重放前统一挡成 400。undo/redo/step/reset 无必填键。
+# 动作重放（engines.wiring.replay / _apply_edit）会直接读这些键。缺失时不能等
+# 引擎 KeyError 冒泡成 500（RE-001），也不能让引擎跳过、动作照常入库造成
+# 动作表与状态永久不一致，因此在重放前统一挡成 400。
 ACTION_REQUIRED_FIELDS = {
-    "connect": ("id",),
+    "connect": ("id", "from_terminal", "to_terminal"),
     "disconnect": ("wire_id",),
     "set_input": ("terminal_id", "value"),
 }
+VALID_ACTION_TYPES = frozenset(ACTION_REQUIRED_FIELDS) | {"step", "reset", "undo", "redo"}
+# _row 用 f-string 拼表名，只接受本模块内联调用的固定白名单，防止后续传入外部值。
+_ROW_TABLES = frozenset({"experiment", "experiment_version"})
 
 
 def _row(db, table, rid):
+    if table not in _ROW_TABLES:
+        raise ValueError(f"unsupported table: {table}")
     return db.execute(f"SELECT * FROM {table} WHERE id=?", (rid,)).fetchone()
 
 
@@ -78,7 +84,18 @@ def _student_version(db, version_id, student_id, *, require_window=False):
     return version
 
 
-def _serialize_attempt(db, row, include_state=True):
+def _action_counts(db, ids):
+    """一次聚合查询取出多个 attempt 的动作数，避免列表接口逐行 COUNT(*) 的 N+1。"""
+    if not ids:
+        return {}
+    marks = ",".join("?" for _ in ids)
+    rows = db.execute(
+        f"SELECT attempt_id,COUNT(*) AS n FROM wiring_action WHERE attempt_id IN ({marks}) "
+        "GROUP BY attempt_id", tuple(ids))
+    return {r["attempt_id"]: r["n"] for r in rows}
+
+
+def _serialize_attempt(db, row, include_state=True, action_counts=None):
     state = _parse_json(row["state_json"], "state") if include_state else None
     item = {
         "id": row["id"], "experiment_version_id": row["experiment_version_id"],
@@ -90,9 +107,9 @@ def _serialize_attempt(db, row, include_state=True):
         "saved_at": row["saved_at"], "created_at": row["created_at"],
         "updated_at": row["updated_at"],
     }
-    total_actions = db.execute(
-        "SELECT COUNT(*) FROM wiring_action WHERE attempt_id=?", (row["id"],)).fetchone()[0]
-    item["action_count"] = total_actions
+    item["action_count"] = (action_counts.get(row["id"], 0) if action_counts is not None else
+                            db.execute("SELECT COUNT(*) FROM wiring_action WHERE attempt_id=?",
+                                       (row["id"],)).fetchone()[0])
     return item
 
 
@@ -147,6 +164,8 @@ def save_attempt(aid):
     revision = data["revision"]
     state = data["state"]
     actions = data["actions"]
+    if not isinstance(state, dict):
+        raise ApiError(400, "VALIDATION_ERROR", "state must be an object")
     if not isinstance(actions, list):
         raise ApiError(400, "VALIDATION_ERROR", "actions must be a list")
     if len(actions) > MAX_ACTIONS_PER_SAVE:
@@ -154,12 +173,24 @@ def save_attempt(aid):
     for act in actions:
         if not isinstance(act, dict) or not isinstance(act.get("type"), str):
             raise ApiError(400, "VALIDATION_ERROR", "each action requires a string type")
+        if act["type"] not in VALID_ACTION_TYPES:
+            # 数据库 017_wiring.sql 对 type 有 CHECK 约束；在此挡成 400 而不是
+            # 让 IntegrityError 变成含义不明的 409 DATA_CONFLICT。
+            raise ApiError(400, "VALIDATION_ERROR", f"unknown action type: {act['type']}")
         payload = act.get("payload", {})
         if not isinstance(payload, dict):
             raise ApiError(400, "VALIDATION_ERROR", "action payload must be an object")
         for field in ACTION_REQUIRED_FIELDS.get(act["type"], ()):
             if field not in payload:
                 raise ApiError(400, "VALIDATION_ERROR", f"{act['type']} payload missing {field}")
+            if field != "value" and (not isinstance(payload[field], str) or not payload[field]):
+                raise ApiError(400, "VALIDATION_ERROR",
+                               f"{act['type']} payload field {field} must be a non-empty string")
+        if act["type"] == "set_input":
+            # 非整数值会在 _propagate 的位运算里抛出 500；布尔值是 int 子类，单独排除。
+            value = payload["value"]
+            if isinstance(value, bool) or not isinstance(value, int):
+                raise ApiError(400, "VALIDATION_ERROR", "set_input value must be an integer")
     with write() as db:
         row = _attempt_row(db, aid)
         if not row:
@@ -187,11 +218,12 @@ def save_attempt(aid):
         if replayed.get("inputs", {}) != state.get("inputs", {}):
             raise ApiError(422, "STATE_MISMATCH", "server replay inputs differ from client state")
 
+        # 先整体预检，避免写完一半动作才抛错（虽会回滚，但错误语义与耗时都不好）。
+        if row["latest_seq"] + len(actions) > MAX_ACTIONS_TOTAL:
+            raise ApiError(400, "VALIDATION_ERROR", f"max actions exceeded ({MAX_ACTIONS_TOTAL})")
         new_seq = row["latest_seq"]
         for act in actions:
             new_seq += 1
-            if new_seq > MAX_ACTIONS_TOTAL:
-                raise ApiError(400, "VALIDATION_ERROR", f"max actions exceeded ({MAX_ACTIONS_TOTAL})")
             db.execute(
                 "INSERT INTO wiring_action(attempt_id,seq,type,payload_json,client_at,received_at) "
                 "VALUES(?,?,?,?,?,?)",
@@ -199,9 +231,12 @@ def save_attempt(aid):
                  act.get("client_at"), stamp()))
         new_revision = revision + 1
         now = stamp()
+        # 客户端 state 只作为 wires/inputs 的比对输入；运行时字段（tick/phase/
+        # 寄存器/标志位）一律以服务端重放结果为准，submit 的功能判定与
+        # snapshot_hash 因此不再受客户端伪造值影响（设计报告 §5.2）。
         db.execute(
             "UPDATE wiring_attempt SET revision=?,state_json=?,latest_seq=?,saved_at=?,updated_at=? WHERE id=?",
-            (new_revision, json.dumps(state, ensure_ascii=False), new_seq, now, now, aid))
+            (new_revision, json.dumps(replayed, ensure_ascii=False), new_seq, now, now, aid))
         row = _attempt_row(db, aid)
         audit("wiring_attempt.save", "wiring_attempt", aid,
               after={"revision": new_revision, "latest_seq": new_seq})
@@ -346,5 +381,6 @@ def list_attempts(course_id):
     total = db.execute(count_sql, params).fetchone()[0]
     rows = db.execute(where + " ORDER BY wa.id DESC LIMIT ? OFFSET ?",
                       (*params, size, (page - 1) * size)).fetchall()
-    items = [_serialize_attempt(db, r) for r in rows]
+    counts = _action_counts(db, [r["id"] for r in rows])
+    items = [_serialize_attempt(db, r, action_counts=counts) for r in rows]
     return paged(items, total, page, size)

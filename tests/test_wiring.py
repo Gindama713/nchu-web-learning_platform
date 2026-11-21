@@ -15,8 +15,34 @@ from backend.shared.db import connect, migrate
 
 ORIGIN = "http://127.0.0.1:5173"
 
+# ROM 内置程序 [LDI 3, ADDI 2, HALT]：12 拍后 ACC=5、IR=0xF0 且停机。
+EXP03_LINKS = [
+    ("pc_q", "rom_addr"), ("rom_data", "ir_d"), ("ir_q", "split_in"),
+    ("ir_q", "ctrl_ir"), ("split_lo", "ext_in"), ("split_lo", "pc_d"),
+    ("ext_out", "mux_a"), ("ext_out", "alu_b"), ("alu_y", "mux_b"),
+    ("mux_y", "acc_d"), ("acc_q", "alu_a"), ("acc_q", "led_acc_in"),
+    ("pc_q", "led_pc_in"), ("ctrl_alu_op", "alu_op"), ("ctrl_acc_sel", "mux_sel"),
+    ("ctrl_acc_en", "acc_en"), ("ctrl_ir_en", "ir_en"), ("ctrl_pc_inc", "pc_inc"),
+    ("ctrl_pc_load", "pc_load"), ("alu_z", "ctrl_alu_z"), ("alu_c", "ctrl_alu_c"),
+    ("clk_out", "pc_clk"), ("clk_out", "ir_clk"), ("clk_out", "acc_clk"),
+    ("clk_out", "ctrl_clk"), ("rst_out", "pc_rst"), ("rst_out", "ir_rst"),
+    ("rst_out", "acc_rst"), ("rst_out", "ctrl_rst"), ("en_out", "pc_en"),
+    ("en_out", "ctrl_en"),
+]
+
+
+def exp03_state(base, links):
+    state = dict(base)
+    state["wires"] = [{"id": f"w{i}", "from_terminal": f, "to_terminal": t}
+                      for i, (f, t) in enumerate(links, 1)]
+    return state
+
 
 class WiringApiBase(TestCase):
+    # 统计类子类需把时刻推到实验窗口结束之后：date_range 要求 to <= now，
+    # 而版本 end_at 又必须落在统计区间内，两者只有错开才同时成立。
+    NOW = datetime(2026, 10, 13, 12, tzinfo=UTC)
+
     def setUp(self):
         self.temporary = TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
@@ -25,7 +51,7 @@ class WiringApiBase(TestCase):
         self.password = secrets.token_urlsafe(24)
         self.app = create_app({"TESTING": True, "DATABASE_PATH": str(self.path),
                                "SECRET_KEY": secrets.token_hex(32), "APP_ORIGIN": ORIGIN,
-                               "TEST_NOW": datetime(2026, 10, 13, 12, tzinfo=UTC)})
+                               "TEST_NOW": self.NOW})
         with closing(connect(self.path)) as db:
             for number, role in (("T017ADMIN", "admin"), ("T017TEACH", "teacher")):
                 db.execute("INSERT INTO user(student_no,name,password_hash,role,active,created_at,updated_at) "
@@ -57,7 +83,8 @@ class WiringApiBase(TestCase):
                          {"student_no": number, "password": self.password}).json["data"]
         client.csrf = data["csrf_token"]
 
-    def setup_experiment(self, code="EXP-01"):
+    def setup_experiment(self, code="EXP-01", *, start_at="2026-10-13T11:00:00Z",
+                         end_at="2026-10-20T00:00:00Z"):
         exp = self.call(self.teacher, "POST", self.exp_base,
                         {"code": code, "title": code, "description": code}, 201).json["data"]
         panel = _make_panel(code)
@@ -67,8 +94,8 @@ class WiringApiBase(TestCase):
                          "knowledge_ids": [], "submission_modes": ["wiring"],
                          "panel": panel, "rules": {"require_required_inputs": True}}, 201).json["data"]
         published = self.call(self.teacher, "POST", f"/experiment-versions/{ver['id']}/publish",
-                              {"start_at": "2026-10-13T11:00:00Z",
-                               "end_at": "2026-10-20T00:00:00Z"}).json["data"]
+                              {"start_at": start_at,
+                               "end_at": end_at}).json["data"]
         return exp, published
 
     def create_attempt(self, version_id):
@@ -155,6 +182,98 @@ class WiringLifecycleTest(WiringApiBase):
         dirty = [{"type": "disconnect", "payload": {}}, {"type": "connect", "payload": {}}]
         clean = wiring_engine.replay(_make_panel("EXP-01"), dirty)
         self.assertEqual(clean["wires"], [])
+
+    def test_undo_then_redo_restores_wire(self):
+        # TV-02 重放：动作表含 undo/redo 时，服务端重放结果必须与前端一致。
+        from backend.engines import wiring as engine
+
+        panel = _make_panel("EXP-01")
+        wire = {"id": "w1", "from_terminal": "sw_a_out", "to_terminal": "alu_a"}
+        actions = [{"type": "connect", "payload": wire},
+                   {"type": "undo", "payload": {}},
+                   {"type": "redo", "payload": {}}]
+        self.assertEqual([w["id"] for w in engine.replay(panel, actions)["wires"]], ["w1"])
+
+    def test_new_edit_clears_redo_stack(self):
+        # 撤销后产生新编辑，redo 栈必须清空，不能把已撤销的连线又放回来。
+        from backend.engines import wiring as engine
+
+        panel = _make_panel("EXP-01")
+        wire = {"id": "w1", "from_terminal": "sw_a_out", "to_terminal": "alu_a"}
+        actions = [{"type": "connect", "payload": wire},
+                   {"type": "undo", "payload": {}},
+                   {"type": "set_input", "payload": {"terminal_id": "sw_a_out", "value": 7}},
+                   {"type": "redo", "payload": {}}]
+        replayed = engine.replay(panel, actions)
+        self.assertEqual(replayed["wires"], [])
+        self.assertEqual(replayed["inputs"]["sw_a_out"], 7)
+
+    def test_save_persists_server_replayed_state_not_client_claims(self):
+        # 服务端只比对 wires/inputs；tick/phase/寄存器等运行时字段不得由客户端伪造落库。
+        _, ver = self.setup_experiment("EXP-01")
+        attempt = self.create_attempt(ver["id"])
+        state = attempt["state"]
+        wire = {"id": "w1", "from_terminal": "sw_a_out", "to_terminal": "alu_a"}
+        state["wires"] = [wire]
+        state["tick"] = 999
+        state["phase"] = 2
+        state["forged_register"] = 0xAB
+        self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
+                  {"revision": 0, "state": state,
+                   "actions": [{"type": "connect", "payload": wire}]})
+        fresh = self.call(self.student, "GET", f"/wiring-attempts/{attempt['id']}").json["data"]
+        self.assertEqual(fresh["state"]["wires"], [wire])
+        self.assertEqual(fresh["state"]["tick"], 0)
+        self.assertEqual(fresh["state"]["phase"], 0)
+        self.assertNotIn("forged_register", fresh["state"])
+
+    def test_action_type_and_connect_fields_are_validated_before_insert(self):
+        # 未知类型或残缺导线会被引擎静默跳过，若照常入库将造成动作表与状态永久不一致。
+        _, ver = self.setup_experiment("EXP-01")
+        attempt = self.create_attempt(ver["id"])
+        state = attempt["state"]
+        bad_actions = [
+            {"type": "teleport", "payload": {}},
+            {"type": "connect", "payload": {"id": "w1"}},
+            {"type": "connect", "payload": {"id": "w1", "from_terminal": "sw_a_out"}},
+        ]
+        for bad in bad_actions:
+            self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
+                      {"revision": 0, "state": state, "actions": [bad]}, 400)
+        actions = self.call(self.student, "GET",
+                            f"/wiring-attempts/{attempt['id']}/actions").json["data"]
+        self.assertEqual(actions["total"], 0)
+
+    def test_set_input_value_must_be_integer(self):
+        # 非整数值会在 _propagate 的位运算里抛 500；必须在入库前挡成 400。
+        _, ver = self.setup_experiment("EXP-01")
+        attempt = self.create_attempt(ver["id"])
+        state = attempt["state"]
+        for value in ("7", 1.5, True, {"n": 1}, None):
+            self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
+                      {"revision": 0, "state": state,
+                       "actions": [{"type": "set_input",
+                                    "payload": {"terminal_id": "sw_a_out", "value": value}}]}, 400)
+        actions = self.call(self.student, "GET",
+                            f"/wiring-attempts/{attempt['id']}/actions").json["data"]
+        self.assertEqual(actions["total"], 0)
+
+    def test_list_attempts_reports_action_count_from_batch_query(self):
+        _, ver = self.setup_experiment("EXP-01")
+        attempt = self.create_attempt(ver["id"])
+        wire = {"id": "w1", "from_terminal": "sw_a_out", "to_terminal": "alu_a"}
+        state = attempt["state"]
+        state["wires"] = [wire]
+        state["inputs"]["sw_a_out"] = 7
+        self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
+                  {"revision": 0, "state": state,
+                   "actions": [{"type": "connect", "payload": wire},
+                               {"type": "set_input",
+                                "payload": {"terminal_id": "sw_a_out", "value": 7}}]})
+        items = self.call(self.teacher, "GET",
+                          f"/courses/{self.course_id}/wiring-attempts").json["data"]
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["action_count"], 2)
 
 
 class WiringValidationTest(WiringApiBase):
@@ -320,6 +439,38 @@ class WiringSubmitTest(WiringApiBase):
         self.assertEqual(s["acc_q"], 5)
         self.assertEqual(s["ir_q"], 0xF0)
         self.assertEqual(s["halted"], 1)
+
+    def _submit_exp03(self, links):
+        _, ver = self.setup_experiment("EXP-03")
+        attempt = self.create_attempt(ver["id"])
+        state = exp03_state(attempt["state"], links)
+        wires = state["wires"]
+        self.call(self.student, "PUT", f"/wiring-attempts/{attempt['id']}",
+                  {"revision": 0, "state": state,
+                   "actions": [{"type": "connect", "payload": w} for w in wires]})
+        return self.call(self.student, "POST", f"/wiring-attempts/{attempt['id']}/submit",
+                         {"revision": 1}).json["data"]
+
+    def test_submit_exp03_correct_datapath_is_completed(self):
+        submit = self._submit_exp03(EXP03_LINKS)
+        self.assertEqual(submit["status"], "submitted")
+        self.assertTrue(submit["completed"])
+        case = submit["functional_results"][0]
+        self.assertTrue(case["passed"])
+        self.assertEqual(case["expected"], {"acc": 5, "ir": 0xF0, "halted": 1})
+        self.assertEqual(case["actual"], case["expected"])
+
+    def test_submit_exp03_wrong_datapath_is_not_completed(self):
+        # pc_inc 改接恒 1 的 en_out：结构合法、首拍 PC 仍递增，但程序跑飞。
+        # 旧判定只看 checks[0]["pc"] == 1，会误记 completed=true（PRD 017 AC-10）。
+        wrong = [("en_out", "pc_inc") if pair == ("ctrl_pc_inc", "pc_inc") else pair
+                 for pair in EXP03_LINKS]
+        submit = self._submit_exp03(wrong)
+        self.assertEqual(submit["status"], "submitted")
+        self.assertFalse(submit["completed"])
+        case = submit["functional_results"][0]
+        self.assertFalse(case["passed"])
+        self.assertNotEqual(case["actual"], case["expected"])
 
 
 class WiringActionsTest(WiringApiBase):

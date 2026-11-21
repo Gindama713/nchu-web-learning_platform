@@ -194,6 +194,30 @@ def auto_seat(course_id):
     return result({**state, "placed": len(seats)})
 
 
+@bp.delete("/courses/<int:course_id>/classroom/seats")
+def clear_seats(course_id):
+    """把教室清空成「空教室」：学生自己点空位入座，然后签到。
+
+    只清进行中任务的座位快照——已结束任务保留当时的座位历史，方便事后核对
+    谁坐在哪。清空后学生第一次点空位走 `PUT /courses/<id>/me/seat`：那一支
+    本来就会插入 class_seat 并补齐快照，所以不需要另外的「认领」接口。
+    """
+    with write() as db:
+        course_access(course_id, teacher=True)
+        room = ensure_classroom(db, course_id)
+        removed = db.execute("SELECT COUNT(*) FROM class_seat WHERE course_id=?",
+                             (course_id,)).fetchone()[0]
+        db.execute("DELETE FROM class_seat WHERE course_id=?", (course_id,))
+        db.execute("DELETE FROM attendance_seat WHERE task_id IN "
+                   "(SELECT id FROM attendance_task WHERE course_id=? AND status='open')",
+                   (course_id,))
+        audit("classroom.clear_seats", "course", course_id, after={"removed": removed})
+        open_tasks = db.execute("SELECT COUNT(*) FROM attendance_task WHERE course_id=? AND status='open'",
+                                (course_id,)).fetchone()[0]
+        state = classroom_state(db, course_id)
+    return result({**state, "removed": removed, "open_tasks": open_tasks})
+
+
 @bp.patch("/courses/<int:course_id>/seats/<int:student_id>")
 def move_seat(course_id, student_id):
     """手动调整某个学生的座位，或把他从座位表里撤下来（clear）。"""
