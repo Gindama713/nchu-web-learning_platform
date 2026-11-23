@@ -25,17 +25,17 @@
 | 姜苏豪 | [24201718_姜苏豪_设计报告](reports/24201718_姜苏豪_设计报告.md) | [TEST_REPORT_JIANG_SUHAO](TEST_REPORT_JIANG_SUHAO.md) | [USER_GUIDE_JIANG_SUHAO](USER_GUIDE_JIANG_SUHAO.md) | [JIANG_SUHAO_2026-11-20](checkpoints/JIANG_SUHAO_2026-11-20.md) |
 | 黄俊诚 | [24201716_黄俊诚_设计报告](reports/24201716_黄俊诚_设计报告.md) | [TEST_REPORT_HUANG_JUNCHENG](TEST_REPORT_HUANG_JUNCHENG.md) | [USER_GUIDE_HUANG_JUNCHENG](USER_GUIDE_HUANG_JUNCHENG.md) | [HUANG_JUNCHENG_C12C](checkpoints/HUANG_JUNCHENG_C12C.md) |
 | 罗浩铭 | [24201723_罗浩铭_设计报告](reports/24201723_罗浩铭_设计报告.md) | [TEST_REPORT_LUO_HAOMING](TEST_REPORT_LUO_HAOMING.md) | [USER_GUIDE_LUO_HAOMING](USER_GUIDE_LUO_HAOMING.md) | [LUO_HAOMING_2026-11-05](checkpoints/LUO_HAOMING_2026-11-05.md) |
-| 石佰合 | 待补（学号 24201737） | 待补 | 待补 | 待补 |
+| 石佰合 | [24201737_石佰合_设计报告](reports/24201737_石佰合_设计报告.md) | [TEST_REPORT_SHIBAIHE](TEST_REPORT_SHIBAIHE.md) | [USER_GUIDE_SHIBAIHE](USER_GUIDE_SHIBAIHE.md) | [SHIBAIHE_2026-11-23](checkpoints/SHIBAIHE_2026-11-23.md) |
 
 石佰合的 SPEC-003/009/018/010D 代码与 `tests/test_grading*`、`tests/test_experiments.py`、
-`tests/test_circuit_lab.py` 都在主干并有 CI 覆盖；缺的是个人交付文档，检查时按人核对会扣个人分。
+`tests/test_circuit_lab.py` 都在主干；本轮按代码协助补齐个人文档、执行 98 项回归，仍需本人确认、独立提交与现场取证。
 
 ## 3 协作约定
 
 - **分支**：`main` 只接受 `release/*`、`hotfix/*`；`develop` 只接受 `feature/*`、`docs/*`、`test/*`；
   分支名带 SPEC 或日期，例如 `feature/spec-018-grader-real-engine`。
 - **提交信息**：`feat(spec-006): ...` 形式关联 SPEC 编号，便于需求—提交—测试追溯。
-- **合并门禁**：`ci-policy`、`ci-lint`、`ci-test`、`ci-build` 四项必过，`main`/`release` 另加 `ci-grader`。
+- **合并门禁**：`ci-policy`、`ci-lint`、`ci-test`、`ci-build`、`ci-grader` 由 `ci-required` 汇总；develop/main/release 均要求真实评测通过。
 - **检查点**：每阶段结果写入 `docs/checkpoints/`，记录时间、执行人、输入、预期、实际与证据位置。
 - **评审**：按上表交叉评审，评审意见落在 PR 评论或检查点文档里，不口头通过。
 
