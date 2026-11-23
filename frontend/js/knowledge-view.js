@@ -1,7 +1,7 @@
 import { h, onMounted, reactive, ref } from 'vue'
 import { KnowledgeClient } from './knowledge-client.js'
 
-const blank = () => ({ title: '', content: '', example: '', published: false, is_foundational: false })
+const blank = () => ({ title: '', content: '', example: '', published: false, is_foundational: false, images: [] })
 
 export const KnowledgeView = {
   setup() {
@@ -26,6 +26,8 @@ export const KnowledgeView = {
     const editId = ref(null)
     const targetChapter = ref('')
     const form = reactive(blank())
+    const imageCandidates = ref([])
+    const imageSources = reactive({})
     const teacher = () => session.value?.user.role === 'teacher'
     const student = () => session.value?.user.role === 'student'
 
@@ -39,6 +41,8 @@ export const KnowledgeView = {
       query.value = ''
       editing.value = false
       newChapter.value = ''
+      imageCandidates.value = []
+      for (const key of Object.keys(imageSources)) delete imageSources[key]
     }
 
     async function run(action, success = '') {
@@ -86,6 +90,10 @@ export const KnowledgeView = {
       for (const chapter of chapters.value) rename[chapter.id] = chapter.title
     }
 
+    async function loadImageCandidates() {
+      imageCandidates.value = courseId.value ? await api.imageCandidates(courseId.value) : []
+    }
+
     async function loadCourse() {
       clearCourse()
       if (!courseId.value) return
@@ -111,13 +119,33 @@ export const KnowledgeView = {
     function startEdit(item = null) {
       editId.value = item?.id ?? null
       targetChapter.value = String(item?.chapter_id ?? (chapterId.value || chapters.value[0]?.id || ''))
-      Object.assign(form, item ? Object.fromEntries(Object.keys(blank()).map(key => [key, item[key]])) : blank())
+      const images = Array.isArray(item?.images) ? item.images.map(image => ({
+        resource_version_id: image.resource_version_id,
+        placement: image.placement,
+        alt: image.alt ?? '',
+        caption: image.caption ?? '',
+        version: image.version,
+        resource_title: image.resource_title,
+        available: image.available,
+      })) : []
+      Object.assign(form, item
+        ? { ...Object.fromEntries(Object.keys(blank()).map(key => [key, item[key]])), images }
+        : blank())
       editing.value = true
       notice.value = ''
+      if (teacher()) run(loadImageCandidates)
     }
 
     async function save() {
-      const values = { ...form }
+      const values = {
+        ...form,
+        images: form.images.map(image => ({
+          resource_version_id: image.resource_version_id,
+          placement: image.placement,
+          alt: image.alt,
+          caption: image.caption,
+        })),
+      }
       const result = editId.value
         ? await api.update(editId.value, values)
         : await api.create(targetChapter.value, values)
@@ -155,6 +183,107 @@ export const KnowledgeView = {
       value, disabled: busy.value, onChange: event => update(event.target.value), ...options,
     }, chapters.value.map(chapter => h('option', { value: String(chapter.id) }, chapter.title)))
 
+    const placementLabel = value => value === 'example' ? '例题后' : '正文后'
+
+    function imageOptions(image) {
+      const options = imageCandidates.value.map(candidate => ({
+        value: String(candidate.resource_version_id),
+        label: `${candidate.resource_title} · v${candidate.version} · ${candidate.width}×${candidate.height}`,
+      }))
+      if (image && !options.some(option => option.value === String(image.resource_version_id))) {
+        options.unshift({
+          value: String(image.resource_version_id),
+          label: `${image.resource_title ?? '当前图片'} · v${image.version ?? '?'}（不可用）`,
+        })
+      }
+      return options
+    }
+
+    function chooseImageVersion(image, value) {
+      image.resource_version_id = Number(value)
+      const candidate = imageCandidates.value.find(item => String(item.resource_version_id) === String(value))
+      if (candidate) {
+        image.version = candidate.version
+        image.resource_title = candidate.resource_title
+        image.available = true
+      }
+    }
+
+    function addImage() {
+      const candidate = imageCandidates.value[0]
+      if (!candidate) {
+        notice.value = '暂无可选图片，请先到“教学资源”上传 guide 类型的 PNG/JPEG'
+        return
+      }
+      form.images.push({
+        resource_version_id: candidate.resource_version_id,
+        placement: 'content',
+        alt: '',
+        caption: '',
+        version: candidate.version,
+        resource_title: candidate.resource_title,
+        available: true,
+      })
+    }
+
+    function moveImage(index, direction) {
+      const next = index + direction
+      if (next < 0 || next >= form.images.length) return
+      ;[form.images[index], form.images[next]] = [form.images[next], form.images[index]]
+    }
+
+    function imageEditor() {
+      return h('section', { class: 'knowledge-image-editor' }, [
+        h('h4', '知识点图片'),
+        h('p', { class: 'knowledge-hint' },
+          '图片来自本课程 guide 资源的固定版本；先在教学资源上传 PNG/JPEG，再在这里选择。'),
+        ...form.images.map((image, index) => h('div', {
+          class: 'knowledge-image-row', key: `${index}-${image.resource_version_id}`,
+        }, [
+          h('label', { class: 'knowledge-field' }, [h('span', '图片来源'), h('select', {
+            value: String(image.resource_version_id), disabled: busy.value,
+            onChange: event => chooseImageVersion(image, event.target.value),
+          }, imageOptions(image).map(option => h('option', { value: option.value }, option.label)))]),
+          h('label', { class: 'knowledge-field' }, [h('span', '位置'), h('select', {
+            value: image.placement, disabled: busy.value,
+            onChange: event => { image.placement = event.target.value },
+          }, ['content', 'example'].map(value => h('option', { value }, placementLabel(value))))]),
+          h('label', { class: 'knowledge-field' }, [h('span', '替代文本'), textInput(
+            image.alt, value => { image.alt = value }, { maxlength: 200, placeholder: '给无法显示图片的读者' })]),
+          h('label', { class: 'knowledge-field' }, [h('span', '图注'), textInput(
+            image.caption, value => { image.caption = value }, { maxlength: 200, placeholder: '可选' })]),
+          h('div', { class: 'knowledge-actions' }, [
+            button('上移', () => moveImage(index, -1), { disabled: busy.value || index === 0 }),
+            button('下移', () => moveImage(index, 1),
+              { disabled: busy.value || index === form.images.length - 1 }),
+            button('移除', () => form.images.splice(index, 1), { disabled: busy.value }),
+          ]),
+        ])),
+        h('div', { class: 'knowledge-actions' }, [
+          button('添加图片', addImage, { disabled: busy.value || !imageCandidates.value.length }),
+        ]),
+        !imageCandidates.value.length && h('p', { class: 'knowledge-hint' },
+          '暂无可选图片。请先到“教学资源”上传 guide 类型的 PNG/JPEG。'),
+      ])
+    }
+
+    function imageSource(image) {
+      const key = `${selected.value?.id}:${image.id}`
+      if (!imageSources[key]) imageSources[key] = api.imageUrl(selected.value.id, image.id)
+      return imageSources[key]
+    }
+
+    function imageFigures(placement) {
+      return (selected.value?.images ?? [])
+        .filter(image => image.placement === placement)
+        .map(image => h('figure', { class: 'knowledge-figure', key: image.id }, image.available === false
+          ? [h('div', { class: 'knowledge-image-unavailable' }, '图片当前不可用')]
+          : [
+              h('img', { src: imageSource(image), alt: image.alt || '', loading: 'lazy' }),
+              image.caption && h('figcaption', image.caption),
+            ]))
+    }
+
     function editor() {
       return h('form', {
         class: 'knowledge-editor', onSubmit: event => {
@@ -169,11 +298,12 @@ export const KnowledgeView = {
           value: form.content, required: true, maxlength: 5000, rows: 9, disabled: busy.value,
           onInput: event => { form.content = event.target.value },
         })),
-        h('small', '支持文字及基础 HTML 排版；公式可用 sub/sup。保存时移除图片、链接及标签属性。'),
+        h('small', '支持文字及基础 HTML 排版；公式可用 sub/sup。正文和例题里的图片/链接标签仍会被移除，图片请用下方图片区。'),
         field('例题', h('textarea', {
           value: form.example, maxlength: 5000, rows: 4, disabled: busy.value,
           onInput: event => { form.example = event.target.value },
         })),
+        imageEditor(),
         ...[['published', '发布后学生可见'], ['is_foundational', '标记为基础知识']].map(([key, label]) =>
           h('label', { class: 'knowledge-check' }, [h('input', {
             type: 'checkbox', checked: form[key], disabled: busy.value,
@@ -199,9 +329,13 @@ export const KnowledgeView = {
         h('h3', item.title),
         // Only SPEC-005 server-sanitized, attribute-free markup is rendered as HTML.
         h('div', { class: 'knowledge-prose', innerHTML: item.content }),
-        item.example && h('section', { class: 'knowledge-example' }, [
-          h('h4', '例题'), h('div', { class: 'knowledge-prose', innerHTML: item.example }),
-        ]),
+        ...imageFigures('content'),
+        (item.example || (item.images ?? []).some(image => image.placement === 'example'))
+          && h('section', { class: 'knowledge-example' }, [
+            h('h4', '例题'),
+            item.example && h('div', { class: 'knowledge-prose', innerHTML: item.example }),
+            ...imageFigures('example'),
+          ]),
         student() && h('div', { class: 'knowledge-actions' }, [
           button(item.is_bookmarked ? '取消收藏' : '收藏知识点', () => run(() => setPersonal('bookmark'), '收藏状态已保存'),
             { 'aria-pressed': item.is_bookmarked }),

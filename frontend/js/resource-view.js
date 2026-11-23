@@ -247,9 +247,10 @@ export const ResourceView = {
           chapters.value.map(chapter => h('option', { value: String(chapter.id) }, chapter.title))])]),
         h('label', ['文件 ', h('input', {
           type: 'file', required: true, disabled: busy.value,
+          accept: uploadForm.kind === 'guide' ? '.pdf,.png,.jpg,.jpeg' : undefined,
           ref: el => { uploadFile.value = el },
         })]),
-        h('small', '文档/题库最大 20MiB，视频最大 100MiB；题库源文件仅教师可见。'),
+        h('small', '文档/题库最大 20MiB，视频最大 100MiB；guide 另可传 PNG/JPEG（≤5MiB，边长≤4096）；题库源文件仅教师可见。'),
         h('button', { type: 'submit', disabled: busy.value }, '上传'),
       ]),
       courseId.value && h('table', { class: 'resource-table' }, [

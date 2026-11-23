@@ -39,7 +39,7 @@ async function mounted(t, role) {
     unavailable: false,
     item: { id: 10, chapter_id: 1, title: '程序计数器', content: '<p>PC</p>', example: '',
       published: true, is_foundational: true, content_revision: 1,
-      is_bookmarked: false, progress: { completed: false, completed_at: null } },
+      is_bookmarked: false, progress: { completed: false, completed_at: null }, images: [] },
     mutations: [],
   }
   const originalFetch = globalThis.fetch
@@ -57,8 +57,16 @@ async function mounted(t, role) {
     }
     if (url.startsWith('/api/v1/courses?')) return result([{ id: 1, title: 'Fixture CPU' }], { total: 1 })
     if (url.startsWith('/api/v1/courses/1/chapters?')) return result([{ id: 1, title: 'CPU', position: 0 }], { total: 1, chapters_revision: 1 })
+    if (url.startsWith('/api/v1/courses/1/resources?')) return result([
+      { id: 31, title: 'CPU 图', visibility: 'students', latest_version_id: 41,
+        latest_version: 1, latest_media_type: 'image/png' }], { total: 1 })
+    if (url.startsWith('/api/v1/resources/31/versions?')) return result([
+      { id: 41, resource_id: 31, version: 1, media_type: 'image/png',
+        width: 5, height: 3 }], { total: 1 })
     if (url.startsWith('/api/v1/courses/1/knowledge-points?')) return result([{ ...fixture.item }], { total: 1 })
-    if (url === '/api/v1/knowledge-points/10') return result({ ...fixture.item, progress: { ...fixture.item.progress } })
+    if (url === '/api/v1/knowledge-points/10') return result({
+      ...fixture.item, progress: { ...fixture.item.progress }, images: [...fixture.item.images],
+    })
     throw new Error(`Unexpected fixture URL: ${url}`)
   }
   const root = node('root')
@@ -116,6 +124,45 @@ test('teacher can edit and unpublish while personal-state controls stay absent',
   await flush()
   assert.equal(fixture.item.published, false)
   assert.ok(find(root, 'button', '发布知识'))
+})
+
+test('student renders knowledge image through the protected image endpoint', async t => {
+  const { root, fixture } = await mounted(t, 'student')
+  fixture.item.images = [{
+    id: 51, resource_version_id: 41, version: 1, placement: 'content',
+    alt: 'PC 示意', caption: '图 1', media_type: 'image/png', width: 5, height: 3,
+    resource_title: 'CPU 图', available: true,
+  }]
+  await find(root, 'button', '程序计数器').props.onClick()
+  await flush()
+  const image = nodes(root).find(element => element.type === 'img')
+  assert.ok(image)
+  assert.match(image.props.src, /^\/api\/v1\/knowledge-points\/10\/images\/51\/content\?event_id=/)
+  assert.equal(image.props.alt, 'PC 示意')
+  assert.match(visibleText(root), /图 1/)
+})
+
+test('teacher adds a fixed image version and sends only safe image fields', async t => {
+  const { root, fixture } = await mounted(t, 'teacher')
+  fixture.item.images = [{
+    id: 51, resource_version_id: 41, version: 1, placement: 'content',
+    alt: 'PC 示意', caption: '图 1', media_type: 'image/png', width: 5, height: 3,
+    resource_title: 'CPU 图', available: true,
+  }]
+  await find(root, 'button', '程序计数器').props.onClick()
+  await flush()
+  await find(root, 'button', '编辑知识').props.onClick()
+  await flush()
+  assert.ok(find(root, 'button', '添加图片'))
+  await find(root, 'button', '添加图片').props.onClick()
+  await flush()
+  const editor = nodes(root).find(element => element.type === 'form' && element.props.class === 'knowledge-editor')
+  editor.props.onSubmit({ preventDefault() {} })
+  await flush()
+  const saved = fixture.mutations.at(-1).body
+  assert.equal(saved.images.length, 2)
+  assert.deepEqual(Object.keys(saved.images[0]).sort(), ['alt', 'caption', 'placement', 'resource_version_id'])
+  assert.ok(saved.images.every(image => image.resource_version_id === 41))
 })
 
 test('failed refresh shows retry without retaining previous search results', async t => {

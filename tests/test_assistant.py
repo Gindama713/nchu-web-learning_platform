@@ -8,6 +8,7 @@ from unittest import TestCase
 from werkzeug.security import generate_password_hash
 
 from backend.app import create_app
+from backend.models import knowledge_analysis
 from backend.shared.db import connect, migrate
 
 ORIGIN = "http://127.0.0.1:5173"
@@ -274,6 +275,52 @@ class AssistantTest(TestCase):
         # 条形图的数值与 facts 是同一份计算，不是重新查一遍
         self.assertEqual(data["charts"][0]["kind"], "bar")
         self.assertEqual(data["charts"][0]["items"][0]["value"], 50.0)
+
+    def test_my_attempts_matches_010b_and_excludes_pending_short(self):
+        self.seed_knowledge()
+        db = connect(self.path)
+        try:
+            db.execute("INSERT INTO question(id,course_id) VALUES(1,?),(2,?)",
+                       (self.course_id, self.course_id))
+            db.execute("INSERT INTO question_version(id,question_id,version,type,stem,options_json,"
+                       "answer_json,difficulty) VALUES(1,1,1,'boolean','ALU 的运算选择','[]','true','easy')")
+            db.execute("INSERT INTO question_version(id,question_id,version,type,stem,options_json,"
+                       "answer_json,difficulty) VALUES(2,2,1,'short','简述 PC 的作用','[]','PC 存放地址','easy')")
+            db.execute("INSERT INTO question_knowledge(question_version_id,knowledge_id) VALUES(1,1),(2,1)")
+            db.execute("INSERT INTO paper(id,course_id,title,kind,confidential,status,start_at,end_at,review_at) "
+                       "VALUES(1,?,'单元测验','exam',0,'draft','2026-11-19T08:00:00.000Z',"
+                       "'2026-11-19T09:00:00.000Z','2026-11-20T09:00:00.000Z')", (self.course_id,))
+            db.execute("INSERT INTO paper_item VALUES(1,1,1,1,10000)")
+            db.execute("INSERT INTO paper_item VALUES(1,2,2,2,5000)")
+            db.execute("INSERT INTO paper_participant VALUES(1,?)", (self.student_id,))
+            db.execute("UPDATE paper SET status='published' WHERE id=1")
+            db.execute("INSERT INTO attempt(id,paper_id,student_id,status,score_hundredths,"
+                       "partial_score_hundredths,revision,submitted_at) "
+                       "VALUES(1,1,?,'partial',NULL,10000,0,'2026-11-19T09:10:00.000Z')",
+                       (self.student_id,))
+            db.execute("INSERT INTO answer(attempt_id,question_version_id,value_json,score_hundredths,answered) "
+                       "VALUES(1,1,'true',10000,1)")
+            db.execute("INSERT INTO answer(attempt_id,question_version_id,value_json,score_hundredths,answered) "
+                       "VALUES(1,2,'PC 存放地址',NULL,1)")
+        finally:
+            db.close()
+        start, end = "2026-10-23T08:00:00.000Z", "2026-11-20T08:00:00.000Z"
+        db = connect(self.path)
+        try:
+            expected = knowledge_analysis.metrics(
+                knowledge_analysis.extract(db, self.course_id, start, end,
+                                           "2026-11-20T08:00:00.000Z", self.student_id), start, end)
+        finally:
+            db.close()
+        self.auth(self.student, "STUDENT01")
+        response = self.ask(self.student, "我做了多少题？")
+        self.assertEqual(response.status_code, 200, response.json)
+        data = response.json["data"]
+        self.assertEqual(data["intent"], "my_attempts")
+        self.assertEqual(data["facts"][0]["value"], expected["answered_count"])
+        self.assertEqual(data["facts"][2]["value"], round(expected["mastery"] * 100, 1))
+        self.assertEqual(expected["answered_count"], 1)
+        self.assertIn("正确率 100.0%", data["answer"])
 
     def test_student_reads_own_practice_records(self):
         self.seed_knowledge()

@@ -1,6 +1,6 @@
 # SPEC-005 图文知识：资源契约与独立准备
 
-黄俊诚（24201716，Nelpine），2026-10-20，Asia/Shanghai。状态：**契约提案及现有边界验证，图文实现仍有003依赖**。本包不修改003业务、共享鉴权、生产迁移或HTML白名单，不发送协作消息，不代合并/发布。
+黄俊诚（24201716，Nelpine），2026-10-20，Asia/Shanghai。状态：**2026-11-21 已实现 guide 图片固定版本引用的最小闭环；003/005/前端均有真实 handler 与单元回归**。下文第1—4节保留 2026-10-20 的边界探针历史；当前实现以末节“2026-11-21 实现状态”为准。本分支不合并共享分支、不代发布。
 
 ## 当前核验
 
@@ -84,3 +84,12 @@ Ruff检查仅新增测试/执行器通过；16份变更Markdown按最多3份一�
 下一步先由真实复核确认PRD/APIC/DBD提案及003最小能力；取得含003增量的最新develop后，在本人SPEC feature实现并定向验证上述清单。两名非作者复核是共享API/数据库/权限变更的合入条件，不阻止本轮准备、验证及feature保存。
 
 本包回退仅撤新增探针/执行器、提案和导航；没有生产schema或业务数据变更。未来关系迁移回退须保留新关系/旧版本/事件/学习事实并部署兼容代码，不能清表或改旧迁移。仍未授权共享直推、强推、代合并、发布、归档或协作消息。
+
+## 2026-11-21 实现状态
+
+- 003：`guide` 现在接受 PDF、PNG、JPEG；PNG/JPEG 按真实字节校验 MIME 与尺寸，伪装 MIME、损坏图片、>5MiB、边长>4096 均拒绝；`resource_version` 以 `028_knowledge_images.sql` 增加可空 `width/height`，旧版本字节与 SHA 不变。资源版本列表返回 `media_type/width/height`。
+- 005：新增 `knowledge_image(knowledge_id,resource_version_id,placement,position,alt,caption)`，只保存固定资源版本 ID，不保存 URL。保存时校验同课、guide、PNG/JPEG、宽高、未归档、文件存在；`images` 最多 20 项，未知字段/外部 URL/跨课/PDF 引用整批 400。已有但后来归档或文件缺失的引用允许随文字保存保留，详情降级为不可用。
+- 读取：`GET /knowledge-points/{id}` 返回图片元数据；学生只看到当前可用项，教师能看到不可用占位。`GET /knowledge-points/{id}/images/{image_id}/content?event_id=UUID` 同时校验知识点发布状态、课程成员、资源当前可见性、归档、文件存在和真实图片类型；复用资源访问事件去重，响应 `Cache-Control: private, no-store`。
+- 前端：知识编辑器提供本课 guide 固定版本选择、位置（正文后/例题后）、alt、图注、排序、移除；学生详情通过同源受保护接口显示 `<img>`，不把图片塞进服务端清洗 HTML。
+- 回归：`tests/test_knowledge_images.py` 覆盖教师保存/学生读取/重登、旧版本稳定、跨课、非图片、MIME 伪装、草稿、teacher_only、归档、缺文件、撤权、非法 event_id；`frontend/js/knowledge-view.test.js`、`knowledge-client.test.js` 覆盖选择与受保护 URL。旧 `tests/test_knowledge_image_contract.py` 已把“PNG/JPEG 全 415”历史断言改为 guide 正向、其他 kind 拒绝。
+- 仍未做：知识编辑器内直接上传（当前走教学资源页复用 003）、归档 HTTP 操作、管理员图片读取入口、复杂公式编辑器；这些不阻塞本轮图文目标。

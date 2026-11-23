@@ -111,25 +111,35 @@ class KnowledgeImageContractTest(TestCase):
             return tuple(db.execute(f"SELECT count(*) FROM {name}").fetchone()[0]
                          for name in ("resource", "resource_version", "file_object", "resource_event"))
 
-    def test_png_jpeg_uploads_and_new_versions_are_currently_blocked(self):
-        control = self.pdf()
+    def test_png_jpeg_uploads_and_new_versions_are_supported_for_guide(self):
+        self.pdf()
         before = self.counts()
         for extension, mime in ((".png", "image/png"), (".jpg", "image/jpeg")):
             ok, encoded = cv2.imencode(extension, np.zeros((2, 3, 3), dtype=np.uint8))
             self.assertTrue(ok)
             self.assertEqual(cv2.imdecode(encoded, cv2.IMREAD_COLOR).shape, (2, 3, 3))
             content = encoded.tobytes()
-            for kind in ("slides", "guide", "video", "question_bank"):
+            for kind in ("slides", "video", "question_bank"):
                 with self.subTest(mime=mime, kind=kind):
                     response = self.call(self.teacher, "POST", self.course + "/resources", {
                         "title": "PNG/JPEG readiness", "kind": kind}, 415,
                         upload=("probe" + extension, mime, content))
                     self.assertEqual(response.json["error"]["code"], "UNSUPPORTED_MEDIA")
-            self.call(self.teacher, "POST", f"/resources/{control['resource_id']}/versions", {},
-                      415, upload=("probe" + extension, mime, content))
-        self.assertEqual(self.counts(), before)
+            created = self.call(self.teacher, "POST", self.course + "/resources", {
+                "title": "Guide image", "kind": "guide"}, 201,
+                upload=("probe" + extension, mime, content)).json["data"]
+            self.assertEqual((created["media_type"], created["width"], created["height"]),
+                             (mime, 3, 2))
+            version = self.call(self.teacher, "POST", f"/resources/{created['resource_id']}/versions",
+                                {}, 201, upload=("probe-v2" + extension, mime, content)).json["data"]
+            self.assertEqual((version["media_type"], version["width"], version["height"]),
+                             (mime, 3, 2))
+        after = self.counts()
+        self.assertEqual(after[3], before[3])
+        self.assertGreater(after[2], before[2])
         self.observations.append({"capability": "real PNG/JPEG create and version upload",
-                                  "status": "blocked", "reason": "no allowed image MIME in any current kind"})
+                                  "status": "supported", "kinds": ["guide"],
+                                  "other_kinds": "415 UNSUPPORTED_MEDIA"})
 
     def test_markup_persists_without_images_urls_or_attributes_after_relogin(self):
         source = ('<p class="x" onclick="x()">PC<sup>2</sup></p>'
@@ -155,12 +165,15 @@ class KnowledgeImageContractTest(TestCase):
 
     def test_unknown_image_fields_fail_atomically_and_roles_remain_enforced(self):
         before = self.call(self.teacher, "GET", self.detail).json["data"]
-        for field, value in (("images", []), ("resource_version_ids", [1]),
+        self.call(self.teacher, "PATCH", self.detail, {"images": []})
+        self.assertEqual(self.call(self.teacher, "GET", self.detail).json["data"]["images"], [])
+        for field, value in (("resource_version_ids", [1]),
                              ("image_url", "https://invalid.example/a.png")):
             self.call(self.teacher, "PATCH", self.detail, {"title": "must not persist", field: value}, 400)
             self.call(self.teacher, "POST", f"/chapters/{self.chapter_id}/knowledge-points", {
                 "title": "must not create", "content": "text", "published": False, field: value}, 400)
-        self.assertEqual(self.call(self.teacher, "GET", self.detail).json["data"], before)
+        after = self.call(self.teacher, "GET", self.detail).json["data"]
+        self.assertEqual(after, {**before, "images": []})
         with closing(connect(self.path)) as db:
             self.assertEqual(db.execute("SELECT count(*) FROM knowledge_point").fetchone()[0], 1)
         self.call(self.student, "PATCH", self.detail, {"content": "forbidden"}, 403)

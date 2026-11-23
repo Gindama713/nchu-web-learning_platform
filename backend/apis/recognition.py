@@ -99,7 +99,8 @@ def dimensions(data):
             if length < 2 or pos + length > len(data):
                 break
             if marker in (0xC0, 0xC1, 0xC2, 0xC3) and length >= 7:
-                return "image/jpeg", int.from_bytes(data[pos + 3:pos + 5], "big"), int.from_bytes(data[pos + 5:pos + 7], "big")
+                # SOF 的顺序是精度、高、宽；与 PNG 返回值统一为宽、高。
+                return "image/jpeg", int.from_bytes(data[pos + 5:pos + 7], "big"), int.from_bytes(data[pos + 3:pos + 5], "big")
             pos += length
     raise ApiError(415, "UNSUPPORTED_IMAGE", "PNG or JPEG required")
 

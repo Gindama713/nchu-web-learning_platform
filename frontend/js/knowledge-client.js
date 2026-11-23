@@ -45,11 +45,12 @@ export class KnowledgeClient {
     })).data
   }
 
-  async allPages(path, revisionKey) {
+  async allPages(path, revisionKey, params = {}) {
     const items = []
     let total, revision
     for (let page = 1; ; page++) {
-      const result = await this.request(`${path}?page=${page}&page_size=100`)
+      const query = new globalThis.URLSearchParams({ page, page_size: 100, ...params })
+      const result = await this.request(`${path}?${query}`)
       if (page === 1) {
         total = result.total
         revision = revisionKey ? result[revisionKey] : undefined
@@ -71,6 +72,34 @@ export class KnowledgeClient {
 
   courses() { return this.allPages('/courses') }
   chapters(courseId) { return this.allPages(`/courses/${courseId}/chapters`, 'chapters_revision') }
+  resources(courseId, params = {}) {
+    return this.allPages(`/courses/${courseId}/resources`, undefined, params)
+  }
+  versions(resourceId) { return this.allPages(`/resources/${resourceId}/versions`) }
+
+  async imageCandidates(courseId) {
+    const resources = await this.resources(courseId, { kind: 'guide' })
+    const candidates = []
+    for (const resource of resources.items) {
+      const versions = await this.versions(resource.id)
+      for (const version of versions.items) {
+        if (!['image/png', 'image/jpeg'].includes(version.media_type)
+            || !version.width || !version.height) continue
+        candidates.push({
+          resource_id: resource.id, resource_title: resource.title,
+          visibility: resource.visibility, resource_version_id: version.id,
+          version: version.version, media_type: version.media_type,
+          width: version.width, height: version.height,
+        })
+      }
+    }
+    return candidates
+  }
+
+  imageUrl(knowledgeId, imageId) {
+    return `/api/v1/knowledge-points/${knowledgeId}/images/${imageId}/content`
+      + `?event_id=${encodeURIComponent(crypto.randomUUID())}`
+  }
 
   list(courseId, { page = 1, q = '', chapterId = '' } = {}) {
     const params = new globalThis.URLSearchParams({ page, page_size: 20 })

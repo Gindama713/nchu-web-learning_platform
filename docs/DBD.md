@@ -52,11 +52,12 @@ erDiagram
 |---|---|---|
 | chapter | course_id FK；title TEXT；position INTEGER | position≥0；UQ(course_id,position)；重排在事务内先移到不冲突的临时非负位置，再写0至n−1，完成后无间隙；新增与重排递增course.chapters_revision |
 | knowledge_point | chapter_id FK；title/content/example TEXT；published INTEGER；content_revision INTEGER；is_foundational INTEGER NN默认0 | content_revision递增驱动问答索引更新；归档替代删除被引用项 |
+| knowledge_image | knowledge_id FK；resource_version_id FK；placement TEXT；position INTEGER；alt/caption TEXT | placement=content/example；UQ(knowledge_id,placement,position)；固定资源版本，不存URL；同课guide真实PNG/JPEG；下架/撤权/归档/缺文件在读时失败关闭 |
 | bookmark | user_id FK；knowledge_id FK | UQ(user_id,knowledge_id) |
 | learning_progress | user_id FK；knowledge_id FK；completed INTEGER；completed_at TEXT可空 | UQ(user_id,knowledge_id)；完成状态0/1；进度聚合仅联结同快照本课published知识点；下架不删除记录但不计分子或分母 |
 | file_object | owner_id FK；storage_key TEXT NN UQ；original_name TEXT；media_type TEXT；size_bytes INTEGER；sha256 TEXT；purpose TEXT | size≥0；服务端生成不含路径分隔符的key；不存可执行上传路径；purpose白名单 |
 | resource | course_id FK；chapter_id FK可空；title TEXT；kind TEXT；visibility TEXT NN；archived INTEGER | kind限定slides/video/guide/question_bank；visibility=students/teacher_only；question_bank必须teacher_only |
-| resource_version | resource_id FK；version INTEGER；file_id FK file_object；change_note TEXT | UQ(resource_id,version)；发布后不可覆盖 |
+| resource_version | resource_id FK；version INTEGER；file_id FK file_object；change_note TEXT；width/height INTEGER可空 | UQ(resource_id,version)；发布后不可覆盖；图片版本记录真实宽高，旧版本字节不变 |
 | resource_event | user_id FK；resource_version_id FK；event_type TEXT；event_id TEXT NN；request_id TEXT；UNIQUE(user_id,event_id) | event_type=view/download由content.intent映射；event_id为逻辑访问UUID，request_id为首个请求追踪；成功提供非空内容的200/206才计数；按资源/日期索引；同用户逻辑打开/下载及其Range分片去重；同event_id不同版本/type拒绝409；不把预览再计download |
 | preparation | course_id FK；title TEXT；scheduled_at TEXT可空；status TEXT；source_id FK本表可空；published_at TEXT可空 | status为draft/published/withdrawn；source_id保留模板来源；replaces_id FK本表可空、withdrawn_at TEXT可空、withdraw_reason TEXT；UQ(replaces_id)约束一个旧项只能被替代一次，撤回不删关联 |
 | preparation_knowledge | preparation_id FK；knowledge_id FK | 复合主键两字段 |
