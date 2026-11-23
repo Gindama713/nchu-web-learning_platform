@@ -43,7 +43,7 @@ def call(op, method, path, body=None, csrf=None, origin=BASE):
             return resp.status, resp.read().decode("utf-8", "replace")
     except urllib.error.HTTPError as failure:
         return failure.code, failure.read().decode("utf-8", "replace")
-    except Exception as failure:  # noqa: BLE001
+    except Exception as failure:
         return 0, json.dumps({"transport": str(failure)}, ensure_ascii=False)
 
 
@@ -72,7 +72,7 @@ def main():
 
     now = datetime.now(UTC)
     z = lambda m: (now + timedelta(minutes=m)).isoformat(timespec="milliseconds").replace("+00:00", "Z")
-    title = "压测-g24201710-%s" % uuid.uuid4().hex[:5]
+    title = f"压测-g24201710-{uuid.uuid4().hex[:5]}"
 
     # ---------- 1. 并发创建点到任务 ----------
     create_body = {"title": title + "-race", "start_at": z(-1), "late_at": z(8), "end_at": z(20)}
@@ -115,7 +115,7 @@ def main():
         for _, r in results:
             try:
                 ids.append((json.loads(r).get("data") or {}).get("id"))
-            except Exception:  # noqa: BLE001
+            except Exception:
                 ids.append(None)
         rows = ro("SELECT id,status,source FROM attendance_record "
                   "WHERE task_id=? AND student_id=151", (tid,))

@@ -1,8 +1,8 @@
 """高强度探测：不预设结论，只收集真实响应。不修代码、不删数据。"""
 from __future__ import annotations
 
-import json
 import http.cookiejar
+import json
 import urllib.error
 import urllib.request
 from collections import defaultdict
@@ -32,7 +32,7 @@ def call(op, method, path, body=None, csrf=None, origin=BASE):
             return resp.status, resp.read().decode("utf-8", "replace")
     except urllib.error.HTTPError as failure:
         return failure.code, failure.read().decode("utf-8", "replace")
-    except Exception as failure:  # noqa: BLE001
+    except Exception as failure:
         return 0, json.dumps({"transport": str(failure)}, ensure_ascii=False)
 
 
@@ -111,7 +111,7 @@ def main():
         gets = [e["path"] for e in m.get("endpoints", []) if e.get("method", "").startswith("GET")]
         if not gets:
             continue
-        path = sorted(gets, key=len)[0]
+        path = min(gets, key=len)
         for key, value in path_sub.items():
             path = path.replace(key, value)
         path = re.sub(r"\{[^}]+\}", "1", path)

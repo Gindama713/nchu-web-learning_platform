@@ -85,9 +85,9 @@ def main() -> int:
     group_no, seat_no = (int(x) for x in args.seat.split(","))
 
     read_paths = [
-        f"/api/v1/courses?page=1&page_size=100",
+        "/api/v1/courses?page=1&page_size=100",
         f"/api/v1/courses/{args.course}/knowledge-graph",
-        f"/api/v1/attendance-tasks/53/seats",
+        "/api/v1/attendance-tasks/53/seats",
         f"/api/v1/courses/{args.course}/attendance-tasks",
     ]
     counts = Counter()

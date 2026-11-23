@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """把课程 #16 扩成「四班同堂」：教室扩容 + 四个班全体学生 + 全量业务数据。
 
 用法（在仓库根目录执行）：
@@ -15,7 +14,7 @@ from __future__ import annotations
 import math
 import os
 import sqlite3
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DB = os.path.join(ROOT, "instance", "app.db")
@@ -26,12 +25,12 @@ ROOM_NAME = "教学楼 A-305 · 阶梯教室（四班同堂）"
 
 
 def stamp(moment: datetime | None = None) -> str:
-    moment = moment or datetime.now(timezone.utc)
+    moment = moment or datetime.now(UTC)
     return moment.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
 
 
 def parse(value: str) -> datetime:
-    return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    return datetime.fromisoformat(value)
 
 
 def main() -> None:
@@ -40,7 +39,7 @@ def main() -> None:
     db.execute("PRAGMA foreign_keys=ON")
     db.execute("PRAGMA busy_timeout=5000")
     db.execute("BEGIN IMMEDIATE")
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     ts = stamp(now)
 
     # 原始名单：种子脚本一次性写入的那批成员（created_at 相同），重跑时用它识别「新增的人」

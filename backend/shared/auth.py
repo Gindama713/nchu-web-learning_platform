@@ -23,7 +23,7 @@ def csrf_for(token):
 def _heartbeat_due(last_seen_at):
     """距上次续期是否已经超过阈值；时间串解析不了就当作需要续期。"""
     try:
-        seen = datetime.fromisoformat(str(last_seen_at).replace("Z", "+00:00"))
+        seen = datetime.fromisoformat(str(last_seen_at))
     except (TypeError, ValueError):
         return True
     return (now() - seen).total_seconds() >= HEARTBEAT_SECONDS

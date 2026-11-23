@@ -277,7 +277,7 @@ def main():
                 report["browsers"].append(result)
                 print(f"{channel} {result['version']}: {len(result['checks'])} checks passed", flush=True)
         report["status"] = "passed"
-    except Exception as error:  # noqa: BLE001 - sanitized CLI failure boundary prevents credential-bearing exception output
+    except Exception as error:
         report["status"] = "failed"
         # Never serialize requests, cookies, passwords, tokens or browser storage.
         report["failure_type"] = type(error).__name__

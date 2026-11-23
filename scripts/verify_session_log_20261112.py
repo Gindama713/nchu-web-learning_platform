@@ -78,8 +78,8 @@ def main() -> int:
         print(f"登录失败：{status} {body[:200]}")
         return 1
     cookie_header = "; ".join(item.split(";", 1)[0] for item in cookies)
-    token = [item for item in cookie_header.split("; ") if item.startswith("cpu_session=")][0].split("=", 1)[1]
-    csrf = json.loads(body)["data"]["csrf_token"]
+    token = next(item for item in cookie_header.split("; ") if item.startswith("cpu_session=")).split("=", 1)[1]
+    json.loads(body)["data"]["csrf_token"]
     row = session_row(args.db, token)
     check("登录后能查到本次会话", row is not None, f"session id={row[0] if row else None}")
 
@@ -110,7 +110,7 @@ def main() -> int:
           f"最新 {len(rows)} 条：{[item.get('path') for item in rows][:3]}")
     newest = rows[0]["at"] if rows else None
     if newest:
-        age = (datetime.now(UTC) - datetime.fromisoformat(newest.replace("Z", "+00:00"))).total_seconds()
+        age = (datetime.now(UTC) - datetime.fromisoformat(newest)).total_seconds()
         check("最新一条访问日志是刚刚写入的", age < 60, f"{age:.0f} 秒前")
 
     # 导出接口自身不该被记进日志，否则越导出越多

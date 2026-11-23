@@ -235,7 +235,7 @@ def main():
                 print(f"{channel}: {len(report['browsers'][-1]['checks'])} groups passed", flush=True)
         report['status'] = 'passed'
         return 0
-    except Exception as error:  # noqa: BLE001 - preserve locations without credentials/request bodies
+    except Exception as error:
         report['status'] = 'failed'
         report['failure_type'] = type(error).__name__
         report['failure_locations'] = [f'{Path(f.filename).name}:{f.name}:{f.lineno}' for f in traceback.extract_tb(error.__traceback__)]

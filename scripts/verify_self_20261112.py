@@ -71,7 +71,7 @@ class Session:
                 status, raw = response.status, response.read().decode("utf-8", "replace")
         except urllib.error.HTTPError as failure:
             status, raw = failure.code, failure.read().decode("utf-8", "replace")
-        except Exception as failure:  # noqa: BLE001
+        except Exception as failure:
             raw = json.dumps({"transport": str(failure)}, ensure_ascii=False)
         elapsed = round((time.perf_counter() - started) * 1000, 1)
         try:
@@ -267,13 +267,13 @@ def main():
            not extra_public, "比对 /help.public_endpoints 与匿名 GET 实测", "中")
 
     # I-10 公开接口不得泄露凭据（对照 g24201807 高危缺陷）
-    s_who, _, raw_who = anon.get("/who")
-    s_help, _, raw_help = anon.get("/help")
+    _s_who, _, raw_who = anon.get("/who")
+    _s_help, _, raw_help = anon.get("/help")
     leak = []
     for label, raw in (("/who", raw_who), ("/help", raw_help)):
         for pattern in (r'"password"\s*:\s*"', r'csrf_token"\s*:\s*"[A-Za-z0-9]{16,}',
                         r'"access_token"', r'"secret"'):
-            if re.search(pattern, raw, re.I):
+            if re.search(pattern, raw, re.IGNORECASE):
                 leak.append(f"{label}:{pattern}")
     record("I-10", "接口", "公开接口不泄露明文口令/令牌",
            "/who 与 /help 响应体不含口令、CSRF 值、访问令牌",
@@ -311,7 +311,7 @@ def main():
            "教师 GET /api/v1/courses/16/members", "高", priority="P0")
 
     # R-04：直连后端根路径（单进程沙箱关键）
-    s, _, raw_root = anon.get("/")
+    s, _, _raw_root = anon.get("/")
     # 前端地址用独立 opener，避免复用后端 base
     front_probe = urllib.request.build_opener(urllib.request.ProxyHandler({}))
     try:
@@ -319,13 +319,13 @@ def main():
             front_status = resp.status
     except urllib.error.HTTPError as failure:
         front_status = failure.code
-    except Exception:  # noqa: BLE001
+    except Exception:
         front_status = 0
     record("R-04", "回归", "C4 当前双进程部署首页可达",
            "前端 GET / 返回 200（后端专注 /api/v1，不托管页面属设计）",
            f"前端 {args.frontend}/ = HTTP {front_status}；后端 {args.base}/ = HTTP {s}"
            "（后端 404 是双进程分工，不是故障）",
-           front_status == 200, f"分别 GET 前端与后端根路径", "中", priority="P1")
+           front_status == 200, "分别 GET 前端与后端根路径", "中", priority="P1")
     has_static_doc = (REPO / "docs" / "index.html").is_file()
     record("R-04b", "回归", "C4 单进程静态沙箱首页（条件性风险）",
            "若老师沙箱只起 Flask 一个进程，GET / 应返回 200",
@@ -426,7 +426,7 @@ def main():
     # ---------- 功能：日志导出 ----------
     s, p, raw = teacher.get("/api/v1/logs/access.csv")
     csv_lines = len(raw.splitlines())
-    leak_csv = bool(re.search(r'"password"\s*:|csrf_token', raw, re.I))
+    leak_csv = bool(re.search(r'"password"\s*:|csrf_token', raw, re.IGNORECASE))
     record("F-11a", "功能", "访问日志 CSV 导出", "200 且内容可解析、无敏感字段",
            f"HTTP {s}，{csv_lines} 行，敏感字段={'有' if leak_csv else '无'}",
            s == 200 and csv_lines > 1 and not leak_csv,
@@ -445,7 +445,7 @@ def main():
     # ---------- 功能：点到主链路（独立自测任务，收尾 close） ----------
     now = datetime.now(UTC)
     z = lambda m: (now + timedelta(minutes=m)).isoformat(timespec="milliseconds").replace("+00:00", "Z")
-    title = "自测-g24201710-%s-%s" % (DATE, uuid.uuid4().hex[:4])
+    title = f"自测-g24201710-{DATE}-{uuid.uuid4().hex[:4]}"
 
     s, p, _ = teacher.post("/api/v1/courses/%d/attendance-tasks" % cid,
                            {"title": title, "start_at": z(-1), "late_at": z(6), "end_at": z(15)})
@@ -602,7 +602,7 @@ def main():
                "无头 Edge --dump-dom 打开前端首页", "高", priority="P0")
         record("R-02", "回归", "C2 登录页 DOM 契约回归", "六个 ID 全在",
                f"缺失={missing or '无'}", not missing, "同上", "高")
-    except Exception as failure:  # noqa: BLE001
+    except Exception as failure:
         for iid in ("S-08", "R-02"):
             record(iid, "冒烟", "浏览器登录页 DOM", "六个 ID 全在",
                    f"浏览器执行失败：{failure}", False, "无头 Edge --dump-dom",
@@ -681,15 +681,15 @@ def write_outputs(started, args):
         "",
         f"- 测试时间：{started}",
         "- 测试对象：本组「计算机组成原理课程学习系统」",
-        f"- 代码：`D:\\Desktop\\WebBigHomework\\wt-demo`（demo-week11 @ 3ee01ba，含 2 个未提交改动）",
+        "- 代码：`D:\\Desktop\\WebBigHomework\\wt-demo`（demo-week11 @ 3ee01ba，含 2 个未提交改动）",
         f"- 服务：后端 {args.base} / 前端 {args.frontend}",
         "- 计划：`docs/TEST_PLAN_SELF_20261112.md`",
         "- 脚本：`scripts/verify_self_20261112.py`（Python 标准库，可一键复跑）",
         "",
         "## 1 测试范围",
         "",
-        "- 按互测复盘把 12 条「测试方自己的错」、2 个被测组的 3 类真实缺陷、"
-        "自己项目 12 条历史缺陷转成回归用例。",
+        ("- 按互测复盘把 12 条「测试方自己的错」、2 个被测组的 3 类真实缺陷、"
+        "自己项目 12 条历史缺陷转成回归用例。"),
         "- 分层：冒烟、接口、功能、回归、数据一致性、E2E；覆盖 `/help` 声明的 27 模块 / 148 端点中的核心链路。",
         "- 不在范围：源码审计、性能压测、真实 Logisim 评测、后端重启持久化、浏览器交互级 E2E（标未执行）。",
         "- 不删改正式数据；新建点到任务标记为「自测」并走系统 `close` 收尾。",
@@ -733,12 +733,12 @@ def write_outputs(started, args):
         f"**{verdict}。**",
         "",
         f"- P0 用例 {len(p0)} 条，未通过 {len(p0_fail)} 条。",
-        "- 判定 FAIL 前已按复盘规则自证：字段按 `/help`、方法按声明、账号归属、响应外壳、"
-        "同期服务可达性；`/api/v1/health` 的 503/degraded 按已知设计不记缺陷。",
-        "- 手势签到不是缺失：`identity.py` 注释说明 `/auth/gesture` 已被有意移除，"
-        "改为教师建任务时指定 `pattern`（见 F-08a/b/c）。",
-        "- **缺陷表 0 条不等于零风险**：未执行项与单进程静态沙箱条件性风险均未记为通过，"
-        "也未记成功能缺陷，详见遗留风险。",
+        ("- 判定 FAIL 前已按复盘规则自证：字段按 `/help`、方法按声明、账号归属、响应外壳、"
+        "同期服务可达性；`/api/v1/health` 的 503/degraded 按已知设计不记缺陷。"),
+        ("- 手势签到不是缺失：`identity.py` 注释说明 `/auth/gesture` 已被有意移除，"
+        "改为教师建任务时指定 `pattern`（见 F-08a/b/c）。"),
+        ("- **缺陷表 0 条不等于零风险**：未执行项与单进程静态沙箱条件性风险均未记为通过，"
+        "也未记成功能缺陷，详见遗留风险。"),
     ]
     if defects:
         lines.append("- 未通过项：")
@@ -751,8 +751,8 @@ def write_outputs(started, args):
         "1. 结果只对当前 `wt-demo` 工作区成立（含 2 个未提交改动），提交后需复跑。",
         "2. 浏览器交互级 E2E 与座位图渲染未执行，需 CDP/Playwright 环境或现场人工。",
         "3. 后端重启持久化、真实 Logisim 评测未验证；`grader_ready:false` 属已知状态。",
-        "4. 单进程沙箱下直连后端 `/` 的行为见 R-04b（当前 develop 返回 404）；若老师用静态沙箱，需确认 `docs/index.html`"
-        " 与后端静态托管方案都已合入课堂提交版。",
+        ("4. 单进程沙箱下直连后端 `/` 的行为见 R-04b（当前 develop 返回 404）；若老师用静态沙箱，需确认 `docs/index.html`"
+        " 与后端静态托管方案都已合入课堂提交版。"),
         "5. 本报告不含明文口令、CSRF 令牌或完整个人数据；原始请求日志本地留存。",
         "6. 脚本会创建「自测」任务并在 close 时按名单补记，会抬高演示首页考勤数字；跑完请执行 `scripts/cleanup_demo_selftest.py --db <库路径> --apply` 复位（脚本默认 dry-run 且自动备份）。",
         "",

@@ -204,7 +204,7 @@ def clear_seats(course_id):
     """
     with write() as db:
         course_access(course_id, teacher=True)
-        room = ensure_classroom(db, course_id)
+        ensure_classroom(db, course_id)
         removed = db.execute("SELECT COUNT(*) FROM class_seat WHERE course_id=?",
                              (course_id,)).fetchone()[0]
         db.execute("DELETE FROM class_seat WHERE course_id=?", (course_id,))

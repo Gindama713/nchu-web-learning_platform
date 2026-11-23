@@ -7,7 +7,15 @@
 from flask import Blueprint, request
 
 from backend.models import poll as model
-from backend.shared.api import ApiError, body, page_args, paged, positive_int, result, text_field
+from backend.shared.api import (
+    ApiError,
+    body,
+    page_args,
+    paged,
+    positive_int,
+    result,
+    text_field,
+)
 from backend.shared.auth import course_access, require_user
 from backend.shared.db import get_db, write
 
@@ -161,10 +169,9 @@ def poll_results(poll_id):
     user = require_user()
     row = model.find(get_db(), poll_id)
     teacher = is_teacher(row)
-    if not teacher:
+    if not teacher and not model.my_choices(get_db(), poll_id, user["id"]):
         # 学生必须先投过：未投就能看分布，等于让后面的人跟着前面的选
-        if not model.my_choices(get_db(), poll_id, user["id"]):
-            raise ApiError(403, "FORBIDDEN", "投票之后才能看结果")
+        raise ApiError(403, "FORBIDDEN", "投票之后才能看结果")
     data = model.results(get_db(), row)
     data["poll"] = model.response(get_db(), row)
     if teacher:

@@ -18,8 +18,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from backend.shared.db import migrate
 from werkzeug.security import generate_password_hash
+
+from backend.shared.db import migrate
 
 TEACHER_NO = "teacher"
 TEACHER_PASSWORD = "teacher"

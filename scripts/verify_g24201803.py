@@ -63,7 +63,7 @@ class Session:
                 status, raw = response.status, response.read().decode("utf-8", "replace")
         except urllib.error.HTTPError as failure:
             status, raw = failure.code, failure.read().decode("utf-8", "replace")
-        except Exception as failure:  # noqa: BLE001 — 网络异常也要收成一条记录
+        except Exception as failure:
             raw = json.dumps({"transport": str(failure)}, ensure_ascii=False)
         elapsed = round((time.perf_counter() - started) * 1000, 1)
         try:
@@ -223,7 +223,7 @@ def main():
     # ---------- 功能：课堂点到主流程 ----------
     now = datetime.now(UTC)
     z = lambda m: (now + timedelta(minutes=m)).isoformat(timespec="milliseconds").replace("+00:00", "Z")
-    title = "互测-g24201710-姜苏豪-%s-%s" % (DATE, uuid.uuid4().hex[:4])
+    title = f"互测-g24201710-姜苏豪-{DATE}-{uuid.uuid4().hex[:4]}"
     s, p, _ = teacher.post("/api/classes/%d/attendance-tasks" % CLASS_ID,
                            {"title": title, "starts_at": z(-1), "late_at": z(6),
                             "ends_at": z(15), "methods": ["code"]})
@@ -300,13 +300,13 @@ def main():
         for label, path in (("seats", "/api/attendance-tasks/%d/seats" % task_id),
                             ("records", "/api/attendance-tasks/%d/records" % task_id),
                             ("report", "/api/attendance-tasks/%d/report" % task_id)):
-            s_r, _, raw_r = teacher.get(path)
+            s_r, _, _raw_r = teacher.get(path)
             reads.append(f"{label}={s_r}")
         record("FUNC-08", "功能", "教师读取座位图/签到记录/报表", "三个接口均 HTTP 200",
                "，".join(reads), all(x.endswith("=200") for x in reads),
                "教师分别 GET seats / records / report", "中")
 
-        s_t, p_t, _ = teacher.get("/api/attendance-tasks/%d" % task_id)
+        _s_t, p_t, _ = teacher.get("/api/attendance-tasks/%d" % task_id)
         rev = (p_t.get("data") or {}).get("revision", rev)
         s_c, p_c, _ = teacher.post("/api/attendance-tasks/%d/close" % task_id, {"revision": rev})
         closed = (p_c.get("data") or {}) if isinstance(p_c, dict) else {}
@@ -338,7 +338,7 @@ def main():
                    "/help 声明至少一条 GET 接口", "该模块无 GET 端点", False,
                    f"检查 /help.api.modules.{_mname}", "中", status_override="未执行")
             continue
-        _path = _re.sub(r"<[^>]+>", "5", sorted(_gets, key=len)[0])
+        _path = _re.sub(r"<[^>]+>", "5", min(_gets, key=len))
         _s, _p, _raw = teacher.get(_path)
         _json_ok = isinstance(_p, dict) and ("data" in _p or "error" in _p)
         record("MOD-%02d" % _idx, "模块抽查", f"{_mname}：{_path}",
@@ -441,7 +441,7 @@ def main():
 
     # 任务取消分支
     _s, _p, _ = teacher.post("/api/classes/5/attendance-tasks",
-                             {"title": "互测-取消分支-%s" % uuid.uuid4().hex[:4],
+                             {"title": f"互测-取消分支-{uuid.uuid4().hex[:4]}",
                               "starts_at": z(2), "late_at": z(8), "ends_at": z(20),
                               "methods": ["code"]})
     _cancel = (_p.get("data") or {}) if isinstance(_p, dict) else {}
@@ -487,7 +487,7 @@ def main():
                f"DOM {len(_dom)} 字节，登录表单={'有' if _has_login else '未检出'}",
                len(_dom) > 500 and _has_login,
                "无头 Edge --dump-dom 打开 /pages/auth.html", "中")
-    except Exception as _failure:  # noqa: BLE001 — 浏览器不可用也要留一条未执行记录
+    except Exception as _failure:
         record("BROWSER-01", "E2E", "无头浏览器打开登录页", "页面渲染出登录表单",
                f"浏览器执行失败：{_failure}", False, "无头 Edge --dump-dom", "中",
                status_override="未执行")
@@ -538,7 +538,7 @@ def write_outputs(started):
     total_fail = sum(c["status"] == "失败" for c in CASES)
     total_block = sum(c["status"] == "阻塞" for c in CASES)
     core = [c for c in CASES if c["id"].startswith(("SM-", "API-"))]
-    core_ok = all(c["status"] == "通过" for c in core)
+    all(c["status"] == "通过" for c in core)
     func = [c for c in CASES if c["id"].startswith("FUNC-")]
     func_ok = all(c["status"] == "通过" for c in func)
     blocking = [c for c in CASES if c["status"] == "失败" and c["severity"] in ("高", "中")]
@@ -546,7 +546,7 @@ def write_outputs(started):
                "基本正确，但存在影响项" if not blocking else "存疑，存在高/中严重级别失败项")
 
     lines = [
-        f"# 课堂互测测试报告（第 1 次）",
+        "# 课堂互测测试报告（第 1 次）",
         "",
         f"- 提交人：姜苏豪（24201718），英文名 {NAME}",
         "- 测试方：242017 班第 10 组 g24201710",
@@ -554,23 +554,23 @@ def write_outputs(started):
         f"- 被测地址：{BASE}",
         f"- 测试时间：{started}",
         "- 测试依据：老师《下午的测试方案》、被测组公开的 `/who` 与 `/help`、被测组测试计划",
-        "- 自动化脚本：`scripts/verify_g24201803.py`（Python 3 标准库，无第三方依赖）；"
+        ("- 自动化脚本：`scripts/verify_g24201803.py`（Python 3 标准库，无第三方依赖）；"
         "运行 `python scripts/verify_g24201803.py` 可复现全部用例并重新生成本报告与缺陷表。"
-        "脚本按 `/help` 动态适配被测组的 `/api` 契约；原始请求日志另存本地，不随文档提交",
+        "脚本按 `/help` 动态适配被测组的 `/api` 契约；原始请求日志另存本地，不随文档提交"),
         "",
         "## 1 测试范围",
         "",
         f"- 被测对象为 {TARGET}的 CPU-Learn 系统，`/help` 声明 15 个模块 / 198 条接口。",
-        "- 本组今日为 C 组；除老师要求的**冒烟 + 接口**外，另扩展到 15 个业务模块逐项抽查、"
+        ("- 本组今日为 C 组；除老师要求的**冒烟 + 接口**外，另扩展到 15 个业务模块逐项抽查、"
         "权限与越权、参数边界、数据一致性、日志导出、实验端点、取消分支、座位图及浏览器入口验证，"
-        "并给出「主要功能是否正确」的明确结论。",
-        "- 未执行项（不计为通过，也不计为被测组缺陷）：74181 全 512 组运算、并发占座与座位边界、"
-        "浏览器交互级双会话 E2E、后端重启持久化；源码审计、性能压测、安全渗透、真实设备定位不在范围。",
-        "- 环境：课堂局域网，Python 3 标准库脚本直连（显式禁用系统代理）；所有写请求先取 "
-        "`/api/auth/csrf` 令牌并带同源 `Origin`。",
-        "- 被测系统关键契约（实测）：登录用 `username/password`；写操作需 `X-CSRF-Token`；"
+        "并给出「主要功能是否正确」的明确结论。"),
+        ("- 未执行项（不计为通过，也不计为被测组缺陷）：74181 全 512 组运算、并发占座与座位边界、"
+        "浏览器交互级双会话 E2E、后端重启持久化；源码审计、性能压测、安全渗透、真实设备定位不在范围。"),
+        ("- 环境：课堂局域网，Python 3 标准库脚本直连（显式禁用系统代理）；所有写请求先取 "
+        "`/api/auth/csrf` 令牌并带同源 `Origin`。"),
+        ("- 被测系统关键契约（实测）：登录用 `username/password`；写操作需 `X-CSRF-Token`；"
         "发布/关闭任务需携带 `revision`；签到需 `method=code` 与 `Idempotency-Key` 请求头（幂等键），"
-        "重复提交同一键值返回同一条记录。",
+        "重复提交同一键值返回同一条记录。"),
         "",
         "## 2 用例统计",
         "",
@@ -582,8 +582,8 @@ def write_outputs(started):
         lines.append(f"| {layer} | {n} | {row.get('通过', 0)} | {row.get('失败', 0)} | "
                      f"{row.get('未执行', 0)} | {row.get('阻塞', 0)} |")
     lines += [
-        f"| **合计** | **{len(CASES)}** | **{total_pass}** | **{total_fail}** | "
-        f"**{sum(c['status'] == '未执行' for c in CASES)}** | **{total_block}** |",
+        (f"| **合计** | **{len(CASES)}** | **{total_pass}** | **{total_fail}** | "
+        f"**{sum(c['status'] == '未执行' for c in CASES)}** | **{total_block}** |"),
         "",
         "### 逐条结果",
         "",
@@ -606,21 +606,21 @@ def write_outputs(started):
     lines += [
         f"| **合计** | **{len(defects)}** |",
         "",
-        "缺陷明细见同目录 `defects_1_%s_%s.csv`（字段：编号、标题、被测组、复现步骤、"
-        "预期/实际结果、严重程度、截图、状态）。" % (DATE, NAME),
+        (f"缺陷明细见同目录 `defects_1_{DATE}_{NAME}.csv`（字段：编号、标题、被测组、复现步骤、"
+        "预期/实际结果、严重程度、截图、状态）。"),
         "按老师要求**不提交任何图片**，截图列以文字说明代替。",
         "",
         "## 4 被测组主要功能是否正确",
         "",
         f"**结论：{verdict}。**",
         "",
-        f"- 全量共 {len(CASES)} 条用例：通过 {total_pass}、失败 {total_fail}、"
+        (f"- 全量共 {len(CASES)} 条用例：通过 {total_pass}、失败 {total_fail}、"
         f"未执行 {sum(c['status'] == '未执行' for c in CASES)}、阻塞 {total_block}；"
-        "覆盖冒烟、接口、功能、E2E、15 模块抽查、权限、边界、一致性、日志、实验、座位、取消分支与浏览器入口。",
-        "- 依据：首页、`/who`、`/help`、健康检查、CSRF、教师/学生登录与班级接口可用；点到任务可创建、"
+        "覆盖冒烟、接口、功能、E2E、15 模块抽查、权限、边界、一致性、日志、实验、座位、取消分支与浏览器入口。"),
+        ("- 依据：首页、`/who`、`/help`、健康检查、CSRF、教师/学生登录与班级接口可用；点到任务可创建、"
         "发布、取码、签到、读取座位/记录/报表并结算；15 个模块路由均返回统一 JSON；学生越权全部 403；"
         "参数边界均被校验；签到明细与 CSV 报表一致；导出任务可创建与查询；取消分支不产生缺勤；"
-        "无头浏览器登录页可渲染。",
+        "无头浏览器登录页可渲染。"),
     ]
     if defects:
         lines.append("- 另有未通过项如下，按严重程度列出：")
@@ -630,14 +630,14 @@ def write_outputs(started):
         "",
         "## 5 遗留风险",
         "",
-        "1. 15 个业务模块各做了一条代表性 GET 抽查，未逐模块执行「正常/异常/边界/权限」全场景回归；"
-        "未测项一律不记为通过。",
-        "2. 抽查组名单与其他被测组地址课堂上才公布，本报告仅覆盖上述一个被测组；"
-        "拿到新地址后按同一脚本补测并追加缺陷记录。",
-        "3. 点到任务使用明确标记为「互测」的独立任务，收尾走系统提供的关闭操作，"
-        "未删除被测组任何正式名单、成绩或课程数据。",
-        "4. 未执行项已在用例表标为「未执行」：74181 全量运算、并发占座、浏览器交互级 E2E、重启持久化；"
-        "这些需要被测组提供计算接口/座位布局/现场浏览器环境，不能记为通过。",
+        ("1. 15 个业务模块各做了一条代表性 GET 抽查，未逐模块执行「正常/异常/边界/权限」全场景回归；"
+        "未测项一律不记为通过。"),
+        ("2. 抽查组名单与其他被测组地址课堂上才公布，本报告仅覆盖上述一个被测组；"
+        "拿到新地址后按同一脚本补测并追加缺陷记录。"),
+        ("3. 点到任务使用明确标记为「互测」的独立任务，收尾走系统提供的关闭操作，"
+        "未删除被测组任何正式名单、成绩或课程数据。"),
+        ("4. 未执行项已在用例表标为「未执行」：74181 全量运算、并发占座、浏览器交互级 E2E、重启持久化；"
+        "这些需要被测组提供计算接口/座位布局/现场浏览器环境，不能记为通过。"),
         "5. 报告不含账号明文口令、Cookie、CSRF 令牌或完整个人数据；请求关联 ID 仅保留在本地日志。",
         "",
         "## 6 附件",

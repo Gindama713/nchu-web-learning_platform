@@ -15,7 +15,6 @@
 
 from __future__ import annotations
 
-# ruff: noqa: UP031  — 报表行以 % 拼接更直观，无需转 f-string
 import argparse
 import json
 import os
@@ -62,7 +61,7 @@ def fetch(url, timeout=5):
             return response.status, body, (time.perf_counter() - started) * 1000
     except urllib.error.HTTPError as failure:
         return failure.code, failure.read().decode("utf-8", "replace"), (time.perf_counter() - started) * 1000
-    except Exception as failure:  # noqa: BLE001 — 连接失败/超时都要在自检里显示出来
+    except Exception as failure:
         return 0, str(failure), (time.perf_counter() - started) * 1000
 
 

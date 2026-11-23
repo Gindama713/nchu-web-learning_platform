@@ -1,0 +1,19 @@
+# ruff 配置：只声明与本项目判断相关的一条豁免，其余沿用 ruff 默认规则集。
+#
+# 为什么 scripts/ 单独放宽：
+#   scripts/ 下是课堂运维与验收用的一次性脚本（seed / verify / probe / burst），
+#   它们里的大量 %-格式化模板、裸 subprocess.run 和兜底 except 是**故意**保留的：
+#   这些脚本的输出要跟 11 月课堂验收记录逐条对照，改写法会让历史证据对不上，
+#   而且它们不随应用发布、不参与请求链路。
+#   生产代码 backend/ 与 tests/ 不受这条豁免约束。
+#
+# 说明：这里不写 select。写死 select 会在 ruff 升级时把「默认集」冻结成旧版本，
+# 反而让 CI 与新代码风格脱节；默认集由 CI 锁定的 ruff 版本统一决定。
+
+[lint.per-file-ignores]
+"scripts/*" = [
+    "UP031",    # printf 风格格式化：验收脚本的历史输出模板
+    "BLE001",   # 兜底 except：脚本要跑完所有检查项，不因单项异常中断
+    "PLW1510",  # subprocess.run 不带 check：脚本自己判断退出码并汇总
+    "RUF059",   # 未使用的解包变量：脚本里常用来对齐返回元组
+]

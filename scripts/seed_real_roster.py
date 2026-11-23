@@ -192,7 +192,7 @@ def main(argv=None):
                 placed += 1
         print("座位：%d 个（课程 #%s）" % (placed, course_id))
         db.commit()
-        print("已写库：%s" % path)
+        print(f"已写库：{path}")
         return 0
     finally:
         db.close()

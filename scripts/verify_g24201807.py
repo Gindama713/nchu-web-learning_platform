@@ -60,7 +60,7 @@ class Session:
                 status, raw = response.status, response.read().decode("utf-8", "replace")
         except urllib.error.HTTPError as failure:
             status, raw = failure.code, failure.read().decode("utf-8", "replace")
-        except Exception as failure:  # noqa: BLE001 — 网络异常也收成一条记录
+        except Exception as failure:
             raw = json.dumps({"transport": str(failure)}, ensure_ascii=False)
         elapsed = round((time.perf_counter() - started) * 1000, 1)
         try:
@@ -260,13 +260,13 @@ def main():
                f"教师 {method} {path}", "中")
 
     # ---------- 日志与导出 ----------
-    s, p, raw_logs = admin.get("/api/logs")
+    s, p, _raw_logs = admin.get("/api/logs")
     items = (data_of(p) or {}).get("items", []) if isinstance(data_of(p), dict) else []
     record("LOG-01", "日志", "管理员查询访问日志", "HTTP 200 且返回分页日志",
            f"HTTP {s}，本页 {len(items)} 条", s == 200 and isinstance(items, list),
            "管理员 GET /api/logs", "中")
     for cid, fmt in (("LOG-02", "csv"), ("LOG-03", "json")):
-        s, _, raw = admin.get("/api/logs/export?format=%s" % fmt)
+        s, _, raw = admin.get(f"/api/logs/export?format={fmt}")
         masked = "password" not in raw.lower() or "***" in raw
         record(cid, "日志", f"导出访问日志 {fmt.upper()}",
                "HTTP 200，内容可解析且口令字段已脱敏",
@@ -275,7 +275,7 @@ def main():
                f"管理员 GET /api/logs/export?format={fmt}", "中")
 
     # ---------- 课堂点到功能主链路 ----------
-    title = "互测-g24201710-姜苏豪-%s" % uuid.uuid4().hex[:4]
+    title = f"互测-g24201710-姜苏豪-{uuid.uuid4().hex[:4]}"
     s, p, _ = teacher.post("/api/attendance/sessions",
                            {"title": title, "class_id": CLASS_ID, "late_after_minutes": 10})
     session = data_of(p) or {}
@@ -312,9 +312,9 @@ def main():
                and rec1.get("seat_label") == seat,
                f"学生 POST /api/attendance/sessions/{sid}/checkin，body=seat:{seat}", "高")
 
-        s2, p2, _ = student.post("/api/attendance/sessions/%d/checkin" % sid,
+        s2, _p2, _ = student.post("/api/attendance/sessions/%d/checkin" % sid,
                                 {"seat_label": seat})
-        s3, p3, _ = teacher.get("/api/attendance/sessions/%d" % sid)
+        _s3, p3, _ = teacher.get("/api/attendance/sessions/%d" % sid)
         after = data_of(p3) or {}
         anomalies = after.get("anomalies") or []
         dup = any(a.get("anomaly_type") == "duplicate" for a in anomalies)
@@ -327,7 +327,7 @@ def main():
 
         s4, p4, _ = student2.post("/api/attendance/sessions/%d/checkin" % sid,
                                  {"seat_label": seat})
-        s4b, p4b, _ = teacher.get("/api/attendance/sessions/%d" % sid)
+        _s4b, p4b, _ = teacher.get("/api/attendance/sessions/%d" % sid)
         detail2 = data_of(p4b) or {}
         conflict = any(a.get("anomaly_type") == "seat_conflict"
                        for a in (detail2.get("anomalies") or []))
@@ -348,7 +348,7 @@ def main():
                f"教师 POST /api/attendance/sessions/{sid}/mark（PUT 会返回 405）", "中")
 
         # 数据一致性：records 的座位标签与座位图 occupied 状态逐项比对
-        s7, p7, _ = teacher.get("/api/attendance/sessions/%d" % sid)
+        _s7, p7, _ = teacher.get("/api/attendance/sessions/%d" % sid)
         final = data_of(p7) or {}
         rec_labels = {r.get("seat_label") for r in (final.get("records") or [])
                       if r.get("seat_label")}
@@ -400,7 +400,7 @@ def main():
                "DOM 非空且渲染出应用入口",
                f"DOM {len(dom)} 字节，含 LogicLab={'是' if 'LogicLab' in dom or '数字逻辑' in dom else '否'}",
                len(dom) > 500, "无头 Edge --dump-dom 打开 /", "中")
-    except Exception as failure:  # noqa: BLE001
+    except Exception as failure:
         record("BROWSER-01", "E2E", "无头浏览器打开首页", "DOM 非空",
                f"浏览器执行失败：{failure}", False, "无头 Edge --dump-dom", "中",
                status_override="未执行")
@@ -466,23 +466,23 @@ def write_outputs(started):
         f"- 被测地址：{BASE}",
         f"- 测试时间：{started}",
         "- 测试依据：老师《下午的测试方案》、被测组公开的 `/who` 与 `/help`",
-        "- 自动化脚本：`scripts/verify_g24201807.py`（Python 3 标准库，无第三方依赖）；"
+        ("- 自动化脚本：`scripts/verify_g24201807.py`（Python 3 标准库，无第三方依赖）；"
         "运行 `python scripts/verify_g24201807.py` 可复现全部用例并重新生成本报告与缺陷表。"
-        "脚本按 `/help` 动态适配该组的 Bearer JWT 契约；原始请求日志另存本地，不随文档提交",
+        "脚本按 `/help` 动态适配该组的 Bearer JWT 契约；原始请求日志另存本地，不随文档提交"),
         "",
         "## 1 测试范围",
         "",
-        f"- 被测对象为 {TARGET}；`/help` 声明 8 个模块 / 46 条接口，"
-        "API 基路径 `/api`，统一响应 `{code,data,message}`，认证为 Bearer JWT。",
-        "- 本组今日为 C 组；除老师要求的**冒烟 + 接口**外，另扩展到 8 个业务模块抽查、权限与越权、"
+        (f"- 被测对象为 {TARGET}；`/help` 声明 8 个模块 / 46 条接口，"
+        "API 基路径 `/api`，统一响应 `{code,data,message}`，认证为 Bearer JWT。"),
+        ("- 本组今日为 C 组；除老师要求的**冒烟 + 接口**外，另扩展到 8 个业务模块抽查、权限与越权、"
         "参数边界、访问日志与 CSV/JSON 导出、课堂点到全链路（含座位冲突与教师代点）、"
-        "实验列表、无头浏览器入口验证，并给出「主要功能是否正确」的明确结论。",
-        "- 未执行项（不计为通过，也不计为被测组缺陷）：74181 全 512 组运算、浏览器交互级双会话 E2E、"
-        "后端重启持久化；源码审计、性能压测、安全渗透不在范围。",
-        "- 环境：课堂局域网，Python 3 标准库脚本直连（显式禁用系统代理）；"
-        "所有登录后请求携带 `Authorization: Bearer <access_token>`。",
-        "- 与第 1 次被测组的差异：该组不使用 Cookie/CSRF/revision/幂等键，"
-        "登录直接下发 `access_token`，结束点到用 `PUT`，点到场次用 `class_id` 创建。",
+        "实验列表、无头浏览器入口验证，并给出「主要功能是否正确」的明确结论。"),
+        ("- 未执行项（不计为通过，也不计为被测组缺陷）：74181 全 512 组运算、浏览器交互级双会话 E2E、"
+        "后端重启持久化；源码审计、性能压测、安全渗透不在范围。"),
+        ("- 环境：课堂局域网，Python 3 标准库脚本直连（显式禁用系统代理）；"
+        "所有登录后请求携带 `Authorization: Bearer <access_token>`。"),
+        ("- 与第 1 次被测组的差异：该组不使用 Cookie/CSRF/revision/幂等键，"
+        "登录直接下发 `access_token`，结束点到用 `PUT`，点到场次用 `class_id` 创建。"),
         "",
         "## 2 用例统计",
         "",
@@ -516,8 +516,8 @@ def write_outputs(started):
     lines += [
         f"| **合计** | **{len(defects)}** |",
         "",
-        f"缺陷明细见同目录 `defects_{ROUND_NO}_{DATE}_{NAME}.csv`"
-        "（字段：编号、标题、被测组、复现步骤、预期/实际结果、严重程度、截图、状态）。",
+        (f"缺陷明细见同目录 `defects_{ROUND_NO}_{DATE}_{NAME}.csv`"
+        "（字段：编号、标题、被测组、复现步骤、预期/实际结果、严重程度、截图、状态）。"),
         "按老师要求**不提交任何图片**，截图列以文字说明代替。",
         "",
         "## 4 被测组主要功能是否正确",
@@ -525,11 +525,11 @@ def write_outputs(started):
         f"**结论：{verdict}。**",
         "",
         f"- 全量共 {total} 条用例：通过 {passed}、失败 {failed}、未执行 {skipped}。",
-        "- 依据：首页、`/who`、`/help`、健康检查、三类角色登录与班级列表可用；"
+        ("- 依据：首页、`/who`、`/help`、健康检查、三类角色登录与班级列表可用；"
         "点到场次可发起、座位布局与详情可读、学生选座绑定 seat_label、重复提交记 duplicate 异常、"
         "并发占座返回 409 并记 seat_conflict、教师代点、结束结算；签到记录与座位图占用状态一致；"
         "8 个模块代表端点均返回统一结构；越权全部 403；参数边界均被校验；"
-        "管理员日志与 CSV/JSON 导出可用且口令已脱敏。",
+        "管理员日志与 CSV/JSON 导出可用且口令已脱敏。"),
     ]
     if defects:
         lines.append("- 未通过项如下，按严重程度列出：")
@@ -539,17 +539,17 @@ def write_outputs(started):
         "",
         "## 5 遗留风险",
         "",
-        "1. 8 个业务模块各做了一条代表性端点抽查，未逐模块执行「正常/异常/边界/权限」全场景回归；"
-        "未测项一律不记为通过。",
-        "2. 抽查组名单与其他被测组地址课堂上才公布，本报告仅覆盖上述一个被测组；"
-        "拿到新地址后按同一脚本补测并追加缺陷记录。",
-        "3. 点到场次使用明确标记为「互测」的独立任务，收尾走系统提供的结束操作；"
-        "未删除被测组任何正式名单、成绩或课程数据。",
-        "4. 未执行项已在用例表标为「未执行」：74181 全量运算、浏览器交互级 E2E、重启持久化；"
-        "不能记为通过。",
-        "5. 该组 `/help` 未列出 checkin 的选座字段名；实测正确字段为 `seat_label`，"
+        ("1. 8 个业务模块各做了一条代表性端点抽查，未逐模块执行「正常/异常/边界/权限」全场景回归；"
+        "未测项一律不记为通过。"),
+        ("2. 抽查组名单与其他被测组地址课堂上才公布，本报告仅覆盖上述一个被测组；"
+        "拿到新地址后按同一脚本补测并追加缺陷记录。"),
+        ("3. 点到场次使用明确标记为「互测」的独立任务，收尾走系统提供的结束操作；"
+        "未删除被测组任何正式名单、成绩或课程数据。"),
+        ("4. 未执行项已在用例表标为「未执行」：74181 全量运算、浏览器交互级 E2E、重启持久化；"
+        "不能记为通过。"),
+        ("5. 该组 `/help` 未列出 checkin 的选座字段名；实测正确字段为 `seat_label`，"
         "传 `seat`/`seat_id`/`label` 等未知字段会被静默忽略并返回 200（seat_label=null）。"
-        "此为接口健壮性提示，未单独记为缺陷。",
+        "此为接口健壮性提示，未单独记为缺陷。"),
         "6. 报告不含账号明文口令、Bearer 令牌或完整个人数据；请求关联信息仅保留在本地日志。",
         "",
         "## 6 附件",

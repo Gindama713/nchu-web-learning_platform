@@ -101,9 +101,8 @@ def create(db, course_id, task_id, title, kind, labels, max_choices, anonymous,
 
     if kind != "multiple":
         max_choices = None
-    elif max_choices is not None:
-        if not 2 <= max_choices <= len(cleaned):
-            raise ApiError(422, "VALIDATION_ERROR", "多选上限需要在 2 和选项数之间")
+    elif max_choices is not None and not 2 <= max_choices <= len(cleaned):
+        raise ApiError(422, "VALIDATION_ERROR", "多选上限需要在 2 和选项数之间")
     for ordinal in correct_ordinals:
         if not 1 <= ordinal <= len(cleaned):
             raise ApiError(422, "VALIDATION_ERROR", "正确答案指向了不存在的选项")
@@ -129,7 +128,7 @@ def submit(db, poll, student_id, option_ids):
     """投票。一人一票，重复提交 409；多选上限、判断题单选都在这里挡。"""
     if not is_open(db, poll):
         raise ApiError(409, "POLL_CLOSED", "投票已经结束了")
-    can_vote, reason = eligibility(db, poll, student_id)
+    can_vote, _reason = eligibility(db, poll, student_id)
     if not can_vote:
         raise ApiError(403, "NOT_CHECKED_IN", "签到之后才能参与投票")
     existing = db.execute("SELECT id FROM poll_ballot WHERE poll_id=? AND student_id=?",

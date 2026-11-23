@@ -52,7 +52,7 @@ def call(base, method, path, payload=None, cookie=None, csrf=None, timeout=30):
             raw, status = response.read(), response.status
     except urllib.error.HTTPError as exc:
         raw, status = exc.read(), exc.code
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return 0, f"{type(exc).__name__}: {str(exc)[:60]}", (time.perf_counter() - started) * 1000
     elapsed = (time.perf_counter() - started) * 1000
     try:
@@ -249,7 +249,7 @@ def main():
     # 6) 老师看结果：票数、对错、未投名单都要对得上
     status, body, _ = call(args.base, "GET", f"/api/v1/polls/{poll_id}/results", cookie=cookie)
     report = body.get("data", {})
-    print(f"\n--- 老师端结果 ---")
+    print("\n--- 老师端结果 ---")
     print(f"  voted {report.get('voted')} / eligible {report.get('eligible')}")
     correct = report.get("correct") or {}
     print(f"  对 {correct.get('right')} 错 {correct.get('wrong')} 正确率 {correct.get('accuracy')}")

@@ -170,7 +170,7 @@ def main():
                 report['browsers'].append(result)
                 print(f"{channel} {result['version']}: {len(result['checks'])} groups passed", flush=True)
         report['status'] = 'passed'
-    except Exception as error:  # noqa: BLE001 - never print credentials/HTTP request bodies
+    except Exception as error:
         report['status'] = 'failed'
         report['failure_type'] = type(error).__name__
         report['failure_locations'] = [f'{frame.name}:{frame.lineno}' for frame in traceback.extract_tb(error.__traceback__)

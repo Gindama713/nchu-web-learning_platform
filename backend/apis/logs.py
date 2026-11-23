@@ -60,7 +60,7 @@ def flush_access(force=False):
         current_app.logger.debug("access log flush failed: %s", failure)
         try:
             get_db().rollback()
-        except Exception:  # noqa: BLE001
+        except Exception:  # noqa: BLE001, S110 — 回滚失败也没有补救手段
             pass
 
 
@@ -76,7 +76,7 @@ def _flush_at_exit():
         db.executemany(INSERT_ACCESS, rows)
         db.commit()
         db.close()
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001, S110 — 退出时落盘失败不能改变进程退出码
         pass
 
 
@@ -98,7 +98,7 @@ def write_access(status, duration_ms):
     user = getattr(g, "user", None) or {}
     try:
         _database_path = current_app.config["DATABASE_PATH"]
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001, S110 — 没有应用上下文时放弃退出前补写
         pass
     with _pending_lock:
         _pending.append((user.get("id"), user.get("student_no"), user.get("name"), user.get("role"),
