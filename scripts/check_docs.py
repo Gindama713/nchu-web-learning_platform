@@ -12,7 +12,7 @@ DOCUMENTS = [ROOT / "README.md", *(ROOT / "docs" / name for name in (
 STEERING = [ROOT / "steering" / name for name in (
     "README.md", "product.md", "database.md", "architecture.md", "api-contract.md"
 )]
-SPEC_CODES = [*(f"{number:03d}" for number in range(1, 20)),
+SPEC_CODES = [*(f"{number:03d}" for number in range(1, 21)),
               "010A", "010B", "010C", "010D"]
 SPEC_FILES = ("plan.md", "spec.md", "tasks.md", "wireframes.md")
 

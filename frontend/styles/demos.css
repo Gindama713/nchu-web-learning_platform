@@ -24,3 +24,16 @@
   padding: 10px 12px; border-radius: 8px; margin: 0;
 }
 .demo-card button.secondary { border-color: var(--line-strong); }
+.demo-session-item { display: grid; gap: 8px; }
+.demo-session-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.demo-session-row .demo-meta { margin-left: 0; }
+.demo-session-row button { margin-left: auto; }
+.demo-session-detail {
+  display: grid; gap: 10px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--surface-2); padding: 14px;
+}
+.demo-session-detail-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; }
+.demo-session-detail-head .demo-meta { margin-left: 0; }
+.demo-session-detail .demo-canvas { margin-top: 0; }
+.demo-session-detail .demo-message { margin: 0; }

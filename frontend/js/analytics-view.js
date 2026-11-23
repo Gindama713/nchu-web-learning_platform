@@ -1,6 +1,6 @@
 import { h, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
 import { AnalyticsClient } from './analytics-client.js'
-import { barChart, chartColors, donutChart } from './charts.js'
+import { barChart, chartColors, chartNode, donutChart } from './charts.js'
 
 const labels = { expected_count: '应交人卷次', submitted_count: '已交人卷次', missing_count: '缺交人卷次',
   graded_count: '已批人卷次', partial_count: '待批人卷次', mean_score: '同卷平均分', mean_percentage: '平均百分比',
@@ -39,39 +39,6 @@ const shanghaiFormat = new globalThis.Intl.DateTimeFormat('zh-CN', { timeZone: '
 const shanghaiTime = value => {
   const date = new Date(value)
   return value && Number.isFinite(date.getTime()) ? shanghaiFormat.format(date) : '无时间记录'
-}
-
-const chartNode = node => {
-  if (node.kind === 'line') return h('line', { x1: node.x1, y1: node.y1, x2: node.x2, y2: node.y2, stroke: node.stroke })
-  if (node.kind === 'path') return h('path', {
-    d: node.d, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width ?? 1,
-    'stroke-linejoin': node['stroke-linejoin'],
-    class: node.draw ? 'chart-line' : undefined,
-    pathLength: node.draw ? 1 : undefined,
-  })
-  if (node.kind === 'bar') return h('rect', {
-    x: node.x, y: node.y, width: node.width, height: node.height, fill: node.fill, rx: 3,
-    class: 'chart-bar', style: `animation-delay:${(node.delay ?? 0) * 70}ms`,
-  })
-  if (node.kind === 'dot') return h('circle', {
-    cx: node.cx, cy: node.cy, r: node.r, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width,
-    class: 'chart-dot', style: `animation-delay:${560 + (node.delay ?? 0) * 70}ms`,
-  })
-  if (node.kind === 'arc') return h('circle', {
-    cx: node.cx, cy: node.cy, r: node.r, fill: 'none', stroke: node.color,
-    'stroke-width': node.thickness, 'stroke-dasharray': node.dash, 'stroke-dashoffset': node.offset,
-    transform: `rotate(-90 ${node.cx} ${node.cy})`, class: 'chart-arc',
-  }, [h('title', {}, node.title)])
-  if (node.kind === 'rect') return h('rect', {
-    x: node.x, y: node.y, width: node.width, height: node.height, fill: node.fill,
-  })
-  if (node.kind === 'circle') return h('circle', {
-    cx: node.cx, cy: node.cy, r: node.r, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width,
-  })
-  return h('text', {
-    x: node.x, y: node.y, 'font-size': node.size, fill: node.fill,
-    'text-anchor': node.anchor, 'font-weight': node.bold ? 700 : 400,
-  }, node.text)
 }
 
 export const AnalyticsView = {
@@ -151,9 +118,11 @@ export const AnalyticsView = {
     onMounted(() => { if (props.user.role !== 'admin') run(boot) })
     onUnmounted(forget)
     const button = (label, action, disabled = false) => h('button', { type: 'button', onClick: action, disabled: busy.value || disabled }, label)
-    const input = (label, value, update, type = 'text') => h('label', [label, h('input', { 'aria-label': label, type, value, disabled: !courses.value.length,
+    // aria-label 带上模块名：连线统计卡与本卡同页渲染，两处都叫「原快照编号」时，
+    // 读屏与自动化无法区分（同一页面重复标签），因此这里的可访问名加模块前缀。
+    const input = (label, value, update, type = 'text', aria = label) => h('label', [label, h('input', { 'aria-label': aria, type, value, disabled: !courses.value.length,
       onInput: event => { forget(); update(event.target.value) } })])
-    const select = (label, value, update, options) => h('label', [label, h('select', { 'aria-label': label, value, disabled: !courses.value.length,
+    const select = (label, value, update, options, aria = label) => h('label', [label, h('select', { 'aria-label': aria, value, disabled: !courses.value.length,
       onChange: event => { forget(); update(event.target.value) } }, options.map(([id, text]) => h('option', { value: id }, text)))])
     const table = (caption, headings, rows) => h('div', { class: 'analytics-scroll', tabindex: 0, role: 'region', 'aria-label': caption }, [h('table', [h('caption', caption),
       h('thead', [h('tr', headings.map(label => h('th', { scope: 'col' }, label)))]),
@@ -294,7 +263,7 @@ export const AnalyticsView = {
     return () => props.user.role === 'admin' ? null : h('section', { class: 'card analytics-bank', 'aria-busy': busy.value }, [
       h('h2', '知识与成绩分析'), h('p', '选好课程和时间段，点「查询统计」。刷新页面会恢复上次结果，重新查询才更新；时间留空统计最近 28 天。'),
       h('div', { class: 'analytics-filters' }, [
-        select('统计课程', course.value, v => { course.value = v; runId.value = '' }, courses.value.map(c => [String(c.id), c.title])),
+        select('统计课程', course.value, v => { course.value = v; runId.value = '' }, courses.value.map(c => [String(c.id), c.title]), '统计课程（知识与成绩分析）'),
         select('统计维度', filters.dimension, v => { filters.dimension = v }, [['knowledge', '知识掌握度、错题与进度'], ['attendance', '考勤与学习表现'], ['scores', '分类成绩'], ['grading', '电路评测通过率与运行可靠性']]),
         input('统计起始时间', filters.from, v => { filters.from = v }, 'datetime-local'),
         input('统计结束时间', filters.to, v => { filters.to = v }, 'datetime-local'),
@@ -306,7 +275,7 @@ export const AnalyticsView = {
       h('details', { class: 'analytics-restore' }, [
         h('summary', {}, '按快照编号恢复以前的结果'),
         h('div', { class: 'analytics-restore-row' }, [
-          input('原快照编号', runId.value, v => { runId.value = v }, 'number'),
+          input('原快照编号', runId.value, v => { runId.value = v }, 'number', '原快照编号（知识与成绩分析）'),
           button('恢复原快照', () => run(restore), !course.value || !runId.value),
         ]),
       ]),

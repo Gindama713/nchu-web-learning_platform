@@ -167,7 +167,7 @@ class Client:
         response = self.open(method, path, payload, **kwargs)
         try:
             body = response.get_json() or {}
-        except Exception:  # noqa: BLE001 — 非 JSON 响应也要收成一条可判定的失败记录
+        except Exception:
             body = {}
         return response.status_code, body.get("data"), body
 
@@ -180,7 +180,7 @@ class Client:
         response = self.open("POST", path, form=form)
         try:
             body = response.get_json() or {}
-        except Exception:  # noqa: BLE001 — 上传失败返回 HTML 时不能让整轮验收中断
+        except Exception:
             body = {}
         return response.status_code, body.get("data"), body
 
@@ -521,7 +521,7 @@ class Recorder:
         """执行断言函数 fn() -> (actual, ok, usable)。"""
         try:
             actual, ok, usable = fn()
-        except Exception as exc:  # noqa: BLE001 — 任何异常都记为失败项，不中断整轮验收
+        except Exception as exc:
             actual, ok, usable = f"异常：{type(exc).__name__}: {exc}", False, False
         return self.add(cid, module, feature, expected, actual, ok, dependency, usable)
 

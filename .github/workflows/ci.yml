@@ -85,7 +85,7 @@ jobs:
         working-directory: frontend
 
   ci-grader:
-    if: github.base_ref == 'main' || startsWith(github.base_ref, 'release/')
+    if: github.base_ref == 'develop' || github.base_ref == 'main' || startsWith(github.base_ref, 'release/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -129,7 +129,7 @@ jobs:
             echo "Required job failed: policy=$POLICY lint=$LINT test=$TEST build=$BUILD"
             exit 1
           fi
-          if [[ "$BASE" == main || "$BASE" == release/* ]]; then
+          if [[ "$BASE" == develop || "$BASE" == main || "$BASE" == release/* ]]; then
             if [[ "$GRADER" != success ]]; then
               echo "Release grader check failed: grader=$GRADER"
               exit 1

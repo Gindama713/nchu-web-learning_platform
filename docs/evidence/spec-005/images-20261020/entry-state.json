@@ -1,0 +1,27 @@
+{
+  "checked_date": "2026-10-20 Asia/Shanghai",
+  "source": "GitHub connector GET PR40, list reviews and pull_request workflow runs for exact head",
+  "pull_request": {
+    "url": "https://github.com/Gindama713/nchu-web-learning_platform/pull/40",
+    "state": "open",
+    "draft": false,
+    "merged": false,
+    "merged_at": null,
+    "head": "7a99ca215595411b8b25b669283dd412cb82e595",
+    "base": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a"
+  },
+  "reviews": [],
+  "workflow_runs": [
+    {
+      "id": 39280808424,
+      "name": "CI",
+      "status": "completed",
+      "conclusion": "success",
+      "run_number": 105,
+      "jobs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/39280808424/jobs",
+      "logs_url": "https://api.github.com/repos/Gindama713/nchu-web-learning_platform/actions/runs/39280808424/logs",
+      "workflow_id": 382199978
+    }
+  ],
+  "latest_fetched_develop": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a"
+}

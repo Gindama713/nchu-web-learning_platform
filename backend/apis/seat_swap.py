@@ -34,7 +34,7 @@ from backend.shared.api import (
     stamp,
 )
 from backend.shared.auth import course_access, require_user
-from backend.shared.db import write
+from backend.shared.db import get_db, write
 
 bp = Blueprint("seat_swap", __name__)
 
@@ -57,13 +57,23 @@ def expire_stale(db):
     每个端点进来先调一次：读接口不能返回已经过期的申请，写接口不能让人去答复一条
     早就该失效的申请。
 
+    先 SELECT 探一下有没有真的过期行：没有就直接返回，不发 UPDATE。前端每 3 秒
+    轮询的 `/seat-swaps/incoming` 因此在正常时段是纯读，不会和签到/投票抢 SQLite
+    单写者锁；真的有申请过期时才写一次。
+
     扫到的过期是**既成事实**，单独提交掉。否则答复一条过期申请的请求会带着 409 回滚，
     连带把这次扫描也回滚，库里就留下一条永远 pending 的僵尸行（黑盒复验实测到过）。
     提交之后各端点自己的写操作仍然是一个整体，原子性不受影响。
     """
+    now = stamp()
+    stale = db.execute(
+        "SELECT 1 FROM seat_swap_request WHERE status='pending' AND expires_at<=? LIMIT 1",
+        (now,)).fetchone()
+    if not stale:
+        return 0
     affected = db.execute(
         "UPDATE seat_swap_request SET status='expired', responded_at=? "
-        "WHERE status='pending' AND expires_at<=?", (stamp(), stamp()),
+        "WHERE status='pending' AND expires_at<=?", (now, now),
     ).rowcount
     if affected:
         db.commit()
@@ -288,15 +298,21 @@ def list_swaps(course_id):
 
 @bp.get("/seat-swaps/incoming")
 def incoming_anywhere():
-    """跨课程拉一次「等我答复的换位申请」，登录后弹窗用。"""
-    with write() as db:
-        expire_stale(db)
-        user = require_user()
-        rows = db.execute(
-            "SELECT r.*,u.name AS requester_name,u.student_no AS requester_no,c.title AS course_title "
-            "FROM seat_swap_request r JOIN user u ON u.id=r.requester_id "
-            "JOIN course c ON c.id=r.course_id "
-            "WHERE r.target_id=? AND r.status='pending' ORDER BY r.id", (user["id"],)).fetchall()
+    """跨课程拉一次「等我答复的换位申请」，登录后弹窗用。
+
+    前端每 3 秒轮询一次，所以这里要尽量少写：`expire_stale` 先探后写，没有真过期
+    的行就不发 UPDATE，正常时段等价于纯读；查询本身也用 `expires_at>?` 再挡一层，
+    保证过期申请不会被返回。
+    """
+    user = require_user()
+    db = get_db()
+    expire_stale(db)
+    rows = db.execute(
+        "SELECT r.*,u.name AS requester_name,u.student_no AS requester_no,c.title AS course_title "
+        "FROM seat_swap_request r JOIN user u ON u.id=r.requester_id "
+        "JOIN course c ON c.id=r.course_id "
+        "WHERE r.target_id=? AND r.status='pending' AND r.expires_at>? ORDER BY r.id",
+        (user["id"], stamp())).fetchall()
     return result({"items": [dict(row) for row in rows], "ttl_minutes": SWAP_TTL_MINUTES})
 
 

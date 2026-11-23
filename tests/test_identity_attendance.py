@@ -369,3 +369,35 @@ class FlowTest(TestCase):
         self.assertIn(",1.0,", export.get_data(as_text=True))
         current = self.teacher.get(endpoint)
         self.assertEqual(current.json["data"]["metrics"]["attendance_rate"], 0)
+
+    def test_attendance_analytics_rejects_paper_from_another_course(self):
+        """SPEC-010A/AC-05：跨课选卷必须 404，同课同卷可查。"""
+        student_id = self.register(self.student, "STUDENT01")
+        teacher_id = self.teacher.get("/api/v1/auth/session").json["data"]["user"]["id"]
+        first = self.call(self.admin, "POST", "/api/v1/courses",
+                          {"title": "A", "teacher_id": teacher_id}).json["data"]["id"]
+        second = self.call(self.admin, "POST", "/api/v1/courses",
+                           {"title": "B", "teacher_id": teacher_id}).json["data"]["id"]
+        for course_id in (first, second):
+            self.assertEqual(self.call(self.teacher, "POST", f"/api/v1/courses/{course_id}/members",
+                                       {"user_id": student_id, "member_role": "student"}).status_code, 201)
+        start = (self.at - timedelta(minutes=5)).isoformat()
+        end = (self.at + timedelta(minutes=5)).isoformat()
+        db = connect(self.path)
+        try:
+            db.execute("INSERT INTO question(id,course_id) VALUES(1,?)", (first,))
+            db.execute("INSERT INTO question_version(id,question_id,version,type,stem,options_json,answer_json,"
+                       "difficulty) VALUES(1,1,1,'boolean','fixture','[]','true','easy')")
+            db.execute("INSERT INTO paper(id,course_id,title,kind,confidential,status,start_at,end_at,review_at) "
+                       "VALUES(1,?,'A 卷','quiz',0,'draft',?,?,?)", (first, start, end, end))
+            db.execute("INSERT INTO paper_item VALUES(1,1,1,1,5000)")
+            db.execute("INSERT INTO paper_participant VALUES(1,?)", (student_id,))
+            db.execute("UPDATE paper SET status='published' WHERE id=1")
+        finally:
+            db.close()
+        foreign = self.teacher.get(
+            f"/api/v1/courses/{second}/analytics?dimension=attendance&performance_paper_ids=1")
+        self.assertEqual(foreign.status_code, 404, foreign.json)
+        own = self.teacher.get(
+            f"/api/v1/courses/{first}/analytics?dimension=attendance&performance_paper_ids=1")
+        self.assertEqual(own.status_code, 200, own.json)
