@@ -3,18 +3,67 @@
 .preparation-module .actions h2 { margin: 0 auto 0 0; }
 .preparation-module [role="alert"] { color: #922f25; }
 .preparation-module button:disabled { opacity: .55; cursor: wait; }
+.preparation-module label { min-width: 0; }
 .preparation-course { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
-.preparation-course label { min-width: 0; }
-.preparation-create h3 { width: 100%; margin: 0 0 4px; }
-.preparation-create label { min-width: 0; }
-.preparation-create select[multiple] { min-width: 180px; }
-.preparation-create small { width: 100%; }
+
+/* 新建备课：标题一行，日期/开始/结束一行，关联项 2×2，按钮一行。 */
+.preparation-create {
+  display: grid; gap: 12px;
+  border: 1px solid var(--line); border-radius: 12px;
+  background: var(--surface-2); padding: 16px;
+}
+.preparation-create h3, .preparation-create > small, .preparation-create > button { margin: 0; }
+.preparation-create > button { justify-self: start; }
+.preparation-field { display: grid; gap: 5px; min-width: 0; }
+.preparation-field > span { font-size: .85rem; color: var(--muted); }
+.preparation-field > input, .preparation-field > select { width: 100%; }
+.preparation-schedule { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.preparation-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 720px) {
+  .preparation-schedule, .preparation-links { grid-template-columns: minmax(0, 1fr); }
+}
+
+.preparation-row { display: grid; gap: 8px; margin-top: 10px; }
 .preparation-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
-.preparation-actions details { display: inline-block; }
-.preparation-edit form { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin: 8px 0; min-width: 260px; }
-.preparation-edit label { min-width: 0; }
-.preparation-edit select[multiple] { min-width: 160px; }
-.preparation-publish { display: grid; gap: 8px; margin: 8px 0; min-width: 240px; }
+.preparation-actions button { padding: 6px 14px; border-radius: 8px; }
+
+/* 编辑/发布/撤回弹窗 */
+.preparation-modal-backdrop {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px; background: rgba(16, 27, 45, .42);
+}
+.preparation-modal {
+  width: min(680px, 100%); max-height: min(86vh, 760px); overflow: auto;
+  border-radius: 14px; border: 1px solid var(--line);
+  background: var(--surface-1, #fff); box-shadow: 0 24px 60px rgba(12, 24, 40, .28);
+  padding: 18px 20px 20px;
+}
+.preparation-modal-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+}
+.preparation-modal-head h4 { margin: 0; font-size: 1rem; font-weight: 600; }
+.preparation-modal-close {
+  border: 0; background: transparent; color: var(--muted);
+  font-size: 1.35rem; line-height: 1; padding: 2px 8px; border-radius: 8px; cursor: pointer;
+}
+.preparation-modal-close:hover { background: var(--surface-2); color: var(--text, inherit); }
+.preparation-form { display: grid; gap: 12px; }
+.preparation-form small { grid-column: 1 / -1; color: var(--muted); }
+.preparation-panel-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.preparation-panel-actions button { padding: 7px 16px; border-radius: 8px; }
+
+.preparation-picker { display: grid; gap: 6px; min-width: 0; }
+.preparation-picker label { display: grid; gap: 4px; font-size: .85rem; color: var(--muted); }
+.preparation-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 26px; align-items: center; }
+.preparation-chip {
+  font-size: .82rem; line-height: 1.3; padding: 3px 9px;
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  background: var(--surface-1, #fff); color: var(--text, inherit); cursor: pointer;
+}
+.preparation-chip:hover { border-color: var(--primary); color: var(--primary); }
+.preparation-empty { color: var(--muted); font-size: .85rem; }
 .preparation-quiz { margin: 0; padding-left: 16px; }
 .preparation-error p { margin: 4px 0 0; }
 .preparation-notice { color: #0f6b3a; }

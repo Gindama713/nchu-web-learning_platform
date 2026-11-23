@@ -18,7 +18,6 @@
 
 from __future__ import annotations
 
-# ruff: noqa: UP031  — 报表行以 % 拼接更直观，无需转 f-string
 import argparse
 import random
 import sqlite3

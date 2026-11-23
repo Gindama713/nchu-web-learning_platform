@@ -1,4 +1,4 @@
-import { computed, createApp, nextTick, onMounted, reactive, ref } from 'vue'
+import { computed, createApp, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { apiRequest, readApi } from './api.js'
 import { QuestionBankView } from './question-view.js'
 import { PaperView } from './paper-view.js'
@@ -17,10 +17,12 @@ import { CircuitLabView } from './circuit-lab-view.js'
 import { KnowledgeGraphView } from './knowledge-graph-view.js'
 import { RecognitionView } from './recognition-view.js'
 import { WarningView } from './warning-view.js'
+import { AssistantView } from './assistant-view.js'
 import { PreparationView } from './preparation-view.js'
 import { WiringView } from './wiring-view.js'
 import { WiringStatsView } from './wiring-stats-view.js'
 import { GesturePad } from './gesture-pad.js'
+import { PollModal, PollPanel } from './poll-view.js'
 import '../styles/main.css'
 import '../styles/knowledge.css'
 import '../styles/questions.css'
@@ -38,12 +40,14 @@ import '../styles/circuit-lab.css'
 import '../styles/graph.css'
 import '../styles/recognition.css'
 import '../styles/warnings.css'
+import '../styles/assistant.css'
 import '../styles/preparations.css'
 import '../styles/wiring.css'
 import '../styles/wiring-stats.css'
+import '../styles/poll.css'
 
 createApp({
-  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, CircuitLabView, KnowledgeGraphView, RecognitionView, WarningView, PreparationView, WiringView, WiringStatsView, GesturePad },
+  components: { KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView, DemoView, AluView, CircuitLabView, KnowledgeGraphView, RecognitionView, WarningView, AssistantView, PreparationView, WiringView, WiringStatsView, GesturePad, PollPanel, PollModal },
   setup() {
     const user = ref(null)
     const practiceEntry = ref(null)
@@ -54,6 +58,7 @@ createApp({
       { id: 'exam', label: '测评与练习' },
       { id: 'lab', label: '实验与演示' },
       { id: 'stats', label: '考勤与学情' },
+      { id: 'assistant', label: '教学助手' },
     ]
     const tab = ref('course')
     // 按任务聚合考勤记录，用于任务卡片的到勤进度条
@@ -149,6 +154,8 @@ createApp({
     const recognition = ref(null)
     const draft = ref('[]')
     const secretCode = ref('')
+    // 签到码只显示在它所属的那条任务上：轮换哪条、就贴在哪条的任务头上
+    const secretCodeTask = ref(null)
     const auth = reactive({ student_no: '', name: '', password: '' })
     // 登录页把「登录」和「注册」分成两个页签，不再把注册姓名、演示账号、使用说明全堆在一个卡片里
     const authMode = ref('login')
@@ -172,10 +179,70 @@ createApp({
     // 教室规模：教师可以按自己的教室改行列，预设只是快捷入口
     const room = ref(null)
     const roomForm = reactive({ name: '', template: 'custom', rows: 10, cols: 12, aisle_every: 0 })
+    // 161 个成员、390 条考勤明细直接铺开会把整页拉成一条长龙，所以两处都做成
+    // 「先筛选、定高滚动、分批显示」：默认各显示 40 条，点一下再加 100 条。
+    const memberQuery = ref('')
+    const membersShown = ref(40)
+    const recordTask = ref('all')
+    const recordStatus = ref('all')
+    const recordQuery = ref('')
+    const recordsShown = ref(40)
     let courseEpoch = 0
     // 切课时先清空再拉数据，中间那一瞬间任务数是 0，概览里会闪「0 → 2」。
     // 加载期间改成显示省略号，等数据到了再出数字。
     const courseBusy = ref(false)
+
+    // ---------- 成员名单 / 考勤明细：筛选 + 分批显示 ----------
+    // 161 个成员、390 条明细铺开来会把页面拉成一条长龙。这里统一做三件事：
+    // 关键字筛选（姓名/学号/班级）、定高滚动区、每次只渲染 40 条、按需再加 100 条。
+    const filteredMembers = computed(() => {
+      const keyword = memberQuery.value.trim().toLowerCase()
+      if (!keyword) return members.value
+      return members.value.filter(member =>
+        [member.name, member.student_no, member.class_name ?? '']
+          .some(field => String(field).toLowerCase().includes(keyword)))
+    })
+    const visibleMembers = computed(() => filteredMembers.value.slice(0, membersShown.value))
+    const membersActive = computed(() => members.value.filter(member => member.active).length)
+
+    // 明细里只有 student_id/task_id，展示时换成姓名和任务标题，否则一行一个 #12 谁也看不懂
+    const memberIndex = computed(() => {
+      const index = new Map()
+      members.value.forEach(member => index.set(member.user_id, member))
+      return index
+    })
+    const taskIndex = computed(() => {
+      const index = new Map()
+      tasks.value.forEach(task => index.set(task.id, task))
+      return index
+    })
+    const recordStatuses = [
+      { value: 'present', label: '已到' }, { value: 'late', label: '迟到' },
+      { value: 'leave', label: '请假' }, { value: 'absent', label: '缺勤' },
+    ]
+    const filteredRecords = computed(() => {
+      const keyword = recordQuery.value.trim().toLowerCase()
+      return records.value.filter(record => {
+        if (recordTask.value !== 'all' && record.task_id !== Number(recordTask.value)) return false
+        if (recordStatus.value !== 'all' && record.status !== recordStatus.value) return false
+        if (!keyword) return true
+        const member = memberIndex.value.get(record.student_id)
+        return [member?.name, member?.student_no]
+          .some(field => String(field ?? '').toLowerCase().includes(keyword))
+      })
+    })
+    const visibleRecords = computed(() => filteredRecords.value.slice(0, recordsShown.value))
+    function memberText(studentId) {
+      const member = memberIndex.value.get(studentId)
+      return member ? `${member.name} · ${member.student_no}` : `学生 #${studentId}`
+    }
+    function taskText(taskId) {
+      const task = taskIndex.value.get(taskId)
+      return task ? task.title : `任务 #${taskId}`
+    }
+    // 换筛选条件时把「已显示条数」收回到 40，不然上一次点开的 300 条会一直挂着
+    watch([memberQuery], () => { membersShown.value = 40 })
+    watch([recordTask, recordStatus, recordQuery], () => { recordsShown.value = 40 })
 
     function clearCourse() {
       courseEpoch += 1
@@ -190,8 +257,21 @@ createApp({
       recognition.value = null
       draft.value = '[]'
       secretCode.value = ''
+      secretCodeTask.value = null
       seatData.value = null
       seatDetail.value = null
+      // 换账号或切课时必须把座位图收起：否则 seatOpen 还指向上一个人的任务，
+      // 而 seatData 已经清空，新用户一进考勤页就会看到「座位图没加载出来」。
+      window.clearTimeout(seatTimer)
+      seatOpen.value = null
+      seatDrop.value = false
+      // 名单/明细的筛选条件跟着课程走，换课不重置会让人以为数据丢了
+      memberQuery.value = ''
+      membersShown.value = 40
+      recordTask.value = 'all'
+      recordStatus.value = 'all'
+      recordQuery.value = ''
+      recordsShown.value = 40
       room.value = null
       check.task_id = ''
       check.code = ''
@@ -275,7 +355,7 @@ createApp({
       const [taskRows, leaveRows, recordRows, warningRows, memberPage, roomRow] = await Promise.all([
         readApi(`${base}/attendance-tasks?page_size=100`),
         readApi(`${base}/leave-requests?page_size=100`),
-        readApi(`${base}/attendance-records?page_size=100`),
+        readAll(`${base}/attendance-records`),
         teacher ? readApi(`${base}/warnings?page_size=100`) : Promise.resolve([]),
         teacher ? readAll(`${base}/members`) : Promise.resolve({ rows: [], total: 0 }),
         teacher ? readApi(`${base}/classroom`) : Promise.resolve(null),
@@ -283,7 +363,7 @@ createApp({
       if (courseEpoch !== epoch || courseId.value !== id || user.value !== currentUser) return
       tasks.value = taskRows
       leaves.value = leaveRows
-      records.value = recordRows
+      records.value = recordRows.rows
       warnings.value = warningRows
       members.value = memberPage.rows
       membersTotal.value = memberPage.total
@@ -360,6 +440,19 @@ createApp({
           ? (data.seats ?? []).find(seat => seat.student_id === user.value.id) ?? null
           : null
       })
+    }
+    // 课堂演示时别人坐下/换座/签到，其他人的图上要自己动，不用手动刷新页面。
+    // 只在座位图展开且页面可见时拉；数据没变就不重绘，返回「有没有变」给统一节拍器做退避。
+    async function silentRefreshSeats() {
+      if (!user.value || !courseId.value || !seatOpen.value || document.hidden) return false
+      const taskId = seatData.value?.task?.id
+      if (!taskId) return false
+      try {
+        const data = await readApi('/api/v1/attendance-tasks/' + taskId + '/seats')
+        if (JSON.stringify(data) === JSON.stringify(seatData.value)) return false
+        seatData.value = data
+        return true
+      } catch { return false }
     }
     // 座位图从任务卡里下拉展开：展开/收起都走 CSS grid-rows 过渡，先挂载再翻 open 类
     const seatOpen = ref(null)
@@ -440,6 +533,7 @@ createApp({
     // 登录后和每 20 秒拉一次：对方答复 / 过期都要在界面上及时反映出来
     async function pollIncoming() {
       if (user.value?.role !== 'student') { seatSwap.modal = null; return }
+      if (document.hidden) return
       try {
         const data = await readApi('/api/v1/seat-swaps/incoming')
         seatSwap.modal = data.items[0] ?? null
@@ -605,6 +699,18 @@ createApp({
         message.value = `已按班排座，${data.placed} 人入座。`
       })
     }
+    async function clearSeats() {
+      if (!window.confirm('清空教室座位？所有学生都会被撤出座位表，之后由学生自己点空位入座。\n已结束任务的座位历史会保留。')) return
+      await act(async () => {
+        const data = await write(`/api/v1/courses/${courseId.value}/classroom/seats`, 'DELETE')
+        syncRoom(data)
+        if (seatData.value) await loadSeats(seatData.value.task.id)
+        message.value = `教室已清空，撤下 ${data.removed} 个座位。` +
+          (data.open_tasks
+            ? '学生打开座位图点空位即可入座，坐下会自动弹签到。'
+            : '现在没有进行中的任务：已结束任务的座位图保留当时的历史，新开一条任务后学生选座才会显示在这张图上。')
+      })
+    }
     async function unseat(studentId) {
       await act(async () => {
         await write(`/api/v1/courses/${courseId.value}/seats/${studentId}`, 'PATCH', { clear: true })
@@ -712,6 +818,7 @@ createApp({
         const data = await write(`/api/v1/courses/${id}/attendance-tasks`, 'POST', payload)
         if (courseEpoch === epoch && courseId.value === id) {
           secretCode.value = data.code
+          secretCodeTask.value = data.id
           if (taskPattern.pattern) {
             taskPattern.pattern = null
             taskPattern.first = null
@@ -725,7 +832,10 @@ createApp({
       await act(async () => {
         const epoch = courseEpoch
         const data = await write(`/api/v1/attendance-tasks/${id}/rotate-code`, 'POST')
-        if (courseEpoch === epoch) secretCode.value = data.code
+        if (courseEpoch === epoch) {
+          secretCode.value = data.code
+          secretCodeTask.value = id
+        }
       }, '新签到码已生效，旧码失效。')
     }
     async function close(id) {
@@ -733,7 +843,7 @@ createApp({
         const epoch = courseEpoch
         await write(`/api/v1/attendance-tasks/${id}/close`, 'POST')
         if (courseEpoch === epoch) {
-          secretCode.value = ''
+          if (secretCodeTask.value === id) { secretCode.value = ''; secretCodeTask.value = null }
           await refreshCourse()
         }
       }, '缺勤已结算。')
@@ -970,6 +1080,13 @@ createApp({
         await refreshCourse()
       }, '预警已标记处理。')
     }
+    // SPEC-020：助手只给建议，动作仍走原有入口，避免助手绕过业务校验。
+    function assistantAction(action) {
+      const payload = action?.payload ?? {}
+      if (action?.kind === 'warning_run') return warn()
+      if (action?.kind === 'practice') return jump('exam')
+      if (action?.kind === 'navigate') return jump(payload.tab || 'stats')
+    }
     async function upload(event) {
       const file = event.target.files?.[0]
       if (!file) return
@@ -994,12 +1111,34 @@ createApp({
         if (courseEpoch === epoch && recognition.value?.id === id) recognition.value = confirmed
       }, '结构草稿已确认，不会自动运行或计分。')
     }
+    // 统一节拍器：全班几十个页面不能各跑各的固定定时器。
+    // 活跃（刚有人换座/来申请）2 秒一拍；连续没变化自动退到 5 秒、再退到 12 秒；
+    // 页面切到后台直接 12 秒；每拍加 ±25% 随机抖动，避免所有人同一秒齐发。
+    // 实测 1 秒固定轮询打到 ~440 req/s，把开发服务器和 SQLite 一起拖垮（650 个 503）。
+    let liveTimer = 0
+    let idleTicks = 0
+    async function liveTick() {
+      window.clearTimeout(liveTimer)
+      const visible = Boolean(user.value && courseId.value) && !document.hidden
+      let changed = false
+      if (visible) {
+        const before = seatSwap.modal?.id ?? null
+        await pollIncoming()
+        if ((seatSwap.modal?.id ?? null) !== before) changed = true
+        if (await silentRefreshSeats()) changed = true
+      }
+      idleTicks = changed ? 0 : idleTicks + 1
+      const base = !visible ? 12000
+        : changed ? 2000
+          : idleTicks > 10 ? 12000
+            : idleTicks > 3 ? 5000 : 2000
+      liveTimer = window.setTimeout(liveTick, base * (0.75 + Math.random() * 0.5))
+    }
     onMounted(async () => {
       await session()
-      // 换位提醒：登录后先拉一次（已登录状态刷新页面也要弹），之后每 20 秒轮询；
-      // 单独的 1 秒 tick 只负责把倒计时数字走动起来，不发请求。
+      // 换位申请和座位图共用一个自适应节拍；倒计时数字仍用 1 秒 tick，不发请求。
       await pollIncoming()
-      window.setInterval(pollIncoming, 20000)
+      liveTick()
       window.setInterval(() => { seatSwap.now = Date.now() }, 1000)
       // 切回这个页面时补一次刷新：后台数据（老师结算、管理员重置演示数据）变了，
       // 页面还留着旧 records，就会变成「我明明没签到，按钮却不见了」。
@@ -1010,15 +1149,18 @@ createApp({
       })
     })
     return { user, practiceEntry, openRecommendedPractice, message, readiness, courses, people, courseId, members, membersTotal, tasks, leaves, records, warnings, notifications, analysis,
-      recognition, draft, secretCode, auth, authMode, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
+      recognition, draft, secretCode, secretCodeTask, auth, authMode, courseForm, memberNo, taskForm, check, analysisFilter, login, register,
       demoStudentNo, fillTeacher, fillStudent,
       seatData, seatDetail, loadSeats, seatList, seatStats, seatColumns, seatText, seatRows, seatClasses, mySeat,
       seatOpen, seatDrop, toggleSeats,
       courseBusy, jump, enterCourse,
       seatSwap, mySwap, swapLeft, swapText, seatCellTitle, sitHere, answerSwap, cancelSwap, loadSwaps, pollIncoming,
-      classColor, seatRosters, sourceText, seatLabel, seatSlot, room, roomForm, applyPreset, saveRoom, autoSeat, unseat,
+      classColor, seatRosters, sourceText, seatLabel, seatSlot, room, roomForm, applyPreset, saveRoom, autoSeat, clearSeats, unseat,
+      memberQuery, membersShown, filteredMembers, visibleMembers, membersActive,
+      recordTask, recordStatus, recordStatuses, recordQuery, recordsShown,
+      filteredRecords, visibleRecords, memberText, taskText,
       logout, selectCourse, createCourse, promote, deactivate, transfer, addMember, removeMember, createTask, rotate, close, checkIn,
-      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect,
+      leave, review, revokeLeave, resubmit, correct, markRead, analyze, warn, handle, upload, confirm, assistantAction, tab, tabs, attendedOf, totalOf, rateOf, myStatusOf, shortTime, coverOf, account, accountSaving, saveName, savePassword, resubmitTarget, resubmitReason, beginResubmit, cancelResubmit, correctTarget, correctStatus, correctReason, beginCorrect, cancelCorrect,
       taskPattern, captureTaskPattern, useZPattern, clearTaskPattern,
       checkInSheet, openCheckIn, checkInFromSheet, checkInByGesture,
       checkedIn, isCheckedIn, checkInNotice, checkInToast }
@@ -1199,6 +1341,11 @@ createApp({
         <WiringView v-if="user.role !== 'admin'" :key="'wiring:' + user.id + ':' + user.role" :user="user" />
         </template>
 
+        <template v-if="tab === 'assistant' && user.role !== 'admin'">
+        <AssistantView :key="'assistant:' + user.id + ':' + user.role + ':' + (courseId || 0)"
+        :user="user" :course-id="courseId" @action="assistantAction" />
+        </template>
+
         <template v-if="tab === 'stats' && user.role !== 'admin' && courseId">
         <template v-if="courseId && user.role !== 'admin'">
         <section class="card"><h2>考勤与请假</h2>
@@ -1210,7 +1357,6 @@ createApp({
         </div>
 
         <p v-if="user.role === 'teacher'" class="att-meta">访问日志：<a href="/api/v1/logs/access.csv" target="_blank" rel="noopener">导出 CSV</a>　<a href="/api/v1/logs/audit.csv" target="_blank" rel="noopener">关键操作审计 CSV</a>　<a href="/api/v1/logs/access" target="_blank" rel="noopener">JSON</a></p>
-        <p v-if="secretCode" class="att-code">本次签到码 <strong>{{ secretCode }}</strong><small>刷新后不可找回，可轮换</small></p>
 
         <ul class="att-tasks">
         <li v-for="item in tasks" :key="item.id" :class="['att-task', item.status]">
@@ -1218,6 +1364,8 @@ createApp({
         <strong>{{ item.title }}</strong>
         <span :class="['att-badge', item.status]">{{ item.status === 'open' ? '进行中' : '已结算' }}</span>
         <span v-if="item.has_gesture" class="att-badge gesture">手势签到</span>
+        <span v-if="secretCode && secretCodeTask === item.id" class="att-code-inline"
+          title="明文只显示这一次，刷新后不可找回；点「轮换码」可换一个">签到码 <b>{{ secretCode }}</b></span>
         <span class="att-time">截止 {{ shortTime(item.end_at) }}</span>
         </div>
         <p v-if="checkInNotice && checkInNotice.taskId === item.id" class="checkin-notice" role="status">
@@ -1261,7 +1409,7 @@ createApp({
         </div>
         <p v-if="mySeat" class="seatmap-mine"><b>我坐这里</b>座位 {{ seatLabel(mySeat) }}　{{ mySeat.student_no }} {{ mySeat.name }}　{{ mySeat.class_name }}　状态：{{ seatText(mySeat.status) }}
         <button v-if="!checkedIn" type="button" class="secondary" @click="openCheckIn(seatData.task)">签到</button></p>
-        <p v-else-if="user.role === 'student'" class="seatmap-mine empty"><b>我还没选座</b>教室现在是空的，点下面任意空位就能坐这里。</p>
+        <p v-else-if="user.role === 'student'" class="seatmap-mine empty"><b>我还没选座</b>{{ seatList.length ? '点下面任意空位就能坐这里。' : '教室现在是空的，点下面任意空位就能坐这里。' }}</p>
         <p v-if="mySwap" class="swap-strip"><b>换位申请中</b>申请和 {{ mySwap.target_name }} 换座，等对方答复，剩余 <i>{{ swapLeft(mySwap) }}</i>
         <button type="button" class="secondary" @click="cancelSwap(mySwap)">撤回</button></p>
         <p v-if="user.role === 'student' && seatData" class="att-meta">点空位就坐下，坐下会顺手弹出签到面板（填签到码或画手势看老师这次课开的是哪种）；签到成功后不再弹面板，之后换座位直接点空位就行；点同学的格子是发换位申请，对方 {{ seatSwap.ttl }} 分钟内答复。</p>
@@ -1347,6 +1495,8 @@ createApp({
         </ul>
         <p v-if="!tasks.length">还没有考勤任务。</p>
 
+        <PollPanel v-if="user.role !== 'admin'" :user="user" :course-id="courseId" :tasks="tasks" />
+
         <details v-if="user.role === 'teacher'" class="att-panel">
         <summary>教室设置（{{ room ? room.name + ' · ' + roomForm.rows + ' 排 × ' + roomForm.cols + ' 座' : '加载中' }}）</summary>
         <div v-if="room" class="room-presets">
@@ -1362,7 +1512,9 @@ createApp({
         <p v-if="room" class="att-meta">容量 {{ room.capacity }} 座　学生 {{ room.students }} 人　已排座 {{ room.seated }} 人　未排 {{ room.unseated }} 人</p>
         <div v-if="room" class="att-actions">
         <button type="button" @click="autoSeat">一键按班排座</button>
-        <span class="att-meta">按班级顺序整排起排，四个班各占一段连续排；教室不够时会直接报错而不是硬塞。</span>
+        <button type="button" class="secondary" @click="clearSeats">清空座位（空教室）</button>
+        <span class="att-meta">按班级顺序整排起排，四个班各占一段连续排；教室不够时会直接报错而不是硬塞。
+        清空后学生打开座位图自己点空位入座，再签到。</span>
         </div>
         </details>
 
@@ -1411,24 +1563,67 @@ createApp({
         <summary>课程成员（{{ membersTotal }}）与加入</summary>
         <form class="inline-form" @submit.prevent="addMember">
         <label>学生完整学号 <input v-model.trim="memberNo" required></label><button>加入课程</button></form>
-        <ul class="rows"><li v-for="member in members" :key="member.user_id">
-        {{ member.name }} · {{ member.student_no }}<template v-if="member.class_name"> · {{ member.class_name }}</template> · {{ member.member_role }} · {{ member.active ? '在课' : '已移出' }}
-        <button v-if="member.member_role === 'student' && member.active" type="button" class="secondary"
-        @click="removeMember(member.user_id)">移出课程</button></li></ul>
+        <div class="bulk-tools">
+        <input v-model.trim="memberQuery" type="search" placeholder="按姓名 / 学号 / 班级筛选" aria-label="筛选课程成员">
+        <span class="bulk-count">在课 {{ membersActive }} · 已移出 {{ members.length - membersActive }}
+        · 筛出 {{ filteredMembers.length }}</span>
+        </div>
+        <div v-if="filteredMembers.length" class="bulk">
+        <table>
+        <thead><tr><th>姓名</th><th>学号</th><th>班级</th><th>角色</th><th>状态</th><th></th></tr></thead>
+        <tbody><tr v-for="member in visibleMembers" :key="member.user_id">
+        <td>{{ member.name }}</td><td>{{ member.student_no }}</td>
+        <td>{{ member.class_name || '—' }}</td><td>{{ member.member_role }}</td>
+        <td>{{ member.active ? '在课' : '已移出' }}</td>
+        <td><button v-if="member.member_role === 'student' && member.active" type="button" class="secondary"
+        @click="removeMember(member.user_id)">移出课程</button></td></tr></tbody>
+        </table>
+        </div>
+        <p v-else class="att-meta">没有匹配的成员。</p>
+        <div v-if="visibleMembers.length < filteredMembers.length" class="bulk-more">
+        <button type="button" class="secondary" @click="membersShown += 100">
+        再显示 100 人（{{ visibleMembers.length }}/{{ filteredMembers.length }}）</button>
+        </div>
         </details>
 
         <details v-if="user.role === 'teacher'" class="att-panel">
         <summary>有效考勤明细（{{ records.length }} 条）</summary>
-        <ul class="rows"><li v-for="item in records" :key="item.id">任务 #{{ item.task_id }} · 学生 #{{ item.student_id }} · {{ item.status }}
-        <button type="button" class="secondary" @click="beginCorrect(item.id, item.status)">更正</button>
-        <span v-if="correctTarget === item.id" class="resubmit-box">
+        <div class="bulk-tools">
+        <label>任务 <select v-model="recordTask" aria-label="按任务筛选">
+        <option value="all">全部任务</option>
+        <option v-for="task in tasks" :key="task.id" :value="String(task.id)">{{ task.title }}</option>
+        </select></label>
+        <label>状态 <select v-model="recordStatus" aria-label="按状态筛选">
+        <option value="all">全部状态</option>
+        <option v-for="option in recordStatuses" :key="option.value" :value="option.value">{{ option.label }}</option>
+        </select></label>
+        <input v-model.trim="recordQuery" type="search" placeholder="按姓名 / 学号筛选" aria-label="筛选考勤明细">
+        <span class="bulk-count">筛出 {{ filteredRecords.length }} 条</span>
+        </div>
+        <div v-if="filteredRecords.length" class="bulk">
+        <table>
+        <thead><tr><th>签到时间</th><th>任务</th><th>学生</th><th>状态</th><th></th></tr></thead>
+        <tbody><tr v-for="item in visibleRecords" :key="item.id">
+        <td>{{ item.checked_at ? shortTime(item.checked_at) : '—' }}</td>
+        <td>{{ taskText(item.task_id) }}</td>
+        <td>{{ memberText(item.student_id) }}</td>
+        <td>{{ seatText(item.status) }}</td>
+        <td><button type="button" class="secondary" @click="beginCorrect(item.id, item.status)">更正</button>
+        <div v-if="correctTarget === item.id" class="bulk-correct">
         <select v-model="correctStatus" aria-label="更正后的状态">
         <option value="present">出勤</option><option value="late">迟到</option>
         <option value="leave">请假</option><option value="absent">缺勤</option></select>
         <input v-model.trim="correctReason" maxlength="500" placeholder="更正理由（必填，会通知学生）" aria-label="更正理由">
         <button type="button" @click="correct(item)">提交更正</button>
         <button type="button" class="secondary" @click="cancelCorrect">取消</button>
-        </span></li></ul>
+        </div></td></tr></tbody>
+        </table>
+        </div>
+        <p v-else class="att-meta">没有符合条件的考勤记录。</p>
+        <div v-if="visibleRecords.length < filteredRecords.length" class="bulk-more">
+        <button type="button" class="secondary" @click="recordsShown += 100">
+        再显示 100 条（{{ visibleRecords.length }}/{{ filteredRecords.length }}）</button>
+        </div>
         </details>
         </section>
         <AnalyticsView v-if="user.role !== 'admin'" :key="'analytics:' + user.id + ':' + user.role" :user="user" />
@@ -1485,6 +1680,10 @@ createApp({
         <button type="button" class="secondary" @click="checkInSheet.open = false">关闭</button></div>
         </div>
       </div>
+
+      <!-- 投票浮层挂在整个页面根上，学生在哪个页签都能被弹到（换门课就重挂，避免带着上一门课的「稍后」） -->
+      <PollModal v-if="user && user.role === 'student'" :key="'poll:' + user.id + ':' + (courseId || 0)"
+        :course-id="courseId" />
 
       <div v-if="checkInToast" class="checkin-toast" role="status">{{ checkInToast }}</div>
     </main>`,

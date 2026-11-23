@@ -87,6 +87,17 @@ attendance_task.code_expires_at不得晚于end_at，初次生成有效到end_at�
 
 access_log 的 student_no/name/role 是请求时快照，用户改名或停用不回写历史；未登录请求 user_id 为空。座位换位成功后同一事务更新课程 class_seat 与该课程全部 attendance_seat。
 
+### 3.2 第11周课堂投票 SPEC-002
+
+| 表 | 核心字段 | 约束与用途 |
+|---|---|---|
+| poll | course_id FK；task_id FK；title TEXT；type TEXT；max_choices INTEGER；anonymous INTEGER；has_correct INTEGER；status TEXT；created_by FK user；closed_at可空 | type=single/multiple/boolean；anonymous/has_correct 为0/1；status=open/closed；UQ 无，索引(task_id,status)。投票必须挂在进行中或已结算的考勤任务上，资格由该任务 attendance_participant 与 attendance_record 决定，不另建投票名单 |
+| poll_option | poll_id FK；ordinal INTEGER；label TEXT；is_correct INTEGER | UQ(poll_id,ordinal)；ordinal从1起；判断题由服务端固定生成「正确/错误」两行并忽略客户端 options；is_correct只影响统计，不向未投票学生返回 |
+| poll_ballot | poll_id FK；student_id FK；submitted_at TEXT | UQ(poll_id,student_id) 是「一人一票」的并发最终防线；应用层先查再插，冲突按409处理 |
+| poll_choice | ballot_id FK；option_id FK | 复合PK；选项必须属于同一 poll；多选数量由 max_choices 约束，单选/判断只能一行 |
+
+027 迁移新增上述四表，不改 attendance_task/record/participant 与座位表。投票资格不落库：`eligible` 在读时按「该任务 present/late 人数」计算，签到补录后参与率自动纠正；任务结算后投票在读时即判为不可投，不依赖定时任务。匿名投票不删除 ballot，只是在教师结果里把 `details` 置空、保留未投名单。关闭接口幂等，重复关闭不改 closed_at。
+
 ## 4 测评与演示 SPEC-006—008
 
 | 表 | 核心字段 | 约束与用途 |

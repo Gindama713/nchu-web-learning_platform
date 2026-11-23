@@ -30,7 +30,7 @@ from backend.shared.db import get_db, write
 
 bp = Blueprint("analytics", __name__)
 VERSION = "attendance-performance-v1"
-WIRING_VERSION = "wiring-analysis-v1"
+WIRING_VERSION = "wiring-analysis-v2"
 METRIC_KEYS = ("expected_count", "present_count", "late_count", "leave_count", "absent_count",
                "attendance_rate", "performance_mean_percentage", "performance_correlation",
                "correlation_reason", "candidate_count", "paired_count", "missing_performance_count",
@@ -183,8 +183,8 @@ def wiring_facts(db, course_id, start, end, cutoff):
     db.execute("BEGIN")
     try:
         versions = [dict(row) for row in db.execute(
-            "SELECT v.id,v.experiment_id,v.submission_modes_json,v.status,v.end_at,v.published_at "
-            "FROM experiment_version v JOIN experiment e ON e.id=v.experiment_id "
+            "SELECT v.id,v.experiment_id,v.submission_modes_json,v.status,v.start_at,v.end_at,"
+            "v.published_at FROM experiment_version v JOIN experiment e ON e.id=v.experiment_id "
             "WHERE e.course_id=? AND v.status='published' ORDER BY v.id", (course_id,))]
         # 仅保留含 wiring 提交模式的版本
         wiring_versions = []
@@ -227,18 +227,51 @@ def _version_end_at(value):
         return None
 
 
-def wiring_interval_metrics(snapshot, start, end):
-    """计算区间内连线指标。按 experiment_version.end_at 的真实时刻归区间。
+def _version_window(version):
+    """返回实验版本的时间窗 (start, end)；end 不可解析时返回 None。
 
-    不能裸比字符串：同样时刻写成 +08:00、+00:00、带/不带毫秒时字典序不同，
-    会把 10 月底的截止误判到 11 月（010C 父 AC-01 复算一致性）。
+    已发布版本必有 start_at（见 009 迁移的 CHECK），但历史数据可能缺，
+    缺 start_at 时退回 published_at，两者都没有才返回 (None, end)。
+    """
+    end = _version_end_at(version.get("end_at"))
+    if end is None:
+        return None
+    for key in ("start_at", "published_at"):
+        raw = version.get(key)
+        if not raw:
+            continue
+        try:
+            return (parse_time(raw, key), end)
+        except ApiError:
+            continue
+    return (None, end)
+
+
+def wiring_interval_metrics(snapshot, start, end):
+    """计算区间内连线指标：与查询区间有交集的实验版本才算进来。
+
+    时间一律按真实时刻比较，不能裸比字符串：同样时刻写成 +08:00、+00:00、
+    带/不带毫秒时字典序不同，会把 10 月底的截止误判到 11 月（010C 父 AC-01 复算一致性）。
+
+    归集规则（wiring-analysis-v2）：
+    - 版本时间窗 [start_at, end_at] 与查询区间 [from, to) 有交集即计入，
+      所以「12 月才截止、现在正在进行」的实验在今天的区间里也能统计到；
+    - 只有 end_at（缺 start_at 与 published_at）的历史脏数据，退回旧的
+      「end_at 落入 [from, to)」判定，避免整段历史数据凭空消失。
     """
     lower = parse_time(start, "from")
     upper = parse_time(end, "to")
     versions = []
     for version in snapshot["versions"]:
-        boundary = _version_end_at(version.get("end_at"))
-        if boundary is not None and lower <= boundary < upper:
+        window = _version_window(version)
+        if window is None:
+            continue
+        window_start, window_end = window
+        if window_start is None:
+            inside = lower <= window_end < upper
+        else:
+            inside = window_start < upper and window_end > lower
+        if inside:
             versions.append(version)
     vid_set = {v["id"] for v in versions}
     participants = [p for p in snapshot["participants"] if p["experiment_version_id"] in vid_set]
@@ -394,8 +427,11 @@ def wiring_analytics(course_id):
     data = {"dimension": "wiring", "sample_size": metrics["assigned_count"], "metrics": metrics,
             "series": wiring_week_series(snapshot, start, end), "source_until": cutoff,
             "population_basis": "published_wiring_experiment_participants",
+            "window_semantics": "overlap",
             "unit": {"completion_rate": "ratio", "attempt_count": "count"},
-            "warnings": ["完成率仅统计功能全过的提交，草稿不计入"], "algorithm_version": WIRING_VERSION,
+            "warnings": ["实验时间窗与查询区间有交集即计入，进行中的实验也会统计",
+                         "完成率仅统计功能全过的提交，草稿不计入"],
+            "algorithm_version": WIRING_VERSION,
             "generated_at": generated}
     with write() as db:
         course_access(course_id, teacher=True)

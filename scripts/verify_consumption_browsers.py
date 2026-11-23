@@ -330,7 +330,7 @@ def main():
                     case.doCleanups()
                 print(f'{channel}: two consumption seams passed', flush=True)
         report['status'] = 'passed'
-    except Exception as error:  # noqa: BLE001 - retain redacted diagnostics, never credentials or request bodies
+    except Exception as error:
         report['status'] = 'failed'
         report['failure_type'] = type(error).__name__
         report['failure_locations'] = [f'{Path(f.filename).name}:{f.name}:{f.lineno}'

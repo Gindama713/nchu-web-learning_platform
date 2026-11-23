@@ -1,0 +1,21 @@
+{
+  "baseline": "2973bef7bfadb429fe8b17cfadf2d3a2685c796a",
+  "files": {
+    "frontend/js/main.js": {
+      "git_blob": "28dfc6752ea030e81a4c9a792eba6c60dde29102",
+      "sha256": "e923937508b34a466ef54e1a36246d5ea0621a06168c75e2f331a284c5acaf9c"
+    },
+    "frontend/js/analytics-view.js": {
+      "git_blob": "40f2206789414669d3cc26f5ca9a10f71783db9a",
+      "sha256": "81cbab92153b0548d38b6044390f317aec67f55d71a3fc631ad24629a58ae415"
+    }
+  },
+  "registered_components": "KnowledgeView, QuestionBankView, PaperView, AttemptView, PracticeView, AnalyticsView, ResourceView, ExperimentView, GradingView, QAView, RecommendationView",
+  "missing_named_entries": {
+    "PreparationView": true,
+    "DemoView": true,
+    "WiringView": true
+  },
+  "analytics_dimension_select": "select('统计维度', filters.dimension, v => { filters.dimension = v }, [['knowledge', '知识掌握度、错题与进度'], ['scores', '分类成绩'], ['grading', '电路评测通过率与运行可靠性']]),",
+  "limit": "Static current registration plus I03 runtime headings; absent pages are not browser-passed"
+}

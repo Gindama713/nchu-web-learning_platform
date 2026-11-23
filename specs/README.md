@@ -25,3 +25,4 @@
 - SPEC-017：[计划](017-wiring/plan.md) · [规格](017-wiring/spec.md) · [任务](017-wiring/tasks.md) · [界面设计](017-wiring/wireframes.md)
 - SPEC-018：[计划](018-logisim-grading/plan.md) · [规格](018-logisim-grading/spec.md) · [任务](018-logisim-grading/tasks.md) · [界面设计](018-logisim-grading/wireframes.md)
 - SPEC-019：[计划](019-engineering-delivery/plan.md) · [规格](019-engineering-delivery/spec.md) · [任务](019-engineering-delivery/tasks.md) · [界面设计](019-engineering-delivery/wireframes.md)
+- SPEC-020：[计划](020-assistant/plan.md) · [规格](020-assistant/spec.md) · [任务](020-assistant/tasks.md) · [界面设计](020-assistant/wireframes.md)

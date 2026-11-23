@@ -1,0 +1,1 @@
+[{"channel": "chrome", "checks": 6, "page_errors": []}, {"channel": "msedge", "checks": 6, "page_errors": []}]

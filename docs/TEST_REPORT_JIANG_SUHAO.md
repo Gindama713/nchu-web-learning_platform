@@ -38,3 +38,32 @@
 SPEC-001/002 的真实课堂账号、签到二维码实际扫码和并发压力，010A 的真实非空班级卷与考勤配对，014 的真实全依赖数据课堂演示，016 的非固定照片泛化效果及另一目标设备验证仍需证据。SPEC-019 的 main/release 拒绝演练、固定 Logisim JAR 的真实评测与目标环境、备份恢复、50 会话、Gitea 同 SHA 归档尚未完成。此报告不将这些项记为通过，也不授权 main 发布。
 
 复现入口和完整设计见 [个人实施记录](JIANG_SUHAO_IMPLEMENTATION.md)、[PRD](PRD.md)、[APIC](APIC.md) 与 [变更回滚手册](CHG-RB.md)。测试输出和最终 head 对应的 CI 在 PR 留证；恢复/回退时保留数据库与上传文件一致副本及所有历史分析快照。
+
+## 2026-11-20 回归补记（教学助手上线后）
+
+历史数字（135 项前端、376 项后端）保留在原表，不覆盖；以下是当前仓库的实测结果。
+
+| 检查 | 结果 | 证明范围 |
+|---|---|---|
+| `python -m unittest tests.test_assistant tests.test_assistant_phrasings` | 18 项通过 | 教学助手接口、权限、空数据降级、约 130 条问法分类 |
+| `python -m unittest tests.test_identity_attendance` | 10 项通过（新增 1 项） | 新增 AC-05：跨课选卷 404、同课同卷 200 |
+| 前端 `npm test` | 281 项通过（新增 17 项） | 新增 `warning-client` 5 项、`warning-view` 4 项、`recognition-client` 4 项、`recognition-view` 4 项，补齐 014/016 页面此前零测试的缺口 |
+| 前端 `npm run lint` / `npm run build` | 通过 | 静态规则与生产构建 |
+| `ruff check`（助手与新增测试） | 通过 | Python 静态规则 |
+
+真实数据证据（wt-demo 课程 16，160 名在课学生，2026-11-20）：
+
+- 014 首次在真实课堂数据上生成批次：`analysis_run_id=548`，`warning_count=110`，`model_status=insufficient_data`、`sample_size=0`。原因不是算法出错，而是该课程没有到期的实验版本，实验完成率分母为 0，按规格「不填造分母」降级为规则提示；110 条均为 `RECENT_ATTENDANCE`（最近两次考勤异常），与 11-13 现场签到结果一致。
+- 016 固定 F01—F05 与上传/确认仍由 `tests.test_recognition` 覆盖；前端新增的 4 项补的是页面层：上传后显示识别项与低置信度、未识别提示、标签未补齐时拒绝确认。
+
+### 2026-11-20 教学助手出图（SPEC-020/AC-09）
+
+| 检查 | 结果 | 证明范围 |
+|---|---|---|
+| `python -m unittest tests.test_assistant` | **16 项通过**（13 → 16） | 新增：环形圆心等于「应到人次」、无可画数据时 `charts=[]`、两周才有折线（1.0 / 0.5） |
+| `node --test js/charts.test.js` | 6 项通过 | 横条按 max 归一、null/NaN 不画、0 值留 1px、环形 total 只累加正值、折线 <2 点空态、未知 colorKey 回退 |
+| `node --test js/assistant-view.test.js` | 11 项通过（8 → 11） | 环形/条形渲染、无 `charts` 不画空占位、未知图表类型忽略 |
+| `npm test`（全量） | **294 项通过** | 含统计页改用共享 `chartNode` 后无回归 |
+| 无头 Edge（wt-demo 课程 16） | 教师 9/9、学生 9/9 | 图元计数与后端数值逐个对应；截图 `chart-teacher-donut.png`、`chart-teacher-bar.png`、`chart-student-two.png`（不入库） |
+
+仍不能由本材料证明：真实班级非空成绩配对（课程 16 三份卷无人提交）、一般照片/旋转/手绘的识别泛化、目标 Linux 与 50 会话性能、Gitea 同 SHA 归档、非作者评审。

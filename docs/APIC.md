@@ -486,3 +486,135 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 | DELETE /courses/{id}/seat-swaps/{sid} | S | 发起人撤回 |
 
 教师与助教不走这条路径（403 FORBIDDEN），排座仍由教师端完成。换位结果双方都会收到 `notification`，`event_key` 分别为 `seat_swap:{id}` 与 `seat_swap_result:{id}:{status}`，重复写入不产生第二条。
+
+## 15 课堂即时投票（第11周）
+
+老师在**进行中的考勤任务**里出题（单选 / 多选 / 判断），该任务里已签到（present、late）的学生投票，老师看分布、对错与逐人明细。
+
+### 15.1 数据模型
+
+`poll(id,course_id,task_id,title,type,max_choices,anonymous,has_correct,status,created_by,created_at,closed_at)`，`type` 取 single/multiple/boolean；`poll_option(id,poll_id,ordinal,label,is_correct)`；`poll_ballot(id,poll_id,student_id,submitted_at)`，`UNIQUE(poll_id,student_id)`；`poll_choice(ballot_id,option_id)`，`PRIMARY KEY(ballot_id,option_id)`。
+
+几条硬规则：
+
+- **资格随任务走**：投票挂在 `attendance_task` 上，只有该任务里 `attendance_participant` 存在且 `attendance_record.status in ('present','late')` 的人能投。应投人数（`eligible`）只在读时算，不落库，签到补录后参与率自动纠正。
+- **一人一票**：靠 `UNIQUE(poll_id,student_id)` 兜底，应用层先查一次给 `409 ALREADY_VOTED`，并发下由约束兜住。
+- **判断题不另写一套**：`type=boolean` 时后端把选项固定成「正确 / 错误」两个并忽略客户端传来的 options，判分与统计复用同一份代码。
+- **对错判定按集合相等**：所选 `option_id` 集合与正确集合完全一致才算对，多选漏选、多选都算错；未设正确答案（`has_correct=0`）时不给对错统计。
+- **关闭是幂等的**：`POST /polls/{id}/close` 重复调用返回 200，`closed_at` 不变。任务一结算（`status != 'open'` 或超出 `end_at`），投票在读时即判为不可投，不依赖定时任务。
+
+### 15.2 谁能看到什么
+
+| 视角 | 看得到 | 看不到 |
+|---|---|---|
+| 学生 · 投票前 | 题目、选项、类型、是否匿名 | 分布、正确答案 |
+| 学生 · 投票后 | 分布、参与人数、正确答案 | 别人的选择 |
+| 老师 · 实名 | 分布、对错统计、逐人明细（姓名/学号/所选/对错/时间）、未投名单 | — |
+| 老师 · 匿名 | 分布、对错统计、未投名单 | 逐人明细（`details` 恒为空数组） |
+
+匿名投票仍然给「谁没投」——参与率要能追，但不泄露具体选项。
+
+### 15.3 接口
+
+| 接口 | 权限 | 说明 |
+|---|---|---|
+| POST /courses/{id}/polls | T | 发起投票。body `{task_id,title,type,options,max_choices,anonymous,correct_ordinals}`，成功 201 并返回投票详情；任务不存在 404，任务已结算 409 STATE_CONFLICT，选项少于 2 / 超过 8 / 重复 / 正确答案越界 422 |
+| GET /courses/{id}/polls?status=open\|closed\|all | T/S | 分页列出，按 id 倒序；学生视角额外带 `my_option_ids`、`can_vote`、`reason` |
+| GET /polls/{id} | T/S | 详情，含 `voted`/`eligible`/`options`；学生投过之后才附带 `counts` 与 `correct_option_ids` |
+| POST /polls/{id}/ballots | S | 投票，body `{option_ids}`，成功 201 返回投完的详情。未签到 403 NOT_CHECKED_IN，重复 409 ALREADY_VOTED，已结束 409 POLL_CLOSED，空选 422 EMPTY_CHOICE，超上限 422 TOO_MANY_CHOICES，选项不属于本题 422 INVALID_OPTION，教师投票 403 |
+| GET /polls/{id}/results | T/S | 分布 `counts[{option_id,ordinal,label,is_correct,count,ratio}]` + `voted`/`eligible` + `timeline[{at,count}]`（累计投票人数，折线图用，匿名也有但不含身份）+ 可选 `correct{answered,right,wrong,accuracy}`；老师额外拿到 `unvoted`、`details`。学生未投票访问 403 |
+| POST /polls/{id}/close | T | 结束投票，幂等 |
+
+### 15.4 前端形态
+
+- 学生端是**浮层**（`.poll-modal`，z-index 65）：挂在页面根上，学生在任何页签都会在 5 秒内被弹到；签到面板（z-index 70）正开着时不会被盖住。点「稍后」的题目不再重复弹，后端回 `ALREADY_VOTED` / `POLL_CLOSED` 时把原因留在浮层里、按「知道了」才收。
+- 老师端在「考勤与请假」卡片里：出题表单 + 投票列表 + 结果区（分布条、正确率、未投名单、逐人明细表）。盯着某一场结果时每 2 秒刷新一次，没人看结果时只按 3 个周期拉一次列表。
+- 出题的正确答案是**选项左边的勾**（`button.poll-mark`，`aria-label="标记第 N 项为正确答案"`）：单选/判断题画成圆圈、多选画成方框，勾上变深绿 ✓，再点取消。单选与判断只保留最新勾的那一项，多选可勾多项。提交时换算成 `correct_ordinals`（1 起序号），一个都不勾就不发这个字段，后端按 `has_correct=0` 只统计分布。
+- 老师端结果区有**两张图**（`frontend/js/poll-view.js` 里的 `donutSlices` / `cumulativeLine` 两个纯函数算好再画，不引图表库）：
+  - **环形饼图**：各选项占比，颜色按选项序号取 `CHART_COLORS`，图例带「N 人 · x%」，中心显示已投人数。
+  - **折线图**：`timeline` 换算的累计投票人数，横轴是提交时刻，能看出票是一股涌进来还是慢慢加；只有一个时间点时不画（退化成一个点没意义）。
+- 学生端有**两个入口**：桌面浮层自动弹（5 秒轮询 `GET /courses/{id}/polls?status=open`），以及列表每一行的「投票」按钮——点了把这一场钉住交给浮层打开，之前点过的「稍后」作废，轮询不会把它顶掉。没签到时该位置换成「去签到」（原因 `NOT_CHECKED_IN`），点了滚到该签的任务并闪一下，因为后端 `can_vote=false` 时浮层不会弹。
+- 未投名单默认只铺 12 个 chip，点「展开」才全给——160 人的课不能一次铺满。
+
+## 16 教学助手（第12周新增，SPEC-020）
+
+老师在课上要「问一句就拿到班级情况」，学生要「问一句就知道自己哪里弱」。本节是一个**只读**接口：它不新建业务表、不写 `analysis_run`、不改成绩，只把已有统计与检索结果组织成一段带出处的回答。
+
+### 16.1 接口
+
+| 接口 | 权限 | 说明 |
+|---|---|---|
+| POST /courses/{id}/assistant/ask | T/S | body `{question, student_id?}`。`question` 1—200 字符；`student_id` 只有教师可传，且必须为本课在读学生。成功 200 返回回答对象；字段缺失/超长/多余字段 400；学生传 `student_id` 403；非本课成员或学生不属于本课 404 |
+
+响应 `data`：
+
+| 字段 | 说明 |
+|---|---|
+| role / intent | 提问者角色；命中的意图（见 16.2） |
+| title / answer | 一句话结论 + 2—4 句解释，全部由模板和真实数字拼成，不含自由生成文本 |
+| facts[] | `{label,value,unit,note?,source}`。`source` 取 `010A / 010B / 011 / 014`，界面按它标出处 |
+| caveats[] | 数据源不可用或样本不足时的明确说明；有该字段就表示这部分没算 |
+| matches[] | 仅知识问答：`{knowledge_id,title,excerpt,similarity}`，top 3，`similarity` 6 位小数 |
+| actions[] | `{kind,label,payload}`，`kind` 取 `navigate`（切页签）、`practice`（去练习）、`warning_run`（生成预警批次）；助手只给按钮，执行仍走原接口 |
+| charts[] | 可选图表数据，0—2 张，见 16.4。没有可画的数据时是空数组，界面不画空占位 |
+| suggestions[] | 当前角色的追问建议 |
+| algorithm_version / window / source_until | `assistant-rules-v1`；默认最近 28 天半开区间；事实截止时刻 |
+
+### 16.2 意图与口径
+
+分类不再是「第一个关键词决定一切」，而是**打分制**：每个意图维护一组口语/同义词，命中的最长词得分最高，再加维度权重（具体维度 +1，「谁没到/缺勤名单」+2，「怎么样/情况/如何」这类泛词 0），同分按表中顺序。这样「这周考勤怎么样」不会被「怎么样」抢成学情概览，「考得不好」也会压过「考得」。
+
+| 角色 | 意图 | 典型说法（词表的一部分，不是全部） | 取数口径 |
+|---|---|---|---|
+| 教师 | session_absence | 谁没到、谁没来、哪些人缺席了、缺勤名单给我、几个人没来、点名 | 最近一次已关闭考勤任务：应到/缺勤/请假人数 + 缺勤名单（前 10 人，注明总数） |
+| 教师 | student_attendance | 莫涛到了吗、24201501 考勤、董文静来了吗、他签到情况 | 该生近 28 天已关闭任务的逐次状态（最近 5 次）+ 出勤/迟到/请假/缺勤计数 |
+| 教师 | student_profile | 莫涛成绩怎么样、董文静学得怎么样、莫涛哪里弱、他考得怎么样 | 该生考勤 + 已评分成绩（最近 3 次）+ 客观题掌握度 + 预警原因 |
+| 教师 | at_risk | 谁有风险、哪些人跟不上、需要重点关注谁、谁掉队了 | 014 同口径事实，实时计算不落批次；列出前 5 名与规则原因，样本不足时说明已降级 |
+| 教师 | weak_knowledge | 哪个知识点最薄弱、学生哪里不会、哪章错得多、哪块最难、掌握得最差的是什么 | 010B：仅统计 `answered_count>0` 的知识点，按掌握度升序，最多 3 个 |
+| 教师 | attendance | 班里出勤率多少、有多少人没来上课、签到情况如何、这节课来了多少人 | 010A：已关闭考勤任务的冻结参与人，出勤含迟到 |
+| 教师 | class_scores | 这次考试平均分多少、班级成绩怎么样、作业考得如何、及格率 | 010B：按考试/作业/随堂测给平均百分比与已批/应交；已批 0 时明说「还没有已评分答卷」，不输出 null% |
+| 教师 | advice | 下节课讲啥、备课建议、重点讲哪块、怎么教比较好 | 010B 最弱 2 个知识点 + 014 命中人数，拼成课堂优先级 |
+| 教师 | class_overview | 这周学情怎么样、班级整体情况、最近表现如何、总结一下 | 010A 到勤率 + 010B 掌握度 + 014 命中人数 |
+| 教师 | knowledge_qa | 程序计数器是什么、ALU 的作用、为什么要用补码 | 011 TF-IDF（字符 1—3gram、阈值 0.10）top 3 |
+| 教师 | clarify | 以上都不命中，且不像知识问句（无「是什么/为什么/原理/区别」等） | 不猜，返回 4 个候选问题（`actions.kind=ask`，点了直接发问） |
+| 学生 | my_attendance | 我考勤怎么样、我来过几次、我缺课了吗、我请过假吗 | 010A 个人范围（`subject=本人`） |
+| 学生 | my_scores | 我成绩怎么样、我考了多少分、作业得了多少、我及格了吗 | 010B 分类成绩：按考试/作业/随堂测列出已评分卷的百分比（最近 5 次），另给待批、缺交份数；不展示原始分，避免不同卷分值不可比 |
+| 学生 | my_attempts | 我做了多少题、正确率多少、我错了几道、刷题情况 | 010B 作答事件：练习 + 已交试卷的逐题对错（最近 5 条）、做题总数、正确率、错得最多的知识点 |
+| 学生 | my_progress | 我哪里薄弱、我学到哪了、我还差多少、我哪里考得不好 | 010B 个人样本 + 010A 个人到勤率；只有掌握度低于 60% 才称「最薄弱」，否则明说没有明显薄弱项 |
+| 学生 | next_practice | 下一步练什么、推荐我学什么、该复习啥、先练什么 | 010B 个人掌握度低于 60% 的知识点，给「去练习」动作 |
+| 学生 | knowledge_qa | PC 是什么、为什么要用补码、ALU 的作用 | 011 top 3，未命中明确说没有 |
+| 学生 | clarify | 以上都不命中且不像知识问句 | 4 个候选问题（`actions.kind=ask`） |
+
+**姓名/学号匹配**：先按 6—20 位数字精确匹配学号，再按姓名包含匹配；重名（如「王伟」与「王伟民」）只保留最长匹配，仍不唯一时按学生名单顺序取第一个。学生视角永远不进入教师意图，问题里出现别人姓名也只查本人。
+
+**多轮指代**：教师请求可带 `student_id`，但只有问题里出现「他/她/该生/这个学生/这位同学/刚才那位」等指代词时才生效，避免班级问题被上一位学生劫持。命中后响应返回 `student:{id,name,student_no}`，前端据此显示「正在问：莫涛」并提供清除。学生永远不能传 `student_id`（403）。
+
+**问法回归**：`tests/test_assistant_phrasings.py` 固定约 130 条口语说法（每个意图 6—12 条），任何分类规则改动都必须让这组测试保持全绿；新增意图或高频说法先加进用例再改词表。
+
+### 16.3 硬规则
+
+- **不编数字**：任一数据源抛 `503` 时只在该项降级并写入 `caveats`，其余部分照常回答；空样本返回 `value=null` 和「算不出来」，不填 0。
+- **不越权**：学生忽略任何 `student_id`（直接 403），只按会话身份取数；教师传的 `student_id` 必须在本课在读名单内。
+- **不落库**：接口只读。反复提问不产生 `analysis_run`、不写审计业务表，课堂并发提问不会和考勤/投票抢写锁。
+- **动作不绕过校验**：`warning_run` 只是让前端调用原 `POST /courses/{id}/warning-runs`（带幂等键），助手本身没有写权限。
+- **不是大模型**：`algorithm_version=assistant-rules-v1`，意图靠固定关键词表，回答靠模板拼接。相似度、掌握度、到勤率都不是概率或预测。
+
+### 16.4 图表协议（charts[]）
+
+后端只给**结构化数字 + 语义色键**，不给颜色值、不生成 SVG；几何与配色在 `frontend/js/charts.js`，与统计页共用同一份渲染函数，换主题不会出现「统计页绿、助手页蓝」。
+
+| kind | 字段 | 画法 |
+|---|---|---|
+| `donut` | `title,unit,total,slices[]{label,value,colorKey}` | 状态构成。`total` 是正值之和；0 值项保留在图例（「没有迟到」本身是结论），但不出扇区 |
+| `bar` | `title,unit,max,items[]{label,value,colorKey,note}` | 横向条形，适合中文知识点名。`unit=percent` 按 `max`（默认 100）归一，其余按最大值归一 |
+| `line` | `title,unit,max,points[]{label,value}` | 按周趋势。`unit=ratio,max=1`；少于 2 个点不返回 |
+
+`colorKey` 取值：`present / late / leave / absent`（考勤四态）、`ok / warn / danger`（掌握度 ≥80 / 60—80 / <60）、`accent`（中性比较）。前端遇未知键回退主题色。
+
+三条硬约束：
+
+1. **数字同源**：图表与 `facts` 来自同一次取数（`class_snapshot` 把考勤快照一起返回，不许为画图重读库），所以圆心人数一定等于「应到人次」。
+2. **空就不给**：`total=0`、条形 0 项、折线 <2 点 → 该图不返回，界面不画空白框。
+3. **每答最多 2 张**（`assistant_charts.MAX_CHARTS`），按调用方给的优先级截断，避免回答变成仪表盘。
+
+各意图的图表：`class_overview` 到勤环形 + 按周折线；`attendance` / `my_attendance` / `student_attendance` 到勤环形；`session_absence` 本次到课构成；`weak_knowledge` / `advice` / `my_progress` / `next_practice` 掌握度条形；`at_risk` 命中原因条形（一人可多条，不画环形以免总数被误读）；`class_scores` 各类平均分条形；`my_scores` 已评分百分比条形；`my_attempts` 对错环形 + 错题知识点条形；`knowledge_qa`、`clarify` 不出图。

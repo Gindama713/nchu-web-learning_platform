@@ -214,3 +214,59 @@ class ClassroomTest(TestCase):
         for seat in data["seats"]:
             self.assertEqual(seat["status"], "pending")
             self.assertIsNone(seat["source"])
+
+    def test_clear_seats_then_students_pick_their_own(self):
+        """空教室模式：老师清空座位 → 学生自己点空位 → 位置被抢就 409，不静默顶掉。"""
+        first, second = self.enroll("计科2401", 2, "242080")
+        self.call(self.teacher, "PUT", f"/api/v1/courses/{self.course_id}/classroom",
+                  {"name": "教三 201", "template": "custom", "rows": 4, "cols": 4, "aisle_every": 0})
+        self.call(self.teacher, "POST", f"/api/v1/courses/{self.course_id}/classroom/auto-seat")
+        self.assertEqual(len(self.seats()), 2)
+
+        task = self.call(self.teacher, "POST", f"/api/v1/courses/{self.course_id}/attendance-tasks",
+                         {"title": "课堂点到", "start_at": self.at.isoformat(),
+                          "late_at": (self.at + timedelta(minutes=5)).isoformat(),
+                          "end_at": (self.at + timedelta(minutes=30)).isoformat()})
+        self.assertEqual(task.status_code, 201, task.json)
+        task_id = task.json["data"]["id"]
+
+        cleared = self.call(self.teacher, "DELETE", f"/api/v1/courses/{self.course_id}/classroom/seats")
+        self.assertEqual(cleared.status_code, 200, cleared.json)
+        self.assertEqual(cleared.json["data"]["removed"], 2)
+        self.assertEqual(cleared.json["data"]["open_tasks"], 1)
+        self.assertEqual(self.seats(), [])
+        # 进行中任务的座位快照也要清掉，否则座位图上还挂着旧位置
+        mapped = self.teacher.get(f"/api/v1/attendance-tasks/{task_id}/seats").json["data"]
+        self.assertEqual(mapped["seats"], [])
+        self.assertEqual(mapped["unseated"], 2)
+
+        # 学生 A 点 2 排 3 座：空教室的第一次点就是「选座」
+        self.auth(self.student, first)
+        picked = self.call(self.student, "PUT", f"/api/v1/courses/{self.course_id}/me/seat",
+                           {"group_no": 2, "seat_no": 3})
+        self.assertEqual(picked.status_code, 200, picked.json)
+        self.assertTrue(picked.json["data"]["moved"])
+        mapped = self.teacher.get(f"/api/v1/attendance-tasks/{task_id}/seats").json["data"]
+        self.assertEqual([(seat["group_no"], seat["seat_no"]) for seat in mapped["seats"]], [(2, 3)])
+        self.assertEqual(mapped["unseated"], 1)
+
+        # 学生 B 抢同一个位置：明确 409，不动 A 的座位
+        other = self.app.test_client()
+        self.auth(other, second)
+        taken = self.call(other, "PUT", f"/api/v1/courses/{self.course_id}/me/seat",
+                          {"group_no": 2, "seat_no": 3})
+        self.assertEqual(taken.status_code, 409, taken.json)
+        self.assertEqual(taken.json["error"]["code"], "SEAT_TAKEN")
+        self.assertEqual([(seat["group_no"], seat["seat_no"]) for seat in self.seats()], [(2, 3)])
+
+        # 已结束任务保留当时的座位历史，清空不该把它一起抹掉
+        self.call(self.teacher, "POST", f"/api/v1/attendance-tasks/{task_id}/close")
+        self.call(self.teacher, "DELETE", f"/api/v1/courses/{self.course_id}/classroom/seats")
+        history = self.teacher.get(f"/api/v1/attendance-tasks/{task_id}/seats").json["data"]
+        self.assertEqual(len(history["seats"]), 1, "已结束任务的座位图保留历史")
+
+    def test_student_cannot_clear_seats(self):
+        number = self.enroll("计科2401", 1, "242090")[0]
+        self.auth(self.student, number)
+        denied = self.call(self.student, "DELETE", f"/api/v1/courses/{self.course_id}/classroom/seats")
+        self.assertEqual(denied.status_code, 403, denied.json)

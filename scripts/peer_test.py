@@ -17,7 +17,6 @@
 
 from __future__ import annotations
 
-# ruff: noqa: UP031  — 报表行以 % 拼接更直观，无需转 f-string
 import argparse
 import http.cookiejar
 import json
@@ -93,7 +92,7 @@ class Peer:
         except urllib.error.HTTPError as failure:
             status = failure.code
             raw = failure.read().decode("utf-8", "replace")
-        except Exception as failure:  # noqa: BLE001 — 连不上、超时、DNS 都要收成一条测试记录
+        except Exception as failure:
             raw = json.dumps({"transport": str(failure)}, ensure_ascii=False)
         elapsed = (time.perf_counter() - started) * 1000
 

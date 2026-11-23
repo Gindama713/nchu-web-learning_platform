@@ -10,6 +10,26 @@ const DOTS = Array.from({ length: 9 }, (_, index) => ({
 }))
 const HIT_RADIUS = 34
 
+// 纯函数：给定画布坐标（0—300）返回命中的点序号，未命中返回 -1。
+// 抽出来是为了能脱离 DOM 单测；组件里只负责把指针事件换算成画布坐标。
+export function padHitTest(point, radius = HIT_RADIUS) {
+  let best = -1
+  let bestDistance = radius
+  DOTS.forEach(dot => {
+    const distance = Math.hypot(dot.x - point.x, dot.y - point.y)
+    if (distance <= bestDistance) {
+      best = dot.index
+      bestDistance = distance
+    }
+  })
+  return best
+}
+
+// 纯函数：点序号序列 → SVG polyline 的 points 字符串。
+export function padPoints(indices = []) {
+  return indices.map(index => `${DOTS[index].x},${DOTS[index].y}`).join(' ')
+}
+
 export const GesturePad = {
   name: 'GesturePad',
   props: {
@@ -26,7 +46,7 @@ export const GesturePad = {
     // 自己正在画就以自己的为准，松手后回到预览
     const shown = computed(() => (picked.value.length ? picked.value : (props.preview ?? [])))
 
-    const points = computed(() => shown.value.map(index => `${DOTS[index].x},${DOTS[index].y}`).join(' '))
+    const points = computed(() => padPoints(shown.value))
     const isPicked = index => shown.value.includes(index)
 
     function locate(event) {
@@ -37,16 +57,7 @@ export const GesturePad = {
       }
     }
     function hitTest(point) {
-      let best = -1
-      let bestDistance = HIT_RADIUS
-      DOTS.forEach(dot => {
-        const distance = Math.hypot(dot.x - point.x, dot.y - point.y)
-        if (distance <= bestDistance) {
-          best = dot.index
-          bestDistance = distance
-        }
-      })
-      return best
+      return padHitTest(point)
     }
     function reset() {
       picked.value = []

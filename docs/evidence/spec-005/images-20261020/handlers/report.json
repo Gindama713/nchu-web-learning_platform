@@ -1,0 +1,32 @@
+{
+  "started_at": "2026-10-20T02:35:46.011078+00:00",
+  "tested_head": "3505978e68efa514c019fcb8c79d907bc898fc21",
+  "dirty_paths": [],
+  "scope": "005 existing safety/persistence; 003 current policy and PDF controls; no image acceptance",
+  "source_sha256": {
+    "backend/apis/resources.py": "9ee670aaf3239929100bee57aa18d5bd7bda26656f86bf3328a504f3d3aed955",
+    "backend/models/knowledge.py": "0aabd27d4e9c23631871452687ae8eba86edb6f957ebbf427b8e82fa6d9e7e9f",
+    "tests/test_knowledge_image_contract.py": "422183464b22e13a66e530f2f146e40926596182889cea7303a4139308fbd842",
+    "scripts/verify_knowledge_image_contract.py": "ac8fc4cee8a328b9240459d00865761a7f2d2ed67a158f0a29067d8270c6f834"
+  },
+  "tests": 6,
+  "failures": [],
+  "errors": [],
+  "elapsed_seconds": 14.436,
+  "observations": [
+    {
+      "capability": "APIC event_id UUID validation",
+      "expected_status": 400,
+      "actual_status": 200,
+      "status": "contract_failure"
+    },
+    {
+      "capability": "real PNG/JPEG create and version upload",
+      "status": "blocked",
+      "reason": "no allowed image MIME in any current kind"
+    }
+  ],
+  "boundary_checks": "passed",
+  "image_readiness": "blocked",
+  "status": "checks_passed_with_open_gaps"
+}

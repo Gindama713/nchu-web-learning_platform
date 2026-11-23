@@ -1,5 +1,57 @@
 # 变更日志与发布回滚手册
 
+## 2026-11-23 结课交付工具与规格追溯
+
+- 新增 `scripts/package_submission.py` 与 `verify_submission.py`：按班级/组号生成名单和带封面、目录域、页码的报告，源码 ZIP 显式开启且要求干净提交；输出不覆盖旧目录并记录 SHA256。仅归档 Git 跟踪文件，排除本地数据、凭据与依赖；机器检查不替代截图脱敏和课堂验收。
+- `md2docx_report.py` 保留原位置参数，新增 `--cover-title/--cover-info/--toc/--page-numbers`；采用支持跨段更新的复杂 TOC 域。
+- 补 `specs/020-assistant` 四份摘要并纳入文档门禁，仍以 PRD/APIC 为唯一规范；develop 也运行真实 `ci-grader`，ci-required 同步要求成功。
+- 石佰合设计、测试、手册与检查点按代码协助整理，98 项相关后端测试通过；本人确认、独立提交及现场证据仍待完成。图表补 SVG title 悬停值，演示脚本补断外网步骤。
+- Gitea 脚本移入 scripts，要求提供实际检查1文档提交，不改现有冲突 tag；当前校园地址本次 5 秒超时，未执行归档。
+- 验证：ruff 与 check_docs 通过；前端 295 项测试、lint、生产构建通过；相关后端 98 项、换位与助手 38 项通过；交付脚本回归 1 项通过。完整后端与真实引擎以当前 PR CI 为准。Word 排版渲染仍在排查，不能据 OOXML 检查推定已逐页通过。
+- 回滚：回退本条对应提交；不涉及数据库迁移。ci-grader 若回退为 main/release，应同时回退 ci-required 的 develop 要求，避免跳过作业被判失败。
+
+## 2026-11-23 合并门禁修复：换位过期扫描、ruff 全绿、补组员分工表
+
+11-21 推送 31 个提交后复核 CI 门禁，发现两处会让 PR 红掉的问题，已修。
+
+- **换位过期状态回补（行为修复）**：`incoming_anywhere` 之前为了让 3 秒轮询不写库，把 `expire_stale` 从该端点整个摘掉，结果超时申请只在打开换位面板时才落库为 `expired`，直接调「等我答复」接口看到的是 `pending`，`tests.test_seat_swap.test_expires_after_fifteen_minutes` 因此失败。现在 `expire_stale` 改成**先 SELECT 探、有真过期行才 UPDATE**，轮询端点重新调用它：正常时段仍是纯读（无 UPDATE、不抢单写者锁），真有申请过期时才写一次并把状态落库。17 项换位测试恢复全绿。
+- **ruff 门禁**：`ci-lint` 跑的是 `ruff check backend tests scripts`，此时仓库无任何 ruff 配置，规则集随 ruff 版本浮动。修复前该命令在本次分支上报 163 处（UP031 70、ISC004 43、RUF059 13 等，几乎都在 `scripts/` 的一次性验收脚本里），CI 必红。处理：能自动修的用 `ruff check --fix --unsafe-fixes` 修掉 102 处；`backend/` 里 4 处按真实原因处理（`logs.py` 三处故意吞异常加 `S110` 说明、`polls.py` 合并嵌套 if）；新增 `ruff.toml` 只声明一条豁免——`scripts/*` 放行 `UP031/BLE001/PLW1510/RUF059`，理由是这些脚本的输出要与 11 月课堂验收记录逐条对照，改写法会让历史证据对不上，且不随应用发布。现在同一条命令 `All checks passed!`。
+- **补组员分工表**：任务书交付说明要求「组员分工表」，且根目录 `成员名单.txt` 一直指向 `docs/TEAM.md` 而该文件不存在。新增 [docs/TEAM.md](TEAM.md)：模块归属（每人 1 基础 + 1 独立统计 + 若干智能/难点）、交叉评审、交付材料索引、分支与合并约定、课堂提交物命名。石佰合一栏如实写「待补」。
+- 验证：`ruff check backend tests scripts` 通过；`python -m compileall backend tests scripts` 通过；`scripts/check_docs.py` 通过；后端 `test_polls / test_seat_swap / test_classroom / test_identity_attendance / test_assistant` 共 61 项通过。
+- 回退：换位部分回退本条的 `seat_swap.py` 改动即可（会退回到「轮询端点不扫描」的旧行为，测试随之变红）；`ruff.toml` 删除即回到无配置状态；`docs/TEAM.md` 为新增文档，删除不影响代码。
+
+## 2026-11-20 教学助手出图（SPEC-020 增量，AC-09）
+
+回答从「只有文字和数字」扩到「可带 0—2 张图」。仍然只读、不接大模型，前端不引图表库。
+
+- 后端新增 `backend/models/assistant_charts.py`：只产出结构化数据（`kind/title/unit/max/total/items/slices/points` + 语义 `colorKey`），不产出颜色和 SVG；`MAX_CHARTS=2` 截断。
+- 各意图接图：`class_overview` 到勤环形 + 按周折线；`attendance` / `my_*` / `student_attendance` 到勤环形；`session_absence` 本次到课构成；`weak_knowledge` / `advice` / `my_progress` / `next_practice` 掌握度条形；`at_risk` 命中原因条形（可多选，不画环形）；`class_scores` / `my_scores` 成绩条形；`my_attempts` 对错环形 + 错题分布条形；`knowledge_qa` / `clarify` 不出图。
+- `class_snapshot` 改为同时返回考勤快照，按周折线用同一份快照计算——图与 `facts` 出自同一次取数。折线少于 2 个有数据周不返回；标签按 Asia/Shanghai 本地化后取「月-日」，避免 UTC 日期错一天。
+- 前端 `charts.js` 新增 `rankChart`（横向条形，长中文标签放得下）、`chartNode`（从 `analytics-view.js` 抽出共用）、`chartColorOf`；`analytics-view.js` 删掉 32 行本地实现改用共享版本；`styles/charts.css` 加 `.chart-hbar` 位移动画并纳入 `prefers-reduced-motion`。
+- 验证：后端 `tests.test_assistant` 13 → **16** 项（新增图表与事实同源、无可画数据不出图、两周才有折线）；前端 285 → **294** 项（新增 `charts.test.js` 6 项、`assistant-view.test.js` 3 项）；lint/build/ruff 通过。无头 Edge 真实库：教师 9/9、学生 9/9，图上元素与后端数值逐一对应。
+- 回退：删 `assistant_charts.py`、各回答里的 `charts` 字段与前端图表分支即可；`charts.js` 的 `rankChart/chartNode` 是纯函数，保留不影响统计页。无迁移、无数据变更。
+
+## 2026-11-20 SPEC-014/016 前端测试补齐与 010A 跨课验收
+
+按 2026-10-25 缺口审查补三处：014 预警、016 识别两个页面此前没有任何前端测试（674 行裸奔）；010A 的 AC-05「跨课选卷 404」只有代码没有断言；014 从未在真实课堂数据上跑过批次。
+
+- 新增 `frontend/js/warning-client.test.js`（5 项：列表筛选与批次号、幂等键、处理记录、多人页合并、错误码透传）、`warning-view.test.js`（4 项：列表与计数、标记处理闭环、无批次引导、筛选重查）、`recognition-client.test.js`（4 项：FormData 不覆盖 boundary、确认只留 symbol/bbox/label、低置信度原样返回、415 透传）、`recognition-view.test.js`（4 项：上传入口、识别项与低置信度、未识别提示、缺标签拒绝确认）。
+- `tests/test_identity_attendance.py` 新增 `test_attendance_analytics_rejects_paper_from_another_course`：跨课 `performance_paper_ids` 返回 404，同课同卷 200。
+- 真实数据跑 014 批次：wt-demo 课程 16 生成 `analysis_run_id=548`，`warning_count=110`，`model_status=insufficient_data`（该课程无到期实验版本，实验完成率分母为 0，按规格不填造分母，降级为规则提示）。110 条均为 `RECENT_ATTENDANCE`，与 11-13 现场签到记录一致。
+- 验证：前端 264 → **281** 项全过，lint/build 通过；后端助手 18 项、身份/考勤 10 项通过；新增测试 ruff 干净。证据补记见 [TEST_REPORT_JIANG_SUHAO.md](TEST_REPORT_JIANG_SUHAO.md) 的 2026-11-20 节。
+- 回退：删除 4 个 `.test.js` 与 1 个后端测试方法即可，不涉及业务代码、不涉及数据库；014 批次 548 属真实业务记录，回退代码不等于删除它。
+
+## 2026-11-20 教学助手（SPEC-020，第12周课堂演示）
+
+按教师第12周要求新增「教学助手」：教师用自然语言问班级学情，学生问自己的薄弱项、考勤和知识点。**只读聚合**，不新增迁移、不新增业务表、不写 `analysis_run`、不调用外部大模型。
+
+- 后端 `backend/apis/assistant.py`：`POST /courses/{id}/assistant/ask`。意图靠固定关键词表（`assistant-rules-v1`），数字来自 010A（`analytics.facts/interval_metrics`）、010B（`knowledge_analysis.extract/metrics`）、014（`warnings.read_facts/analyze`）、011（`qa.build_index/search`），与这些模块同口径；单个数据源 503 只降级该项并在 `caveats` 说明，空样本返回 `null` 不填 0。学生传 `student_id` 直接 403，教师传非本课学生 404。
+- 前端 `assistant-client.js` / `assistant-view.js` / `styles/assistant.css`，在 `main.js` 增加「教学助手」页签；动作按钮只做切页签、去练习或调用原 `POST /warning-runs`（幂等键仍由前端生成），助手本身没有写权限。
+- 文档同步：APIC 第16节（接口/意图/硬规则）、PRD §4 SPEC-020 行与 §11.5 SPEC-020 验收。DBD 无变化（无新表）。
+- 2026-11-20 补充（问法泛化，第三个提交）：分类改为打分制（最长命中词 + 维度权重，泛词 0 权重），词表按口语/同义词铺开；新增 `class_scores`（考试/作业/随堂测平均与批改进度，已批 0 时不输出 null%）与 `clarify`（无匹配且非知识问句时给 4 个候选，`actions.kind=ask` 点了直接发问）。教师多轮指代：请求可带 `student_id`，但只在问题含「他/她/该生」等指代词时生效，响应回 `student` 对象，前端显示「正在问：莫涛」。新增 `tests/test_assistant_phrasings.py` 约 130 条问法回归（每意图 6—12 种说法），后端测试 12 → 18 项，前端 261 → 264 项。无头 Edge 澄清/多轮 6/6。
+- 验证：后端 `python -m unittest tests.test_assistant` 7 项通过；前端 `npm test` 261 项通过（新增 9 项）、`npm run lint`、`npm run build` 通过；`ruff check` 通过。无头 Edge 在真实演示库（课程16、160 名在课学生）实测教师 9/9、学生 9/9：教师问「这周学情怎么样」返回到勤率 30.0%（应到 1120 人次）、掌握度 66.6%（338 次作答）、预警命中 110 人；学生 24201501 得到本人 2 次作答、50% 掌握度、57.1% 到勤率。截图在 `test-tmp/cdp/assistant-teacher.png`、`assistant-student.png`（不入库）。
+- 回退：删除 `assistant.py` 与前端三个文件、移除 `app.py` 一行注册和 `main.js` 一处页签即可；无迁移、无历史数据依赖。撤回后 010A/010B/011/014 不受影响。
+
 ## 2026-11-09 电路实验台与数据就绪引导
 
 在 PR #83（`feature/spec-018-circuit-lab`，作者 Stephen-sbh，基于 develop 359a5ad）补 APIC 契约并同步到已含 #80 的 develop。新增 SPEC-009 电路实验台：`/circuit-lab/spec`、`/compute`、`/table` 为纯计算公开接口，`/bootstrap` 需登录并逐表返回 course/course_member/experiment/experiment_version/judge_profile/test_case/grading_run/resource 的记录数与补全建议；空库或迁移未完成时该项 `count=null`、`ready=false`，不回传 SQL 错误文本。前端新增 7485/74181 实验台、真值表/验证用例/提交记录和登录后数据就绪引导条；不新增数据库迁移，也不把 readiness 当作真实评测结果。
