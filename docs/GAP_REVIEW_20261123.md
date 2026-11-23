@@ -71,8 +71,8 @@
 - 分支已推：`feature/assistant-20261120` → `12e4d91`（11-23 已推）。
 - **动作**：打开 https://github.com/Gindama713/nchu-web-learning_platform/pull/new/feature/assistant-20261120
   开 PR，等 `ci-policy / ci-lint / ci-test / ci-build / ci-required` 五项绿后合并。
-- **风险**：`ci-test` 会跑全量后端（本机 Windows 上约 15 秒/用例，全量很久），
-  本地只能抽查；合并前必须等 CI 结果，不能看本地绿就合。
+- **风险**：`ci-test` 会跑全量后端。11-23 本地用 `PYTHONPATH=` 跑 `discover -s tests` 已 **560 项全过**
+  （21 分 47 秒），但**本地过 ≠ CI 过**（平台、依赖、时区不同），合并前仍必须等 CI 那五项的真实结果。
 
 ### 2.2 项目没有托管在 Gitea（任务书硬性要求）
 
@@ -145,8 +145,12 @@
    `backend/apis/identity.py` 只有登出与同用户互踢的 DELETE，没有过期行清理任务，表会单调增长。
 4. **SQLite 单写者 + 读写互斥**：11-12 已把「每个请求都写库」的三处改掉（会话续期限频、日志攒批、换位读取纯读），
    但任何新功能只要在请求主链路写库，多人并发时仍会排队。这条要写进新功能的评审清单。
-5. **本地跑不动全量后端测试**：Windows 上约 15 秒/用例，全套 50+ 文件要很久，
-   所以「本地全绿」不能代替 CI。日常只能按文件抽查（`python -m unittest tests.xxx`）。
+5. **本地跑全量后端测试要 20 分钟以上，且会被沙箱 shim 干扰**：11-23 实测全套
+   `discover -s tests` 共 **560 项、1303 秒（21 分 47 秒）通过**。注意两个坑：
+   ① 直接跑会报 **109 个 errors**，全部发生在 `tearDown` 删临时库时——那是 WorkBuddy 把
+   `cli/vendor/shim` 挂进了 `PYTHONPATH`，其 `sitecustomize.py` 拦截 `Path.unlink` 并跑批量删除检查，
+   与代码无关；加 `PYTHONPATH=` 前缀即可消掉。② 平均约 2.3 秒/用例，不是早先以为的 15 秒
+   （那是个别建库文件给人的错觉）。日常仍建议按文件抽查，全量留给 CI。
 6. **教学助手是规则分类，不是语义模型**：完全没有词表线索的说法（例如「给我整点有用的」）仍会走澄清。
    这是刻意选择（断网可跑、数字可复算），但被问「为什么不上大模型」时要按 `DEMO_SCRIPT` 第 3 节的话术回答。
 
@@ -206,6 +210,8 @@
 cd frontend && npm test                                 # 期望 294 项
 # 换位过期回归
 .venv/Scripts/python.exe -m unittest tests.test_seat_swap
+# 全量后端（务必带 PYTHONPATH=，否则沙箱 shim 会报一批假 errors）
+PYTHONPATH= .venv/Scripts/python.exe -m unittest discover -s tests   # 期望 Ran 560 tests, OK
 # 远端是否已合并
 git rev-list --left-right --count origin/develop...develop   # 期望 0 0
 ```

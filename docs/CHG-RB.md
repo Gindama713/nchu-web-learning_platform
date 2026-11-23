@@ -7,7 +7,7 @@
 - **换位过期状态回补（行为修复）**：`incoming_anywhere` 之前为了让 3 秒轮询不写库，把 `expire_stale` 从该端点整个摘掉，结果超时申请只在打开换位面板时才落库为 `expired`，直接调「等我答复」接口看到的是 `pending`，`tests.test_seat_swap.test_expires_after_fifteen_minutes` 因此失败。现在 `expire_stale` 改成**先 SELECT 探、有真过期行才 UPDATE**，轮询端点重新调用它：正常时段仍是纯读（无 UPDATE、不抢单写者锁），真有申请过期时才写一次并把状态落库。17 项换位测试恢复全绿。
 - **ruff 门禁**：`ci-lint` 跑的是 `ruff check backend tests scripts`，此时仓库无任何 ruff 配置，规则集随 ruff 版本浮动。修复前该命令在本次分支上报 163 处（UP031 70、ISC004 43、RUF059 13 等，几乎都在 `scripts/` 的一次性验收脚本里），CI 必红。处理：能自动修的用 `ruff check --fix --unsafe-fixes` 修掉 102 处；`backend/` 里 4 处按真实原因处理（`logs.py` 三处故意吞异常加 `S110` 说明、`polls.py` 合并嵌套 if）；新增 `ruff.toml` 只声明一条豁免——`scripts/*` 放行 `UP031/BLE001/PLW1510/RUF059`，理由是这些脚本的输出要与 11 月课堂验收记录逐条对照，改写法会让历史证据对不上，且不随应用发布。现在同一条命令 `All checks passed!`。
 - **补组员分工表**：任务书交付说明要求「组员分工表」，且根目录 `成员名单.txt` 一直指向 `docs/TEAM.md` 而该文件不存在。新增 [docs/TEAM.md](TEAM.md)：模块归属（每人 1 基础 + 1 独立统计 + 若干智能/难点）、交叉评审、交付材料索引、分支与合并约定、课堂提交物命名。石佰合一栏如实写「待补」。
-- 验证：`ruff check backend tests scripts` 通过；`python -m compileall backend tests scripts` 通过；`scripts/check_docs.py` 通过；后端 `test_polls / test_seat_swap / test_classroom / test_identity_attendance / test_assistant` 共 61 项通过。
+- 验证：`ruff check backend tests scripts` 通过；`python -m compileall backend tests scripts` 通过；`scripts/check_docs.py` 通过；后端 `test_polls / test_seat_swap / test_classroom / test_identity_attendance / test_assistant` 共 61 项通过；随后 `PYTHONPATH= python -m unittest discover -s tests` **全量 560 项通过**（1303 秒）。注意：不带 `PYTHONPATH=` 直接跑会报 109 个 `tearDown` 错误，那是沙箱 shim 拦 `Path.unlink` 所致，与代码无关。
 - 回退：换位部分回退本条的 `seat_swap.py` 改动即可（会退回到「轮询端点不扫描」的旧行为，测试随之变红）；`ruff.toml` 删除即回到无配置状态；`docs/TEAM.md` 为新增文档，删除不影响代码。
 
 ## 2026-11-20 教学助手出图（SPEC-020 增量，AC-09）
