@@ -45,7 +45,7 @@ export function lineChart(points, options = {}) {
   nodes.push({ kind: 'path', d: path, fill: 'none', stroke: color, width: 2.4, draw: true, 'stroke-linejoin': 'round' })
 
   data.forEach((point, index) => {
-    nodes.push({ kind: 'dot', cx: x(index), cy: y(point.value), r: 4, fill: '#fff', stroke: color, width: 2.4, delay: index })
+    nodes.push({ kind: 'dot', cx: x(index), cy: y(point.value), r: 4, fill: '#fff', stroke: color, width: 2.4, delay: index, title: `${point.label ?? ''}：${format(point.value, unit)}` })
     nodes.push({ kind: 'text', x: x(index), y: height - 11, text: point.label ?? '', size: 9.5, fill: MUTED, anchor: 'middle' })
     nodes.push({
       kind: 'text', x: x(index), y: y(point.value) - 10, size: 10.5,
@@ -85,11 +85,11 @@ export function barChart(series, options = {}) {
     const baseY = padT + innerH
     nodes.push({
       kind: 'bar', x: cx - barW / 2, y: baseY - hExpected, width: barW,
-      height: Math.max(hExpected, 1), fill: baseColor, delay: index, origin: baseY,
+      height: Math.max(hExpected, 1), fill: baseColor, delay: index, origin: baseY, title: `${item.label ?? ''} 应到：${expected}`,
     })
     nodes.push({
       kind: 'bar', x: cx - barW / 2, y: baseY - hPresent, width: barW,
-      height: Math.max(hPresent, 1), fill: fillColor, delay: index, origin: baseY,
+      height: Math.max(hPresent, 1), fill: fillColor, delay: index, origin: baseY, title: `${item.label ?? ''} 到勤：${present} / ${expected}`,
     })
     if (expected > 0) {
       nodes.push({ kind: 'text', x: cx, y: baseY - hExpected - 7, text: `${present}/${expected}`, size: 10.5, fill: INK, anchor: 'middle', bold: true })
@@ -169,6 +169,7 @@ export function rankChart(items, options = {}) {
     nodes.push({
       kind: 'rect', x: trackX, y: barY, width: barW, height: barHeight, rx: barHeight / 2,
       fill: item.color ?? ACCENT, class: 'chart-hbar', style: `animation-delay:${index * 60}ms`,
+      title: `${label}：${format(Number(item.value), unit)}${suffix}`,
     })
     nodes.push({
       kind: 'text', x: trackX + trackW + 10, y: barY + barHeight * 0.78, anchor: 'start',
@@ -191,11 +192,11 @@ export function chartNode(node) {
   if (node.kind === 'bar') return h('rect', {
     x: node.x, y: node.y, width: node.width, height: node.height, fill: node.fill, rx: 3,
     class: 'chart-bar', style: `animation-delay:${(node.delay ?? 0) * 70}ms`,
-  })
+  }, node.title ? [h('title', {}, node.title)] : [])
   if (node.kind === 'dot') return h('circle', {
     cx: node.cx, cy: node.cy, r: node.r, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width,
     class: 'chart-dot', style: `animation-delay:${560 + (node.delay ?? 0) * 70}ms`,
-  })
+  }, node.title ? [h('title', {}, node.title)] : [])
   if (node.kind === 'arc') return h('circle', {
     cx: node.cx, cy: node.cy, r: node.r, fill: 'none', stroke: node.color,
     'stroke-width': node.thickness, 'stroke-dasharray': node.dash, 'stroke-dashoffset': node.offset,
@@ -204,7 +205,7 @@ export function chartNode(node) {
   if (node.kind === 'rect') return h('rect', {
     x: node.x, y: node.y, width: node.width, height: node.height, fill: node.fill, rx: node.rx,
     class: node.class, style: node.style,
-  })
+  }, node.title ? [h('title', {}, node.title)] : [])
   if (node.kind === 'circle') return h('circle', {
     cx: node.cx, cy: node.cy, r: node.r, fill: node.fill, stroke: node.stroke, 'stroke-width': node.width,
   })

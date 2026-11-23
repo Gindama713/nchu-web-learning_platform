@@ -3,7 +3,17 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import { chartColorOf, chartColors, donutChart, lineChart, rankChart } from './charts.js'
+import { barChart, chartColorOf, chartColors, chartNode, donutChart, lineChart, rankChart } from './charts.js'
+
+test('条形、柱状与折线悬停显示完整标签和原始值', () => {
+  const rank = rankChart([{ label: '一二三四五六七八九十十一十二', value: 125 }])
+  const bar = rank.nodes.find(node => node.class === 'chart-hbar')
+  assert.equal(chartNode(bar).children[0].children, '一二三四五六七八九十十一十二：125%')
+  const columns = barChart([{ label: '11-23', expected: 10, present: 8 }])
+  assert.equal(chartNode(columns.nodes.find(node => node.kind === 'bar' && node.title.includes('到勤'))).children[0].children, '11-23 到勤：8 / 10')
+  const line = lineChart([{ label: '11-16', value: 0.5 }, { label: '11-23', value: 0.8 }])
+  assert.equal(chartNode(line.nodes.find(node => node.kind === 'dot')).children[0].children, '11-16：50%')
+})
 
 test('横向条形按 max 归一：满值占满轨道，短板按比例', () => {
   const chart = rankChart([

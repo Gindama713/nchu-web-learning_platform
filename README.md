@@ -209,6 +209,8 @@ C08提供内部候选冻结、确定性回溯和不可变generation_snapshot；C
 “阅读知识”读取当前005正文/例题；“去练习”重新检查推荐资格后在已有“公开练习与个人错题”区打开对应固定版本。无合格开放客观练习时可先阅读。练习仍按006保护、判分、幂等重试规则提交；推荐失败清除旧结果，可显式刷新恢复，练习区继续可用。专题验证：`python -m unittest tests.test_recommendations -v`；真实浏览器：`python scripts/verify_spec012_browsers.py --output logs/spec-012-browsers`，环境同8.6。不新增迁移或推荐缓存；正式证据与未完成验收见[SPEC-012实施记录](docs/SPEC-012_IMPLEMENTATION.md)。
 
 <a id="submission-check"></a>
+结课三件套生成、命名与核验见 [提交操作说明](docs/SUBMISSION.md)。源码 ZIP 默认不生成，现场截图、Gitea 和超星提交分别核实。
+
 ### 8.8 教学助手与课堂互动（第12周）
 
 **教学助手（SPEC-020）**：登录后顶部有「教学助手」页签。教师问「这周学情怎么样」「哪个知识点最薄弱」「上次点名谁没到」「莫涛到了吗」，学生问「我哪里薄弱」「我考了多少分」「我错了几道」。助手只读：不写 `analysis_run`、不新增业务表、不调用外部模型，数字全部来自 010A/010B/011/014 同口径；单源不可用时只降级该项并注明，空样本返回「算不出来」而不是 0。意图是打分制关键词表（`assistant-rules-v1`），约 130 条口语说法有回归测试；无法识别时给 4 个澄清候选。教师问过某个学生后，下一句「他/她」会接上同一学生，输入框上方显示「正在问：某某」并可清除。验证：`python -m unittest tests.test_assistant tests.test_assistant_phrasings -v`、`node --test frontend/js/assistant-*.test.js`。回答里还可以带 0—2 张图（到勤构成环形、知识点掌握度横条、按周到勤折线）：后端只给数字和语义色键，前端用项目自带的 SVG 函数画，图与文字同一次取数，没数据就不画。协议见 [APIC 16.4](docs/APIC.md)。设计与演示见[演示脚本](docs/DEMO_SCRIPT_ASSISTANT_20261120.md)。
