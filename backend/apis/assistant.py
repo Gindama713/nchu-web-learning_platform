@@ -287,34 +287,34 @@ def student_scores(db, course_id, student_id, start, end, cutoff, caveats):
 
 
 def student_attempts(db, course_id, student_id, start, end, cutoff):
-    practice = [dict(row) for row in db.execute(
-        "SELECT pa.created_at,pa.correct,qv.type,qv.stem,"
-        "(SELECT GROUP_CONCAT(k.title,'、') FROM question_knowledge qk "
-        " JOIN knowledge_point k ON k.id=qk.knowledge_id WHERE qk.question_version_id=qv.id) knowledge "
-        "FROM practice_attempt pa JOIN question_version qv ON qv.id=pa.question_version_id "
+    """与 010B 共用客观作答样本；简答待批不进入题目数/正确率/错题。"""
+    snapshot = knowledge_analysis.extract(db, course_id, start, end, cutoff, student_id)
+    practice = {row["id"]: row["stem"] for row in db.execute(
+        "SELECT pa.id,qv.stem FROM practice_attempt pa "
+        "JOIN question_version qv ON qv.id=pa.question_version_id "
         "JOIN question q ON q.id=qv.question_id "
-        "WHERE pa.student_id=? AND q.course_id=? AND pa.answered=1 "
-        "AND pa.created_at>=? AND pa.created_at<? AND pa.created_at<=? "
-        "ORDER BY pa.created_at DESC,pa.id DESC LIMIT 50",
-        (student_id, course_id, start, end, cutoff))]
-    answers = [dict(row) for row in db.execute(
-        "SELECT a.submitted_at,ans.score_hundredths,pi.points_hundredths,qv.type,qv.stem,p.title paper,"
-        "(SELECT GROUP_CONCAT(k.title,'、') FROM question_knowledge qk "
-        " JOIN knowledge_point k ON k.id=qk.knowledge_id WHERE qk.question_version_id=qv.id) knowledge "
-        "FROM answer ans JOIN attempt a ON a.id=ans.attempt_id JOIN paper p ON p.id=a.paper_id "
-        "JOIN paper_item pi ON pi.paper_id=p.id AND pi.question_version_id=ans.question_version_id "
+        "WHERE pa.student_id=? AND q.course_id=? AND qv.type!='short' AND pa.answered=1 "
+        "AND pa.created_at>=? AND pa.created_at<? AND pa.created_at<=?",
+        (student_id, course_id, start, end, cutoff))}
+    answers = {row["id"]: (row["stem"], row["paper"]) for row in db.execute(
+        "SELECT ans.id,qv.stem,p.title paper FROM answer ans "
+        "JOIN attempt a ON a.id=ans.attempt_id JOIN paper p ON p.id=a.paper_id "
         "JOIN question_version qv ON qv.id=ans.question_version_id "
-        "WHERE a.student_id=? AND p.course_id=? AND ans.answered=1 "
-        "AND a.submitted_at>=? AND a.submitted_at<? AND a.submitted_at<=? "
-        "ORDER BY a.submitted_at DESC,ans.id DESC LIMIT 50",
-        (student_id, course_id, start, end, cutoff))]
-    events = [{"at": row["created_at"], "correct": bool(row["correct"]), "from": "练习",
-               "stem": row["stem"], "knowledge": row["knowledge"]} for row in practice]
-    for row in answers:
-        full = row["points_hundredths"] or 0
-        graded = row["score_hundredths"] is not None and full > 0
-        events.append({"at": row["submitted_at"], "correct": bool(graded and row["score_hundredths"] >= full),
-                       "from": row["paper"] or "试卷", "stem": row["stem"], "knowledge": row["knowledge"]})
+        "WHERE a.student_id=? AND p.course_id=? AND qv.type!='short' AND ans.answered=1 "
+        "AND a.submitted_at>=? AND a.submitted_at<? AND a.submitted_at<=?",
+        (student_id, course_id, start, end, cutoff))}
+    titles = {point["id"]: point["title"] for point in snapshot["knowledge"]}
+    events = []
+    for sample in snapshot["samples"]:
+        if sample["source"] == "practice":
+            source, stem = "练习", practice.get(sample["sample_id"], "")
+        else:
+            stem, paper = answers.get(sample["sample_id"], ("", ""))
+            source = paper or "试卷"
+        knowledge = "、".join(titles[knowledge_id] for knowledge_id in sample["knowledge_ids"]
+                              if knowledge_id in titles)
+        events.append({"at": sample["event_at"], "correct": bool(sample["correct"]),
+                       "from": source, "stem": stem, "knowledge": knowledge})
     events.sort(key=lambda item: item["at"], reverse=True)
     wrong = [item for item in events if not item["correct"]]
     weak = {}
