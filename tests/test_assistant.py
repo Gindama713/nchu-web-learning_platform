@@ -82,6 +82,31 @@ class AssistantTest(TestCase):
         self.assertEqual(self.call(self.teacher, "POST", f"/api/v1/attendance-tasks/{task['id']}/close",
                                    {}).status_code, 200)
 
+    def test_time_scope_changes_facts_and_unknown_student_never_falls_back(self):
+        self.close_one_task_with_one_present()
+        current = self.ask(self.teacher, "本周考勤情况").json["data"]
+        self.assertEqual(current["window"]["from"], "2026-11-15T16:00:00.000Z")
+        self.assertEqual(current["facts"][0]["value"], 50)
+        earlier = self.ask(self.teacher, "2026-11-01到2026-11-02考勤情况").json["data"]
+        self.assertIsNone(earlier["facts"][0]["value"])
+        self.assertNotIn("28 天", earlier["answer"])
+        absent = self.ask(self.teacher, "2026-11-01到2026-11-02谁没到").json["data"]
+        self.assertEqual(absent["facts"], [])
+        unknown = self.ask(self.teacher, "99999999考勤情况", student_id=self.student_id).json["data"]
+        self.assertEqual(unknown["intent"], "clarify")
+        self.assertEqual(unknown["title"], "未找到该学生")
+        self.assertEqual(unknown["facts"], [])
+        self.assertIsNone(unknown["student_id"])
+        with self.app.app_context():
+            from backend.apis.assistant import time_window
+            self.assertEqual(time_window("本月成绩")["from"], "2026-10-31T16:00:00.000Z")
+            self.assertEqual(time_window("最近7天成绩")["days"], 7)
+        self.assertEqual(self.ask(self.teacher, "最近367天成绩").status_code, 400)
+        self.assertEqual(self.ask(self.teacher, "2026-02-30到2026-03-01成绩").status_code, 400)
+        self.assertEqual(self.ask(self.teacher, "成绩", **{"from": "2026-11-01T00:00:00Z"}).status_code, 400)
+        self.assertEqual(self.ask(self.teacher, "成绩", **{"from": "2026-11-01T00:00:00Z",
+                                                           "to": "2026-11-02T00:00:00Z"}).status_code, 200)
+
     def test_teacher_attendance_answer_uses_frozen_denominator(self):
         self.close_one_task_with_one_present()
         response = self.ask(self.teacher, "这周考勤情况怎么样？")
@@ -106,7 +131,7 @@ class AssistantTest(TestCase):
                        (self.student_id, self.other_id, outsider_id))
         finally:
             db.close()
-        response = self.ask(self.teacher, "同名学生没签到吗")
+        response = self.ask(self.teacher, "同名学生最近7天没签到吗")
         self.assertEqual(response.status_code, 200, response.json)
         data = response.json["data"]
         self.assertEqual(data["intent"], "clarify")
@@ -116,10 +141,13 @@ class AssistantTest(TestCase):
         self.assertEqual(data["charts"], [])
         questions = [action["payload"]["question"] for action in data["actions"]]
         self.assertEqual(questions, ["STUDENT01 考勤情况", "STUDENT02 考勤情况"])
-        resolved = self.ask(self.teacher, questions[1]).json["data"]
+        selected = data["actions"][1]["payload"]
+        resolved = self.call(self.teacher, "POST", f"/api/v1/courses/{self.course_id}/assistant/ask", selected).json["data"]
         self.assertEqual(resolved["intent"], "student_attendance")
         self.assertEqual(resolved["student_id"], self.other_id)
-        self.assertEqual(resolved["algorithm_version"], "assistant-rules-v2")
+        self.assertEqual(resolved["window"]["from"], data["window"]["from"])
+        self.assertEqual(resolved["window"]["to"], data["window"]["to"])
+        self.assertEqual(resolved["algorithm_version"], "assistant-rules-v3")
         db = connect(self.path)
         try:
             self.assertEqual(db.execute("SELECT COUNT(*) FROM analysis_run").fetchone()[0], 0)
@@ -173,15 +201,18 @@ class AssistantTest(TestCase):
 
     def test_overview_adds_weekly_line_only_when_two_weeks_have_data(self):
         """只有一周有考勤时不出折线（一个点画不出趋势），两周都有才给。"""
-        data = self.ask(self.teacher, "这周学情怎么样？").json["data"]
+        data = self.ask(self.teacher, "最近28天学情怎么样？").json["data"]
         self.assertEqual(data["charts"], [])
 
         self.seed_two_weeks_of_attendance()
-        data = self.ask(self.teacher, "这周学情怎么样？").json["data"]
+        data = self.ask(self.teacher, "最近28天学情怎么样？").json["data"]
         self.assertEqual([chart["kind"] for chart in data["charts"]], ["donut", "line"])
         line = data["charts"][1]
         self.assertEqual(len(line["points"]), 2)
         self.assertEqual([round(point["value"], 3) for point in line["points"]], [1.0, 0.5])
+        this_week = self.ask(self.teacher, "这周学情怎么样？").json["data"]
+        self.assertEqual([chart["kind"] for chart in this_week["charts"]], ["donut"])
+        self.assertEqual(this_week["facts"][0]["value"], 50.0)
 
     def test_attendance_chart_matches_the_reported_facts(self):
         """图与数字必须同源：圆心人数就是「应到人次」，不是另算一份。"""

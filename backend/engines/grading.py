@@ -55,9 +55,9 @@ def jar_path():
 
 
 def grader_ready():
-    """health 的 grader_ready：固定 JAR 存在且可执行身份校验通过。"""
-    path = jar_path()
-    return bool(path) and Path(path).is_file()
+    """Fixed engine identity only; Web health additionally requires self-test/heartbeat."""
+    from backend.runtime import jar_identity, verified_jar
+    return verified_jar(jar_identity())
 
 
 def engine_command(jar, circuit_name, vector_path, circuit_path, limits):
@@ -401,6 +401,9 @@ def _terminate(process):
 
 def claim_run(db, at, token=None):
     """短事务原子领取最早 queued 任务：条件更新为 running 并签发租约。"""
+    from backend.operations import database_paused
+    if database_paused(db):
+        return None
     reclaim_expired(db, at)
     run = db.execute("SELECT * FROM grading_run WHERE status='queued' ORDER BY id LIMIT 1").fetchone()
     if run is None:
@@ -501,6 +504,9 @@ def _insert_case_results(db, run_id, case_results):
 
 
 def claim_validation(db, at, token=None):
+    from backend.operations import database_paused
+    if database_paused(db):
+        return None
     reclaim_expired(db, at)
     row = db.execute("SELECT * FROM test_suite_validation WHERE status='queued' ORDER BY id "
                      "LIMIT 1").fetchone()
@@ -542,6 +548,9 @@ def stamp_from(at, seconds):
 
 def scan_once(database_path):
     """Web 进程每5秒执行的回收扫描（独立连接，全停机重启后先扫描再领新任务）。"""
+    from backend.operations import in_maintenance
+    if in_maintenance(database_path):
+        return
     from backend.shared.api import now
     from backend.shared.db import connect
     db = connect(database_path)
@@ -566,6 +575,8 @@ def start_scanner(app):
             time.sleep(5)
             try:
                 scan_once(app.config["DATABASE_PATH"])
+                from backend.operations import maintenance_tick
+                maintenance_tick(app)
             except RuntimeError:  # app 已停止接受请求
                 return
             except (OSError, sqlite3.Error):

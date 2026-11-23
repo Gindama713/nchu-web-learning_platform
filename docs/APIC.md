@@ -32,7 +32,7 @@
 
 | 方法与路径 | data返回 | 当前语义 |
 |---|---|---|
-| GET /health | `{web_ready,db_ready,grader_ready,status,grader_configured}` | `db_ready`仅表示SQLite可连接，非迁移完成；`grader_ready=false`且`status=degraded`，故当前503。`grader_configured`仅表示JAR路径存在，不能代替真实判分。 |
+| GET /health | `{web_ready,db_ready,engine_ready,worker_ready,grader_ready,status,maintenance,queued,running,worker_state,engine_check_at}` | db_ready核对迁移校验和；engine_ready要求固定JAR身份及300秒内真实自检；worker_ready要求45秒内有效心跳。仅全部就绪且非维护时200，否则503。不返回文件路径或密钥。 |
 | GET /modules | `[{spec,name,group}]` | 返回公开模块导航目录，不含用户数据；当前页面统一标记“待实现”。 |
 
 ## 2 身份与课程接口 SPEC-001
@@ -367,7 +367,7 @@ latest_run为该submission创建序号最大的run；effective_run为最大序�
 
 ## 8 运维接口及契约变更
 
-GET /health仅返回{web_ready,db_ready,grader_ready,status}，任一必需单元不可用返回503，不返回路径或版本敏感信息。GET /admin/grading-runs支持status、分页，仅A；POST /admin/grading-runs/{id}/retry仅A、reason必需、产生新run、不改旧结果。GET /admin/audit-events仅A，按actor、action、日期分页。
+GET /health返回第1节列出的分项健康及维护状态，任一必需单元不可用返回503，不返回路径或密钥。维护标记按数据库持久化，除health外API全部503；不提供业务写入例外。GET /admin/grading-runs支持status、分页，仅A；POST /admin/grading-runs/{id}/retry仅A、reason必需、产生新run、不改旧结果。GET /admin/audit-events仅A，按actor、action、日期分页。
 
 接口破坏性修改先更新本契约、PRD验收与DBD，再评审开发；已发布实验/测试版本不原地改。前端、后端及测试负责人在同一PR记录兼容与迁移影响。系统运行中外部客户端不得调用worker内部领任务/续租逻辑，它不暴露为公网API。
 
@@ -544,7 +544,7 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 
 | 接口 | 权限 | 说明 |
 |---|---|---|
-| POST /courses/{id}/assistant/ask | T/S | body `{question, student_id?}`。`question` 1—200 字符；`student_id` 只有教师可传，且必须为本课在读学生。成功 200 返回回答对象；字段缺失/超长/多余字段 400；学生传 `student_id` 403；非本课成员或学生不属于本课 404 |
+| POST /courses/{id}/assistant/ask | T/S | body `{question, student_id?, from?, to?}`。`question` 1—200 字符；`student_id` 只有教师可传，且必须为本课在读学生。`from/to` 必须成对、带时区、采用半开区间、跨度不超过366天且结束不晚于现在，优先于问题中的时间。成功 200；非法范围/字段 400；学生传 `student_id` 403；非本课成员或参数指定学生不属于本课 404 |
 
 响应 `data`：
 
@@ -558,7 +558,9 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 | actions[] | `{kind,label,payload}`，`kind` 取 `navigate`（切页签）、`practice`（去练习）、`warning_run`（生成预警批次）；助手只给按钮，执行仍走原接口 |
 | charts[] | 可选图表数据，0—2 张，见 16.4。没有可画的数据时是空数组，界面不画空占位 |
 | suggestions[] | 当前角色的追问建议 |
-| algorithm_version / window / source_until | `assistant-rules-v2`；默认最近 28 天半开区间；事实截止时刻 |
+| algorithm_version / window / source_until | `assistant-rules-v3`；window 含 `from/to/days/label/explicit`。默认最近28天，支持本周/这周、本月/这个月、最近N天（1—366）、`YYYY-MM-DD至YYYY-MM-DD`；自然日按上海时间，日期结束日包含全天并截到现在。本周从周一零点起。未指定范围的最近点名查询仅针对最新已结算任务，window 的 from/to/days 为 null；事实截止时刻为 source_until |
+
+教师问题中的完整学号未匹配到本课程有效学生时，返回 `intent=clarify`、标题“未找到该学生”，facts/charts 为空，不回退班级统计。重名选人动作的 payload 附原 from/to，前端选择后继续使用原区间。未支持的“昨天/上周”等时间表达返回400并提示可用格式，不静默改成28天。
 
 ### 16.2 意图与口径
 
@@ -599,7 +601,7 @@ GET /alu74181/compute?a=&b=&op=add|sub 返回单次运算，a、b 必须是 0—
 - **不越权**：学生忽略任何 `student_id`（直接 403），只按会话身份取数；教师传的 `student_id` 必须在本课在读名单内。
 - **不落库**：接口只读。反复提问不产生 `analysis_run`、不写审计业务表，课堂并发提问不会和考勤/投票抢写锁。
 - **动作不绕过校验**：`warning_run` 只是让前端调用原 `POST /courses/{id}/warning-runs`（带幂等键），助手本身没有写权限。
-- **不是大模型**：`algorithm_version=assistant-rules-v2`，意图靠固定关键词表，回答靠模板拼接。相似度、掌握度、到勤率都不是概率或预测。
+- **不是大模型**：`algorithm_version=assistant-rules-v3`，意图靠固定关键词表，回答靠模板拼接。相似度、掌握度、到勤率都不是概率或预测。
 
 ### 16.4 图表协议（charts[]）
 

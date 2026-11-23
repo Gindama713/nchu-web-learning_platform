@@ -8,9 +8,12 @@
 import atexit
 import csv
 import io
+import logging
 import sqlite3
 import threading
 import time
+from contextlib import closing
+from pathlib import Path
 
 from flask import Blueprint, Response, current_app, g, request
 
@@ -34,50 +37,71 @@ ACCESS_FLUSH_SECONDS = 5.0
 INSERT_ACCESS = ("INSERT INTO access_log(user_id,student_no,name,role,method,path,status,ip,"
                  "duration_ms,at) VALUES(?,?,?,?,?,?,?,?,?,?)")
 
-_pending = []
+# ponytail: process-local bounded buffers; use a durable external sink if crash-proof access logs are required.
+MAX_PENDING_ROWS = 10000
+_buffers = {}
 _pending_lock = threading.Lock()
-_last_flush = 0.0
-_database_path = None
 
 
-def flush_access(force=False):
-    """把攒下的访问记录一次性写库；失败只记 debug，绝不反压业务请求。"""
-    global _last_flush
+def buffer_status():
+    path = str(Path(current_app.config["DATABASE_PATH"]).resolve())
     with _pending_lock:
-        if not _pending:
+        state = _buffers.get(path, {})
+        return {"pending": len(state.get("rows", [])), "flush_failures": state.get("failures", 0),
+                "dropped": state.get("dropped", 0)}
+
+
+def flush_access(force=False, database=None):
+    """Atomic batch; bounded retries retain failed rows without blocking business writes."""
+    path = str(Path(database or current_app.config["DATABASE_PATH"]).resolve())
+    from backend.operations import in_maintenance
+    if in_maintenance(path):
+        return
+    with _pending_lock:
+        state = _buffers.get(path)
+        if not state or not state["rows"] or state["flushing"]:
             return
-        if not force and len(_pending) < ACCESS_FLUSH_ROWS and \
-                (time.monotonic() - _last_flush) < ACCESS_FLUSH_SECONDS:
+        if not force and len(state["rows"]) < ACCESS_FLUSH_ROWS and time.monotonic() - state["last"] < ACCESS_FLUSH_SECONDS:
             return
-        rows = _pending[:]
-        _pending.clear()
-        _last_flush = time.monotonic()
+        rows, state["rows"] = state["rows"][:ACCESS_FLUSH_ROWS], state["rows"][ACCESS_FLUSH_ROWS:]
+        state["flushing"], state["last"] = True, time.monotonic()
     try:
-        db = get_db()
-        db.executemany(INSERT_ACCESS, rows)
-        db.commit()
-    except Exception as failure:  # noqa: BLE001 — 日志失败绝不能把业务请求带崩
-        current_app.logger.debug("access log flush failed: %s", failure)
-        try:
-            get_db().rollback()
-        except Exception:  # noqa: BLE001, S110 — 回滚失败也没有补救手段
-            pass
+        with closing(sqlite3.connect(Path(path).as_uri() + "?mode=rw", uri=True, timeout=0.2)) as db:
+            db.execute("BEGIN IMMEDIATE")
+            try:
+                db.executemany(INSERT_ACCESS, rows)
+                db.commit()
+            except BaseException:
+                db.rollback()
+                raise
+    except (OSError, sqlite3.Error):
+        with _pending_lock:
+            state["failures"] += 1
+            pending = rows + state["rows"]
+            state["dropped"] += max(0, len(pending) - MAX_PENDING_ROWS)
+            state["rows"] = pending[:MAX_PENDING_ROWS]
+        logging.getLogger(__name__).warning("Access log flush failed; retained=%d dropped=%d",
+                                            len(state["rows"]), state["dropped"])
+    finally:
+        with _pending_lock:
+            state["flushing"] = False
 
 
 def _flush_at_exit():
-    """进程正常退出时把没落库的尾部记录补上；用的是独立连接，此时没有请求上下文。"""
-    with _pending_lock:
-        rows = _pending[:]
-        _pending.clear()
-    if not rows or not _database_path:
-        return
-    try:
-        db = sqlite3.connect(_database_path, timeout=5)
-        db.executemany(INSERT_ACCESS, rows)
-        db.commit()
-        db.close()
-    except Exception:  # noqa: BLE001, S110 — 退出时落盘失败不能改变进程退出码
-        pass
+    for path in list(_buffers):
+        # Deleted test databases must not be recreated at interpreter exit.
+        if not Path(path).is_file():
+            continue
+        while True:
+            with _pending_lock:
+                state = _buffers[path]
+                before, failures = len(state["rows"]), state["failures"]
+            if not before:
+                break
+            flush_access(force=True, database=path)
+            with _pending_lock:
+                if len(state["rows"]) >= before or state["failures"] != failures:
+                    break
 
 
 atexit.register(_flush_at_exit)
@@ -91,20 +115,21 @@ def should_log(path):
 
 def write_access(status, duration_ms):
     """在 after_request 里记一条访问轨迹；任何异常都不能影响正常响应。"""
-    global _database_path
+    from backend.operations import in_maintenance
     path = request.path
-    if not should_log(path):
+    database = str(Path(current_app.config["DATABASE_PATH"]).resolve())
+    if not should_log(path) or in_maintenance(database):
         return
     user = getattr(g, "user", None) or {}
-    try:
-        _database_path = current_app.config["DATABASE_PATH"]
-    except Exception:  # noqa: BLE001, S110 — 没有应用上下文时放弃退出前补写
-        pass
     with _pending_lock:
-        _pending.append((user.get("id"), user.get("student_no"), user.get("name"), user.get("role"),
-                         request.method, path, status,
-                         request.headers.get("X-Forwarded-For", request.remote_addr),
-                         round(duration_ms, 1), stamp()))
+        state = _buffers.setdefault(database, {"rows": [], "last": 0.0, "flushing": False,
+                                               "failures": 0, "dropped": 0})
+        if len(state["rows"]) >= MAX_PENDING_ROWS:
+            state["dropped"] += 1
+        else:
+            state["rows"].append((user.get("id"), user.get("student_no"), user.get("name"), user.get("role"),
+                                  request.method, path, status, request.remote_addr,
+                                  round(duration_ms, 1), stamp()))
     flush_access()
 
 
@@ -192,4 +217,4 @@ def logs_summary():
     rows = db.execute("SELECT path,COUNT(*) n FROM access_log WHERE at>=? AND at<=? "
                       "GROUP BY path ORDER BY n DESC LIMIT 10", (start, end)).fetchall()
     return result({"from": start, "to": end, "requests": total, "users": people,
-                   "failed": failed, "top_paths": [{"path": row["path"], "count": row["n"]} for row in rows]})
+                   "failed": failed, "buffer": buffer_status(), "top_paths": [{"path": row["path"], "count": row["n"]} for row in rows]})

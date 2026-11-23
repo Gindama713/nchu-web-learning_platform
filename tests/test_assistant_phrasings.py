@@ -151,4 +151,4 @@ class PhrasingTest(TestCase):
         member = {"id": 6, "student_no": "STUDENT01", "name": "同学甲"}
         self.assertEqual(classify("STUDENT01 考勤", "teacher", [member]),
                          ("student_attendance", member))
-        self.assertEqual(classify("XSTUDENT01 考勤", "teacher", [member]), ("attendance", None))
+        self.assertEqual(classify("XSTUDENT01 考勤", "teacher", [member]), ("student_not_found", None))

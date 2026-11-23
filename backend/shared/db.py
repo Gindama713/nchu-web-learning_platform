@@ -71,6 +71,10 @@ def write(db=None):
     db = db or get_db()
     _begin_immediate(db)
     try:
+        from backend.operations import database_paused
+        if database_paused(db):
+            from backend.shared.api import ApiError
+            raise ApiError(503, "MAINTENANCE", "System is in maintenance")
         if getattr(g, "session_id", None) and getattr(g, "user", None):
             row = db.execute("SELECT u.active,u.role,u.session_version,s.session_version AS saved_version "
                              "FROM session s JOIN user u ON u.id=s.user_id WHERE s.id=? AND u.id=?",

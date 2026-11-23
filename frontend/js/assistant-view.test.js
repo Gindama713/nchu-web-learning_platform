@@ -81,6 +81,18 @@ test('点击快捷问题后显示回答、数字与出处', async () => {
   } finally { view.restore() }
 })
 
+test('展示后端实际时间范围和上海时间，不把本周写成固定28天', async () => {
+  const view = mount({ answer: { ...reply, window: { ...reply.window, label: '本周至今' } } })
+  try {
+    button(view.root, '这周学情怎么样？').props.onClick()
+    await flush()
+    const text = content(view.root)
+    assert.match(text, /窗口：本周至今/)
+    assert.match(text, /2026-10-23 08:00:00 \(Asia\/Shanghai\)/)
+    assert.match(text, /不含结束时刻/)
+  } finally { view.restore() }
+})
+
 test('回答里的动作按钮交给父组件执行', async () => {
   const view = mount()
   try {
@@ -192,7 +204,8 @@ test('选人澄清清除旧目标，点击候选后查询并显示新目标', as
   const first = { ...reply, student: { id: 9, name: '同学甲', student_no: '24200009' } }
   const clarify = { ...reply, intent: 'clarify', student: null, facts: [],
     title: '请先确认要查询的学生', suggestions: [],
-    actions: [{ kind: 'ask', label: '同名学生（24200010）', payload: { question: '24200010 考勤情况' } }],
+    actions: [{ kind: 'ask', label: '同名学生（24200010）',
+      payload: { question: '24200010 考勤情况', from: reply.window.from, to: reply.window.to } }],
   }
   const selected = { ...reply, student: { id: 10, name: '同名学生', student_no: '24200010' } }
   const view = mount({ answers: [first, clarify, selected] })
@@ -204,7 +217,7 @@ test('选人澄清清除旧目标，点击候选后查询并显示新目标', as
     assert.equal(all(view.root).filter(node => node.props.class === 'assistant-context').length, 0)
     button(view.root, '同名学生（24200010）').props.onClick()
     await flush()
-    assert.deepEqual(view.requests[2], { question: '24200010 考勤情况' })
+    assert.deepEqual(view.requests[2], { question: '24200010 考勤情况', from: reply.window.from, to: reply.window.to })
     assert.match(content(view.root), /正在问：同名学生（24200010）/)
   } finally { view.restore() }
 })

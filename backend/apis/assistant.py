@@ -31,7 +31,7 @@ from backend.shared.auth import course_access, require_user
 from backend.shared.db import get_db
 
 bp = Blueprint("assistant", __name__)
-VERSION = "assistant-rules-v2"
+VERSION = "assistant-rules-v3"
 WINDOW_DAYS = 28
 MAX_QUESTION = 200
 MAX_LISTED_STUDENTS = 5
@@ -59,9 +59,50 @@ REASON_TEXT = {
 }
 
 
-def time_window():
-    end = now()
-    return stamp(end - timedelta(days=WINDOW_DAYS)), stamp(end)
+def time_window(question="", start=None, end=None):
+    """统计区间使用 UTC 半开区间；自然日按上海时间解释。"""
+    current = now()
+    local = current.astimezone(ZoneInfo("Asia/Shanghai"))
+    finish = current
+    label = f"最近 {WINDOW_DAYS} 天"
+    begin = current - timedelta(days=WINDOW_DAYS)
+    dates = re.search(r"(\d{4}-\d{2}-\d{2})\s*(?:到|至|~|～)\s*(\d{4}-\d{2}-\d{2})", question)
+    if dates and start is None and end is None:
+        try:
+            begin = datetime.fromisoformat(dates[1]).replace(tzinfo=local.tzinfo)
+            last = datetime.fromisoformat(dates[2]).replace(tzinfo=local.tzinfo)
+        except ValueError as error:
+            raise ApiError(400, "VALIDATION_ERROR", "日期格式无效") from error
+        if last.date() > local.date() or begin > last:
+            raise ApiError(400, "VALIDATION_ERROR", "日期范围无效，不能查询未来日期")
+        finish = min(last + timedelta(days=1), current)
+        label = f"{dates[1]} 至 {dates[2]}（含结束日期）"
+    elif start is not None or end is not None:
+        if start is None or end is None:
+            raise ApiError(400, "VALIDATION_ERROR", "from 和 to 必须一起提供")
+        from backend.shared.api import parse_time
+        begin, finish = parse_time(start, "from"), parse_time(end, "to")
+        label = "指定时间范围（不含结束时刻）"
+    elif "本周" in question or "这周" in question:
+        begin = local.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=local.weekday())
+        label = "本周至今"
+    elif "本月" in question or "这个月" in question:
+        begin = local.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        label = "本月至今"
+    elif match := re.search(r"(?:最近|近)\s*(\d+)\s*天", question):
+        days = int(match[1])
+        if not 1 <= days <= 366:
+            raise ApiError(400, "VALIDATION_ERROR", "最近天数必须为 1—366")
+        begin = current - timedelta(days=days)
+        label = f"最近 {days} 天"
+    elif re.search(r"今天|昨天|前天|上周|上个月|上月|去年|今年|最近[一二三四五六七八九十]+天", question):
+        raise ApiError(400, "VALIDATION_ERROR", "请使用本周、本月、最近N天（数字）或 YYYY-MM-DD至YYYY-MM-DD")
+    if begin > finish or finish > current or finish - begin > timedelta(days=366):
+        raise ApiError(400, "VALIDATION_ERROR", "时间范围必须为过去 366 天内的有效区间")
+    return {"from": stamp(begin), "to": stamp(finish),
+            "days": round((finish - begin).total_seconds() / 86400, 3), "label": label,
+            "explicit": bool(start is not None or end is not None or dates or
+                             re.search(r"本周|这周|本月|这个月|(?:最近|近)\s*\d+\s*天", question))}
 
 
 TEACHER_TOPICS = (
@@ -135,6 +176,11 @@ def classify(question, role, members=(), context_student=None):
     text = question.lower()
     matched = match_student(question, members) if role == "teacher" else []
     if role == "teacher":
+        numbers = re.findall(r"(?<![A-Za-z0-9])[A-Za-z0-9]{8,20}(?![A-Za-z0-9])", question)
+        known = {member["student_no"] for member in members}
+        if any(number not in known and (any(c.isdigit() for c in number) or number.isupper() or "学号" in question)
+               for number in numbers):
+            return "student_not_found", None
         if len(matched) > 1:
             return "clarify", None
         target = matched[0] if matched else (context_student if mentions_student(text) else None)
@@ -244,10 +290,12 @@ def student_attendance(db, course_id, student_id, start, end, cutoff):
             "attendance_rate": round((counts["present"] + counts["late"]) / len(rows), 6) if rows else None}
 
 
-def latest_task_absences(db, course_id):
+def latest_task_absences(db, course_id, start=None, end=None):
+    condition = " AND start_at>=? AND start_at<?" if start is not None else ""
+    params = (course_id, start, end) if start is not None else (course_id,)
     task = db.execute(
         "SELECT id,title,start_at FROM attendance_task WHERE course_id=? AND status='closed' "
-        "ORDER BY start_at DESC,id DESC LIMIT 1", (course_id,)).fetchone()
+        + condition + " ORDER BY start_at DESC,id DESC LIMIT 1", params).fetchone()
     if not task:
         return None
     rows = [dict(row) for row in db.execute(
@@ -374,8 +422,8 @@ def attendance_facts(metrics):
 
 def attendance_sentence(metrics):
     if metrics["expected_count"] == 0:
-        return f"最近 {WINDOW_DAYS} 天没有已结束的考勤任务，到勤率算不出来。"
-    return (f"最近 {WINDOW_DAYS} 天应到 {metrics['expected_count']} 人次，"
+        return "所选时段没有已结束的考勤任务，到勤率算不出来。"
+    return (f"所选时段应到 {metrics['expected_count']} 人次，"
             f"到勤率 {pct(metrics['attendance_rate'])}%（出勤 {metrics['present_count']}、"
             f"迟到 {metrics['late_count']}、请假 {metrics['leave_count']}、缺勤 {metrics['absent_count']}）。")
 
@@ -430,7 +478,7 @@ def attendance_week_line(snapshot, start, end):
     # period_start 是 UTC 的周一零点，本地化后取「月-日」，避免日期错一天
     points = [{"label": short_time(row["period_start"])[:5], "value": row["metrics"]["attendance_rate"]}
               for row in series if row["metrics"]["expected_count"]]
-    return assistant_charts.line(f"按周到勤率（最近 {WINDOW_DAYS} 天）", points)
+    return assistant_charts.line("按周到勤率（所选时段）", points)
 
 
 def reason_counts(warning):
@@ -474,7 +522,7 @@ def teacher_student_answer(intent, student, db, course_id, start, end, cutoff):
     if intent == "student_attendance":
         if profile["expected_count"]:
             title = label + " 到勤率 " + str(pct(profile["attendance_rate"])) + "%"
-            answer = (label + f" 最近 {WINDOW_DAYS} 天应到 {profile['expected_count']} 次，到勤率 "
+            answer = (label + f" 所选时段应到 {profile['expected_count']} 次，到勤率 "
                       f"{pct(profile['attendance_rate'])}%（出勤 {profile['present_count']}、"
                       f"迟到 {profile['late_count']}、请假 {profile['leave_count']}、"
                       f"缺勤 {profile['absent_count']}）。")
@@ -483,7 +531,7 @@ def teacher_student_answer(intent, student, db, course_id, start, end, cutoff):
                            + STATUS_TEXT.get(profile["rows"][0]["status"], profile["rows"][0]["status"]) + "。")
         else:
             title = label + " 暂无到课记录"
-            answer = label + f" 最近 {WINDOW_DAYS} 天没有被结算的考勤任务，到课数据算不出来。"
+            answer = label + " 所选时段没有被结算的考勤任务，到课数据算不出来。"
         charts = assistant_charts.limit([attendance_donut(profile)])
     else:
         scores = safe(lambda: student_scores(db, course_id, student["id"], start, end, cutoff, caveats),
@@ -534,12 +582,13 @@ def teacher_student_answer(intent, student, db, course_id, start, end, cutoff):
             "matches": [], "actions": actions, "charts": charts, "suggestions": TEACHER_SUGGESTIONS}
 
 
-def teacher_absence_answer(db, course_id):
-    data = safe(lambda: latest_task_absences(db, course_id), [], "考勤")
+def teacher_absence_answer(db, course_id, start=None, end=None):
+    caveats = []
+    data = safe(lambda: latest_task_absences(db, course_id, start, end), caveats, "考勤")
     if not data:
         return {"intent": "session_absence", "title": "还没有已结算的点名",
-                "answer": "这门课还没有关闭的考勤任务，没法列出未到名单。先发布并结束一次点名。",
-                "facts": [], "caveats": [], "matches": [],
+                "answer": "查询范围内没有已关闭的考勤任务，没法列出未到名单。",
+                "facts": [], "caveats": caveats, "matches": [],
                 "actions": [{"kind": "navigate", "label": "打开考勤与学情", "payload": {"tab": "stats"}}],
                 "suggestions": TEACHER_SUGGESTIONS}
     task = data["task"]
@@ -588,7 +637,7 @@ def class_scores_answer(db, course_id, start, end, cutoff):
             rows.append((kind, metric))
     if not rows:
         return {"intent": "class_scores", "title": "最近没有作业或考试",
-                "answer": f"最近 {WINDOW_DAYS} 天没有已发布并分配名单的作业、随堂测或考试，班级成绩算不出来。",
+                "answer": "所选时段没有已发布并分配名单的作业、随堂测或考试，班级成绩算不出来。",
                 "facts": [], "caveats": caveats, "matches": [],
                 "actions": [{"kind": "navigate", "label": "打开测评与练习", "payload": {"tab": "exam"}}],
                 "suggestions": TEACHER_SUGGESTIONS}
@@ -608,11 +657,11 @@ def class_scores_answer(db, course_id, start, end, cutoff):
     if graded_rows:
         parts = [f"{KIND_TEXT[kind]}平均 {metric['mean_percentage']}%" for kind, metric in graded_rows]
         title = "班级成绩：" + "、".join(parts)
-        answer = (f"最近 {WINDOW_DAYS} 天共 {expected} 人卷次应交，已批 {graded}、缺交 {missing}。"
+        answer = (f"所选时段共 {expected} 人卷次应交，已批 {graded}、缺交 {missing}。"
                   + "；".join(parts) + "。只统计已评分答卷，待批和缺交不进均分。")
     else:
         title = "还没有已评分答卷"
-        answer = (f"最近 {WINDOW_DAYS} 天共 {expected} 人卷次应交，但已批 0、缺交 {missing}。"
+        answer = (f"所选时段共 {expected} 人卷次应交，但已批 0、缺交 {missing}。"
                   "没有已评分答卷，平均分算不出来；批改后再问就有数了。")
     charts = assistant_charts.limit([percent_bar(
         "各类平均分（只含已评分答卷）",
@@ -643,13 +692,13 @@ def teacher_answer(intent, question, db, course_id, start, end, cutoff):
             title, answer = "知识点掌握度暂时算不出来", "这一维度的数据源不可用，先看统计页是否正常。"
         elif not points:
             title = "最近没有客观作答样本"
-            answer = (f"最近 {WINDOW_DAYS} 天全班没有形成有效的客观题作答记录，"
+            answer = ("所选时段全班没有形成有效的客观题作答记录，"
                       "掌握度不能凭空排序。可以让学生先完成一次随堂练习或作业，再回来问。")
             actions.append({"kind": "navigate", "label": "打开学情统计", "payload": {"tab": "stats"}})
         else:
             facts = [point_fact(item) for item in points]
             head = points[0]
-            answer = (f"最近 {WINDOW_DAYS} 天全班共 {knowledge['answered_count']} 次客观作答。"
+            answer = (f"所选时段全班共 {knowledge['answered_count']} 次客观作答。"
                       f"最薄弱的是「{head['title']}」，掌握度 {pct(head['mastery'])}%"
                       f"（答对 {head['correct_count']}/{head['answered_count']} 次）。")
             if len(points) > 1:
@@ -681,7 +730,7 @@ def teacher_answer(intent, question, db, course_id, start, end, cutoff):
                     people.append(name + "（" + reasons + "）")
             if warning["warnings"]:
                 title = f"{len(warning['warnings'])} 人命中预警规则"
-                answer = (f"最近 {WINDOW_DAYS} 天有 {len(warning['warnings'])} 人命中规则：" +
+                answer = (f"所选时段有 {len(warning['warnings'])} 人命中规则：" +
                           "；".join(people) + "。")
                 if len(warning["warnings"]) > MAX_LISTED_STUDENTS:
                     answer += f"另有 {len(warning['warnings']) - MAX_LISTED_STUDENTS} 人未逐一列出。"
@@ -691,7 +740,7 @@ def teacher_answer(intent, question, db, course_id, start, end, cutoff):
                 actions.append({"kind": "warning_run", "label": "生成并保存预警批次", "payload": {}})
             else:
                 title = "没有命中预警的学生"
-                answer = (f"最近 {WINDOW_DAYS} 天按现有口径没有学生命中预警规则。"
+                answer = ("所选时段按现有口径没有学生命中预警规则。"
                           "这不等于全班都学得好，样本少时结论要谨慎。")
                 if warning["model_status"] != "clustered":
                     answer += f"聚类样本 {warning['sample_size']} 人，未达到门槛，已降级为规则提示。"
@@ -722,7 +771,7 @@ def teacher_answer(intent, question, db, course_id, start, end, cutoff):
             if warning and warning["warnings"]:
                 pieces.append(f"课后关注 {len(warning['warnings'])} 名命中预警的学生")
             title = "下节课的优先级建议"
-            answer = "；".join(pieces) + "。建议来自最近 " + str(WINDOW_DAYS) + " 天的真实作答与考勤，不是教学大纲的固定顺序。"
+            answer = "；".join(pieces) + "。建议来自所选时段的真实作答与考勤，不是教学大纲的固定顺序。"
             actions.append({"kind": "navigate", "label": "打开教学内容", "payload": {"tab": "content"}})
             actions.append({"kind": "navigate", "label": "打开知识掌握度统计", "payload": {"tab": "stats"}})
     else:  # class_overview
@@ -746,7 +795,7 @@ def teacher_answer(intent, question, db, course_id, start, end, cutoff):
                           "note": f"{knowledge['answered_count']} 次作答", "source": "010B"})
         if warning:
             facts.append({"label": "预警命中", "value": len(warning["warnings"]), "unit": "人", "source": "014"})
-        title = "最近 " + str(WINDOW_DAYS) + " 天学情概览"
+        title = "所选时段学情概览"
         answer = "".join(parts) or "目前没有可用的学情数据。"
         charts = assistant_charts.limit([
             attendance_donut(attendance) if attendance else None,
@@ -779,7 +828,7 @@ def student_answer(intent, question, db, course_id, user_id, start, end, cutoff)
         missing = [item for item in scores if item["status"] == "missing"]
         if not scores:
             title = "最近没有作业或考试"
-            answer = f"最近 {WINDOW_DAYS} 天没有布置给你的作业、随堂测或考试，暂时没有成绩可看。"
+            answer = "所选时段没有布置给你的作业、随堂测或考试，暂时没有成绩可看。"
         else:
             for item in graded[:5]:
                 facts.append({"label": KIND_TEXT.get(item["kind"], item["kind"]) + " · " + item["title"],
@@ -794,7 +843,7 @@ def student_answer(intent, question, db, course_id, user_id, start, end, cutoff)
                 title = f"已评分 {len(graded)} 次，平均 {average}%"
                 best = max(graded, key=lambda item: item["percentage"])
                 worst = min(graded, key=lambda item: item["percentage"])
-                answer = (f"最近 {WINDOW_DAYS} 天你有 {len(graded)} 次已评分成绩，平均 {average}%。"
+                answer = (f"所选时段你有 {len(graded)} 次已评分成绩，平均 {average}%。"
                           f"最高是「{best['title']}」{best['percentage']}%，"
                           f"最低是「{worst['title']}」{worst['percentage']}%。")
             else:
@@ -808,7 +857,7 @@ def student_answer(intent, question, db, course_id, user_id, start, end, cutoff)
         data = student_attempts(db, course_id, user_id, start, end, cutoff)
         if not data["answered"]:
             title = "最近没有做题记录"
-            answer = (f"最近 {WINDOW_DAYS} 天你还没有做题记录。做几道练习后，"
+            answer = ("所选时段你还没有做题记录。做几道练习后，"
                       "我可以按知识点告诉你错了哪些、错得最多的是哪一块。")
             actions.append({"kind": "practice", "label": "去做练习", "payload": {}})
         else:
@@ -828,7 +877,7 @@ def student_answer(intent, question, db, course_id, user_id, start, end, cutoff)
                               "value": "、".join(f"{title}（{count} 次）" for title, count in data["weak"]),
                               "source": "010B"})
             title = f"做了 {data['answered']} 题，正确率 {pct(data['rate'])}%"
-            answer = (f"最近 {WINDOW_DAYS} 天你做了 {data['answered']} 题，答对 {data['correct']} 题，"
+            answer = (f"所选时段你做了 {data['answered']} 题，答对 {data['correct']} 题，"
                       f"正确率 {pct(data['rate'])}%。")
             if data["weak"]:
                 answer += "错得最多的是「" + data["weak"][0][0] + "」（" + str(data["weak"][0][1]) + " 次），建议优先补这一块。"
@@ -857,7 +906,7 @@ def student_answer(intent, question, db, course_id, user_id, start, end, cutoff)
         charts = assistant_charts.limit([mastery_bar(points, "你的知识点掌握度")])
         if not knowledge or not knowledge["answered_count"]:
             title = "还没有足够的作答样本"
-            answer = (f"你最近 {WINDOW_DAYS} 天没有客观题作答记录，掌握度算不出来。"
+            answer = ("你所选时段没有客观题作答记录，掌握度算不出来。"
                       "先去做一轮练习，回来我就能按真实正确率告诉你哪里薄弱。")
             actions.append({"kind": "practice", "label": "去做练习", "payload": {}})
         else:
@@ -877,7 +926,7 @@ def student_answer(intent, question, db, course_id, user_id, start, end, cutoff)
                 actions.append({"kind": "practice", "label": "去练习", "payload": {}})
             else:
                 title = "你的学习情况"
-                answer = (f"最近 {WINDOW_DAYS} 天你做了 {knowledge['answered_count']} 次客观题，"
+                answer = (f"所选时段你做了 {knowledge['answered_count']} 次客观题，"
                           f"掌握度 {pct(knowledge['mastery'])}%")
                 if knowledge["progress"] is not None:
                     answer += f"，已学完 {knowledge['completed_knowledge_count']}/" \
@@ -918,7 +967,7 @@ def ask(course_id):
     user = require_user()
     course_access(course_id)
     role = user["role"]
-    data = body(("question",), allowed=("student_id",))
+    data = body(("question",), allowed=("student_id", "from", "to"))
     question = text_field(data["question"], "question", 1, MAX_QUESTION)
     requested = data.get("student_id")
     context_student = None
@@ -933,14 +982,24 @@ def ask(course_id):
         if not member:
             raise ApiError(404, "NOT_FOUND", "Student not found")
         context_student = dict(member)
-    start, end = time_window()
+    window = time_window(question, data.get("from"), data.get("to"))
+    start, end = window["from"], window["to"]
     cutoff = stamp()
     members = roster(get_db(), course_id) if role == "teacher" else []
     intent, target = classify(question, role, members, context_student)
-    if role == "teacher" and intent in {"student_attendance", "student_profile"}:
+    if intent == "student_not_found":
+        reply = {"intent": "clarify", "title": "未找到该学生",
+                 "answer": "该学号未匹配到本课程的有效学生，请核对完整学号。本次没有查询班级或个人统计。",
+                 "facts": [], "charts": [], "matches": [], "actions": [], "caveats": [],
+                 "suggestions": TEACHER_CLARIFY}
+    elif role == "teacher" and intent in {"student_attendance", "student_profile"}:
         reply = teacher_student_answer(intent, target, get_db(), course_id, start, end, cutoff)
     elif role == "teacher" and intent == "session_absence":
-        reply = teacher_absence_answer(get_db(), course_id)
+        explicit_window = window["explicit"]
+        reply = teacher_absence_answer(get_db(), course_id, start if explicit_window else None,
+                                       end if explicit_window else None)
+        if not explicit_window:
+            window = {"from": None, "to": None, "days": None, "label": "最近一次已结算点名"}
     elif role == "teacher" and intent == "class_scores":
         reply = class_scores_answer(get_db(), course_id, start, end, cutoff)
     elif role == "teacher" and intent in {"weak_knowledge", "at_risk", "attendance", "advice", "class_overview"}:
@@ -955,7 +1014,7 @@ def ask(course_id):
                 "title": "请先确认要查询的学生",
                 "answer": "匹配到多位学生，请按学号选择一位，或直接输入完整学号；本次没有查询个人统计。",
                 "actions": [{"kind": "ask", "label": f"{item['name']}（{item['student_no']}）",
-                             "payload": {"question": f"{item['student_no']} {dimension}"}}
+                             "payload": {"question": f"{item['student_no']} {dimension}", "from": start, "to": end}}
                             for item in candidates[:MAX_LISTED_STUDENTS]],
                 "suggestions": [],
             })
@@ -988,6 +1047,6 @@ def ask(course_id):
         "student": ({"id": target["id"], "name": target["name"], "student_no": target["student_no"]}
                     if role == "teacher" and target else None),
         "algorithm_version": VERSION,
-        "window": {"from": start, "to": end, "days": WINDOW_DAYS},
+        "window": window,
         "source_until": cutoff,
     })

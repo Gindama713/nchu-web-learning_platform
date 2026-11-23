@@ -68,7 +68,7 @@ SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数�
 
 生产发布从 main 的已验收版本生成不可变产物，记录提交 SHA、依赖锁文件、数据库版本、Logisim JAR 哈希和测试结果。Web 服务与 worker 分离启动；先迁移副本演练，再备份、迁移正式库、启动服务并冒烟。部署失败停止开放写入，按 CHG-RB 恢复。前端静态部署成功但评测 worker 不可用，不能判定整体部署成功。
 
-运行手册后续还须补充评测 worker 的启动/停止、备份位置、日志位置及故障定位步骤；不得将尚未实现的业务命令当成已验证操作。
+Web启动、维护、备份恢复、清理及健康检查已提供，见[运行维护](docs/RUNTIME_OPERATIONS.md)。评测worker正式启停与目标环境部署仍待SPEC-018接入，不得将验收脚本当作常驻worker。
 
 ### 6.1 发布流程（当前实际状态）
 
@@ -76,7 +76,7 @@ SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数�
 - **合并路径**：`feature/*` → PR → `develop`；发布由 `develop` → `main` 的 PR 完成，不绕行。
 - **CI**：PR 上运行 `ci-policy`、`ci-lint`、`ci-test`、`ci-build` 四个作业，配置见 `.github/workflows/`。
 - **部署**：仓库内**没有**自动化部署脚本或容器镜像。课堂验收与演示使用本地 `npm run dev`（前端）加 Flask（后端），步骤见第 8 节；如需正式发布，按第 6 节手动生成不可变产物并记录提交 SHA、依赖锁文件、数据库版本与 JAR 哈希。
-- **未完成**：评测 worker 的独立启停脚本、备份与日志位置说明，仍按第 6 节标注为待补。
+- **待接入**：评测worker常驻入口、完整隔离及目标Linux部署；Web与备份恢复命令已实现并在独立副本验证，见运行维护记录。
 
 ## 7 检查与提交
 
@@ -149,23 +149,23 @@ npm run build
 2026-10-19 当前进展：SPEC-016 的固定输入已改为仓库内可核验的 `recognition-fixtures-v2` F01—F05，模板/预处理哈希见[PRD第4.5节](docs/PRD.md#recognition-acceptance)；原计划 v1 图片未交付，不能视为已测。姜苏豪负责模块的最新验收记录见[个人实施与验收记录](docs/JIANG_SUHAO_IMPLEMENTATION.md)；目标环境、课堂和全组发布结论仍以实际证据为准。
 
 
-### 8.2 完整系统实施契约（待实现）
+### 8.2 完整系统运行入口与待接入项
 
-以下保留需求设计阶段的运维与安全契约；表内尚未落地的命令不是本次框架的运行说明。
+2026-11-23：Web 使用固定 Waitress 3.0.2，维护、备份、恢复和清理命令已实现。以下命令统一在仓库根目录执行；评测 worker 的常驻入口仍由 SPEC-018 接入，不能以验收脚本代替。完整运行与验证边界见下一节。
 
 | 顺序 | 工作目录/计划命令 | 行为 |
 |---|---|---|
 | 1 | backend：python -m venv .venv；激活后python -m pip install -r requirements.lock | 安装锁定后端依赖；首次实现必须提供锁文件 |
 | 2 | `python -m flask --app backend.app db-upgrade` | 创建/迁移SQLite，重复执行无副作用；已在本分支实现 |
-| 3 | backend：python -m flask --app app admin create | 交互录入初始管理员及密码，不接受公开默认密码、不回显密码 |
-| 4 | backend：python -m flask --app app seed-demo | 仅development/test允许；幂等创建匿名课程/实验/样例，不覆盖成绩 |
-| 5 | backend：python -m flask --app app run --host 127.0.0.1 --port 5000 | 开发API；生产禁止使用此服务器 |
-| 6 | backend：python -m grader.worker | 单worker，检查JAR哈希及沙箱可用后领取任务 |
+| 3 | `python -m flask --app backend.app admin-create` | 交互录入初始管理员及密码，不接受公开默认密码、不回显密码 |
+| 4 | 开发/演示数据沿用 `scripts/` 下现有 seed 脚本 | 非生产发布步骤，禁止覆盖正式成绩 |
+| 5 | `python -m backend.serve` | Waitress 单进程，默认127.0.0.1:8000、8线程、托管已构建frontend/dist；配置HOST/PORT/WEB_THREADS |
+| 6 | SPEC-018 待提供常驻 worker 入口 | 使用现有队列函数与下述健康/维护钩子；不是虚构的grader.worker命令 |
 | 7 | frontend：npm ci；npm run dev -- --host 127.0.0.1 --port 5173 | /api代理到127.0.0.1:5000，浏览器只访问5173同源入口 |
-| 8 | 根目录：python -m pytest tests；frontend：npm run test -- --run、npm run lint、npm run build；根目录：python -m ruff check backend tests | 测试/lint/构建，命令依赖由首次实现提供，不允许空测试成功 |
-| 9 | backend：python -m flask --app app backup create --destination <备份目录>；backup verify --manifest <清单> | 维护模式一致备份SQLite及引用文件，校验可恢复性 |
+| 8 | `python -m unittest discover -s tests -v`；frontend内 `npm test`、`npm run lint`、`npm run build`；根目录 `ruff check backend tests scripts` | 实际项目检查命令 |
+| 9 | `python -m flask --app backend.app maintenance on`，随后 `backup create --destination <新目录>`、`backup verify --directory <备份目录>` | 后两个子命令同样以python -m flask --app backend.app开头；一致备份SQLite及所有file_object引用文件 |
 
-生产计划：Gunicorn单Web进程监听127.0.0.1:8000，Nginx可作为同源HTTPS入口，前端静态目录frontend/dist，/api转发8000；worker由单独systemd服务管理，沙箱不可读主库。计划启动命令gunicorn --workers 1 --bind 127.0.0.1:8000 app:app；服务停止使用systemctl stop cpu-grader/cpu-web，先暂停新提交并处理活动任务。部署时必须提供经过验证的服务配置，当前未创建。
+Web 已实现 `python -m backend.serve`，采用 Waitress 单进程监听127.0.0.1:8000；生产需要外部同源HTTPS入口，后端不信任任意代理头。前端静态目录frontend/dist，先在frontend执行npm ci及npm run build。Web前台停止使用Ctrl+C。worker仍需独立进程及部署服务接入；维护时先停止新领取并等待活动任务结束。当前没有经过目标Linux验收的systemd/HTTPS部署，不以本机启动通过代替。
 
 开发仅本机HTTP允许SESSION_COOKIE_SECURE=false；production必须true、HTTPS且启动拒绝弱SECRET_KEY/调试配置。两环境均保留HttpOnly、SameSite=Lax、CSRF与Origin校验；前端代理避免跨端口Cookie/跨域分歧。Cookie名称固定，Path=/，无Domain属性。
 
@@ -213,7 +213,7 @@ C08提供内部候选冻结、确定性回溯和不可变generation_snapshot；C
 
 ### 8.8 教学助手与课堂互动（第12周）
 
-**教学助手（SPEC-020）**：登录后顶部有「教学助手」页签。教师问「这周学情怎么样」「哪个知识点最薄弱」「上次点名谁没到」「莫涛到了吗」，学生问「我哪里薄弱」「我考了多少分」「我错了几道」。助手只读：不写 `analysis_run`、不新增业务表、不调用外部模型，数字全部来自 010A/010B/011/014 同口径；单源不可用时只降级该项并注明，空样本返回「算不出来」而不是 0。意图是打分制关键词表（`assistant-rules-v2`），约 130 条口语说法有回归测试；无法识别时给 4 个澄清候选。教师问过某个学生后，下一句「他/她」会接上同一学生，输入框上方显示「正在问：某某」并可清除。验证：`python -m unittest tests.test_assistant tests.test_assistant_phrasings -v`、`node --test frontend/js/assistant-*.test.js`。回答里还可以带 0—2 张图（到勤构成环形、知识点掌握度横条、按周到勤折线）：后端只给数字和语义色键，前端用项目自带的 SVG 函数画，图与文字同一次取数，没数据就不画。协议见 [APIC 16.4](docs/APIC.md)。设计与演示见[演示脚本](docs/DEMO_SCRIPT_ASSISTANT_20261120.md)。
+**教学助手（SPEC-020）**：登录后顶部有「教学助手」页签。教师问「这周学情怎么样」「哪个知识点最薄弱」「上次点名谁没到」「莫涛到了吗」，学生问「我哪里薄弱」「我考了多少分」「我错了几道」。助手只读：不写 `analysis_run`、不新增业务表、不调用外部模型，数字全部来自 010A/010B/011/014 同口径；单源不可用时只降级该项并注明，空样本返回「算不出来」而不是 0。意图是打分制关键词表（`assistant-rules-v3`），约 130 条口语说法有回归测试；无法识别时给 4 个澄清候选。教师问过某个学生后，下一句「他/她」会接上同一学生，输入框上方显示「正在问：某某」并可清除。验证：`python -m unittest tests.test_assistant tests.test_assistant_phrasings -v`、`node --test frontend/js/assistant-*.test.js`。回答里还可以带 0—2 张图（到勤构成环形、知识点掌握度横条、按周到勤折线）：后端只给数字和语义色键，前端用项目自带的 SVG 函数画，图与文字同一次取数，没数据就不画。协议见 [APIC 16.4](docs/APIC.md)。设计与演示见[演示脚本](docs/DEMO_SCRIPT_ASSISTANT_20261120.md)。
 
 **课堂投票**：教师在进行中的考勤任务里出单选/多选/判断题，该任务已签到（present/late）的学生才能投，一人一票；学生投完才看到分布与答案，匿名投票老师只拿未投名单。学生端浮层 5 秒轮询，老师结果区 2 秒刷新；160 人同时投票实测 160/160、最慢 7.1 秒、零重复计票（`scripts/poll_burst_20261112.py`）。投完可关闭，关闭幂等；任务结算后自动不可投。
 

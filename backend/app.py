@@ -93,6 +93,7 @@ def create_app(config=None):
         COOKIE_SECURE=environment == "production",
         DATABASE_PATH=database,
         UPLOAD_ROOT=os.environ.get("UPLOAD_ROOT", "instance/uploads"),
+        AUTO_CLEANUP=os.environ.get("AUTO_CLEANUP", "1" if environment == "production" else "0") == "1",
     )
     if config:
         app.config.update(config)
@@ -131,6 +132,10 @@ def create_app(config=None):
 
     @app.before_request
     def protect_writes():
+        from backend.operations import in_maintenance
+        if (request.path.startswith("/api/v1/") and request.path != "/api/v1/health"
+                and in_maintenance(app.config["DATABASE_PATH"])):
+            raise ApiError(503, "MAINTENANCE", "System is in maintenance; retry after reopening")
         if request.path.startswith("/api/v1/") and request.method in ("POST", "PATCH", "PUT", "DELETE"):
             if not trusted_origin(request.headers.get("Origin")):
                 raise ApiError(403, "CSRF_FAILED", "Untrusted origin")
@@ -183,12 +188,13 @@ def create_app(config=None):
     @app.get("/api/v1/health")
     def health():
         db_ready = database_ready(app.config["DATABASE_PATH"])
-        # SPEC-018：固定 JAR 存在且身份可校验才视为评测就绪；清理失败禁止新任务。
-        from backend.engines.grading import grader_ready
-        ready = grader_ready()
-        status = "ready" if db_ready and ready else "degraded"
-        return result({"web_ready": True, "db_ready": db_ready, "grader_ready": ready,
-                       "status": status},
+        from backend.operations import in_maintenance
+        from backend.runtime import health_details
+        details = health_details(app.config["DATABASE_PATH"])
+        maintenance = in_maintenance(app.config["DATABASE_PATH"])
+        status = "maintenance" if maintenance else "ready" if db_ready and details["grader_ready"] else "degraded"
+        return result({"web_ready": True, "db_ready": db_ready, **details,
+                       "maintenance": maintenance, "status": status},
                       200 if status == "ready" else 503)
 
     @app.get("/api/v1/modules")
@@ -227,6 +233,17 @@ def create_app(config=None):
             finally:
                 db.close()
         click.echo("Administrator created")
+
+    from backend.operations import register_commands
+    register_commands(app)
+
+    @app.cli.command("engine-check")
+    def engine_check():
+        from backend.runtime import check_engine
+        state = check_engine(app.config["DATABASE_PATH"])
+        click.echo("Engine self-test passed" if state["ready"] else "Engine self-test failed: " + state["error"])
+        if not state["ready"]:
+            raise click.ClickException("Grader cannot be declared ready")
 
     serve_frontend(app)
     return app

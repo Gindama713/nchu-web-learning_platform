@@ -2,6 +2,7 @@ import { h, nextTick, ref, watch } from 'vue'
 
 import { AssistantClient } from './assistant-client.js'
 import { chartColorOf, chartNode, donutChart, lineChart, rankChart } from './charts.js'
+import { paperTime } from './paper-time.js'
 
 const TEACHER_DEFAULTS = ['这周学情怎么样？', '哪个知识点最薄弱？', '谁需要重点关注？', '下节课该讲什么？']
 const STUDENT_DEFAULTS = ['程序计数器是什么？', '我哪里薄弱？', '下一步该练什么？', '我这段时间考勤怎么样？']
@@ -116,7 +117,7 @@ export const AssistantView = {
       })
     }
 
-    async function send(text) {
+    async function send(text, range = null) {
       const value = String(text ?? '').trim()
       if (!value || busy.value) return
       error.value = ''
@@ -132,7 +133,7 @@ export const AssistantView = {
       const contextId = teacher && lastStudent.value && PRONOUN.test(value.replace(/其他|他人|他们|她们/g, ''))
         ? lastStudent.value.id : null
       try {
-        const data = await api.ask(epoch, value, contextId)
+        const data = await api.ask(epoch, value, contextId, range)
         if (props.courseId !== epoch) return
         if (data.student) lastStudent.value = data.student
         else if (data.intent === 'clarify') lastStudent.value = null
@@ -148,7 +149,10 @@ export const AssistantView = {
     }
 
     function act(action) {
-      if (action?.kind === 'ask' && action.payload?.question) return send(action.payload.question)
+      if (action?.kind === 'ask' && action.payload?.question) {
+        const range = action.payload.from && action.payload.to ? action.payload : null
+        return send(action.payload.question, range)
+      }
       emit('action', action)
     }
 
@@ -187,7 +191,9 @@ export const AssistantView = {
           }, action.label))),
         (facts.length > 0 || card.window) && h('p', { class: 'assistant-source' }, [
           sources.length ? `数据来源：${sources.join(' / ')}` : '没有引用统计数据',
-          card.window ? ` · 窗口：最近 ${card.window.days} 天` : '',
+          card.window ? ` · 窗口：${card.window.label || `最近 ${card.window.days} 天`}` : '',
+          card.window?.from && card.window?.to
+            ? ` · ${paperTime(card.window.from)} 至 ${paperTime(card.window.to)}（不含结束时刻）` : '',
         ].join('')),
       ])
     }
@@ -222,6 +228,7 @@ export const AssistantView = {
             class: 'assistant-form',
             onSubmit: event => { event.preventDefault(); send(question.value) },
           }, [
+            h('small', {}, '时间可写：本周、本月、最近7天，或 2026-11-01至2026-11-20；不写则统计最近28天。'),
             h('input', {
               value: question.value,
               maxlength: 200,
