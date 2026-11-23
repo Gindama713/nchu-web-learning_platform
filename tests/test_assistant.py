@@ -98,6 +98,34 @@ class AssistantTest(TestCase):
         finally:
             db.close()
 
+    def test_duplicate_names_offer_only_course_members_and_choice_resolves_by_number(self):
+        outsider_id = self.register("STUDENT03")
+        db = connect(self.path)
+        try:
+            db.execute("UPDATE user SET name='同名学生' WHERE id IN (?,?,?)",
+                       (self.student_id, self.other_id, outsider_id))
+        finally:
+            db.close()
+        response = self.ask(self.teacher, "同名学生没签到吗")
+        self.assertEqual(response.status_code, 200, response.json)
+        data = response.json["data"]
+        self.assertEqual(data["intent"], "clarify")
+        self.assertIsNone(data["student_id"])
+        self.assertIsNone(data["student"])
+        self.assertEqual(data["facts"], [])
+        self.assertEqual(data["charts"], [])
+        questions = [action["payload"]["question"] for action in data["actions"]]
+        self.assertEqual(questions, ["STUDENT01 考勤情况", "STUDENT02 考勤情况"])
+        resolved = self.ask(self.teacher, questions[1]).json["data"]
+        self.assertEqual(resolved["intent"], "student_attendance")
+        self.assertEqual(resolved["student_id"], self.other_id)
+        self.assertEqual(resolved["algorithm_version"], "assistant-rules-v2")
+        db = connect(self.path)
+        try:
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM analysis_run").fetchone()[0], 0)
+        finally:
+            db.close()
+
     def test_student_sees_only_own_attendance(self):
         self.close_one_task_with_one_present()
         response = self.ask(self.student, "我这段时间考勤怎么样？")

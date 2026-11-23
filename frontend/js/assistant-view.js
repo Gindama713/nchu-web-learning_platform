@@ -15,8 +15,8 @@ function chartBlock(chart, index) {
   if (!chart || !chart.kind) return null
   const title = chart.title ? h('p', { class: 'assistant-chart-title' }, chart.title) : null
   if (chart.kind === 'donut') {
-    const donut = donutChart((chart.slices ?? []).map(slice => ({
-      label: slice.label, value: Number(slice.value) || 0, color: chartColorOf(slice.colorKey),
+    const donut = donutChart((chart.slices ?? []).filter(slice => Number.isFinite(slice.value)).map(slice => ({
+      label: slice.label, value: slice.value, color: chartColorOf(slice.colorKey),
     })), { size: 152, thickness: 20 })
     if (donut.empty) return null
     return h('div', { class: 'assistant-chart', key: index }, [
@@ -42,8 +42,8 @@ function chartBlock(chart, index) {
   }
   if (chart.kind === 'bar') {
     const percent = chart.unit === 'percent'
-    const model = rankChart((chart.items ?? []).map(item => ({
-      label: item.label, value: Number(item.value), color: chartColorOf(item.colorKey),
+    const model = rankChart((chart.items ?? []).filter(item => Number.isFinite(item.value)).map(item => ({
+      label: item.label, value: item.value, color: chartColorOf(item.colorKey),
     })), {
       max: chart.max ?? 100, unit: percent ? 'percent' : 'number', width: 620,
       suffix: percent ? '' : (chart.unit ?? ''),
@@ -59,8 +59,8 @@ function chartBlock(chart, index) {
     ])
   }
   if (chart.kind === 'line') {
-    const model = lineChart((chart.points ?? []).map(point => ({
-      label: point.label, value: Number(point.value),
+    const model = lineChart((chart.points ?? []).filter(point => Number.isFinite(point.value)).map(point => ({
+      label: point.label, value: point.value,
     })), { max: chart.max ?? 1, unit: chart.unit === 'percent' ? 'percent' : 'ratio', width: 620, height: 180 })
     if (model.empty) return null
     return h('div', { class: 'assistant-chart', key: index }, [
@@ -93,7 +93,7 @@ export const AssistantView = {
     const listNode = ref(null)
     // 多轮指代：教师问过某个学生后，下一句「他考得怎么样」直接接上。
     const lastStudent = ref(null)
-    const PRONOUN = /(他|她|该生|这个学生|这位同学|刚才那位|那名学生|此人)/
+    const PRONOUN = /(他|她|该生|这个学生|这位同学|刚才那位|这名学生|那名学生|那位同学|此人)/
 
     function welcome() {
       return {
@@ -129,11 +129,13 @@ export const AssistantView = {
       busy.value = true
       scrollDown()
       const epoch = props.courseId
-      const contextId = teacher && lastStudent.value && PRONOUN.test(value) ? lastStudent.value.id : null
+      const contextId = teacher && lastStudent.value && PRONOUN.test(value.replace(/其他|他人|他们|她们/g, ''))
+        ? lastStudent.value.id : null
       try {
         const data = await api.ask(epoch, value, contextId)
         if (props.courseId !== epoch) return
         if (data.student) lastStudent.value = data.student
+        else if (data.intent === 'clarify') lastStudent.value = null
         messages.value.push({ role: 'assistant', card: data })
         if (Array.isArray(data.suggestions) && data.suggestions.length) suggestions.value = data.suggestions
       } catch (failure) {
@@ -223,7 +225,7 @@ export const AssistantView = {
             h('input', {
               value: question.value,
               maxlength: 200,
-              placeholder: teacher ? '例如：这个月哪一章最需要补课？' : '例如：ALU 是做什么的？',
+              placeholder: teacher ? '例如：哪个知识点最薄弱？' : '例如：ALU 是做什么的？',
               'aria-label': '向教学助手提问',
               onInput: event => { question.value = event.target.value },
             }),

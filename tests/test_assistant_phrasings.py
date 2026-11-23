@@ -117,6 +117,10 @@ class PhrasingTest(TestCase):
         self.assertEqual(classify("她考得怎么样", "teacher", MEMBERS, context)[0], "student_profile")
         # 没有指代词时，上下文学生不能劫持班级问题
         self.assertEqual(classify("这周学情怎么样", "teacher", MEMBERS, context)[0], "class_overview")
+        for question in ("其他学生出勤怎么样", "他们考勤怎么样", "她们考勤怎么样", "他人成绩如何"):
+            intent, target = classify(question, "teacher", MEMBERS, context)
+            self.assertIn(intent, {"attendance", "class_scores"})
+            self.assertIsNone(target)
 
     def test_student_never_leaves_own_scope(self):
         # 学生问别人姓名也只落到自己的意图，不会变成教师意图
@@ -128,3 +132,23 @@ class PhrasingTest(TestCase):
         matched = classify("王伟民到了吗", "teacher", MEMBERS)
         self.assertEqual(matched[0], "student_attendance")
         self.assertEqual(matched[1]["name"], "王伟民")
+
+    def test_ambiguous_names_and_multiple_targets_require_clarification(self):
+        duplicate = [*MEMBERS, {"id": 5, "student_no": "24201505", "name": "王伟"}]
+        for question, members in (("王伟到了吗", duplicate), ("王伟和王伟民考勤如何", MEMBERS),
+                                  ("24201501 和 24201502 考勤", MEMBERS)):
+            with self.subTest(question=question):
+                self.assertEqual(classify(question, "teacher", members), ("clarify", None))
+
+    def test_named_absence_and_all_pronouns_stay_on_selected_student(self):
+        self.assertEqual(classify("莫涛没签到吗", "teacher", MEMBERS),
+                         ("student_attendance", MEMBERS[0]))
+        for pronoun in ("这名学生", "那名学生", "那位同学"):
+            self.assertEqual(classify(f"{pronoun}没签到吗", "teacher", MEMBERS, MEMBERS[0]),
+                             ("student_attendance", MEMBERS[0]))
+
+    def test_alphanumeric_student_number_matches_without_name(self):
+        member = {"id": 6, "student_no": "STUDENT01", "name": "同学甲"}
+        self.assertEqual(classify("STUDENT01 考勤", "teacher", [member]),
+                         ("student_attendance", member))
+        self.assertEqual(classify("XSTUDENT01 考勤", "teacher", [member]), ("attendance", None))

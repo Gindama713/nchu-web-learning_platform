@@ -3,7 +3,7 @@
 设计边界：
 1. 只读。提问不产生 analysis_run、不写访问日志以外的任何业务表，课堂演示零副作用。
 2. 不编数字。每一项数字都来自 010A/010B/011/014 已有实现，缺数据时明确说"算不出来"。
-3. 规则意图。识别不了的问题退回知识检索，不伪造"我理解了"。
+3. 规则意图。识别不了的问题先澄清，不伪造"我理解了"。
 """
 
 import hashlib
@@ -31,7 +31,7 @@ from backend.shared.auth import course_access, require_user
 from backend.shared.db import get_db
 
 bp = Blueprint("assistant", __name__)
-VERSION = "assistant-rules-v1"
+VERSION = "assistant-rules-v2"
 WINDOW_DAYS = 28
 MAX_QUESTION = 200
 MAX_LISTED_STUDENTS = 5
@@ -97,7 +97,7 @@ TOPIC_BOOST = {
     "session_absence": 2, "attendance": 1, "scores": 1, "weak": 1, "risk": 1, "advice": 1, "overview": 0,
     "my_attendance": 1, "my_scores": 1, "my_attempts": 1, "my_progress": 1, "next_practice": 1,
 }
-PRONOUNS = ("他", "她", "该生", "这个学生", "这位同学", "刚才那位", "这名学生", "此人", "那位同学")
+PRONOUNS = ("他", "她", "该生", "这个学生", "这位同学", "刚才那位", "这名学生", "那名学生", "此人", "那位同学")
 KNOWLEDGE_MARKERS = ("是什么", "什么是", "为什么", "原理", "区别", "作用", "含义", "解释",
                      "定义", "怎么实现", "怎么算", "如何实现", "怎么理解", "举例")
 TEACHER_CLARIFY = ("这周学情怎么样？", "哪个知识点最薄弱？", "上次点名谁没到？", "谁需要重点关注？")
@@ -118,6 +118,7 @@ def best_topic(text, topics):
 
 
 def mentions_student(text):
+    text = re.sub(r"其他|他人|他们|她们", "", text)
     return any(pronoun in text for pronoun in PRONOUNS)
 
 
@@ -134,12 +135,15 @@ def classify(question, role, members=(), context_student=None):
     text = question.lower()
     matched = match_student(question, members) if role == "teacher" else []
     if role == "teacher":
+        if len(matched) > 1:
+            return "clarify", None
         target = matched[0] if matched else (context_student if mentions_student(text) else None)
         topic = best_topic(text, TEACHER_TOPICS)
+        if target is not None:
+            return ("student_attendance" if topic in {"attendance", "session_absence"}
+                    else "student_profile"), target
         if topic == "session_absence":
             return "session_absence", None
-        if target is not None:
-            return ("student_attendance" if topic == "attendance" else "student_profile"), target
         if topic in ("attendance", "scores", "weak", "risk", "advice", "overview"):
             return {"attendance": "attendance", "scores": "class_scores", "weak": "weak_knowledge",
                     "risk": "at_risk", "advice": "advice", "overview": "class_overview"}[topic], None
@@ -158,16 +162,14 @@ def roster(db, course_id):
 
 
 def match_student(question, members):
-    """先按学号精确匹配，再按姓名包含匹配；重名时只保留最长匹配，避免「王伟」命中「王伟民」。"""
-    numbers = set(re.findall(r"\d{6,20}", question))
+    """完整学号优先；姓名按文本位置最长匹配，保留重名供调用方澄清。"""
+    numbers = set(re.findall(r"(?<![A-Za-z0-9])[A-Za-z0-9]{8,20}(?![A-Za-z0-9])", question))
     by_number = [item for item in members if item["student_no"] in numbers]
     if by_number:
         return by_number
-    hits = [item for item in members if item["name"] and item["name"] in question]
-    if len(hits) > 1:
-        hits = [item for item in hits
-                if not any(item is not other and item["name"] in other["name"] for other in hits)]
-    return hits
+    names = sorted({item["name"] for item in members if item["name"]}, key=lambda name: (-len(name), name))
+    hits = set(re.findall("|".join(re.escape(name) for name in names), question)) if names else set()
+    return [item for item in members if item["name"] in hits]
 
 
 def safe(calculate, caveats, label):
@@ -945,6 +947,18 @@ def ask(course_id):
         reply = teacher_answer(intent, question, get_db(), course_id, start, end, cutoff)
     elif intent == "clarify":
         reply = clarify_answer(role)
+        candidates = match_student(question, members)
+        if len(candidates) > 1:
+            topic = best_topic(question.lower(), TEACHER_TOPICS)
+            dimension = "考勤情况" if topic in {"attendance", "session_absence"} else "学情"
+            reply.update({
+                "title": "请先确认要查询的学生",
+                "answer": "匹配到多位学生，请按学号选择一位，或直接输入完整学号；本次没有查询个人统计。",
+                "actions": [{"kind": "ask", "label": f"{item['name']}（{item['student_no']}）",
+                             "payload": {"question": f"{item['student_no']} {dimension}"}}
+                            for item in candidates[:MAX_LISTED_STUDENTS]],
+                "suggestions": [],
+            })
     elif role == "teacher":
         matches = search_knowledge(get_db(), course_id, question)
         if matches:

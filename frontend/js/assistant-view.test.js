@@ -166,6 +166,66 @@ test('没有指代词时不带学生，班级问题不被上下文劫持', async
     askText(view.root, '这周学情怎么样')
     await flush()
     assert.equal(view.requests[1].student_id, undefined)
+    for (const question of ['其他学生出勤怎么样', '他们考勤怎么样', '她们考勤怎么样', '他人成绩如何']) {
+      askText(view.root, question)
+      await flush()
+      assert.equal(view.requests.at(-1).student_id, undefined)
+    }
+  } finally { view.restore() }
+})
+
+test('这名学生、那名学生、那位同学都继续查询上一个学生', async () => {
+  const studentReply = { ...reply, student: { id: 9, name: '同学甲', student_no: '24200009' } }
+  const view = mount({ answers: [studentReply, reply] })
+  try {
+    askText(view.root, '同学甲考勤')
+    await flush()
+    for (const pronoun of ['这名学生', '那名学生', '那位同学']) {
+      askText(view.root, `${pronoun}考勤怎么样`)
+      await flush()
+      assert.equal(view.requests.at(-1).student_id, 9)
+    }
+  } finally { view.restore() }
+})
+
+test('选人澄清清除旧目标，点击候选后查询并显示新目标', async () => {
+  const first = { ...reply, student: { id: 9, name: '同学甲', student_no: '24200009' } }
+  const clarify = { ...reply, intent: 'clarify', student: null, facts: [],
+    title: '请先确认要查询的学生', suggestions: [],
+    actions: [{ kind: 'ask', label: '同名学生（24200010）', payload: { question: '24200010 考勤情况' } }],
+  }
+  const selected = { ...reply, student: { id: 10, name: '同名学生', student_no: '24200010' } }
+  const view = mount({ answers: [first, clarify, selected] })
+  try {
+    askText(view.root, '同学甲考勤')
+    await flush()
+    askText(view.root, '同名学生考勤')
+    await flush()
+    assert.equal(all(view.root).filter(node => node.props.class === 'assistant-context').length, 0)
+    button(view.root, '同名学生（24200010）').props.onClick()
+    await flush()
+    assert.deepEqual(view.requests[2], { question: '24200010 考勤情况' })
+    assert.match(content(view.root), /正在问：同名学生（24200010）/)
+  } finally { view.restore() }
+})
+
+test('图表空值不冒充零分或零到勤率，真实零值仍可显示', async () => {
+  const view = mount({ answer: {
+    ...reply,
+    charts: [
+      { kind: 'bar', title: '空掌握度', items: [{ label: '未知', value: null }] },
+      { kind: 'line', title: '不足两周', points: [{ label: '第一周', value: null }, { label: '第二周', value: 0.5 }] },
+      { kind: 'bar', title: '真实零分', items: [{ label: '已评分', value: 0 }] },
+      { kind: 'donut', title: '构成', slices: [{ label: '未知项', value: null }, { label: '出勤', value: 1 }] },
+    ],
+  } })
+  try {
+    askText(view.root, '考勤')
+    await flush()
+    assert.deepEqual(all(view.root).filter(node => node.type === 'svg').map(node => node.props['aria-label']),
+      ['真实零分', '构成'])
+    assert.doesNotMatch(content(view.root), /未知项|空掌握度|不足两周/)
+    assert.match(content(view.root), /0/)
   } finally { view.restore() }
 })
 
