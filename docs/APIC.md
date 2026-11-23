@@ -71,7 +71,7 @@ GET /auth/session的expires_at与服务端闲置超时一致。
 | POST /attendance-tasks/{id}/leave-requests | reason:1—500 | Leave:{id,status:pending,reason} | S；同任务同学生仅1项有效申请 |
 | PATCH /leave-requests/{id} | status:approved/rejected，note:1—500，restore_status?:present/late/absent | Leave | T；已经关闭时允许审计更正，不覆盖原审批记录 |
 | GET /courses/{id}/attendance-records | task_id?，student_id?，分页 | 记录列表 | T全班/S本人；学生student_id仅允许本人 |
-| POST /courses/{id}/resources | file，title，kind:slides/video/guide/question_bank，chapter_id? | ResourceVersion:{resource_id,version,id,title,kind,size,sha256} | T；文档20MiB，视频100MiB；question_bank强制teacher_only；导入见本节 |
+| POST /courses/{id}/resources | file，title，kind:slides/video/guide/question_bank，chapter_id? | ResourceVersion:{resource_id,version,id,title,kind,size,sha256,media_type,width,height} | T；文档20MiB，视频100MiB；guide另可传PNG/JPEG（≤5MiB、边长≤4096，按真实字节校验）；question_bank强制teacher_only；导入见本节 |
 | POST /resources/{id}/versions | file，change_note | 新ResourceVersion | T；原版本不覆盖 |
 | GET /resources/{id}/versions | 分页 | ResourceVersion列表 | L；每个旧版本按资源当前可见性鉴权 |
 | GET /courses/{id}/resources | q?，kind?，chapter_id?，分页 | 资源和最新版本 | L；学生排除teacher_only及question_bank |
@@ -90,7 +90,8 @@ GET /auth/session的expires_at与服务端闲置超时一致。
 | POST /chapters/{id}/knowledge-points | title,content,example?,published:bool,is_foundational?:bool默认false | Knowledge:{id,chapter_id,title,content,example,published} | T |
 | PATCH /knowledge-points/{id} | title?,content?,example?,published?,is_foundational? | Knowledge | T；变更触发索引版本更新 |
 | GET /courses/{id}/knowledge-points | q?，chapter_id?，分页 | Knowledge列表 | L，学生只看已发布 |
-| GET /knowledge-points/{id} | 无 | Knowledge及is_bookmarked、progress | L |
+| GET /knowledge-points/{id} | 无 | Knowledge及images、is_bookmarked、progress | L；学生只返回当前可用的图片引用 |
+| GET /knowledge-points/{id}/images/{image_id}/content | event_id:UUID | 图片二进制流 | L；同时校验知识点发布状态、课程成员、资源当前可见性/归档/文件存在性；草稿、跨课、未授权或失效404；事件口径同资源content |
 | PUT /knowledge-points/{id}/bookmark | bookmarked:bool | {bookmarked} | S；幂等 |
 | PUT /knowledge-points/{id}/progress | completed:bool | {completed,updated_at} | S；该状态只代表学习进度自报 |
 | GET /courses/{id}/leave-requests | task_id?,status?,分页 | Leave列表 | T班级/S本人；业务规则见第3节考勤审批；空结果见第1节分页 |
@@ -117,7 +118,7 @@ GET /courses/{id}/chapters提供分页{id,title,position}，排序position升序
 
 Knowledge列表、创建、更新和详情共享字段：`id,chapter_id,title,content,example,published,is_foundational,content_revision`；详情另有`is_bookmarked`及`progress:{completed,completed_at}`。未完成/无记录时`completed=false,completed_at=null`。`PUT progress`的`updated_at`为本次操作UTC时间，重复完成保留原`completed_at`。它是自报进度，不是掌握度或成绩。
 
-正文/例题输入最长5000字符；保存时富文本仅保留p/br/b/strong/i/em/u/ul/ol/li/pre/code/blockquote/sub/sup/h2/h3标签，去除全部属性及其他标签，文本转义。公式可用sub/sup或文本，图片、链接和主动内容暂不支持。title仍按公共1—100字符约束。未知写字段、非JSON布尔状态、空PATCH拒绝400。
+正文/例题输入最长5000字符；保存时富文本仅保留p/br/b/strong/i/em/u/ul/ol/li/pre/code/blockquote/sub/sup/h2/h3标签，去除全部属性及其他标签，文本转义。公式可用sub/sup或文本；图片必须通过结构化`images`字段引用本课程guide资源的固定PNG/JPEG版本，不接受任意`img/src`、外部URL、data URL或HTML属性。`images`最多20项，每项仅含`resource_version_id,placement(content/example),alt(0—200),caption(0—200)`；数组顺序决定同位置顺序，服务端校验同课、guide、真实图片字节、尺寸、未归档及文件存在。详情返回图片元数据`{id,resource_version_id,version,placement,position,alt,caption,media_type,width,height,resource_title,available}`，不返回存储key；学生只返回当前可用项，教师可看到不可用占位。知识下架、资源转teacher_only/归档、文件缺失或成员撤权后，图片内容接口404且学生详情不再暴露该项；已存在但失效的引用可随文字保存保留。title仍按公共1—100字符约束。未知写字段、非JSON布尔状态、空PATCH拒绝400。
 
 知识创建`content_revision=1`，持久字段实际变化时在同事务递增；相同值PATCH不递增。发布/下架、基础标记变更均纳入revision。011应每次从当前已发布集合及各知识revision派生语料版本；005不创建索引或返回旧索引。章节新增/重排递增`chapters_revision`，仅改名不改变排序revision。
 

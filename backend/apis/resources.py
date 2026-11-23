@@ -4,10 +4,12 @@ import hashlib
 import json
 import sqlite3
 from pathlib import Path
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from flask import Blueprint, current_app, request, send_file
 
+from backend.apis.recognition import dimensions as image_dimensions
+from backend.apis.recognition import validate_image as validate_image_upload
 from backend.models import attempt as attempt_model
 from backend.models.question import (
     require_tables,
@@ -39,9 +41,10 @@ KIND_MEDIA = {
     "slides": ("application/pdf", "application/vnd.ms-powerpoint",
                "application/vnd.openxmlformats-officedocument.presentationml.presentation"),
     "video": ("video/mp4", "video/webm"),
-    "guide": ("application/pdf",),
+    "guide": ("application/pdf", "image/png", "image/jpeg"),
     "question_bank": ("application/json",),
 }
+IMAGE_MEDIA = ("image/png", "image/jpeg")
 
 
 def _preparation_tables_exist(db):
@@ -77,6 +80,13 @@ def save_file(file_storage, kind):
         raise ApiError(413, "FILE_TOO_LARGE", f"{kind} exceeds size limit")
     if size == 0:
         raise ApiError(400, "VALIDATION_ERROR", "Empty file")
+    width = height = None
+    if media_type in IMAGE_MEDIA:
+        # MIME 由客户端提供，必须用真实字节复核；伪装成另一种图片同样拒绝。
+        actual, width, height = image_dimensions(content)
+        if actual != media_type:
+            raise ApiError(415, "UNSUPPORTED_MEDIA", "Declared image type does not match content")
+        validate_image_upload(content)
     sha256 = hashlib.sha256(content).hexdigest()
     storage_key = uuid4().hex
     # 原子写入：先写临时文件再改名
@@ -86,7 +96,7 @@ def save_file(file_storage, kind):
     tmp.replace(target)
     return {"storage_key": storage_key, "original_name": file_storage.filename or storage_key,
             "media_type": media_type, "size_bytes": size, "sha256": sha256,
-            "purpose": f"resource:{kind}"}
+            "width": width, "height": height, "purpose": f"resource:{kind}"}
 
 
 def insert_file_object(db, fields, owner_id):
@@ -111,6 +121,9 @@ def version_json(row):
     out["sha256"] = row["sha256"]
     out["title"] = row["title"]
     out["kind"] = row["kind"]
+    out["media_type"] = row["media_type"]
+    out["width"] = row["width"]
+    out["height"] = row["height"]
     return out
 
 
@@ -161,18 +174,21 @@ def create_resource(course_id):
         )
         resource_id = cursor.lastrowid
         vcur = db.execute(
-            "INSERT INTO resource_version(resource_id,version,file_id,change_note,created_at) "
-            "VALUES(?,1,?,NULL,?)", (resource_id, file_id, ts))
+            "INSERT INTO resource_version(resource_id,version,file_id,change_note,created_at,width,height) "
+            "VALUES(?,1,?,NULL,?,?,?)",
+            (resource_id, file_id, ts, fields["width"], fields["height"]))
         rv_id = vcur.lastrowid
         audit("resource.create", "resource", resource_id,
               after={"title": title, "kind": kind, "visibility": visibility})
         rv = db.execute(
-            "SELECT rv.*,r.title,r.kind,f.size_bytes,f.sha256 "
+            "SELECT rv.*,r.title,r.kind,f.size_bytes,f.sha256,f.media_type "
             "FROM resource_version rv JOIN resource r ON r.id=rv.resource_id "
             "JOIN file_object f ON f.id=rv.file_id WHERE rv.id=?", (rv_id,)).fetchone()
     return result({"resource_id": resource_id, "version": 1, "id": rv["id"],
                    "title": rv["title"], "kind": rv["kind"],
-                   "size": rv["size_bytes"], "sha256": rv["sha256"]}, 201)
+                   "size": rv["size_bytes"], "sha256": rv["sha256"],
+                   "media_type": rv["media_type"], "width": rv["width"],
+                   "height": rv["height"]}, 201)
 
 
 # ---------- POST /resources/<id>/versions ----------
@@ -193,13 +209,14 @@ def add_version(resource_id):
             "SELECT COALESCE(MAX(version),0)+1 FROM resource_version WHERE resource_id=?",
             (resource_id,)).fetchone()[0]
         cursor = db.execute(
-            "INSERT INTO resource_version(resource_id,version,file_id,change_note,created_at) "
-            "VALUES(?,?,?,?,?)", (resource_id, next_version, file_id, change_note, ts))
+            "INSERT INTO resource_version(resource_id,version,file_id,change_note,created_at,width,height) "
+            "VALUES(?,?,?,?,?,?,?)",
+            (resource_id, next_version, file_id, change_note, ts, fields["width"], fields["height"]))
         db.execute("UPDATE resource SET updated_at=? WHERE id=?", (ts, resource_id))
         audit("resource.version_add", "resource_version", cursor.lastrowid,
               after={"resource_id": resource_id, "version": next_version})
     rv = db.execute(
-        "SELECT rv.*,r.title,r.kind,f.size_bytes,f.sha256 "
+        "SELECT rv.*,r.title,r.kind,f.size_bytes,f.sha256,f.media_type "
         "FROM resource_version rv JOIN resource r ON r.id=rv.resource_id "
         "JOIN file_object f ON f.id=rv.file_id WHERE rv.id=?", (cursor.lastrowid,)).fetchone()
     return result(version_json(rv), 201)
@@ -214,7 +231,7 @@ def list_versions(resource_id):
     total = db.execute("SELECT COUNT(*) FROM resource_version WHERE resource_id=?",
                        (resource_id,)).fetchone()[0]
     rows = db.execute(
-        "SELECT rv.*,r.title,r.kind,f.size_bytes,f.sha256 "
+        "SELECT rv.*,r.title,r.kind,f.size_bytes,f.sha256,f.media_type "
         "FROM resource_version rv JOIN resource r ON r.id=rv.resource_id "
         "JOIN file_object f ON f.id=rv.file_id WHERE rv.resource_id=? "
         "ORDER BY rv.version DESC LIMIT ? OFFSET ?",
@@ -251,23 +268,22 @@ def list_resources(course_id):
     db = get_db()
     total = db.execute("SELECT COUNT(*) FROM resource r" + where, params).fetchone()[0]
     rows = db.execute(
-        "SELECT r.*, rv.id AS version_id, rv.version, f.size_bytes, f.sha256 "
+        "SELECT r.*, rv.id AS version_id, rv.version, f.size_bytes, f.sha256, "
+        "f.media_type AS latest_media_type, rv.width AS latest_width, rv.height AS latest_height "
         "FROM resource r LEFT JOIN resource_version rv ON rv.id="
         "(SELECT id FROM resource_version WHERE resource_id=r.id ORDER BY version DESC LIMIT 1) "
         "LEFT JOIN file_object f ON f.id=rv.file_id" + where +
         " ORDER BY r.id LIMIT ? OFFSET ?", (*params, size, (page - 1) * size)).fetchall()
     items = [{**resource_json(r), "latest_version_id": r["version_id"],
               "latest_version": r["version"], "size": r["size_bytes"],
-              "sha256": r["sha256"]} for r in rows]
+              "sha256": r["sha256"], "latest_media_type": r["latest_media_type"],
+              "latest_width": r["latest_width"], "latest_height": r["latest_height"]}
+             for r in rows]
     return paged(items, total, page, size)
 
 
-# ---------- GET /resource-versions/<id>/content ----------
-@bp.get("/resource-versions/<int:version_id>/content")
-def get_content(version_id):
+def _serve_content(version_id, intent, event_id):
     user = require_user()
-    intent = request.args.get("intent")
-    event_id = request.args.get("event_id", "")
     if intent not in ("view", "download"):
         raise ApiError(400, "VALIDATION_ERROR", "intent must be view or download")
     if not event_id:
@@ -296,9 +312,9 @@ def get_content(version_id):
     as_attachment = intent == "download"
     download_name = file_row["original_name"]
     response = send_file(file_path, mimetype=file_row["media_type"],
-                          as_attachment=as_attachment,
-                          download_name=download_name if as_attachment else None,
-                          conditional=True)
+                         as_attachment=as_attachment,
+                         download_name=download_name if as_attachment else None,
+                         conditional=True)
     # R39：仅成功提供内容的 200/206 计数；HEAD、304、416 及错误响应不记录事件
     if request.method == "HEAD" or response.status_code not in (200, 206):
         return response
@@ -339,6 +355,48 @@ def get_content(version_id):
         if raced["event_type"] != intent or raced["resource_version_id"] != version_id:
             raise ApiError(409, "EVENT_CONFLICT", conflict) from exc
         # 同 intent + 同 version 的并发重放：幂等返回内容。
+    return response
+
+
+# ---------- GET /resource-versions/<id>/content ----------
+@bp.get("/resource-versions/<int:version_id>/content")
+def get_content(version_id):
+    return _serve_content(version_id, request.args.get("intent"),
+                          request.args.get("event_id", ""))
+
+
+# ---------- GET /knowledge-points/<id>/images/<id>/content ----------
+@bp.get("/knowledge-points/<int:knowledge_id>/images/<int:image_id>/content")
+def get_knowledge_image(knowledge_id, image_id):
+    require_user()
+    if set(request.args) != {"event_id"} or len(request.args.getlist("event_id")) != 1:
+        raise ApiError(400, "VALIDATION_ERROR", "event_id required")
+    event_id = request.args["event_id"]
+    try:
+        UUID(event_id)
+    except (TypeError, ValueError) as exc:
+        raise ApiError(400, "VALIDATION_ERROR", "event_id must be a UUID") from exc
+    db = get_db()
+    row = db.execute(
+        "SELECT ki.id,ki.resource_version_id,k.published,c.course_id AS knowledge_course_id,"
+        "r.course_id AS resource_course_id,r.kind,r.visibility,r.archived,f.media_type "
+        "FROM knowledge_image ki JOIN knowledge_point k ON k.id=ki.knowledge_id "
+        "JOIN chapter c ON c.id=k.chapter_id "
+        "JOIN resource_version rv ON rv.id=ki.resource_version_id "
+        "JOIN resource r ON r.id=rv.resource_id "
+        "JOIN file_object f ON f.id=rv.file_id "
+        "WHERE ki.id=? AND ki.knowledge_id=?", (image_id, knowledge_id)).fetchone()
+    if not row:
+        raise ApiError(404, "NOT_FOUND", "Knowledge image not found")
+    _course, role = course_access(row["knowledge_course_id"])
+    if (row["resource_course_id"] != row["knowledge_course_id"]
+            or row["kind"] != "guide" or row["archived"]
+            or row["media_type"] not in IMAGE_MEDIA):
+        raise ApiError(404, "NOT_FOUND", "Knowledge image not found")
+    if role == "student" and (not row["published"] or row["visibility"] != "students"):
+        raise ApiError(404, "NOT_FOUND", "Knowledge image not found")
+    response = _serve_content(row["resource_version_id"], "view", event_id)
+    response.headers["Cache-Control"] = "private, no-store"
     return response
 
 

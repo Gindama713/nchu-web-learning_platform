@@ -61,7 +61,9 @@ def endpoint(function):
             if request.args:
                 invalid("写请求不接受查询参数")
         path = current_app.config.get("DATABASE_PATH") or os.environ.get("DATABASE_PATH", "instance/app.db")
-        data, status, metadata = function(KnowledgeStore(path, security.verify_transaction), user_id, **kwargs)
+        store = KnowledgeStore(path, security.verify_transaction,
+                               current_app.config.get("UPLOAD_ROOT", "instance/uploads"))
+        data, status, metadata = function(store, user_id, **kwargs)
         result = jsonify(data=data, request_id=uuid4().hex, **metadata)
         result.headers["Cache-Control"] = "no-store"
         return result, status

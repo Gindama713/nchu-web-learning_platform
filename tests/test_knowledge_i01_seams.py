@@ -283,10 +283,13 @@ class KnowledgeI01SeamsTest(TestCase):
         self.assertEqual(database_facts(self.path)["foreign_key_check"], [])
 
     def test_markup_resource_upload_policy_and_current_permissions(self):
-        # APIC3.1 forbids images/links; no knowledge-resource reference relation is defined.
-        for kind in ("slides", "guide", "video", "question_bank"):
+        # 003 的 guide 接受 PNG/JPEG；其他 kind 仍按原类型拒绝。
+        for kind in ("slides", "video", "question_bank"):
             self.call(self.teacher, "POST", self.base + "/resources", status=415,
                       upload=("alu.png", "image/png", PNG, {"title": "I01 PNG", "kind": kind}))
+        image = self.call(self.teacher, "POST", self.base + "/resources", status=201,
+                          upload=("alu.png", "image/png", PNG, {"title": "I01 PNG", "kind": "guide"})).json["data"]
+        self.assertEqual((image["media_type"], image["width"], image["height"]), ("image/png", 1, 1))
         resource = self.call(self.teacher, "POST", self.base + "/resources", status=201,
                              upload=("control.pdf", "application/pdf", PDF1, {"title": "I01文档对照", "kind": "guide"})).json["data"]
         v2 = self.call(self.teacher, "POST", f"/resources/{resource['resource_id']}/versions", status=201,
@@ -310,9 +313,10 @@ class KnowledgeI01SeamsTest(TestCase):
         self.call(student, "GET", old, status=404)
         self.call(student, "GET", f"/resources/{resource['resource_id']}/versions", status=404)
         self.assertEqual(self.call(self.teacher, "GET", old).data, PDF1)
-        self.stages["policy"] = {"image_business_object_created": False, "PNG_upload": "415 for all four defined kinds",
-                                 "image_preview_download": "blocked: no API-created image object",
-                                 "resource_control": "PDF only; not an image proof"}
+        self.stages["policy"] = {"image_business_object_created": True,
+                                 "PNG_upload": "guide accepted; slides/video/question_bank 415",
+                                 "image_preview_download": "through knowledge-image context only",
+                                 "resource_control": "PDF controls plus guide image metadata"}
 
     def test_contract_017_future_window_rejects_new_attempt(self):
         _, version, _ = self.experiment(start=NOW + timedelta(hours=1), end=NOW + timedelta(hours=2))

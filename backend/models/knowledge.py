@@ -11,6 +11,14 @@ import numpy as np
 
 from backend.models.knowledge_migration import CHECKSUM, VERSION
 
+IMAGE_PLACEMENTS = ("content", "example")
+IMAGE_MEDIA = ("image/png", "image/jpeg")
+MAX_IMAGES = 20
+
+
+def timestamp():
+    return datetime.now(UTC).isoformat(timespec="microseconds").replace("+00:00", "Z")
+
 
 class KnowledgeError(Exception):
     def __init__(self, status, code, message):
@@ -82,9 +90,10 @@ def payload(body, allowed, required=()):
 
 
 class KnowledgeStore:
-    def __init__(self, path, verify_transaction=None):
+    def __init__(self, path, verify_transaction=None, upload_root=None):
         self.path = Path(path)
         self.verify_transaction = verify_transaction
+        self.upload_root = Path(upload_root) if upload_root else None
 
     @contextmanager
     def transaction(self, user_id, write=False):
@@ -167,6 +176,104 @@ class KnowledgeStore:
             result[key] = bool(result[key])
         return result
 
+    def validate_images(self, db, course_id, value, existing_version_ids=()):
+        if type(value) is not list or len(value) > MAX_IMAGES:
+            invalid("图片最多 20 张")
+        allowed_unavailable = set(existing_version_ids)
+        records = []
+        counters = {placement: 0 for placement in IMAGE_PLACEMENTS}
+        for entry in value:
+            if type(entry) is not dict or set(entry) - {"resource_version_id", "placement", "alt", "caption"}:
+                invalid("图片字段不合法")
+            if "resource_version_id" not in entry or "placement" not in entry:
+                invalid("图片资源版本和位置必填")
+            version_id = positive_id(entry["resource_version_id"])
+            placement = entry["placement"]
+            if placement not in IMAGE_PLACEMENTS:
+                invalid("图片位置必须为 content 或 example")
+            alt = text(entry.get("alt", ""), 200)
+            caption = text(entry.get("caption", ""), 200)
+            records.append({"resource_version_id": version_id, "placement": placement,
+                            "position": counters[placement], "alt": alt, "caption": caption})
+            counters[placement] += 1
+        if not records:
+            return []
+        ids = sorted({record["resource_version_id"] for record in records})
+        marks = ",".join("?" for _ in ids)
+        rows = db.execute(
+            f"SELECT rv.id,rv.width,rv.height,r.course_id,r.kind,r.archived,"
+            f"f.media_type,f.storage_key FROM resource_version rv "
+            f"JOIN resource r ON r.id=rv.resource_id "
+            f"JOIN file_object f ON f.id=rv.file_id WHERE rv.id IN ({marks})", ids).fetchall()
+        by_id = {row["id"]: row for row in rows}
+        for record in records:
+            row = by_id.get(record["resource_version_id"])
+            if (row is None or row["course_id"] != course_id or row["kind"] != "guide"
+                    or row["media_type"] not in IMAGE_MEDIA
+                    or not row["width"] or not row["height"]):
+                invalid("图片必须是本课程可用的 guide PNG/JPEG 固定版本")
+            file_ok = not self.upload_root or (self.upload_root / row["storage_key"]).is_file()
+            # 已存在的不可用图片允许随文字保存保留，由详情降级占位；新增引用仍必须可用。
+            if (row["archived"] or not file_ok) and record["resource_version_id"] not in allowed_unavailable:
+                invalid("图片必须是本课程可用的 guide PNG/JPEG 固定版本")
+        return records
+
+    @staticmethod
+    def _image_key(records):
+        return tuple(sorted((record["placement"], record["position"], record["resource_version_id"],
+                             record["alt"], record["caption"]) for record in records))
+
+    @staticmethod
+    def _stored_images(db, knowledge_id):
+        if not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
+                          "AND name='knowledge_image'").fetchone():
+            return []
+        return [dict(row) for row in db.execute(
+            "SELECT resource_version_id,placement,position,alt,caption "
+            "FROM knowledge_image WHERE knowledge_id=? "
+            "ORDER BY placement,position,id", (knowledge_id,))]
+
+    @staticmethod
+    def _replace_images(db, knowledge_id, records):
+        db.execute("DELETE FROM knowledge_image WHERE knowledge_id=?", (knowledge_id,))
+        created = timestamp()
+        for record in records:
+            db.execute(
+                "INSERT INTO knowledge_image(knowledge_id,resource_version_id,placement,position,"
+                "alt,caption,created_at) VALUES(?,?,?,?,?,?,?)",
+                (knowledge_id, record["resource_version_id"], record["placement"],
+                 record["position"], record["alt"], record["caption"], created))
+
+    def image_models(self, db, user, item, include_unavailable=False):
+        if not db.execute("SELECT 1 FROM sqlite_master WHERE type='table' "
+                          "AND name='knowledge_image'").fetchone():
+            return []
+        rows = db.execute(
+            "SELECT ki.id,ki.resource_version_id,ki.placement,ki.position,ki.alt,ki.caption,"
+            "rv.version,rv.width,rv.height,r.title AS resource_title,r.visibility,r.archived,"
+            "r.kind,r.course_id AS resource_course_id,f.media_type,f.storage_key "
+            "FROM knowledge_image ki "
+            "JOIN resource_version rv ON rv.id=ki.resource_version_id "
+            "JOIN resource r ON r.id=rv.resource_id "
+            "JOIN file_object f ON f.id=rv.file_id "
+            "WHERE ki.knowledge_id=? ORDER BY ki.placement,ki.position,ki.id", (item["id"],)).fetchall()
+        result = []
+        for row in rows:
+            file_ok = not self.upload_root or (self.upload_root / row["storage_key"]).is_file()
+            available = (row["resource_course_id"] == item["course_id"]
+                         and row["kind"] == "guide" and not row["archived"] and file_ok
+                         and row["media_type"] in IMAGE_MEDIA
+                         and (user["role"] == "teacher" or row["visibility"] == "students"))
+            if not available and not include_unavailable:
+                continue
+            result.append({"id": row["id"], "resource_version_id": row["resource_version_id"],
+                           "version": row["version"], "placement": row["placement"],
+                           "position": row["position"], "alt": row["alt"],
+                           "caption": row["caption"], "media_type": row["media_type"],
+                           "width": row["width"], "height": row["height"],
+                           "resource_title": row["resource_title"], "available": available})
+        return result
+
     def chapters(self, user_id, course_id, page, size):
         with self.transaction(user_id) as (db, user):
             course, role = self.access(db, user, course_id)
@@ -222,25 +329,49 @@ class KnowledgeStore:
                 {"id": item, "title": titles[item], "position": index} for index, item in enumerate(ids)]}
 
     def save_knowledge(self, user_id, object_id, body, create=False):
-        fields = {"title", "content", "example", "published", "is_foundational"}
+        fields = {"title", "content", "example", "published", "is_foundational", "images"}
         values = payload(body, fields, {"title", "content", "published"} if create else ())
+        images_given = "images" in values
+        images_value = values.pop("images", None)
         with self.transaction(user_id, True) as (db, user):
             if create:
-                self.chapter(db, user, object_id, "teacher")
+                chapter = self.chapter(db, user, object_id, "teacher")
                 cursor = db.execute(
                     "INSERT INTO knowledge_point(chapter_id,title,content,example,published,is_foundational) "
                     "VALUES(?,?,?,?,?,?)", (object_id, values["title"], values["content"],
                     values.get("example", ""), values["published"], values.get("is_foundational", 0)))
                 knowledge_id = cursor.lastrowid
+                if images_given:
+                    records = self.validate_images(db, chapter["course_id"], images_value)
+                    self._replace_images(db, knowledge_id, records)
             else:
                 item = self.knowledge(db, user, object_id, "teacher")
                 knowledge_id = object_id
-                if any(item[key] != value for key, value in values.items()):
-                    # Keys are drawn exclusively from the fixed fields allowlist.
+                changed = any(item[key] != value for key, value in values.items())
+                image_changed = False
+                stored_images = self._stored_images(db, knowledge_id)
+                if images_given:
+                    records = self.validate_images(
+                        db, item["course_id"], images_value,
+                        {record["resource_version_id"] for record in stored_images})
+                    image_changed = (self._image_key(stored_images)
+                                     != self._image_key(records))
+                if changed or image_changed:
                     assignments = ",".join(f"{key}=?" for key in values)
-                    db.execute(f"UPDATE knowledge_point SET {assignments}, content_revision=content_revision+1 WHERE id=?",
-                               (*values.values(), object_id))
-            return self.model(self.knowledge(db, user, knowledge_id))
+                    if assignments:
+                        db.execute(f"UPDATE knowledge_point SET {assignments}, "
+                                   "content_revision=content_revision+1 WHERE id=?",
+                                   (*values.values(), object_id))
+                    else:
+                        db.execute("UPDATE knowledge_point SET content_revision=content_revision+1 "
+                                   "WHERE id=?", (object_id,))
+                    if image_changed:
+                        self._replace_images(db, knowledge_id, records)
+            item = self.knowledge(db, user, knowledge_id)
+            result = self.model(item)
+            result["images"] = self.image_models(
+                db, user, item, include_unavailable=user["role"] == "teacher")
+            return result
 
     def list_knowledge(self, user_id, course_id, page, size, q="", chapter_id=None):
         q = text(q, 100)
@@ -267,7 +398,10 @@ class KnowledgeStore:
 
     def detail(self, user_id, knowledge_id):
         with self.transaction(user_id) as (db, user):
-            result = self.model(self.knowledge(db, user, knowledge_id))
+            item = self.knowledge(db, user, knowledge_id)
+            result = self.model(item)
+            result["images"] = self.image_models(
+                db, user, item, include_unavailable=user["role"] == "teacher")
             result["is_bookmarked"] = bool(db.execute(
                 "SELECT 1 FROM bookmark WHERE user_id=? AND knowledge_id=?", (user_id, knowledge_id)).fetchone())
             row = db.execute("SELECT completed,completed_at FROM learning_progress WHERE user_id=? AND knowledge_id=?",

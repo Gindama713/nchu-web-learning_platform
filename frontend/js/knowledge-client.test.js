@@ -93,6 +93,30 @@ test('search encodes literal text and keeps pagination metadata', async () => {
   assert.equal(result.total, 0)
 })
 
+test('image candidates include only real image versions and image URLs are event-scoped', async () => {
+  const calls = []
+  const client = new KnowledgeClient(async url => {
+    calls.push(url)
+    if (url.includes('/resources?')) return response({
+      data: [{ id: 31, title: 'CPU 图', visibility: 'students' }], total: 1,
+    })
+    if (url.includes('/resources/31/versions?')) return response({
+      data: [
+        { id: 41, version: 1, media_type: 'image/png', width: 5, height: 3 },
+        { id: 42, version: 2, media_type: 'application/pdf' },
+      ], total: 2,
+    })
+    throw new Error(`Unexpected URL ${url}`)
+  })
+  const candidates = await client.imageCandidates(1)
+  assert.equal(candidates.length, 1)
+  assert.equal(candidates[0].resource_version_id, 41)
+  assert.equal(candidates[0].resource_title, 'CPU 图')
+  assert.match(client.imageUrl(10, 51),
+    /^\/api\/v1\/knowledge-points\/10\/images\/51\/content\?event_id=/)
+  assert.match(calls[0], /kind=guide/)
+})
+
 test('unavailable and non-JSON errors cannot become successful empty data', async () => {
   const unavailable = new KnowledgeClient(async () => response({ error: { message: '等待鉴权接入' } }, 503))
   await assert.rejects(unavailable.detail(1), error => error.status === 503)
