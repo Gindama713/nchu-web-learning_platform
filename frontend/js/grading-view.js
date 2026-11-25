@@ -2,6 +2,7 @@
 // 学生 .circ 上传与结果轮询（AC-02/AC-04；监听 cpu-experiment-open mode=circuit）。
 import { h, onMounted, onUnmounted, reactive, ref } from 'vue'
 import { GradingClient, profilePayload, runStatusText, terminalStatuses } from './grading-client.js'
+import { profileFields, caseFields } from './grading-editor.js'
 
 const emptyProfile = () => ({ topCircuit: 'alu8',
   portSchemaText: '{"inputs":{"A":8,"B":8},"outputs":{"Y":8}}',
@@ -28,6 +29,7 @@ export const GradingView = {
     const profileForm = reactive(emptyProfile())
     const profileSaved = ref(null)
     const casesText = ref('[]')
+    const templateGroups = ref([])
     const suites = ref([])
     const suiteSelected = ref(null)
     const referenceFiles = ref([])
@@ -102,11 +104,31 @@ export const GradingView = {
       Object.assign(profileForm, emptyProfile())
       referencePick.correct = ''; referencePick.knownWrong = ''
       activeForm.suiteId = ''; activeForm.revision = '1'
-      return run(loadSuites)
+      templateGroups.value = []
+      return run(async () => {
+        await loadSuites()
+        const profile = await api.profile(row.id)
+        if (profile) {
+          Object.assign(profileForm, { topCircuit: profile.top_circuit, portSchemaText: JSON.stringify(profile.port_schema),
+            componentsText: profile.allowed_components.join(', '), limitsText: JSON.stringify(profile.limits) })
+          profileSaved.value = profile
+        }
+      })
     }
 
     async function saveProfile() {
       profileSaved.value = await api.putProfile(targetVersion.value.id, profilePayload(profileForm))
+    }
+
+    async function loadTemplate() {
+      const value = await api.template(targetVersion.value.id)
+      Object.assign(profileForm, { topCircuit: value.profile.top_circuit,
+        portSchemaText: JSON.stringify(value.profile.port_schema),
+        componentsText: value.profile.allowed_components.join(', '), limitsText: JSON.stringify(value.profile.limits) })
+      casesText.value = JSON.stringify(value.cases)
+      templateGroups.value = value.groups
+      profileSaved.value = null
+      notice.value = value.note
     }
 
     async function saveSuite() {
@@ -275,13 +297,17 @@ export const GradingView = {
       if (!teacher() || !targetVersion.value) return null
       return h('article', { class: 'grading-config' }, [
         h('h3', `判分配置 · 版本 #${targetVersion.value.id}（v${targetVersion.value.version}）`),
+        button('载入本实验公开模板（替换当前草稿）', () => run(loadTemplate)),
         h('form', { class: 'inline-form', onSubmit: event => {
           event.preventDefault(); run(saveProfile, '判分配置已保存；配置变更会使旧验证失效。')
         } }, [
           field('顶层电路名', text(profileForm.topCircuit, value => { profileForm.topCircuit = value }, { required: true })),
-          field('端口 port_schema JSON', area(profileForm.portSchemaText, value => { profileForm.portSchemaText = value }, { rows: 3 })),
-          field('允许元件（空格或逗号分隔）', text(profileForm.componentsText, value => { profileForm.componentsText = value }, { required: true })),
-          field('限额 limits JSON（留空用平台默认）', area(profileForm.limitsText, value => { profileForm.limitsText = value }, { rows: 2 })),
+          profileFields(profileForm, busy.value, value => { error.value = value }),
+          field('允许元件（逗号分隔，复合名称保留空格）', text(profileForm.componentsText, value => { profileForm.componentsText = value }, { required: true })),
+          h('details', [h('summary', '高级：端口与限额JSON'),
+            field('端口 port_schema JSON', area(profileForm.portSchemaText, value => { profileForm.portSchemaText = value }, { rows: 3 })),
+            field('限额 limits JSON（留空用平台默认）', area(profileForm.limitsText, value => { profileForm.limitsText = value }, { rows: 2 })),
+          ]),
           h('button', { type: 'submit', disabled: busy.value }, '保存判分配置'),
         ]),
         profileSaved.value && h('p', { role: 'status' },
@@ -290,7 +316,11 @@ export const GradingView = {
         h('form', { class: 'inline-form', onSubmit: event => {
           event.preventDefault(); run(saveSuite, '测试集草稿已创建，请上传参考文件并发起验证。')
         } }, [
-          field('测试用例 cases JSON', area(casesText.value, value => { casesText.value = value }, { rows: 6 })),
+          caseFields(casesText.value, value => { casesText.value = value }, profileForm, templateGroups.value,
+            busy.value, value => { error.value = value }),
+          h('details', [h('summary', '高级：测试用例JSON'),
+            field('测试用例 cases JSON', area(casesText.value, value => { casesText.value = value }, { rows: 6 })),
+          ]),
           h('button', { type: 'submit', disabled: busy.value }, '新建测试集'),
         ]),
         suites.value.length > 0 && h('div', [

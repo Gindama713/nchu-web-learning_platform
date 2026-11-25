@@ -91,6 +91,8 @@ GET /auth/session的expires_at与服务端闲置超时一致。
 | PATCH /knowledge-points/{id} | title?,content?,example?,published?,is_foundational? | Knowledge | T；变更触发索引版本更新 |
 | GET /courses/{id}/knowledge-points | q?，chapter_id?，分页 | Knowledge列表 | L，学生只看已发布 |
 | GET /knowledge-points/{id} | 无 | Knowledge及is_bookmarked、progress | L |
+| POST /knowledge-points/{id}/images | multipart:file，PNG/JPEG≤5MiB | 201 {file_id,token,url} | T；先保存知识点；文件不可跨知识点引用 |
+| GET /knowledge-points/{id}/images/{file_id} | 无 | 图片字节，private/no-store/nosniff | L；学生仅可读取已发布且正文/例题仍引用的本知识点图片，否则404 |
 | PUT /knowledge-points/{id}/bookmark | bookmarked:bool | {bookmarked} | S；幂等 |
 | PUT /knowledge-points/{id}/progress | completed:bool | {completed,updated_at} | S；该状态只代表学习进度自报 |
 | GET /courses/{id}/leave-requests | task_id?,status?,分页 | Leave列表 | T班级/S本人；业务规则见第3节考勤审批；空结果见第1节分页 |
@@ -117,7 +119,7 @@ GET /courses/{id}/chapters提供分页{id,title,position}，排序position升序
 
 Knowledge列表、创建、更新和详情共享字段：`id,chapter_id,title,content,example,published,is_foundational,content_revision`；详情另有`is_bookmarked`及`progress:{completed,completed_at}`。未完成/无记录时`completed=false,completed_at=null`。`PUT progress`的`updated_at`为本次操作UTC时间，重复完成保留原`completed_at`。它是自报进度，不是掌握度或成绩。
 
-正文/例题输入最长5000字符；保存时富文本仅保留p/br/b/strong/i/em/u/ul/ol/li/pre/code/blockquote/sub/sup/h2/h3标签，去除全部属性及其他标签，文本转义。公式可用sub/sup或文本，图片、链接和主动内容暂不支持。title仍按公共1—100字符约束。未知写字段、非JSON布尔状态、空PATCH拒绝400。
+正文/例题输入最长5000字符；保存时富文本仅保留p/br/b/strong/i/em/u/ul/ol/li/pre/code/blockquote/sub/sup/h2/h3标签，去除全部属性及其他标签，文本转义。公式可用sub/sup或文本；图片上传后以 `[[image:文件ID]]` 引用，仅允许本知识点的 knowledge_image 文件。详情另返回 content_html/example_html，由服务端将有效引用展开为受鉴权的同源图片；编辑仍使用原始 content/example。外部img、链接和主动内容不接受；旧数据无效引用显示占位。撤回发布或移除引用后学生不能继续读取图片。title仍按公共1—100字符约束。未知写字段、非JSON布尔状态、空PATCH拒绝400。
 
 知识创建`content_revision=1`，持久字段实际变化时在同事务递增；相同值PATCH不递增。发布/下架、基础标记变更均纳入revision。011应每次从当前已发布集合及各知识revision派生语料版本；005不创建索引或返回旧索引。章节新增/重排递增`chapters_revision`，仅改名不改变排序revision。
 
@@ -343,6 +345,8 @@ Submission公开模型：id、experiment_version_id、filename（清洗后的展
 | GET /submissions/{id}/file | 无 | 原始.circ字节下载 | 本人/T；强制附件，不内联XML |
 | POST /experiment-versions/{id}/test-suites | cases:[{label,visibility,group_code,steps}] | {id,version,status:draft,total_count} | T；学生不能访问；每组至少一例；返回scoring_groups；不接受weight/engine_version/limits覆盖 |
 | PUT /experiment-versions/{id}/judge-profile | top_circuit,port_schema,allowed_components,engine_version,limits | JudgeProfile:{id,...入参} | T；仅含circuit模式的draft实验版本，首次创建、后续更新本版本唯一配置；仅wiring或已发布版本409；受管理员允许引擎/最大限额限制 |
+| GET /experiment-versions/{id}/judge-profile | 无 | JudgeProfile或null | T；读取现存配置，包含canonical_sha256 |
+| GET /experiment-versions/{id}/grading-template | 无 | {profile,cases,groups,note} | T；EXP-01/02/04公开可编辑范例，不替代教师补充边界用例 |
 | POST /experiment-versions/{id}/reference-files | file（.circ），kind:correct/known_wrong | {file_id,sha256,kind} | T；与学生文件同样隔离校验，教师身份不绕过沙箱 |
 | POST /test-suites/{id}/validations | reference_file_id,negative_file_id | 202 {validation_id,status:queued} | T；异步验证标准电路全过、已知错误电路至少一项失败 |
 | GET /test-suite-validations/{id} | 无 | {id,status,reference_result,negative_result,error_code} | T；status=queued/running/passed/failed/system_error |
@@ -352,7 +356,7 @@ Submission公开模型：id、experiment_version_id、filename（清洗后的展
 | PUT /experiment-versions/{id}/active-test-suite | test_suite_id,revision | {test_suite_id,revision:旧值+1} | T；同版本已发布且验证有效；事务校验，revision过期409 |
 | GET /experiment-versions/{id}/reference-files | 分页 | {file_id,kind,sha256}列表 | T |
 
-steps为有序向量数组：step_no、inputs（除CLK以外的输入标签→整型）、expected（输出标签→整型或明确允许的X/Z）、clock_event（none/rising/falling）。每个case就是独立sequence，先初始化并同步复位；case内保持状态。inputs禁止CLK；输入先稳定，再施加clock_event，传播稳定后采样。相同方向边沿连续出现必须插入反向边沿，不隐式制造边沿。组合ALU不复位，clock_event固定none。不能把“无关位”默认应用于所有输出。上述为平台内部测试契约，实际转换至固定引擎格式由适配层承担，不能让学生提供CLI参数。
+port_schema 为 {inputs:{标签:位宽},outputs:{标签:位宽},clock?:"CLK"}；数据端口1—8位、输入输出标签不重叠，clock是独立1位输入标签。clock参与配置哈希及上传预检，省略时保持旧无时钟配置的哈希兼容。steps为有序向量数组：step_no、inputs（数据输入标签→整型）、expected（输出标签→整型或明确允许的X/Z）、clock_event（none/rising/falling）。含边沿必须显式配置clock。每集最多128个case，每例最多1024步；每个case是独立sequence，时序例先初始化并同步复位，case内省略数据输入保持前值。inputs禁止CLK及clock标签；输入先稳定，再施加clock_event，传播稳定后采样。相同方向边沿连续出现必须插入反向边沿，不隐式制造边沿。组合ALU不复位，clock_event固定none。适配器在边沿前插入输出不计分的稳定行，边沿行断言期望；X输出转为引擎的显式无关值，不能默认应用于所有输出。不能让学生提供CLI参数。
 
 测试集draft也作为一次完整快照保存；修改用例创建新draft版本，不允许复用旧验证报告。评分组及组内等权按PRD定义，使用group_code；组满分由固定实验模板生成，不接受客户端weight或组满分。每个group至少一个case，所有必需评分组齐全才可验证发布。教师验证任务与学生任务共用限额沙箱但分别持久化，不能拿教师标准答案当学生成绩。
 

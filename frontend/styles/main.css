@@ -15,7 +15,8 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
-.page { width: min(1180px, 100% - 32px); margin: auto; padding: 24px 0 40px; display: grid; gap: 18px; }
+.page { width: min(1180px, 100% - 32px); margin: auto; padding: 24px 0 40px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.page > * { min-width: 0; }
 .hero { background: var(--brand); color: #EEF1FF; border-radius: 16px; padding: 32px; }
 .hero.compact { padding: 14px 24px; border-radius: 12px; display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: baseline; }
 .hero.compact h1 { font-size: 1.15rem; font-weight: 500; margin: 0; }

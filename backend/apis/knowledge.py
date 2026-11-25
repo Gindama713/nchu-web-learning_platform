@@ -4,12 +4,13 @@ Consume the shared SPEC-001 session helpers when integrated. An explicit
 course_security adapter must also revalidate inside the business transaction.
 """
 
+import io
 import os
 import sqlite3
 from functools import wraps
 from uuid import uuid4
 
-from flask import Blueprint, current_app, jsonify, request
+from flask import Blueprint, Response, current_app, jsonify, request, send_file
 from werkzeug.exceptions import HTTPException
 
 from backend.apis.knowledge_security import security_for_request
@@ -61,7 +62,12 @@ def endpoint(function):
             if request.args:
                 invalid("写请求不接受查询参数")
         path = current_app.config.get("DATABASE_PATH") or os.environ.get("DATABASE_PATH", "instance/app.db")
-        data, status, metadata = function(KnowledgeStore(path, security.verify_transaction), user_id, **kwargs)
+        value = function(KnowledgeStore(path, security.verify_transaction), user_id, **kwargs)
+        if isinstance(value, Response):
+            value.headers["Cache-Control"] = "private, no-store"
+            value.headers["X-Content-Type-Options"] = "nosniff"
+            return value
+        data, status, metadata = value
         result = jsonify(data=data, request_id=uuid4().hex, **metadata)
         result.headers["Cache-Control"] = "no-store"
         return result, status
@@ -138,6 +144,68 @@ def detail(store, user, knowledge_id):
     if request.args:
         invalid("详情接口不接受筛选参数")
     return store.detail(user, knowledge_id), 200, {}
+
+
+@blueprint.post("/knowledge-points/<int:knowledge_id>/images")
+@endpoint
+def upload_image(store, user, knowledge_id):
+    from werkzeug.datastructures import FileStorage
+
+    from backend.apis.recognition import MAX_BYTES, validate_image
+    from backend.apis.resources import insert_file_object, save_file, upload_root
+    from backend.shared.api import stamp
+    from backend.shared.db import write
+
+    with store.transaction(user) as (db, actor):
+        store.knowledge(db, actor, knowledge_id, "teacher")
+    file = request.files.get("file")
+    if file is None:
+        invalid("请选择PNG或JPEG图片")
+    content = file.stream.read(MAX_BYTES + 1)
+    media, _image = validate_image(content)
+    fields = None
+    try:
+        with write() as db:
+            # Recheck live authorization inside the write transaction.
+            security_for_request().verify_transaction(db, {"id": user})
+            row = db.execute("SELECT c.course_id,k.published FROM knowledge_point k JOIN chapter c ON c.id=k.chapter_id "
+                             "WHERE k.id=?", (knowledge_id,)).fetchone()
+            from backend.shared.auth import course_access
+            if not row:
+                invalid("知识点不存在")
+            course_access(row["course_id"], teacher=True)
+            storage = FileStorage(stream=io.BytesIO(content), filename=file.filename, content_type=media)
+            fields = save_file(storage, "knowledge_image")
+            fields["purpose"] = f"knowledge_image:{knowledge_id}"
+            file_id, _created = insert_file_object(db, fields, user)
+            db.execute("INSERT INTO audit_event(actor_id,action,object_type,object_id,request_id,created_at) "
+                       "VALUES(?,'knowledge.image_upload','knowledge_point',?,?,?)", (user, knowledge_id, uuid4().hex, stamp()))
+    except BaseException:
+        if fields:
+            (upload_root() / fields["storage_key"]).unlink(missing_ok=True)
+        raise
+    return {"file_id": file_id, "token": f"[[image:{file_id}]]",
+            "url": f"/api/v1/knowledge-points/{knowledge_id}/images/{file_id}"}, 201, {}
+
+
+@blueprint.get("/knowledge-points/<int:knowledge_id>/images/<int:file_id>")
+@endpoint
+def read_image(store, user, knowledge_id, file_id):
+    from backend.apis.resources import upload_root
+    from backend.operations import file_path
+
+    positive_id(file_id)
+    with store.transaction(user) as (db, actor):
+        knowledge = store.knowledge(db, actor, knowledge_id)
+        file = db.execute("SELECT * FROM file_object WHERE id=? AND purpose=?",
+                          (file_id, f"knowledge_image:{knowledge_id}")).fetchone()
+        if not file or (actor["role"] == "student" and f"[[image:{file_id}]]" not in
+                        knowledge["content"] + (knowledge["example"] or "")):
+            raise KnowledgeError(404, "NOT_FOUND", "配图不存在或未发布")
+        path = file_path(upload_root(), file["storage_key"])
+        if not path.is_file():
+            raise KnowledgeError(404, "NOT_FOUND", "配图文件不可用")
+        return send_file(path, mimetype=file["media_type"], conditional=False)
 
 
 @blueprint.put("/knowledge-points/<int:knowledge_id>/bookmark")

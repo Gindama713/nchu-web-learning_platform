@@ -144,6 +144,20 @@ def _remove_file(storage_key):
 
 # ---------- 教师配置：judge profile ----------
 
+@bp.get("/experiment-versions/<int:version_id>/grading-template")
+def grading_template(version_id):
+    from backend.models.grading_templates import template
+    row = _load_version(get_db(), version_id, teacher=True)
+    return result(template(row["experiment_code"]))
+
+
+@bp.get("/experiment-versions/<int:version_id>/judge-profile")
+def get_judge_profile(version_id):
+    db = get_db()
+    _load_version(db, version_id, teacher=True)
+    profile = _profile_of(db, version_id)
+    return result(_profile_json(profile) if profile else None)
+
 @bp.put("/experiment-versions/<int:version_id>/judge-profile")
 def put_judge_profile(version_id):
     data = body(("top_circuit", "port_schema", "allowed_components", "limits"), ("engine_version",))
@@ -164,10 +178,10 @@ def put_judge_profile(version_id):
         existing = _profile_of(db, version_id)
         if existing:
             db.execute(
-                "UPDATE judge_profile SET port_schema_json=?,allowed_components_json=?,"
+                "UPDATE judge_profile SET top_circuit=?,port_schema_json=?,allowed_components_json=?,"
                 "engine_version=?,jar_sha256=?,limits_json=?,canonical_sha256=?,updated_at=? "
                 "WHERE id=?",
-                (json.dumps(port_schema, sort_keys=True), json.dumps(components),
+                (top, json.dumps(port_schema, sort_keys=True), json.dumps(components),
                  engine_version, jar_sha, json.dumps(limits, sort_keys=True), canonical,
                  stamp(), existing["id"]))
             profile_id = existing["id"]

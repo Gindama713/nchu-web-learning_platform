@@ -87,8 +87,14 @@ def validate_port_schema(value):
             if isinstance(width, bool) or not isinstance(width, int) or not 1 <= width <= 8:
                 raise bad(f"port {label} width must be an integer between 1 and 8")
             ports[label] = (direction, width)
-    if set(value) - {"inputs", "outputs"}:
-        raise bad("port_schema accepts only inputs and outputs")
+    if set(value["inputs"]) & set(value["outputs"]):
+        raise bad("input and output labels must be distinct")
+    clock = value.get("clock")
+    if clock is not None and (not isinstance(clock, str) or not re.fullmatch(r"[A-Za-z0-9_]{1,32}", clock)
+                              or clock in ports):
+        raise bad("port_schema.clock must be a distinct 1-bit clock pin label")
+    if set(value) - {"inputs", "outputs", "clock"}:
+        raise bad("port_schema accepts only inputs, outputs and optional clock")
     return value
 
 
@@ -130,6 +136,8 @@ def canonical_profile_sha256(top_circuit, port_schema, allowed_components, engin
         "engine_version": engine_version,
         "limits": {key: limits[key] for key in sorted(limits)},
     }
+    if port_schema.get("clock"):
+        canonical["port_schema"]["clock"] = port_schema["clock"]
     return hashlib.sha256(json.dumps(canonical, sort_keys=True,
                                      separators=(",", ":")).encode()).hexdigest()
 
@@ -151,8 +159,8 @@ def validate_steps(steps, port_schema=None):
     port_schema 为空（草稿尚未配置 judge profile）时仅做类型/范围/边沿校验，
     端口标签与位宽留待验证阶段按 profile 复核。
     """
-    if not isinstance(steps, list) or not steps:
-        raise bad("steps must be a non-empty array")
+    if not isinstance(steps, list) or not 1 <= len(steps) <= 1024:
+        raise bad("steps must contain 1..1024 items")
     if port_schema:
         widths = {**{label: width for label, width in port_schema["inputs"].items()},
                   **{label: width for label, width in port_schema["outputs"].items()}}
@@ -186,6 +194,8 @@ def validate_steps(steps, port_schema=None):
         if event not in ("none", "rising", "falling"):
             raise bad("clock_event must be none, rising or falling")
         if event != "none":
+            if port_schema and not port_schema.get("clock"):
+                raise bad("clock_event requires port_schema.clock")
             # 相同方向边沿连续出现必须显式插入反向边沿，不隐式制造边沿。
             if last_edge == event:
                 raise bad(f"consecutive {event} edges require an explicit reverse edge")
@@ -198,10 +208,10 @@ def validate_cases(cases, groups, port_schema=None):
 
     groups 为展开后的 group_code -> 组满分映射（不接受客户端 weight，R13）。
     """
-    if not isinstance(cases, list) or not cases:
-        raise bad("cases must be a non-empty array")
+    if not isinstance(cases, list) or not 1 <= len(cases) <= 128:
+        raise bad("cases must contain 1..128 items")
     labels = set()
-    for case in cases:
+    for case_number, case in enumerate(cases, start=1):
         if not isinstance(case, dict) or set(case) != {"label", "visibility", "group_code", "steps"}:
             raise bad("cases accept exactly label, visibility, group_code, steps")
         label = case["label"]
@@ -214,7 +224,10 @@ def validate_cases(cases, groups, port_schema=None):
             raise bad("case visibility must be public or hidden")
         if case["group_code"] not in groups:
             raise bad(f"unknown group_code {case['group_code']!r} for this experiment template")
-        validate_steps(case["steps"], port_schema)
+        try:
+            validate_steps(case["steps"], port_schema)
+        except ApiError as error:
+            raise bad(f"用例{case_number}「{label}」：{error.message}") from error
     return cases
 
 
@@ -328,6 +341,8 @@ def preflight_circ(content, profile):
             raise invalid(f"pin {label!r} has an invalid width") from exc
         found[label] = (direction, width)
     expected = {**port_schema["inputs"], **port_schema["outputs"]}
+    if port_schema.get("clock"):
+        expected[port_schema["clock"]] = 1
     for label, (direction, width) in found.items():
         if label not in expected:
             raise invalid(f"unexpected top circuit pin {label!r}")

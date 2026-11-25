@@ -80,6 +80,14 @@ export class KnowledgeClient {
   }
 
   async detail(id) { return (await this.request(`/knowledge-points/${id}`)).data }
+  async uploadImage(id, file) {
+    const session = await this.session()
+    if (session.user?.id !== this.userId || !session.csrf_token) throw new KnowledgeApiError('登录状态已变化', 401)
+    const form = new FormData()
+    form.append('file', file)
+    return (await this.request(`/knowledge-points/${id}/images`, { method: 'POST',
+      headers: { 'X-CSRF-Token': session.csrf_token }, body: form })).data
+  }
   addChapter(courseId, title) { return this.write(`/courses/${courseId}/chapters`, 'POST', { title }) }
   renameChapter(id, title) { return this.write(`/chapters/${id}`, 'PATCH', { title }) }
   reorder(courseId, revision, ids) {

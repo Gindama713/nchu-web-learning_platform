@@ -55,3 +55,4 @@
 .module-nav button:focus-visible { outline: 3px solid #b56d00; outline-offset: 3px; }
 @media (max-width: 1000px) { .knowledge-layout { grid-template-columns: 200px minmax(0, 1fr); gap: 16px; } .knowledge-reading { grid-template-columns: 1fr; } .knowledge-reader { border-left: 0; padding-left: 0; border-top: 1px solid var(--knowledge-line); padding-top: 16px; } }
 @media (max-width: 650px) { .knowledge-module { padding: 16px; } .knowledge-heading, .knowledge-course { flex-wrap: wrap; } .knowledge-layout { grid-template-columns: 1fr; } .knowledge-chapters { border-right: 0; padding-right: 0; border-bottom: 1px solid var(--knowledge-line); padding-bottom: 16px; } .knowledge-chapters ol { max-height: 260px; overflow-y: auto; } .knowledge-course .knowledge-field { flex-basis: 100%; } }
+.knowledge-prose img { display: block; max-width: 100%; height: auto; margin: 12px 0; }

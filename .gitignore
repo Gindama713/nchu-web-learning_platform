@@ -17,6 +17,7 @@ instance/
 *.operations-lock
 *.engine.json
 *.worker.json
+*.worker.lock
 
 # ===== 前端 =====
 node_modules/

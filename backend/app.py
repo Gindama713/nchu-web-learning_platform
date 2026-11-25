@@ -238,9 +238,14 @@ def create_app(config=None):
     register_commands(app)
 
     @app.cli.command("engine-check")
-    def engine_check():
+    @click.option("--sandbox", type=click.Choice(["native", "bubblewrap"]), default="bubblewrap" if os.name == "posix" else "native")
+    def engine_check(sandbox):
         from backend.runtime import check_engine
-        state = check_engine(app.config["DATABASE_PATH"])
+        executor = None
+        if sandbox == "bubblewrap":
+            from backend.sandbox import bubblewrap_executor
+            executor = bubblewrap_executor
+        state = check_engine(app.config["DATABASE_PATH"], executor=executor)
         click.echo("Engine self-test passed" if state["ready"] else "Engine self-test failed: " + state["error"])
         if not state["ready"]:
             raise click.ClickException("Grader cannot be declared ready")

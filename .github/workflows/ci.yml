@@ -99,7 +99,7 @@ jobs:
       # Logisim 5.0.0 的 --test-vector 路径会构造 Swing 菜单栏，headless 下必抛
       # HeadlessException；必须用虚拟显示，不能加 -Djava.awt.headless=true。
       - name: Install virtual display
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq xvfb
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq xvfb xauth bubblewrap
       - run: python -m pip install -r backend/requirements.lock
       - name: Download and verify fixed Logisim JAR
         env:
@@ -110,6 +110,8 @@ jobs:
           echo "${JAR_SHA256}  /tmp/logisim.jar" | sha256sum -c -
       - name: Real Logisim engine smoke test
         run: xvfb-run -a env LOGISIM_JAR_PATH=/tmp/logisim.jar python scripts/ci_grader_smoke.py
+      - name: Persistent worker and clocked HTTP grading
+        run: python scripts/verify_grading_live.py --jar /tmp/logisim.jar --sandbox bubblewrap --report test-tmp/ci-grading-live.json
 
   ci-required:
     if: always()

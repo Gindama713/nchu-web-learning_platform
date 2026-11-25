@@ -127,6 +127,15 @@ export const KnowledgeView = {
       selected.value = await api.detail(result.id)
     }
 
+    async function insertImage(event) {
+      const file = event.target.files?.[0]
+      event.target.value = ''
+      if (!file || !editId.value) return
+      const image = await api.uploadImage(editId.value, file)
+      form.content += `\n${image.token}\n`
+      notice.value = '配图已插入正文，请保存知识点。'
+    }
+
     async function move(index, direction) {
       const ids = chapters.value.map(chapter => chapter.id)
       const next = index + direction
@@ -169,7 +178,11 @@ export const KnowledgeView = {
           value: form.content, required: true, maxlength: 5000, rows: 9, disabled: busy.value,
           onInput: event => { form.content = event.target.value },
         })),
-        h('small', '支持文字及基础 HTML 排版；公式可用 sub/sup。保存时移除图片、链接及标签属性。'),
+        h('small', '支持基础HTML及sub/sup公式。配图通过下方上传插入；外部图片、链接和任意HTML属性仍会移除。'),
+        field(editId.value ? '插入配图（PNG/JPEG，最多5MiB）' : '先保存知识点，再编辑插入配图', h('input', {
+          type: 'file', accept: 'image/png,image/jpeg', disabled: busy.value || !editId.value,
+          onChange: event => run(() => insertImage(event)),
+        })),
         field('例题', h('textarea', {
           value: form.example, maxlength: 5000, rows: 4, disabled: busy.value,
           onInput: event => { form.example = event.target.value },
@@ -198,9 +211,9 @@ export const KnowledgeView = {
         ]),
         h('h3', item.title),
         // Only SPEC-005 server-sanitized, attribute-free markup is rendered as HTML.
-        h('div', { class: 'knowledge-prose', innerHTML: item.content }),
+        h('div', { class: 'knowledge-prose', innerHTML: item.content_html ?? item.content }),
         item.example && h('section', { class: 'knowledge-example' }, [
-          h('h4', '例题'), h('div', { class: 'knowledge-prose', innerHTML: item.example }),
+          h('h4', '例题'), h('div', { class: 'knowledge-prose', innerHTML: item.example_html ?? item.example }),
         ]),
         student() && h('div', { class: 'knowledge-actions' }, [
           button(item.is_bookmarked ? '取消收藏' : '收藏知识点', () => run(() => setPersonal('bookmark'), '收藏状态已保存'),

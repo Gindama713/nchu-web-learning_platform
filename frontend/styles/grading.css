@@ -38,3 +38,12 @@
   margin-top: 0.75rem;
   padding-top: 0.75rem;
 }
+.grading-basic-editor {
+  width: 100%; min-width: 0; display: grid; gap: 12px;
+}
+.grading-port-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+.grading-case, .grading-step { min-width: 0; gap: 10px; padding: 12px; border: 1px solid #dbe3ee; box-sizing: border-box; }
+.grading-case > *, .grading-step > * { margin-bottom: 10px; }
+.grading-basic-editor input, .grading-basic-editor select { max-width: 100%; min-width: 0; box-sizing: border-box; }
+.grading-config details { width: 100%; min-width: 0; }
+.grading-config textarea { max-width: 100%; box-sizing: border-box; }

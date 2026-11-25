@@ -1,6 +1,7 @@
 /* SPEC-019 74181 + 7400 在线实验：位开关、LED 结果、16×16 全组合网格 */
 
-.alu-lab { display: grid; gap: 18px; }
+.alu-lab { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+.alu-lab > *, .alu-block { min-width: 0; }
 .alu-head { display: flex; flex-wrap: wrap; gap: 12px; align-items: start; justify-content: space-between; }
 .alu-head h2 { margin: 0 0 6px; }
 .alu-lede { margin: 0; color: var(--muted); font-size: .9rem; max-width: 70ch; }
@@ -8,7 +9,12 @@
 .alu-error { color: #b13434; background: #fdeceb; border: 1px solid #f2c0bc; border-radius: 8px; padding: 10px 12px; margin: 0; }
 
 .alu-top { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 14px; }
-@media (max-width: 860px) { .alu-top { grid-template-columns: 1fr; } }
+@media (max-width: 860px) { .alu-top { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 520px) {
+  .alu-operand, .alu-switches, .alu-leds { flex-wrap: wrap; }
+  .alu-head > * { min-width: 0; }
+  .alu-chip svg { max-width: 100%; height: auto; }
+}
 
 .alu-block { border: 1px solid var(--line); border-radius: 12px; padding: 16px; background: var(--surface-2); }
 .alu-block h3 { margin: 0 0 12px; font-size: .98rem; }
@@ -95,7 +101,7 @@
 .alu-col-note { flex: 1 1 240px; margin: 0; font-size: .8rem; color: var(--muted); min-width: 200px; }
 
 /* 16×16 网格 */
-.alu-grids { display: grid; gap: 14px; }
+.alu-grids { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 14px; }
 .alu-grid-head { display: grid; gap: 4px; }
 .alu-grid-head h3 { margin: 0; }
 .alu-grid-wrap { display: flex; flex-wrap: wrap; gap: 34px; }

@@ -72,11 +72,13 @@ def publish_worker_status(database, worker_id, state):
     save_state(database, "worker", {"worker_id": str(worker_id), "state": state, "at": time.time()})
 
 
-def check_engine(database):
+def check_engine(database, executor=None):
     """Explicit bounded real execution, never launched by a health HTTP request."""
     from backend.engines import grading
+    executor = executor or grading.real_executor
     identity = jar_identity()
-    state = {"ready": False, "identity": identity, "at": time.time(), "error": "JAR_IDENTITY"}
+    state = {"ready": False, "identity": identity, "at": time.time(), "error": "JAR_IDENTITY",
+             "isolated": executor.__module__ == "backend.sandbox"}
     try:
         if not verified_jar(identity):
             return state
@@ -96,13 +98,13 @@ def check_engine(database):
                 vector.write_text(vector_text, encoding="utf-8")
                 command = grading.engine_command(identity[0], "pipeline", vector, root / "check.circ",
                                                  {"memory_mib": 256})
-                raw, code = grading.real_executor(command, root, 30, 65536)
+                raw, code = executor(command, root, 30, 65536)
                 parsed = grading.parse_engine_output(raw or "", [{"id": 1}])
                 if code != 0 or parsed is None or parsed[1]["passed"] != expected:
                     state["error"] = "ENGINE_SELFTEST"
                     return state
         state.update(ready=True, error=None)
-    except (OSError, ValueError, grading.SandboxTimeout, grading.SandboxOutputLimit):
+    except (OSError, ValueError, RuntimeError, grading.SandboxTimeout, grading.SandboxOutputLimit):
         state["error"] = "ENGINE_UNAVAILABLE"
     finally:
         state["at"] = time.time()
@@ -121,6 +123,8 @@ def health_details(database):
 
     engine_ready = (bool(identity) and verified_jar(identity) and engine.get("ready") is True
                     and engine.get("identity") == list(identity) and fresh(engine, ENGINE_CHECK_SECONDS))
+    if os.environ.get("APP_ENV") == "production" and not engine.get("isolated"):
+        engine_ready = False
     worker_ready = (bool(worker.get("worker_id")) and worker.get("state") in {"idle", "running"}
                     and fresh(worker, HEARTBEAT_SECONDS))
     queued = running = None

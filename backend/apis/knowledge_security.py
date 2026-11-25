@@ -40,6 +40,9 @@ class SharedSessionSecurity:
     def verify_transaction(self, connection, user):
         # Shared require_user checks the live session/version even with g.user
         # cached. BEGIN IMMEDIATE prevents revocation from racing the write.
+        from backend.operations import database_paused
+        if database_paused(connection):
+            raise KnowledgeError(503, "MAINTENANCE", "系统维护中")
         if self.current_user_id() != user["id"]:
             raise KnowledgeError(401, "UNAUTHENTICATED", "登录状态已变化")
 

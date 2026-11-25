@@ -75,6 +75,8 @@ export class GradingClient {
 
   // ---------- 教师：判分配置与测试集 ----------
   putProfile(versionId, values) { return this.write(`/experiment-versions/${versionId}/judge-profile`, 'PUT', values) }
+  profile(versionId) { return this.request(`/experiment-versions/${versionId}/judge-profile`).then(body => body.data) }
+  template(versionId) { return this.request(`/experiment-versions/${versionId}/grading-template`).then(body => body.data) }
   createSuite(versionId, casesText) {
     return this.write(`/experiment-versions/${versionId}/test-suites`, 'POST', casesPayload(casesText))
   }
@@ -143,7 +145,9 @@ export function profilePayload(form) {
   if (typeof portSchema !== 'object' || portSchema === null || Array.isArray(portSchema)) {
     throw new Error('端口 port_schema 必须是 JSON 对象。')
   }
-  const componentList = String(form.componentsText || '').split(/[\s,]+/).filter(Boolean)
+  const componentText = String(form.componentsText || '').trim()
+  const componentList = (componentText.match(/Bit\s+Extender|Priority\s+Encoder|(?:AND|OR|NOT|NAND|NOR|XOR|XNOR)\s+Gate|[^\s,]+/g) || [])
+    .map(value => value.replace(/\s+/g, ' '))
   if (!componentList.length) throw new Error('请至少填写一个允许元件。')
   try { limits = JSON.parse(form.limitsText || '{}') } catch { throw new Error('限额 limits JSON 不合法。') }
   if (typeof limits !== 'object' || limits === null || Array.isArray(limits)) {

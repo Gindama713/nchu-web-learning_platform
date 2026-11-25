@@ -1,5 +1,6 @@
 """Knowledge facts and course isolation; authentication remains owned by SPEC-001."""
 
+import re
 import sqlite3
 from contextlib import contextmanager
 from datetime import UTC, datetime
@@ -225,6 +226,13 @@ class KnowledgeStore:
         fields = {"title", "content", "example", "published", "is_foundational"}
         values = payload(body, fields, {"title", "content", "published"} if create else ())
         with self.transaction(user_id, True) as (db, user):
+            for field in ("content", "example"):
+                for image_id in re.findall(r"\[\[image:(\d+)\]\]", values.get(field, "")):
+                    if len(image_id) > 19:
+                        invalid("配图ID无效")
+                    if create or not db.execute("SELECT 1 FROM file_object WHERE id=? AND purpose=?",
+                                                (positive_id(int(image_id)), f"knowledge_image:{object_id}")).fetchone():
+                        invalid("配图必须先上传到当前知识点，不能引用其他课程或知识点文件")
             if create:
                 self.chapter(db, user, object_id, "teacher")
                 cursor = db.execute(
@@ -268,6 +276,15 @@ class KnowledgeStore:
     def detail(self, user_id, knowledge_id):
         with self.transaction(user_id) as (db, user):
             result = self.model(self.knowledge(db, user, knowledge_id))
+            for field in ("content", "example"):
+                def image_tag(match):
+                    if len(match[1]) > 19 or not 0 < int(match[1]) <= 9223372036854775807:
+                        return "[配图不可用]"
+                    image = db.execute("SELECT id FROM file_object WHERE id=? AND purpose=?",
+                                       (int(match[1]), f"knowledge_image:{knowledge_id}")).fetchone()
+                    return (f'<img src="/api/v1/knowledge-points/{knowledge_id}/images/{image[0]}" '
+                            'alt="知识点配图" loading="lazy">') if image else "[配图不可用]"
+                result[field + "_html"] = re.sub(r"\[\[image:(\d+)\]\]", image_tag, result.get(field, ""))
             result["is_bookmarked"] = bool(db.execute(
                 "SELECT 1 FROM bookmark WHERE user_id=? AND knowledge_id=?", (user_id, knowledge_id)).fetchone())
             row = db.execute("SELECT completed,completed_at FROM learning_progress WHERE user_id=? AND knowledge_id=?",

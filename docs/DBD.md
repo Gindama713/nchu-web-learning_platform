@@ -190,6 +190,8 @@ circuit版本在draft阶段允许尚无judge_profile行；版本表不保存客�
 | test_suite_validation | suite_id FK,profile_sha256,suite_sha256,jar_sha256,reference_file_id FK,reference_sha256,negative_file_id FK,negative_sha256,status,result_json,worker_token,lease_until,sandbox_id,started_at,finished_at | status=queued/running/passed/failed/system_error；passed需要正确全过、反例至少功能失败，不接受反例system_error/超时作验证成功 |
 | reference_file | experiment_version_id FK,file_id FK,kind | kind=correct/known_wrong；UQ(experiment_version_id,file_id)；验证文件均属同实验 |
 
+2026-11-25：port_schema_json 新增可选 clock 标签，独立1位且不得与数据端口重叠；参与配置快照/哈希，不改表结构，旧无clock配置哈希不变。知识图片复用file_object，purpose固定为knowledge_image:知识点ID；正文/例题仅存受约束的[[image:文件ID]]引用，展示HTML由服务端派生，不放宽任意HTML属性。无新增SQL迁移。
+
 test_case不保存weight或sequence_id，一例即一独立序列，组内等权。test_suite.scoring_groups_json由PRD固定模板生成，不允许客户端覆盖。每份draft内容不可变，更新创建新版本。judge_profile是engine/limits的唯一配置源，另存canonical_sha256（包含端口、白名单、限制、引擎身份）；实验发布后profile冻结。验证证书字段见本节test_suite_validation，旧证书不能授权变更后的配置。
 初始worker并发1，利用SQLite短事务原子领取最早queued任务，将其条件更新为running并生成worker_token和lease_until。仿真在事务之外执行。续租和写结果时在同一事务同时检查status=running、worker_token一致及数据库UTC当前时间<lease_until；失联worker的迟到结果不能覆盖已结束任务。now≥lease_until时禁止续租/提交，即使尚未回收；Web每5秒及worker启动/领任务前执行条件回收，同规则处理test_suite_validation。回收将旧run终结为system_error，重试另建run，不能把旧行重新置queued并覆盖历史。
 

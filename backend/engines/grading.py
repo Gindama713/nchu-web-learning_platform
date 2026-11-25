@@ -79,7 +79,7 @@ def engine_command(jar, circuit_name, vector_path, circuit_path, limits):
             str(vector_path), str(circuit_path)]
 
 
-def _vector_value(value):
+def _vector_value(value, output=False):
     """平台 steps 里的整数写成引擎测试向量的十六进制字面量。
 
     引擎默认按**十六进制**读向量值：十进制 255 会被解析成 0x255（9 位），
@@ -89,10 +89,14 @@ def _vector_value(value):
         return f"0x{int(value):X}"
     if isinstance(value, int):
         return f"0x{value:X}"
+    if str(value).upper() == "X":
+        return "<DC>" if output else "<float>"
+    if str(value).upper() == "Z":
+        return "<float>"
     return str(value)
 
 
-def write_vector_file(directory, case, widths=None):
+def write_vector_file(directory, case, widths=None, clock=None):
     """把平台 steps 契约转换为引擎测试向量文件（APIC 第7节：转换由适配层承担）。
 
     列名必须写成 `标签[位宽]`。引擎对未声明位宽的列按 **1 位** 解析，多比特端口
@@ -112,24 +116,35 @@ def write_vector_file(directory, case, widths=None):
     outputs = sorted({label for step in steps for label in step.get("expected", {})})
     if not outputs or not steps:
         return None
-    if any(step.get("clock_event", "none") != "none" for step in steps):
-        # APIC 第7节：时钟事件需映射到真实时钟引脚列，且"同向边沿必须插入反向边沿"。
-        # 该映射属 TV-01 待锁定项，未锁定前不得静默丢弃边沿（会把时序题当组合题判）。
+    if any(step.get("clock_event", "none") != "none" for step in steps) and not clock:
         raise UnsupportedClockEvent()
+    if clock:
+        inputs = [label for label in inputs if label != clock] + [clock]
 
     def column(label):
         width = widths.get(label)
         return f"{label}[{width}]" if width else label
 
     lines = ["\t".join([column(label) for label in inputs + outputs] + ["<set>", "<seq>"])]
-    for index, step in enumerate(steps, start=1):
-        row = []
-        for label in inputs:
-            row.append(_vector_value(step.get("inputs", {}).get(label, 0)))
-        for label in outputs:
-            row.append(_vector_value(step.get("expected", {}).get(label, "x")))
-        row.extend(["1", str(step.get("step_no") or index)])
-        lines.append("\t".join(row))
+    values = dict.fromkeys(inputs, 0)
+    sequence = 0
+
+    def append(expected):
+        nonlocal sequence
+        sequence += 1
+        row = [_vector_value(values[label]) for label in inputs]
+        row += [_vector_value(expected.get(label, "X"), output=True) for label in outputs]
+        lines.append("\t".join(row + ["1", str(sequence)]))
+
+    for step in steps:
+        values.update(step.get("inputs", {}))
+        event = step.get("clock_event", "none")
+        if event != "none":
+            # Stabilize ALL data before changing the clock. Setup rows don't assert outputs.
+            values[clock] = 0 if event == "rising" else 1
+            append({})
+            values[clock] = 1 - values[clock]
+        append(step.get("expected", {}))
     path = Path(directory) / f"vector-{case['id']}.txt"
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
@@ -219,6 +234,7 @@ def run_in_sandbox(run_row, submission_path, cases, execute):
             if hasattr(run_row, "get"):
                 snapshot_json = run_row.get("profile_snapshot_json")
     circuit_name = None
+    clock = None
     widths = {}
     if snapshot_json:
         try:
@@ -230,6 +246,7 @@ def run_in_sandbox(run_row, submission_path, cases, execute):
                     limits[key] = profile_limits[key]
             # 端口位宽用于向量列名 `标签[位宽]`，缺了引擎按 1 位解析直接报错。
             schema = snapshot.get("port_schema") or {}
+            clock = schema.get("clock")
             for side in ("inputs", "outputs"):
                 widths.update(schema.get(side) or {})
         except (ValueError, TypeError):
@@ -243,7 +260,7 @@ def run_in_sandbox(run_row, submission_path, cases, execute):
         results, executed, notes = {}, 0, None
         for case in cases:
             try:
-                vector = write_vector_file(workspace, case, widths)
+                vector = write_vector_file(workspace, case, widths, clock)
             except UnsupportedClockEvent:
                 # 时钟列映射未锁定：宁可整卷 system_error，也不能把时序题按组合题判分。
                 return {"error_code": "INCOMPLETE_RESULT", "results": results, "executed": executed}
@@ -287,7 +304,11 @@ class SandboxOutputLimit(Exception):
     pass
 
 
-def real_executor(argv, cwd, timeout, max_output):
+class SandboxCancelled(Exception):
+    pass
+
+
+def real_executor(argv, cwd, timeout, max_output, cancel_event=None):
     """受限子进程执行器：无 shell、显式 argv、进程组超时终止、输出上限。"""
     # Windows 上 Java/JVM 启动需要 SYSTEMROOT 才能定位 ntdll 等系统 DLL，
     # 且需要 TEMP/TMP 才能创建临时文件；缺失会直接报 MissingResource /
@@ -324,25 +345,40 @@ def real_executor(argv, cwd, timeout, max_output):
 
     # 直接 readline() 到 EOF 会在引擎挂起且不肯关 stdout 时永久阻塞，永远走不到
     # wait(timeout)（#58 审查意见第 3 条）。改成后台线程读、主线程按 deadline 收。
-    lines, done = queue.Queue(), object()
+    lines, done = queue.Queue(maxsize=32), object()
     reader_done = threading.Event()
+    reader_stop = threading.Event()
 
     def reader():
         try:
-            for line in iter(process.stdout.readline, ""):
-                lines.put(line)
+            for line in iter(lambda: process.stdout.read(4096), ""):
+                while not reader_stop.is_set():
+                    try:
+                        lines.put(line, timeout=0.1)
+                        break
+                    except queue.Full:
+                        continue
+                if reader_stop.is_set():
+                    break
         except (OSError, ValueError):
             # 超时路径下主线程可能先关掉 stdout，读线程安静退出即可。
             pass
         finally:
             reader_done.set()
-            lines.put(done)
+            try:
+                lines.put(done, timeout=0.1)
+            except queue.Full:
+                pass
 
     threading.Thread(target=reader, daemon=True).start()
     deadline = time.monotonic() + max(0, timeout)
     output, truncated = [], False
+    output_size = 0
     try:
         while True:
+            if cancel_event is not None and cancel_event.is_set():
+                _terminate(process)
+                raise SandboxCancelled()
             try:
                 line = lines.get(timeout=0.1)
             except queue.Empty:
@@ -355,7 +391,8 @@ def real_executor(argv, cwd, timeout, max_output):
             if line is done:
                 break
             output.append(line)
-            if sum(len(item) for item in output) > max_output:
+            output_size += len(line.encode("utf-8"))
+            if output_size > max_output:
                 truncated = True
                 break
             if time.monotonic() >= deadline:
@@ -370,6 +407,7 @@ def real_executor(argv, cwd, timeout, max_output):
             _terminate(process)
             raise SandboxTimeout() from None
     finally:
+        reader_stop.set()
         if process.poll() is None:
             _terminate(process)
         try:
@@ -425,6 +463,14 @@ def renew_lease(db, run_id, token, at):
         "UPDATE grading_run SET lease_until=? WHERE id=? AND status='running' "
         "AND worker_token=? AND lease_until>?",
         (stamp_from(at, LEASE_SECONDS), run_id, token, stamp(at))).rowcount
+    return updated == 1
+
+
+def renew_validation_lease(db, validation_id, token, at):
+    updated = db.execute(
+        "UPDATE test_suite_validation SET lease_until=? WHERE id=? AND status='running' "
+        "AND worker_token=? AND lease_until>?",
+        (stamp_from(at, LEASE_SECONDS), validation_id, token, stamp(at))).rowcount
     return updated == 1
 
 
@@ -568,15 +614,16 @@ def scan_once(database_path):
 def start_scanner(app):
     """非 testing 环境下启动 Web 进程的后台回收线程。"""
     import threading
-    import time
+    stop = threading.Event()
+    app.extensions["grading_scanner_stop"] = stop
 
     def loop():
-        while True:
-            time.sleep(5)
+        while not stop.wait(5):
             try:
-                scan_once(app.config["DATABASE_PATH"])
-                from backend.operations import maintenance_tick
-                maintenance_tick(app)
+                with app.app_context():
+                    scan_once(app.config["DATABASE_PATH"])
+                    from backend.operations import maintenance_tick
+                    maintenance_tick(app)
             except RuntimeError:  # app 已停止接受请求
                 return
             except (OSError, sqlite3.Error):

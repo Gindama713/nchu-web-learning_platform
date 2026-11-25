@@ -90,3 +90,11 @@ test('casesPayload rejects empty array and non-array JSON', () => {
   assert.throws(() => casesPayload('{bad'), /JSON 不合法/)
   assert.deepEqual(casesPayload('[{"label":"add-1"}]'), { cases: [{ label: 'add-1' }] })
 })
+
+test('复合元件名在表单载入和保存时保持完整', () => {
+  const base = { topCircuit: 'REG8', portSchemaText: '{"inputs":{"D":8},"outputs":{"Q":8}}', limitsText: '{}' }
+  for (const componentsText of ['Bit Extender, Priority Encoder, Register', 'Bit Extender Priority Encoder Register']) {
+    assert.deepEqual(profilePayload({ ...base, componentsText }).allowed_components,
+      ['Bit Extender', 'Priority Encoder', 'Register'])
+  }
+})

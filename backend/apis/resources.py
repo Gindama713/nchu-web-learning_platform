@@ -33,9 +33,11 @@ bp = Blueprint("resources", __name__)
 # 文件大小限制（字节）
 SIZE_LIMITS = {"video": 100 * 1024 * 1024, "slides": 20 * 1024 * 1024,
                "guide": 20 * 1024 * 1024, "question_bank": 20 * 1024 * 1024}
+SIZE_LIMITS["knowledge_image"] = 5 * 1024 * 1024
 # view 支持的 media_type 前缀
 VIEWABLE_PREFIXES = ("application/pdf", "image/png", "image/jpeg", "video/")
 KIND_MEDIA = {
+    "knowledge_image": ("image/png", "image/jpeg"),
     "slides": ("application/pdf", "application/vnd.ms-powerpoint",
                "application/vnd.openxmlformats-officedocument.presentationml.presentation"),
     "video": ("video/mp4", "video/webm"),

@@ -1,8 +1,8 @@
-# Web 运行与维护（2026-11-23）
+# Web 与评测 worker 运行维护（2026-11-25）
 
 以下命令在仓库根目录、已安装 `backend/requirements.lock` 的环境中执行。生产设置强 `SECRET_KEY`、HTTPS `APP_ORIGIN`、外置 `DATABASE_PATH` 与 `UPLOAD_ROOT`；密钥不进入备份。先构建前端，再用 `python -m backend.serve` 启动单进程 Waitress，前台 Ctrl+C 停止。默认仅监听127.0.0.1:8000，HOST/PORT/WEB_THREADS可覆盖；HTTPS入口及目标Linux服务管理须单独验证。
 
-## 健康与 worker 集成
+## 健康与独立 worker
 
 `GET /api/v1/health` 分别返回 web_ready/db_ready/engine_ready/worker_ready/grader_ready、队列计数及 maintenance。全部就绪且非维护才200，其余503。HTTP探针不启动Java；路径指向任意普通文件不能使引擎就绪。
 
@@ -14,20 +14,24 @@ python -m flask --app backend.app engine-check
 
 检查固定JAR的SHA256，并通过正式命令构造/执行器/解析器分别运行正确和故意错误的可信通道向量。成功记录有效300秒；JAR身份变化或记录过期失效。该检查不证明学生队列已被消费，也不证明评测沙箱已经完整隔离。
 
-SPEC-018 常驻worker接入契约（真实循环内调用，不能由假心跳线程替代）：
+在与 Web 相同的环境变量下另开终端启动常驻进程；不要同时启动两个 worker：
 
-```python
-from backend.runtime import check_engine, publish_worker_status
-
-# 启动及每300秒到期前调用；失败停止新领取并发布error。
-check_engine(database_path)
-# 真实空闲/执行/暂停循环每不超过5秒发布；执行期必须与续租一起继续发布。
-publish_worker_status(database_path, worker_id, "idle")  # running / paused / error
-# 正常退出：
-publish_worker_status(database_path, worker_id, "stopped")
+```sh
+# Ubuntu：Java 21、bubblewrap、Xvfb、xauth、util-linux 需预先安装
+python -m backend.worker --sandbox bubblewrap
+# Windows 本机开发验证：Java 21 在 PATH 中；不作为生产隔离
+python -m backend.worker --sandbox native
 ```
 
-心跳超过45秒或状态为paused/error/stopped时worker不就绪。claim_run/claim_validation已接维护标记，维护时不领取，也不回收排队任务；已经运行的任务允许续租并提交结果。当前仓库尚无正式常驻worker，必须由石佰合接入；Web不自动启动验收脚本。
+必须同步配置 `DATABASE_PATH`、`UPLOAD_ROOT`、`LOGISIM_JAR_PATH`。生产还需 `APP_ENV=production`、Web 使用的强 `SECRET_KEY` 和 HTTPS `APP_ORIGIN`。固定 JAR 为 Logisim-evolution 5.0.0，SHA256 `6b368e894742c04cc83aa9830f869bcab0190ede4df43ad6fecdb89b3a23a41c`。先执行 db-upgrade、构建 frontend/dist，再启动 Web 与 worker；无需额外手动 engine-check，worker 启动及自检到期前自动执行真实正反例检查。
+
+worker 轮流领取学生任务和测试集验证，单并发，在数据库短事务外运行 Java；执行期每5秒续租、发布真实心跳，失租取消沙箱并丢弃结果。数据库旁 OS 文件锁阻止重复 worker，异常退出后由 OS 释放。`--once` 只消费至多一个任务，用于诊断。Ctrl+C/SIGTERM 停止新领取、等待当前任务结束后写 stopped；强杀后由租约回收旧任务，不覆盖历史。
+
+心跳超过45秒或状态为paused/error/stopped时worker不就绪。维护时不领取新任务，已运行任务允许续租并提交。Web 不自动启动 worker 或验收脚本。生产拒绝 native，健康检查也要求隔离执行器的有效自检证据。
+
+Linux 沙箱使用独立用户/网络/PID命名空间、UID/GID 65534、只读运行时/当前输入、私有/tmp与内部Xvfb，不暴露宿主X显示。限制1核、CPU时间、输出字节与JVM堆；超时终止进程组。**JVM `-Xmx512m` 不等于整个任务 RSS 512MiB；当前尚未完成 cgroup 总内存/线程数量的硬限额验收，不能据此宣称 PRD 全部资源限额已通过。** 生产服务管理需补充并验证该约束。
+
+真实 HTTP、独立 worker、标准/反例、发布、提交、重评与并发验证命令见[本轮验收记录](COMPLETION_20261125.md)。Ubuntu WSL2 运行通过不代替课堂、指定4核8GB机器、HTTPS入口或systemd验收。
 
 ## 维护、备份、恢复
 

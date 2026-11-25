@@ -68,7 +68,7 @@ SQLite 每连接开启外键约束，采用短写事务、有限忙等待；数�
 
 生产发布从 main 的已验收版本生成不可变产物，记录提交 SHA、依赖锁文件、数据库版本、Logisim JAR 哈希和测试结果。Web 服务与 worker 分离启动；先迁移副本演练，再备份、迁移正式库、启动服务并冒烟。部署失败停止开放写入，按 CHG-RB 恢复。前端静态部署成功但评测 worker 不可用，不能判定整体部署成功。
 
-Web启动、维护、备份恢复、清理及健康检查已提供，见[运行维护](docs/RUNTIME_OPERATIONS.md)。评测worker正式启停与目标环境部署仍待SPEC-018接入，不得将验收脚本当作常驻worker。
+Web启动、独立评测worker、维护、备份恢复、清理及健康检查已提供，见[运行维护](docs/RUNTIME_OPERATIONS.md)。2026-11-25 的真实评测、Chrome/Edge及Linux验证范围见[本轮验收记录](docs/COMPLETION_20261125.md)；课堂及正式部署仍须单独验收。
 
 ### 6.1 发布流程（当前实际状态）
 
@@ -132,7 +132,7 @@ npm run lint
 npm run build
 ```
 
-当前后端曾在 Python 3.12 运行并通过对应提交的测试；课程完整运行基线仍需在 Python 3.12、Java 21、Logisim-evolution 5.0.0 的目标环境验证。`db-upgrade` 可重复执行并验证迁移 SHA，`admin-create` 提示输入学号、姓名和隐藏密码；管理员改密可用 `PATCH /api/v1/users/me`，请求须含旧密码。评测 worker 的目标环境启动、备份与完整生产部署命令仍待实测并固化。
+本轮已在 Ubuntu WSL2 的 Python 3.12、Java 21、Logisim-evolution 5.0.0 上验证独立worker真实评测，具体范围及正式环境剩余项见[本轮验收记录](docs/COMPLETION_20261125.md)。`db-upgrade` 可重复执行并验证迁移 SHA，`admin-create` 提示输入学号、姓名和隐藏密码；管理员改密可用 `PATCH /api/v1/users/me`，请求须含旧密码。指定机器及完整生产部署仍需现场验证。
 
 ### 8.1 原组长基线范围与集成边界（历史记录）
 
@@ -149,23 +149,23 @@ npm run build
 2026-10-19 当前进展：SPEC-016 的固定输入已改为仓库内可核验的 `recognition-fixtures-v2` F01—F05，模板/预处理哈希见[PRD第4.5节](docs/PRD.md#recognition-acceptance)；原计划 v1 图片未交付，不能视为已测。姜苏豪负责模块的最新验收记录见[个人实施与验收记录](docs/JIANG_SUHAO_IMPLEMENTATION.md)；目标环境、课堂和全组发布结论仍以实际证据为准。
 
 
-### 8.2 完整系统运行入口与待接入项
+### 8.2 完整系统运行入口与验收范围
 
-2026-11-23：Web 使用固定 Waitress 3.0.2，维护、备份、恢复和清理命令已实现。以下命令统一在仓库根目录执行；评测 worker 的常驻入口仍由 SPEC-018 接入，不能以验收脚本代替。完整运行与验证边界见下一节。
+2026-11-25：Web 使用固定 Waitress 3.0.2；常驻worker、维护、备份、恢复和清理命令已实现。以下命令统一在仓库根目录执行；Web 与 worker 分别启动，验收脚本只使用临时数据，不代替正式服务。
 
 | 顺序 | 工作目录/计划命令 | 行为 |
 |---|---|---|
-| 1 | backend：python -m venv .venv；激活后python -m pip install -r requirements.lock | 安装锁定后端依赖；首次实现必须提供锁文件 |
+| 1 | `python -m venv .venv`；激活后 `python -m pip install -r backend/requirements.lock` | 在仓库根目录安装锁定后端依赖 |
 | 2 | `python -m flask --app backend.app db-upgrade` | 创建/迁移SQLite，重复执行无副作用；已在本分支实现 |
 | 3 | `python -m flask --app backend.app admin-create` | 交互录入初始管理员及密码，不接受公开默认密码、不回显密码 |
 | 4 | 开发/演示数据沿用 `scripts/` 下现有 seed 脚本 | 非生产发布步骤，禁止覆盖正式成绩 |
 | 5 | `python -m backend.serve` | Waitress 单进程，默认127.0.0.1:8000、8线程、托管已构建frontend/dist；配置HOST/PORT/WEB_THREADS |
-| 6 | SPEC-018 待提供常驻 worker 入口 | 使用现有队列函数与下述健康/维护钩子；不是虚构的grader.worker命令 |
-| 7 | frontend：npm ci；npm run dev -- --host 127.0.0.1 --port 5173 | /api代理到127.0.0.1:5000，浏览器只访问5173同源入口 |
+| 6 | `python -m backend.worker --sandbox bubblewrap` | Linux 独立常驻消费评测及验证队列，真实自检/心跳/续租；Windows开发可用 `--sandbox native`，production拒绝native |
+| 7 | 可选开发模式：frontend内设置VITE_API=http://127.0.0.1:8000，再执行npm ci及npm run dev -- --host 127.0.0.1 --port 5173 | /api代理到本表Waitress的8000；Web的APP_ORIGIN同步为http://127.0.0.1:5173。生产直接访问Web托管的dist，不启动Vite |
 | 8 | `python -m unittest discover -s tests -v`；frontend内 `npm test`、`npm run lint`、`npm run build`；根目录 `ruff check backend tests scripts` | 实际项目检查命令 |
 | 9 | `python -m flask --app backend.app maintenance on`，随后 `backup create --destination <新目录>`、`backup verify --directory <备份目录>` | 后两个子命令同样以python -m flask --app backend.app开头；一致备份SQLite及所有file_object引用文件 |
 
-Web 已实现 `python -m backend.serve`，采用 Waitress 单进程监听127.0.0.1:8000；生产需要外部同源HTTPS入口，后端不信任任意代理头。前端静态目录frontend/dist，先在frontend执行npm ci及npm run build。Web前台停止使用Ctrl+C。worker仍需独立进程及部署服务接入；维护时先停止新领取并等待活动任务结束。当前没有经过目标Linux验收的systemd/HTTPS部署，不以本机启动通过代替。
+Web 已实现 `python -m backend.serve`，采用 Waitress 单进程监听127.0.0.1:8000；生产需要外部同源HTTPS入口，后端不信任任意代理头。前端静态目录frontend/dist，先在frontend执行npm ci及npm run build。Web前台停止使用Ctrl+C；worker Ctrl+C/SIGTERM停止新领取并等待活动任务结束。两进程必须使用相同数据库、上传根目录及固定JAR配置。Ubuntu WSL2已验证真实隔离评测；指定机器的systemd/HTTPS与cgroup硬限额未验收。
 
 开发仅本机HTTP允许SESSION_COOKIE_SECURE=false；production必须true、HTTPS且启动拒绝弱SECRET_KEY/调试配置。两环境均保留HttpOnly、SameSite=Lax、CSRF与Origin校验；前端代理避免跨端口Cookie/跨域分歧。Cookie名称固定，Path=/，无Domain属性。
 
